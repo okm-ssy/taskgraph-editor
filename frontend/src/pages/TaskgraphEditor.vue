@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import TaskgraphEditor from './pages/TaskgraphEditor.vue'
 </script>
 
 <template>
-  <TaskgraphEditor />
+  aaa
+  <RouterView />
 </template>
 
 <style scoped lang="scss">
