@@ -16,7 +16,10 @@
     "editor.trimAutoWhitespace": true,
     "editor.useTabStops": true,
     "editor.detectIndentation": true,
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "files.associations": {
+      "tailwind.scss": "tailwindcss"
+    },
   },
   "extensions": {
     "recommendations": ["dbaeumer.vscode-eslint"],
