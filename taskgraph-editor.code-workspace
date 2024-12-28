@@ -1,0 +1,25 @@
+{
+  "folders": [
+    {
+      "name": "root",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "editor.tabSize": 2,
+    "editor.formatOnSave": false,
+    "editor.insertSpaces": true,
+    "editor.comments.insertSpace": true,
+    "editor.trimAutoWhitespace": true,
+    "editor.useTabStops": true,
+    "editor.detectIndentation": true,
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "extensions": {
+    "recommendations": ["dbaeumer.vscode-eslint"],
+    "unwantedRecommendations": []
+  }
+}
