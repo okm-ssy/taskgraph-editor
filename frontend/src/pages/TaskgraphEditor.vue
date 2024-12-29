@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import Switcher from '../components/Switcher.vue';
 </script>
 
 <template>
-  aaa
+  <Switcher />
   <RouterView />
 </template>
 
-<style scoped lang="scss">
-</style>
+<style scoped lang="scss"></style>

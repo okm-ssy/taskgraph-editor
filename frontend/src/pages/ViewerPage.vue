@@ -1,7 +1,5 @@
 <script setup lang="ts"></script>
 
 <template>
-  <div>
-    Viewer
-  </div>
+  <div>Viewer</div>
 </template>

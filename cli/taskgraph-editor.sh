@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -eu
+set -e
 
 taskgraph_editor() {
   # command_name=taskgraph
@@ -15,6 +15,18 @@ taskgraph_editor() {
   edit)
     code "${repository_root}/taskgraph-editor.code-workspace"
     ;;
+  run)
+    cd "${repository_root}/frontend/"
+    npm set progress=false
+    npm i
+    npm run dev
+    ;;
+  storybook)
+    cd "${repository_root}/frontend/"
+    npm set progress=false
+    npm i
+    npm run storybook
+    ;;
   *)
     help && return
     ;;
@@ -25,6 +37,7 @@ help() {
   cat <<-END 1>&2
 
   edit                  vs-code で開く
+  run                   フロントを立ち上げる
   help                  ヘルプを表示する
 END
 }
