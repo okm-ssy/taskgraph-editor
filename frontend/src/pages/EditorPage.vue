@@ -1,13 +1,15 @@
-<script setup lang="ts">
+<script setup>
+import { ref } from 'vue';
+
 import EditorGrid from '../components/EditorGrid.vue';
 import Switcher from '../components/Switcher.vue';
-import TaskBar from '../components/TaskBar.vue';
+
+const isSelecting = ref(false);
 </script>
 
 <template>
   <div class="flex h-dvh flex-col justify-between">
     <Switcher />
-    <EditorGrid />
-    <TaskBar class="h-1/4" />
+    <EditorGrid class="h-1/2" v-model:selecting="isSelecting" />
   </div>
 </template>
