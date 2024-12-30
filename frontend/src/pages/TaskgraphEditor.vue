@@ -1,9 +1,6 @@
-<script setup lang="ts">
-import Switcher from '../components/Switcher.vue';
-</script>
+<script setup lang="ts"></script>
 
 <template>
-  <Switcher />
   <RouterView />
 </template>
 

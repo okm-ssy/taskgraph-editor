@@ -1,5 +1,5 @@
 <template>
-  <div class="border bg-gray-300">TaskBar</div>
+  <div class="h-full bg-blue-400">EditorGrid</div>
 </template>
 
 <script setup lang="ts"></script>
