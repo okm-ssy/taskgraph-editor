@@ -1,7 +1,11 @@
 <!-- NavigationComponent.vue -->
 <template>
-  <div class="radio-group">
-    <label v-for="route in routes" :key="route.path">
+  <div class="space-x-3 m-2">
+    <label
+      v-for="route in routes"
+      :key="route.path"
+      class="px-3 border rounded-lg border-gray-700"
+    >
       <input
         type="radio"
         :value="route.path"

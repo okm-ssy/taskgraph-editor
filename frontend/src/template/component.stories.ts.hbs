@@ -1,0 +1,21 @@
+import '@/style.scss';
+import type { Meta, StoryObj } from '@storybook/vue3';
+
+import {{ component }} from './{{ component }}.vue';
+
+const meta: Meta<typeof {{ component }}> = {
+  title: 'common/{{ component }}',
+  component: {{ component }},
+};
+
+export default meta;
+type Story = StoryObj<typeof {{ component }}>;
+
+export const basic: Story = {
+  name: 'basic',
+  render: () => ({
+    components: { {{ component }} },
+    setup() {},
+    template: '<{{ component }} />',
+  }),
+};

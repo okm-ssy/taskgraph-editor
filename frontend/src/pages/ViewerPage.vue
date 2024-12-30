@@ -1,5 +1,7 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import Switcher from '../components/Switcher.vue';
+</script>
 
 <template>
-  <div>Viewer</div>
+  <div class="h-dvh bg-gray-800"><Switcher /></div>
 </template>
