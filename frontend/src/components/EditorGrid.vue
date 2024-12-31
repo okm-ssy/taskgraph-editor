@@ -4,50 +4,55 @@ import { GridLayout, GridItem } from 'vue3-grid-layout-next';
 
 import { useDragItem } from '../hooks/use_drag_item';
 
+import EditorTaskCard from './EditorTaskCard.vue';
 import TaskSource from './TaskSource.vue';
 
-// const mouseXY = ref({ x: 0, y: 0 });
-// const DragPos = ref<GridTask>({ x: 0, y: 0, w: 1, h: 1, i: '0' });
 const contentRef = ref<HTMLElement | null>(null);
 const gridLayoutRef = ref<InstanceType<typeof GridLayout> | null>(null);
 
-const { updateDragElement, handleDrop, layout } = useDragItem(
-  contentRef,
-  gridLayoutRef,
-);
+const {
+  updateDragElement,
+  handleDrop,
+  editorTasks,
+  layout,
+  colNum,
+  rowHeight,
+} = useDragItem(contentRef, gridLayoutRef);
 </script>
 
 <template>
-  <div class="bg-green-300">
-    <TaskSource />
+  <div class="bg-gray-200 h-full flex flex-col justify-between">
     <div
       ref="contentRef"
       @dragover="updateDragElement"
       @drop="handleDrop"
-      class="min-h-screen"
+      class="h-full"
     >
       <grid-layout
         ref="gridLayoutRef"
         v-model:layout="layout"
-        :col-num="12"
-        :row-height="30"
+        :col-num="colNum"
+        :row-height="rowHeight"
         :is-draggable="true"
         :is-resizable="true"
         :vertical-compact="false"
         :use-css-transforms="true"
       >
         <grid-item
-          v-for="item in layout"
-          :key="item.i"
-          :x="item.x"
-          :y="item.y"
-          :w="item.w"
-          :h="item.h"
-          :i="item.i"
+          v-for="item in editorTasks"
+          :key="item.grid.i"
+          :x="item.grid.x"
+          :y="item.grid.y"
+          :w="item.grid.w"
+          :h="item.grid.h"
+          :i="item.grid.i"
         >
-          <span class="text">{{ item.i }}</span>
+          <EditorTaskCard v-model="item.task" class="h-full" />
         </grid-item>
       </grid-layout>
+    </div>
+    <div class="bg-green-300 h-24">
+      <TaskSource />
     </div>
   </div>
 </template>

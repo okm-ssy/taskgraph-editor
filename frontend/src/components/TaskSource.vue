@@ -9,7 +9,6 @@ const { updateDragElement, handleDrop } = useCurrentDragItem();
     @drag="updateDragElement"
     @dragover="updateDragElement"
     @drop="handleDrop"
-    class="droppable-element"
     draggable="true"
     unselectable="on"
   >
