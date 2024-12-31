@@ -14,6 +14,7 @@ taskgraph_editor() {
   case $subcommand in
   edit)
     code "${repository_root}/taskgraph-editor.code-workspace"
+    return
     ;;
   run)
     script_name='front/run.sh'
