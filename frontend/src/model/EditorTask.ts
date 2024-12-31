@@ -6,14 +6,14 @@ export class EditorTask {
     i: '',
     x: 0,
     y: 0,
-    w: 1,
-    h: 1,
+    w: 2,
+    h: 3,
   };
   task: Task = {
     depends: [''],
-    description: '',
+    description: 'タスクの説明',
     difficulty: 1,
-    name: '',
+    name: 'new-task',
     notes: [''],
   };
 }

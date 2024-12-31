@@ -10,6 +10,6 @@ const isSelecting = ref(false);
 <template>
   <div class="flex h-dvh flex-col justify-between">
     <Switcher />
-    <EditorGrid class="h-1/2" v-model:selecting="isSelecting" />
+    <EditorGrid class="h-full" v-model:selecting="isSelecting" />
   </div>
 </template>
