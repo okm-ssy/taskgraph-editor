@@ -1,4 +1,6 @@
+import _, { forEach } from 'lodash';
 import {
+  computed,
   inject,
   provide,
   readonly,
@@ -8,6 +10,7 @@ import {
 } from 'vue';
 import type { GridLayout } from 'vue3-grid-layout-next';
 
+import type { EditorTask } from '../model/EditorTask';
 import type { GridTask } from '../model/GridTask';
 
 const DRAG_ITEM_INJECTION_KEY: InjectionKey<DragItemContext> =
@@ -21,7 +24,19 @@ export function useDragItem(
   const DragPos = ref<GridTask>({ x: 0, y: 0, w: 1, h: 1, i: '0' });
   const contentRef = currentContentRef;
   const gridLayoutRef = currentGridLayoutRef;
-  const layout = ref<GridTask[]>([]);
+  const editorTasks = ref<EditorTask[]>([]);
+
+  const layout = computed<GridTask[]>({
+    get() {
+      return editorTasks.value.map((task) => task.grid);
+    },
+    set(gridTaks) {
+      const itemsById = _.keyBy(gridTaks, (item) => item.i);
+      forEach(editorTasks.value, (task, index) => {
+        editorTasks.value[index].grid = itemsById[task.grid.i];
+      });
+    },
+  });
 
   const counter = ref(0);
 
@@ -111,6 +126,7 @@ export function useDragItem(
     mouseXY: readonly(mouseXY),
     DragPos: readonly(DragPos),
     counter: readonly(counter),
+    editorTasks,
     layout,
     updateDragElement,
     handleDrop,
@@ -126,6 +142,7 @@ export function useCurrentDragItem() {
     mouseXY: ref({ x: 0, y: 0 }),
     DragPos: ref<GridTask>({ x: 0, y: 0, w: 1, h: 1, i: '0' }),
     counter: ref(0),
+    editorTasks: ref<EditorTask[]>([]),
     layout: ref<GridTask[]>([]),
     updateDragElement: (_e: DragEvent) => {},
     handleDrop: (_e: DragEvent) => {},
