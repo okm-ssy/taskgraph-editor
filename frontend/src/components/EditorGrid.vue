@@ -37,7 +37,7 @@ const connections = computed<Connection[]>(() => {
 <template>
   <div class="bg-gray-200 h-full flex flex-col justify-between">
     <div class="absolute inset-0 pointer-events-none">
-      <TaskConnection :connections />
+      <TaskConnection :connections class="relative pointer-events-none z-10" />
     </div>
     <div
       ref="contentRef"

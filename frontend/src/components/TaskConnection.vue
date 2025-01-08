@@ -16,12 +16,12 @@ export interface Connection {
 
 const props = defineProps({
   connections: {
-    type: Object as PropType<Connection[]>,
+    type: Array as PropType<Connection[]>,
     required: true,
+    default: () => [],
   },
 });
 
-// 各線の位置情報を保持
 const connectionPosition = ref<Map<string, { start: Position; end: Position }>>(
   new Map(),
 );
@@ -50,36 +50,69 @@ const updatePositions = () => {
   });
 };
 
-// 各線のパスを計算
 const getPathD = (start: Position, end: Position) => {
   const diffX = end.x - start.x;
+  const diffY = end.y - start.y;
+  const isMoreVertical = Math.abs(diffY) > Math.abs(diffX);
 
-  return [
-    `M ${start.x},${start.y}`,
-    `C ${start.x + diffX * 0.1},${start.y} ${end.x - diffX * 0.1},${end.y} ${end.x},${end.y}`,
-  ].join(' ');
+  if (isMoreVertical) {
+    // 縦方向が長い場合、Y軸方向の制御点を使用
+    const controlPointOffset = diffY * 0.5;
+    return [
+      `M ${start.x},${start.y}`,
+      `C ${start.x},${start.y + controlPointOffset} ${end.x},${end.y - controlPointOffset} ${end.x},${end.y}`,
+    ].join(' ');
+  } else {
+    // 横方向が長い場合、X軸方向の制御点を使用
+    const controlPointOffset = diffX * 0.5;
+    return [
+      `M ${start.x},${start.y}`,
+      `C ${start.x + controlPointOffset},${start.y} ${end.x - controlPointOffset},${end.y} ${end.x},${end.y}`,
+    ].join(' ');
+  }
 };
 
 let intervalId: number | null = null;
 
 onMounted(() => {
   updatePositions();
-  // 最小のintervalを使用（デフォルトは25ms）
   const minInterval = Math.min(
     ...props.connections.map((connection) => connection.interval ?? 25),
   );
   intervalId = window.setInterval(updatePositions, minInterval);
+
+  window.addEventListener('resize', updatePositions);
 });
 
 onBeforeUnmount(() => {
   if (intervalId !== null) {
     clearInterval(intervalId);
   }
+  window.removeEventListener('resize', updatePositions);
 });
 </script>
 
 <template>
-  <svg class="relative top-0 left-0 w-full h-full pointer-events-none z-10">
+  <svg class="w-full h-full pointer-events-none">
+    <defs>
+      <marker
+        v-for="connection in connections"
+        :key="`arrow-${connection.startId}-${connection.endId}`"
+        :id="`arrow-${connection.startId}-${connection.endId}`"
+        markerWidth="10"
+        markerHeight="7"
+        refX="10"
+        refY="3.5"
+        orient="auto"
+        markerUnits="strokeWidth"
+      >
+        <polygon
+          points="0 0, 10 3.5, 0 7"
+          :fill="connection.color ?? '#2563eb'"
+        ></polygon>
+      </marker>
+    </defs>
+
     <path
       v-for="connection in connections"
       :key="`${connection.startId}-${connection.endId}`"
@@ -98,6 +131,7 @@ onBeforeUnmount(() => {
       fill="none"
       :stroke="connection.color ?? '#2563eb'"
       :stroke-width="connection.strokeWidth ?? 2"
+      :marker-end="`url(#arrow-${connection.startId}-${connection.endId})`"
     ></path>
   </svg>
 </template>
