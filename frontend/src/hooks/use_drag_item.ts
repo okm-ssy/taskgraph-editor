@@ -5,19 +5,32 @@ import {
   provide,
   readonly,
   ref,
+  type ComputedRef,
   type InjectionKey,
   type Ref,
 } from 'vue';
 import type { GridLayout } from 'vue3-grid-layout-next';
 
-import { EditorTask } from '../model/EditorTask';
 import type { GridTask } from '../model/GridTask';
+
+import { useCurrentTasks } from './use_task_store';
 
 const colNum = 12;
 const rowHeight = 30;
 
 const DRAG_ITEM_INJECTION_KEY: InjectionKey<DragItemContext> =
   Symbol('drag-item');
+
+export interface DragItemContext {
+  mouseXY: Readonly<Ref<{ x: number; y: number }>>;
+  dragPos: Readonly<Ref<GridTask>>;
+  counter: Readonly<Ref<number>>;
+  layout: ComputedRef<GridTask[]>;
+  colNum: number;
+  rowHeight: number;
+  updateDragElement: (e: DragEvent) => void;
+  handleDrop: (e: DragEvent) => void;
+}
 
 export const useDragItem = (
   currentContentRef: Ref<HTMLElement | null>,
@@ -27,31 +40,14 @@ export const useDragItem = (
   const dragPos = ref<GridTask>({ x: 0, y: 0, w: 2, h: 3, i: '0' });
   const contentRef = currentContentRef;
   const gridLayoutRef = currentGridLayoutRef;
-  const editorTasks = ref<EditorTask[]>([]);
-
-  const layout = computed<GridTask[]>({
-    get() {
-      return editorTasks.value.map((task) => task.grid);
-    },
-    set(gridTasks) {
-      const itemsById = _.keyBy(editorTasks.value, (item) => item.grid.i);
-      const next: EditorTask[] = [];
-      gridTasks.forEach((grid) => {
-        const editorTask = itemsById[grid.i];
-        if (editorTask) {
-          editorTask.grid = grid;
-          next.push(editorTask);
-        } else {
-          const editorTask = new EditorTask();
-          editorTask.grid = grid;
-          next.push(editorTask);
-        }
-      });
-      editorTasks.value = next;
-    },
-  });
-
   const counter = ref(0);
+
+  // Pinia store
+  const editorTaskStore = useCurrentTasks();
+  const layout = computed({
+    get: () => editorTaskStore.layout,
+    set: (value) => editorTaskStore.updateLayout(value),
+  });
 
   const updateDragElement = (e: DragEvent) => {
     e.preventDefault();
@@ -61,7 +57,6 @@ export const useDragItem = (
     const parentRect = contentRef.value?.getBoundingClientRect();
     if (!parentRect) return;
 
-    // スクロール位置を考慮したマウス位置判定
     const scrollTop = window.scrollY || document.documentElement.scrollTop;
     const mouseY = e.clientY + scrollTop;
 
@@ -75,19 +70,23 @@ export const useDragItem = (
 
     const index = layout.value.findIndex((item) => item.i === 'drop');
     if (index === -1) {
-      // ドラッグ用のアイテムがないとき
-      layout.value.push({
-        x: pos.x,
-        y: pos.y,
-        w: 2,
-        h: 3,
-        i: 'drop',
-      });
+      const newLayout = [
+        ...layout.value,
+        {
+          x: pos.x,
+          y: pos.y,
+          w: 2,
+          h: 3,
+          i: 'drop',
+        },
+      ];
+      editorTaskStore.updateLayout(newLayout);
     } else {
-      // ドラッグ用のアイテムがあったら
       if (mouseInGrid) {
-        layout.value[index].x = pos.x;
-        layout.value[index].y = pos.y;
+        const newLayout = [...layout.value];
+        newLayout[index].x = pos.x;
+        newLayout[index].y = pos.y;
+        editorTaskStore.updateLayout(newLayout);
         gridLayoutRef.value?.dragEvent('dragstart', 'drop', pos.x, pos.y, 3, 2);
       } else {
         gridLayoutRef.value?.dragEvent('dragend', 'drop', pos.x, pos.y, 3, 2);
@@ -126,7 +125,8 @@ export const useDragItem = (
         mouseXY.value.x,
         mouseXY.value.y,
       );
-      layout.value = [
+
+      const newLayout = [
         ...layout.value.filter((obj) => obj.i !== 'drop'),
         {
           x: pos.x,
@@ -136,6 +136,9 @@ export const useDragItem = (
           i: String(counter.value++),
         } as GridTask,
       ];
+
+      // Piniaストアを介して更新
+      editorTaskStore.updateLayout(newLayout);
     }
   };
 
@@ -143,8 +146,10 @@ export const useDragItem = (
     mouseXY: readonly(mouseXY),
     dragPos: readonly(dragPos),
     counter: readonly(counter),
-    editorTasks,
-    layout,
+    layout: computed({
+      get: () => editorTaskStore.layout,
+      set: (value) => editorTaskStore.updateLayout(value),
+    }),
     colNum,
     rowHeight,
     updateDragElement,
@@ -161,7 +166,6 @@ export const useCurrentDragItem = () => {
     mouseXY: ref({ x: 0, y: 0 }),
     dragPos: ref<GridTask>({ x: 0, y: 0, w: 2, h: 3, i: '0' }),
     counter: ref(0),
-    editorTasks: ref<EditorTask[]>([]),
     layout: ref<GridTask[]>([]),
     colNum: 1,
     rowHeight: 1,
@@ -170,19 +174,15 @@ export const useCurrentDragItem = () => {
   });
 };
 
-export type DragItemContext = ReturnType<typeof useDragItem>;
-
 const calcGridPosition = (
   parentRect: DOMRect,
   mouseX: number,
   mouseY: number,
 ) => {
-  // スクロール位置を考慮した計算に修正
   const scrollTop = window.scrollY || document.documentElement.scrollTop;
   const offsetX = mouseX - parentRect.left;
   const offsetY = mouseY + scrollTop - parentRect.top;
 
-  // グリッドの範囲内に収める
   const x = Math.max(
     0,
     Math.min(Math.floor(offsetX / (parentRect.width / colNum)), colNum - 1),
