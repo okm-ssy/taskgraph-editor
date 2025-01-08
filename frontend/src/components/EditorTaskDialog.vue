@@ -3,6 +3,7 @@ import { useVModel } from '@vueuse/core';
 import { computed, type PropType } from 'vue';
 
 import type { Task } from '../model/Taskgraph';
+import { difficultyColorClass } from '../utilities/task';
 
 import EditorTaskDialogRow from './EditorTaskDialogRow.vue';
 
@@ -34,14 +35,6 @@ const taskDifficulty = computed({
     task.value.difficulty = Number(value) || 0;
   },
 });
-
-const difficultyColorClass = (difficulty: number) => {
-  if (difficulty <= 1) return 'text-blue-500';
-  if (difficulty <= 2) return 'text-green-500';
-  if (difficulty <= 4) return 'text-yellow-500';
-  if (difficulty <= 8) return 'text-red-500';
-  return 'text-gray-800';
-};
 
 const rowWidth = {
   width: '8rem',

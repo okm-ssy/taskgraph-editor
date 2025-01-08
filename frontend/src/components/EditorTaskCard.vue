@@ -3,6 +3,7 @@ import { useVModel } from '@vueuse/core';
 import { ref, type PropType } from 'vue';
 
 import { EditorTask } from '../model/EditorTask';
+import { difficultyColorClass } from '../utilities/task';
 
 import EditorTaskDialog from './EditorTaskDialog.vue';
 
@@ -48,8 +49,11 @@ const handleOutsideClick = (event: MouseEvent) => {
     </div>
 
     <button @click="handleOpen" class="flex flex-col h-full p-2">
-      <div class="text-gray-700 text-lg font-bold">
-        {{ editorTask.task.name }}
+      <div class="flex justify-between items-center space-x-2">
+        <div :class="difficultyColorClass(editorTask.task.difficulty)">◇</div>
+        <div class="text-gray-700 text-lg font-bold">
+          {{ editorTask.task.name }}
+        </div>
       </div>
       <div class="text-gray-500 text-xs">
         {{ editorTask.task.description.replace(/\n/g, '') }}
@@ -60,7 +64,7 @@ const handleOutsideClick = (event: MouseEvent) => {
   <Teleport to="body">
     <div
       v-if="isDialogOpen"
-      class="fixed inset-0 bg-black/30 flex items-center justify-center"
+      class="fixed inset-0 bg-black/30 flex items-center justify-center z-20"
       @click="handleOutsideClick"
     >
       <EditorTaskDialog
