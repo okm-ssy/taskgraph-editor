@@ -25,7 +25,6 @@ const handleRouteChange = () => {
 // コンポーネントマウント時に現在のパスを設定
 onMounted(() => {
   currentPath.value = route.path;
-  console.log(currentPath.value);
 });
 </script>
 
