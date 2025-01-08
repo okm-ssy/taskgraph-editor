@@ -54,7 +54,6 @@ export const useDragItem = (
   const counter = ref(0);
 
   const updateDragElement = (e: DragEvent) => {
-    console.log('called updateDragElement');
     e.preventDefault();
     mouseXY.value = { x: e.clientX, y: e.clientY };
 
@@ -106,7 +105,6 @@ export const useDragItem = (
   };
 
   const handleDrop = (e: DragEvent) => {
-    console.log('called handleDrop');
     e.preventDefault();
 
     if (!contentRef.value) return;

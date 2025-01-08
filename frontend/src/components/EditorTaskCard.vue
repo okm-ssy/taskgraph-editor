@@ -2,20 +2,20 @@
 import { useVModel } from '@vueuse/core';
 import { ref, type PropType } from 'vue';
 
-import type { Task } from '../model/Taskgraph';
+import { EditorTask } from '../model/EditorTask';
 
 import EditorTaskDialog from './EditorTaskDialog.vue';
 
 const props = defineProps({
   modelValue: {
-    type: Object as PropType<Task>,
+    type: Object as PropType<EditorTask>,
     required: true,
   },
 });
 
 const emits = defineEmits(['update:modelValue']);
 
-const task = useVModel(props, 'modelValue', emits);
+const editorTask = useVModel(props, 'modelValue', emits);
 
 // ダイアログの開閉状態
 const isDialogOpen = ref(false);
@@ -40,15 +40,19 @@ const handleOutsideClick = (event: MouseEvent) => {
 
 <template>
   <div
-    class="border rounded-t-lg flex flex-col w-full h-full overflow-hidden bg-white"
+    class="border rounded-t-lg flex flex-col before w-full h-full overflow-hidden bg-white"
   >
-    <div class="bg-green-600 h-6 rounded-t-lg" />
+    <div class="bg-green-600 h-8 rounded-t-lg flex justify-between px-4">
+      <div :id="`input-${editorTask.id}`" class="text-red-300">●</div>
+      <div :id="`output-${editorTask.id}`" class="text-green-300">●</div>
+    </div>
+
     <button @click="handleOpen" class="flex flex-col h-full p-2">
       <div class="text-gray-700 text-lg font-bold">
-        {{ task.name }}
+        {{ editorTask.task.name }}
       </div>
       <div class="text-gray-500 text-xs">
-        {{ task.description.replace(/\n/g, '') }}
+        {{ editorTask.task.description.replace(/\n/g, '') }}
       </div>
     </button>
   </div>
@@ -59,7 +63,11 @@ const handleOutsideClick = (event: MouseEvent) => {
       class="fixed inset-0 bg-black/30 flex items-center justify-center"
       @click="handleOutsideClick"
     >
-      <EditorTaskDialog v-model="task" @close="handleClose" class="w-3/4" />
+      <EditorTaskDialog
+        v-model="editorTask.task"
+        @close="handleClose"
+        class="w-3/4"
+      />
     </div>
   </Teleport>
 </template>
