@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import * as _ from 'lodash';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
@@ -12,7 +12,10 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   const layout = computed({
     get: () => layoutRef.value,
     set(gridTasks: GridTask[]) {
-      const itemsById = _.keyBy(editorTasks.value, (item) => item.grid.i);
+      const itemsById = _.keyBy(
+        editorTasks.value,
+        (item: EditorTask) => item.grid.i,
+      );
       const next: EditorTask[] = [];
 
       gridTasks.forEach((grid) => {
