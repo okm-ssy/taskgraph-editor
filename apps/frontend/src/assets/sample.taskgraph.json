@@ -1,0 +1,50 @@
+{
+  "info": {},
+  "tasks": [
+    {
+      "depends": [],
+      "description": "ルートタスク",
+      "difficulty": 1,
+      "name": "root-task",
+      "notes": [
+        "はじめにやるタスク"
+      ]
+    },
+    {
+      "depends": [
+        "root-task"
+      ],
+      "description": "サブタスク1",
+      "difficulty": 2,
+      "name": "sub-task-1",
+      "notes": [
+        "次にやるタスク"
+      ]
+    },
+    {
+      "depends": [
+        "root-task"
+      ],
+      "description": "サブタスク2",
+      "difficulty": 3,
+      "name": "sub-task-2",
+      "notes": [
+        "次にやるタスク"
+      ]
+    },
+    {
+      "depends": [
+        "sub-task-1",
+        "sub-task-2"
+      ],
+      "description": "リーフタスク",
+      "difficulty": 4,
+      "name": "leaf-task",
+      "notes": [
+        "最後にやるタスク",
+        "サブタスク1 のあとにやる",
+        "サブタスク2 のあとにやる"
+      ]
+    }
+  ]
+}
