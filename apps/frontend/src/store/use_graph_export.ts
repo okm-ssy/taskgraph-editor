@@ -1,19 +1,24 @@
+import { ref } from 'vue';
+
 import { useCurrentTasks } from './task_store';
 
 export const useGraphExport = () => {
+  const taskStore = useCurrentTasks();
+  const graphRef = ref<HTMLElement | null>(null);
+
+  const setGraphRef = (ref: HTMLElement | null) => {
+    graphRef.value = ref;
+  };
+
   // SVGとして保存する関数
   const exportAsSvg = () => {
-    try {
-      const taskStore = useCurrentTasks();
-      const svgContainer = document.querySelector('.graph-container');
-      if (!svgContainer) {
-        return false;
-      }
+    if (!graphRef.value) return;
 
-      const svgElement = svgContainer.querySelector('svg');
+    try {
+      const svgElement = graphRef.value.querySelector('svg');
       if (!svgElement) {
-        console.error('SVG要素が見つかりませんでした');
-        return false;
+        alert('SVG要素が見つかりませんでした');
+        return;
       }
 
       // SVG要素のクローンを作成（元のSVGを変更しないため）
@@ -138,20 +143,16 @@ export const useGraphExport = () => {
       link.href = url;
       link.click();
 
-      // 処理完了後、状態をリセット
-      setTimeout(() => {
-        // URLを解放
-        URL.revokeObjectURL(url);
-      }, 100);
-
-      return true;
+      // URLを解放
+      URL.revokeObjectURL(url);
     } catch (error) {
       console.error('SVGエクスポートエラー:', error);
-      return false;
+      alert('SVGのエクスポート中にエラーが発生しました');
     }
   };
 
   return {
+    setGraphRef,
     exportAsSvg,
     // exportAsPng, // 将来的に追加可能
   };

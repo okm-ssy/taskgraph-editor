@@ -3,6 +3,7 @@ import { onMounted, defineProps, watch, ref } from 'vue';
 
 import type { EditorTask } from '../model/EditorTask';
 import { useCurrentTasks } from '../store/task_store'; // ストアをインポート
+import { useGraphExport } from '../store/use_graph_export';
 
 const props = defineProps<{
   editorTasks: EditorTask[];
@@ -27,9 +28,12 @@ watch(
   { deep: true },
 );
 
-// SVGエクスポート関数（既存の機能、変更なし）
-const exportAsSvg = () => {
-  // ... (既存のSVGエクスポートロジック) ...
+const { setGraphRef, exportAsSvg } = useGraphExport(); // SVGエクスポート用のストアをインポート
+
+// SVGエクスポート関数
+const exportSvg = () => {
+  setGraphRef(graphRef.value); // グラフの参照をストアにセット
+  exportAsSvg();
 };
 </script>
 
@@ -37,7 +41,7 @@ const exportAsSvg = () => {
   <div>
     <div class="flex justify-end mb-4 gap-2">
       <button
-        @click="exportAsSvg"
+        @click="exportSvg"
         class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
         :disabled="isExporting"
       >
