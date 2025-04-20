@@ -10,7 +10,6 @@ const props = defineProps<{
 
 // タスクストアからデータと機能を取得
 const taskStore = useCurrentTasks();
-const { GRAPH_SETTINGS } = taskStore;
 
 // コンポーネントマウント時にグラフデータ構築
 onMounted(() => {
@@ -78,8 +77,8 @@ watch(
         :style="{
           left: `${node.x}px`,
           top: `${node.y}px`,
-          width: `${GRAPH_SETTINGS.nodeWidth}px`,
-          height: `${GRAPH_SETTINGS.nodeHeight}px`,
+          width: `${taskStore.GRAPH_SETTINGS.nodeWidth}px`,
+          height: `${taskStore.GRAPH_SETTINGS.nodeHeight}px`,
         }"
       >
         <div class="font-bold truncate">{{ node.name }}</div>
@@ -87,20 +86,5 @@ watch(
         <div class="text-xs mt-1">難易度: {{ node.difficulty }}</div>
       </div>
     </div>
-
-    <!-- タスクがない場合のメッセージ -->
-    <div
-      v-if="taskStore.graphNodes.length === 0"
-      class="text-center py-10 text-gray-500"
-    >
-      タスクデータがありません
-    </div>
   </div>
 </template>
-
-<style scoped>
-.graph-container {
-  min-width: 800px;
-  min-height: 600px;
-}
-</style>
