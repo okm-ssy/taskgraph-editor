@@ -29,6 +29,8 @@
     "@storybook/test": "8.6.12",
     "@storybook/vue3": "8.6.12",
     "@storybook/vue3-vite": "8.6.12",
+    "@tailwindcss/postcss": "^4.1.4",
+    "@tailwindcss/vite": "^4.1.4",
     "@types/lodash": "4.17.16",
     "@types/node": "22.14.1",
     "@vitejs/plugin-vue": "5.2.3",

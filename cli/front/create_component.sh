@@ -16,11 +16,11 @@ create_component() {
   COMPONENT_NAME=$1
 
   # 必要なディレクトリの作成
-  COMPONENT_TEMPLATE="${REPOSITORY_ROOT}/frontend/src/template/component.vue.hbs"
-  STORY_TEMPLATE="${REPOSITORY_ROOT}/frontend/src/template/component.stories.ts.hbs"
+  COMPONENT_TEMPLATE="${REPOSITORY_ROOT}/apps/frontend/src/template/component.vue.hbs"
+  STORY_TEMPLATE="${REPOSITORY_ROOT}/apps/frontend/src/template/component.stories.ts.hbs"
 
-  COMPONENT_OUTPUT="${REPOSITORY_ROOT}/frontend/src/components/${COMPONENT_NAME}.vue"
-  STORY_OUTPUT="${REPOSITORY_ROOT}/frontend/src/components/${COMPONENT_NAME}.stories.ts"
+  COMPONENT_OUTPUT="${REPOSITORY_ROOT}/apps/frontend/src/components/${COMPONENT_NAME}.vue"
+  STORY_OUTPUT="${REPOSITORY_ROOT}/apps/frontend/src/components/${COMPONENT_NAME}.stories.ts"
 
   # 必要なパッケージがインストールされているか確認
   if ! command -v npm >/dev/null 2>&1; then
@@ -42,7 +42,7 @@ create_component() {
   echo "create ${STORY_OUTPUT}" 1>&2
 
   # ファイルが増えたので再度 npm install をする
-  cd "${REPOSITORY_ROOT}/frontend/"
+  cd "${REPOSITORY_ROOT}/apps/frontend/"
   npm i
 }
 

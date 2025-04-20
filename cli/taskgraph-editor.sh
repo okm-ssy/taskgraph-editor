@@ -22,7 +22,7 @@ taskgraph_editor() {
   storybook)
     script_name='front/storybook.sh'
     ;;
-  create_component)
+  create_component | create-component)
     script_name='front/create_component.sh'
     ;;
   *)
