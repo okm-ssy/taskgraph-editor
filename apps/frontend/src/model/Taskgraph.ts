@@ -10,6 +10,9 @@ export const infoZodSchema = zod
         trackingIssueNumber: zod.number().int().min(1),
       })
       .optional(),
+    name: zod.string().optional(),
+    version: zod.string().optional(),
+    assignee: zod.string().optional(),
   })
   .strict();
 

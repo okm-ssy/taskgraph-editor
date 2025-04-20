@@ -39,7 +39,7 @@ EOF
   # ディレクトリのファイルを処理
   TARGET_DIR="${REPOSITORY_ROOT}/apps/frontend/src/${target}"
   if [ -d "$TARGET_DIR" ]; then
-    find "$TARGET_DIR" -type f -name "*.ts" -o -name "*.js" -o -name "*.vue" | sort | while read -r file; do
+    find "$TARGET_DIR" -type f \( -name "*.ts" -o -name "*.js" -o -name "*.vue" \) ! -name "*stories.ts" | sort | while read -r file; do
       filename=$(basename "$file")
       relpath=$(realpath --relative-to="$TARGET_DIR" "$(dirname "$file")")
 
