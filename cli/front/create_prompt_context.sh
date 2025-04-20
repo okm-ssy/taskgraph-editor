@@ -22,6 +22,11 @@ fi
 cat >"$OUTPUT_FILE" <<-EOF
 $(cat "${REPOSITORY_ROOT}/.github/copilot-instructions.md")
 
+
+# package.json
+$(cat "${REPOSITORY_ROOT}/apps/frontend/package.json")
+
+
 # コード結合ファイル
 # 作成日時: $(date '+%Y-%m-%d %H:%M:%S')
 # 対象ディレクトリ: ${TARGETS[@]}
