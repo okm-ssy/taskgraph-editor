@@ -1,5 +1,18 @@
 import * as zod from 'zod';
 
+export const infoZodSchema = zod
+  .object({
+    github: zod
+      .object({
+        organization: zod.string(),
+        projectNumber: zod.number().int().min(1),
+        repository: zod.string(),
+        trackingIssueNumber: zod.number().int().min(1),
+      })
+      .optional(),
+  })
+  .strict();
+
 export const taskZodSchema = zod
   .object({
     depends: zod.array(zod.string()),
@@ -13,16 +26,7 @@ export const taskZodSchema = zod
 
 export const taskgraphZodSchema = zod
   .object({
-    info: zod
-      .object({
-        github: zod.object({
-          organization: zod.string(),
-          projectNumber: zod.number().int().min(1),
-          repository: zod.string(),
-          trackingIssueNumber: zod.number().int().min(1),
-        }),
-      })
-      .optional(),
+    info: infoZodSchema,
     tasks: zod.array(taskZodSchema),
   })
   .strict();
