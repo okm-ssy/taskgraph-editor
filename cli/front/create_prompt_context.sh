@@ -20,6 +20,8 @@ if [ $# -gt 0 ]; then
 fi
 
 cat >"$OUTPUT_FILE" <<-EOF
+$(cat "${REPOSITORY_ROOT}/.github/copilot-instructions.md")
+
 # コード結合ファイル
 # 作成日時: $(date '+%Y-%m-%d %H:%M:%S')
 # 対象ディレクトリ: ${TARGETS[@]}
