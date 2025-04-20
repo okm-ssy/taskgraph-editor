@@ -1,14 +1,6 @@
 <script setup lang="ts">
 // ComponentPublicInstance 型をインポート
-import {
-  onMounted,
-  defineProps,
-  watch,
-  ref,
-  onBeforeUpdate,
-  nextTick,
-  type ComponentPublicInstance,
-} from 'vue';
+import { onMounted, defineProps, watch, ref, onBeforeUpdate } from 'vue';
 
 import type { EditorTask } from '../model/EditorTask';
 import { useCurrentTasks } from '../store/task_store';
@@ -25,19 +17,6 @@ const graphRef = ref<HTMLElement | null>(null);
 const isExporting = ref(false);
 
 const triggerElementRefs = ref<Map<string, HTMLElement>>(new Map());
-
-// Ref を設定する関数を修正
-const setTriggerRef = (
-  el: Element | ComponentPublicInstance | null,
-  id: string,
-) => {
-  // 型ガード: el が HTMLElement のインスタンスである場合のみ Map にセット
-  if (el instanceof HTMLElement) {
-    triggerElementRefs.value.set(id, el);
-  }
-  // 必要であればコンポーネントインスタンスの場合の処理も追加
-  // else if (el) { // el が ComponentPublicInstance の場合の処理 }
-};
 
 onBeforeUpdate(() => {
   triggerElementRefs.value.clear();
@@ -66,26 +45,6 @@ const dropdownOptions = {
   triggers: ['hover', 'focus'],
   delay: { show: 200, hide: 100 },
   placement: 'auto',
-};
-
-const handlePopperHide = async (triggerId: string) => {
-  await nextTick();
-  const triggerElement = triggerElementRefs.value.get(triggerId);
-  if (triggerElement) {
-    if (
-      document.body.contains(triggerElement) &&
-      triggerElement.offsetParent !== null
-    ) {
-      try {
-        triggerElement.focus({ preventScroll: true });
-      } catch (error) {
-        console.warn(
-          `Failed to focus trigger element (ID: ${triggerId}):`,
-          error,
-        );
-      }
-    }
-  }
 };
 </script>
 
@@ -142,6 +101,7 @@ const handlePopperHide = async (triggerId: string) => {
         <VDropdown
           v-for="node in taskStore.graphNodes"
           :key="node.id"
+          :lazy="true"
           v-bind="dropdownOptions"
           :aria-id="`tooltip-for-${node.id}`"
           class="absolute"
@@ -149,10 +109,8 @@ const handlePopperHide = async (triggerId: string) => {
             left: `${node.x}px`,
             top: `${node.y}px`,
           }"
-          @hide="() => handlePopperHide(node.id)"
         >
           <div
-            :ref="(el) => setTriggerRef(el, node.id)"
             class="border-2 rounded-lg p-3 shadow-md transition-transform hover:translate-y-[-2px] hover:shadow-lg cursor-pointer bg-opacity-90 w-full h-full focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
             :class="taskStore.getDifficultyColor(node.difficulty)"
             :style="{
