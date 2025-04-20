@@ -1,8 +1,8 @@
-import * as _ from 'lodash';
+// store/task_store.ts
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
-import { EditorTask } from '../model/EditorTask';
+import { EditorTask } from '../model/EditorTask'; // EditorTask をインポート
 import type { GridTask } from '../model/GridTask';
 import type { Taskgraph, Task } from '../model/Taskgraph';
 
@@ -10,27 +10,39 @@ import { useGraphLayout } from './graph_layout_store';
 import { useJsonProcessor } from './json_processor';
 
 export const useCurrentTasks = defineStore('editorTask', () => {
-  // グラフレイアウト機能を取得
+  // グラフレイアウト関連
   const graphLayout = useGraphLayout();
 
-  // JSON処理機能を取得
+  // JSON処理関連
   const jsonProcessor = useJsonProcessor();
 
-  // Store
+  // Store State
   const editorTasks = ref<EditorTask[]>([]);
   const info = ref<Taskgraph['info']>({});
+  const selectedTaskId = ref<string | null>(null); // 追加: 選択中のタスクID
+  const isDetailDialogVisible = ref(false); // 追加: 詳細ダイアログの表示状態
 
   // Getters
   const tasks = computed(() => editorTasks.value.map((et) => et.task));
   const gridTasks = computed(() => editorTasks.value.map((et) => et.grid));
   const taskCount = computed(() => editorTasks.value.length);
   const getTaskById = computed(
-    () => (id: string) => editorTasks.value.find((et) => et.id === id),
+    () =>
+      (id: string): EditorTask | undefined =>
+        editorTasks.value.find((et) => et.id === id), // 型を明確化
   );
   const getDependentTasks = computed(
-    () => (taskName: string) =>
-      tasks.value.filter((task) => task.depends.includes(taskName)),
+    () =>
+      (
+        taskName: string,
+      ): Task[] => // 型を明確化
+        tasks.value.filter((task) => task.depends.includes(taskName)),
   );
+  // 追加: 選択中のタスクオブジェクトを取得
+  const selectedTask = computed((): EditorTask | null => {
+    if (!selectedTaskId.value) return null;
+    return getTaskById.value(selectedTaskId.value) ?? null;
+  });
 
   // Actions
   const addTask = () => {
@@ -45,6 +57,10 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     if (index !== -1) {
       editorTasks.value.splice(index, 1);
       graphLayout.buildGraphData(editorTasks.value);
+      // 削除されたタスクが選択中だったらダイアログを閉じる
+      if (selectedTaskId.value === id) {
+        closeDetailDialog();
+      }
       return true;
     }
     return false;
@@ -63,17 +79,18 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     const task = editorTasks.value.find((et) => et.id === id);
     if (task) {
       Object.assign(task.task, taskData);
-      graphLayout.buildGraphData(editorTasks.value);
+      graphLayout.buildGraphData(editorTasks.value); // 依存関係が変わる可能性があるのでグラフ再構築
       return true;
     }
     return false;
   };
 
-  // タスクを更新する関数（JSON処理から呼び出される）
+  // 既存タスクを新しいデータで更新 (JSONインポートなどで使用)
   const updateTasks = (newTasks: EditorTask[], newInfo: Taskgraph['info']) => {
     info.value = newInfo;
     editorTasks.value = newTasks;
     graphLayout.buildGraphData(editorTasks.value);
+    closeDetailDialog(); // インポートしたら選択状態をリセット
   };
 
   // JSON処理メソッドのラッパー
@@ -93,13 +110,25 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     return jsonProcessor.loadSampleData(updateTasks);
   };
 
-  // グラフデータの構築
+  // グラフデータ構築
   const buildGraphData = () => {
     graphLayout.buildGraphData(editorTasks.value);
   };
 
+  // --- 追加: ダイアログ関連のアクション ---
+  const selectTask = (id: string) => {
+    selectedTaskId.value = id;
+    isDetailDialogVisible.value = true;
+  };
+
+  const closeDetailDialog = () => {
+    isDetailDialogVisible.value = false;
+    selectedTaskId.value = null; // 選択状態を解除
+  };
+  // --- ここまで追加 ---
+
   return {
-    // Store
+    // Store State
     editorTasks,
     info,
 
@@ -109,6 +138,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     taskCount,
     getTaskById,
     getDependentTasks,
+    selectedTask, // 追加
 
     // Actions
     addTask,
@@ -120,13 +150,15 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     exportTaskgraphToJson,
     loadSampleData,
     buildGraphData,
+    selectTask, // 追加
+    closeDetailDialog, // 追加
 
-    // JSONProcessor
+    // JSONProcessor State & Methods
     taskLoadError: jsonProcessor.taskLoadError,
     jsonInputVisible: jsonProcessor.jsonInputVisible,
     toggleJsonInputVisibility: jsonProcessor.toggleJsonInputVisibility,
 
-    // GraphLayout
+    // GraphLayout State & Methods
     graphNodes: graphLayout.graphNodes,
     canvasWidth: graphLayout.canvasWidth,
     canvasHeight: graphLayout.canvasHeight,
@@ -134,5 +166,8 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     getPathD: graphLayout.getPathD,
     getDifficultyColor: graphLayout.getDifficultyColor,
     GRAPH_SETTINGS: graphLayout.GRAPH_SETTINGS,
+
+    // 追加: ダイアログ表示状態
+    isDetailDialogVisible,
   };
 });
