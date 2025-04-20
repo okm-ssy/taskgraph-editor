@@ -89,41 +89,63 @@ export const useGraphLayout = () => {
       }
     }
 
-    // 各ルートノードから木を処理
+    // 各木のインデックスを設定
     let treeIndex = 0;
-
     rootNodes.forEach((rootNode) => {
-      // 各木のインデックスを設定（縦に並べるため）
       rootNode.treeIndex = treeIndex++;
+    });
 
-      // BFSでレベル（水平方向の位置）を割り当て
-      const queue: { name: string; level: number; treeIndex: number }[] = [
-        {
-          name: rootNode.name,
-          level: 0,
-          treeIndex: rootNode.treeIndex,
-        },
-      ];
+    // トポロジカルソートのように深さを計算
+    const calculateDepth = (
+      nodeName: string,
+      currentTreeIndex: number,
+      depthVisited: Set<string>,
+    ) => {
+      if (depthVisited.has(nodeName)) return;
+      depthVisited.add(nodeName);
 
-      while (queue.length > 0) {
-        const { name, level, treeIndex } = queue.shift()!;
-        const node = nodesMap.get(name);
+      const node = nodesMap.get(nodeName);
+      if (!node) return;
 
-        if (node && !visited.has(name)) {
-          node.level = Math.max(node.level, level);
-          node.treeIndex = treeIndex;
-          visited.add(name);
+      // 木のインデックスを設定
+      node.treeIndex = currentTreeIndex;
+      visited.add(nodeName);
 
-          // 子ノードをキューに追加
-          node.children.forEach((childName) => {
-            queue.push({
-              name: childName,
-              level: level + 1,
-              treeIndex: treeIndex,
-            });
-          });
-        }
+      // 親がない場合はレベル0
+      if (node.parents.length === 0 || node.parents.every((p) => p === '')) {
+        node.level = 0;
+      } else {
+        // 親ノードの最大レベル + 1 を自分のレベルとする
+        let maxParentLevel = -1;
+        node.parents.forEach((parentName) => {
+          if (parentName !== '') {
+            // まだ処理されていない親がある場合、先に処理
+            if (!depthVisited.has(parentName)) {
+              calculateDepth(parentName, currentTreeIndex, depthVisited);
+            }
+
+            const parent = nodesMap.get(parentName);
+            if (parent) {
+              maxParentLevel = Math.max(maxParentLevel, parent.level);
+            }
+          }
+        });
+
+        node.level = maxParentLevel + 1;
       }
+
+      // 子ノードを処理
+      node.children.forEach((childName) => {
+        if (!depthVisited.has(childName)) {
+          calculateDepth(childName, currentTreeIndex, depthVisited);
+        }
+      });
+    };
+
+    // 各ルートノードから木を処理
+    rootNodes.forEach((rootNode) => {
+      const depthVisited = new Set<string>();
+      calculateDepth(rootNode.name, rootNode.treeIndex, depthVisited);
     });
 
     // 孤立したノードの処理
@@ -229,7 +251,6 @@ export const useGraphLayout = () => {
     }
   };
 
-  // ノードの表示位置を計算（横方向に広がる木を縦に配置）
   const positionNodesHorizontally = (nodesMap: Map<string, GraphNode>) => {
     // 木ごとにノードをグループ化
     const treeGroups = new Map<number, GraphNode[]>();
@@ -248,8 +269,12 @@ export const useGraphLayout = () => {
       treeMaxLevels.set(treeIndex, maxLevel);
     });
 
-    // 木の数を取得
-    const treeCount = treeGroups.size;
+    // 調整：垂直方向のスペーシングを縮小
+    const adjustedVerticalSpacing = Math.max(
+      30,
+      GRAPH_SETTINGS.verticalSpacing / 2,
+    ); // 垂直スペースを半分に
+    const adjustedTreeSpacing = Math.max(80, GRAPH_SETTINGS.treeSpacing / 1.5); // 木間のスペースも縮小
 
     // キャンバスサイズの計算
     // 横方向：すべての木の中で最も深いレベル+1 × ノード幅と間隔
@@ -257,18 +282,45 @@ export const useGraphLayout = () => {
     const totalWidth =
       (maxLevel + 1) *
         (GRAPH_SETTINGS.nodeWidth + GRAPH_SETTINGS.horizontalSpacing) +
-      100;
+      150; // 余白を追加
 
-    // 縦方向：木の数 × 必要な高さ
-    const totalHeight =
-      treeCount * (GRAPH_SETTINGS.nodeHeight + GRAPH_SETTINGS.treeSpacing) +
-      100;
+    // 各木のノード数を取得して、最も多いノードを持つ木を見つける
+    let maxNodesInAnyTree = 0;
+    treeGroups.forEach((nodes) => {
+      maxNodesInAnyTree = Math.max(maxNodesInAnyTree, nodes.length);
+    });
 
+    // 垂直方向のサイズを計算（各木の高さの合計）
+    let totalHeight = 100; // 初期マージン
+    treeGroups.forEach((nodes) => {
+      // 各レベルのノード数をカウント
+      const levelsCount = new Map<number, number>();
+      nodes.forEach((node) => {
+        levelsCount.set(node.level, (levelsCount.get(node.level) || 0) + 1);
+      });
+
+      // この木の高さを計算
+      let treeHeight = 0;
+      levelsCount.forEach((count) => {
+        treeHeight = Math.max(
+          treeHeight,
+          count * GRAPH_SETTINGS.nodeHeight +
+            (count - 1) * adjustedVerticalSpacing,
+        );
+      });
+
+      totalHeight += treeHeight + adjustedTreeSpacing;
+    });
+
+    // 最小サイズを確保
     canvasWidth.value = Math.max(1000, totalWidth);
     canvasHeight.value = Math.max(600, totalHeight);
 
+    // 位置の追跡用
+    let currentYOffset = 80; // 初期オフセット
+
     // 各木ごとにノードを配置
-    treeGroups.forEach((nodes, treeIndex) => {
+    treeGroups.forEach((nodes, _treeIndex) => {
       // レベルでグループ化
       const levelGroups = new Map<number, GraphNode[]>();
 
@@ -279,8 +331,28 @@ export const useGraphLayout = () => {
         levelGroups.get(node.level)!.push(node);
       });
 
+      // この木の高さを計算
+      let thisTreeHeight = 0;
+      levelGroups.forEach((levelNodes) => {
+        thisTreeHeight = Math.max(
+          thisTreeHeight,
+          levelNodes.length * GRAPH_SETTINGS.nodeHeight +
+            (levelNodes.length - 1) * adjustedVerticalSpacing,
+        );
+      });
+
       // 各レベルごとにノードを配置
       levelGroups.forEach((levelNodes, level) => {
+        const nodesInThisLevel = levelNodes.length;
+
+        // このレベルの開始Y位置を計算
+        const levelStartY =
+          currentYOffset +
+          (thisTreeHeight -
+            (nodesInThisLevel * GRAPH_SETTINGS.nodeHeight +
+              (nodesInThisLevel - 1) * adjustedVerticalSpacing)) /
+            2;
+
         levelNodes.forEach((node, index) => {
           // X座標：レベルに応じて水平方向に配置
           node.x =
@@ -288,24 +360,35 @@ export const useGraphLayout = () => {
               (GRAPH_SETTINGS.nodeWidth + GRAPH_SETTINGS.horizontalSpacing) +
             50;
 
-          // Y座標：木のインデックスと同じレベルのノード数に基づいて配置
-          const baseY =
-            treeIndex *
-              (GRAPH_SETTINGS.nodeHeight + GRAPH_SETTINGS.treeSpacing) +
-            50;
-          const levelWidth =
-            levelNodes.length * GRAPH_SETTINGS.nodeHeight +
-            (levelNodes.length - 1) * GRAPH_SETTINGS.verticalSpacing;
-          const startY = baseY + (GRAPH_SETTINGS.treeSpacing - levelWidth) / 2;
-
+          // Y座標：縦方向のスペースを調整して配置
           node.y =
-            startY +
-            index *
-              (GRAPH_SETTINGS.nodeHeight + GRAPH_SETTINGS.verticalSpacing);
+            levelStartY +
+            index * (GRAPH_SETTINGS.nodeHeight + adjustedVerticalSpacing);
         });
       });
+
+      // 次の木のY開始位置を更新
+      currentYOffset += thisTreeHeight + adjustedTreeSpacing;
     });
+
+    // すべてのノードの位置範囲を計算
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minY = Infinity;
+    let maxY = -Infinity;
+
+    nodesMap.forEach((node) => {
+      minX = Math.min(minX, node.x);
+      maxX = Math.max(maxX, node.x + GRAPH_SETTINGS.nodeWidth);
+      minY = Math.min(minY, node.y);
+      maxY = Math.max(maxY, node.y + GRAPH_SETTINGS.nodeHeight);
+    });
+
+    // 自動的にキャンバスサイズを調整
+    canvasWidth.value = Math.max(1000, maxX + 100); // 右端に余白を追加
+    canvasHeight.value = Math.max(600, maxY + 100); // 下端に余白を追加
   };
+
   // パスの描画用SVGパス文字列を生成
   const getPathD = (from: GraphNode, to: GraphNode) => {
     const fromX = from.x + GRAPH_SETTINGS.nodeWidth;
