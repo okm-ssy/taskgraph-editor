@@ -9,8 +9,8 @@ interface RouteConfig {
 
 // ルート設定
 const routes: RouteConfig[] = [
-  { path: '/edit', name: 'エディター' },
   { path: '/view', name: 'ビュー' },
+  { path: '/edit', name: 'エディター' },
 ];
 
 const router = useRouter();

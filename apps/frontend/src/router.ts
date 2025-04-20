@@ -6,7 +6,7 @@ import ViewerPage from '@/pages/ViewerPage.vue';
 const routes = [
   {
     path: '/',
-    redirect: 'edit',
+    redirect: 'view',
   },
   { path: '/edit', component: EditorPage },
   { path: '/view', component: ViewerPage },
