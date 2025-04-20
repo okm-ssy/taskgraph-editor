@@ -1,0 +1,30 @@
+import '@/style.scss';
+import type { Meta, StoryObj } from '@storybook/vue3';
+import { ref } from 'vue';
+
+import TaskDialog from './TaskDialog.vue';
+
+const meta: Meta<typeof TaskDialog> = {
+  title: 'common/TaskDialog',
+  component: TaskDialog,
+};
+
+export default meta;
+type Story = StoryObj<typeof TaskDialog>;
+
+export const basic: Story = {
+  name: 'basic',
+  render: () => ({
+    components: { TaskDialog },
+    setup() {
+      const v = ref(0);
+
+      return {
+        v,
+      };
+    },
+    template: `
+    <TaskDialog
+    />`,
+  }),
+};

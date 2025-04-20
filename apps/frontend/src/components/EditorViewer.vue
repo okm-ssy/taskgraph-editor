@@ -1,28 +1,23 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent } from 'vue'; // defineAsyncComponent と Suspense をインポート
+import { computed } from 'vue';
 
 import { useCurrentTasks } from '../store/task_store';
 
 import JsonInput from './JsonInput.vue';
+import TaskDetail from './TaskDetail.vue';
+import TaskDialog from './TaskDialog.vue';
 import TaskgraphViewer from './TaskgraphViewer.vue';
+// TaskDialog は通常のインポートに変更 (動的である必要がなければ)
+// TaskDetail もインポート
 
-// TaskDetailDialog を動的にインポート
-const TaskDetailDialog = defineAsyncComponent(
-  () => import('./TaskDetailDialog.vue'),
-);
-
-// ストアを取得
 const taskStore = useCurrentTasks();
-
-// taskCount は既存
 const taskCount = computed(() => taskStore.editorTasks.length);
 
-// JSONパース関連のハンドラ（変更なし）
 const handleParseSuccess = (jsonString: string) => {
   taskStore.parseJsonToTaskgraph(jsonString);
 };
 const handleParseError = (errorMessage: string) => {
-  console.error('JSONパースエラー(EditorViewer):', errorMessage); // 必要ならストア以外のログも
+  console.error('JSONパースエラー(EditorViewer):', errorMessage);
 };
 </script>
 
@@ -47,7 +42,7 @@ const handleParseError = (errorMessage: string) => {
     >
       <p>タスクがありません。</p>
       <p class="mt-2 text-sm">
-        「JSONを展開する」ボタンでJSONデータを入力するか、エディタ画面でタスクを追加してください。
+        「JSONを編集する」ボタンでJSONデータを入力するか、エディタ画面でタスクを追加してください。
       </p>
     </div>
 
@@ -58,30 +53,24 @@ const handleParseError = (errorMessage: string) => {
       <strong>エラー:</strong> {{ taskStore.taskLoadError }}
     </div>
 
-    <Suspense>
-      <template #default>
-        <TaskDetailDialog
-          v-if="taskStore.isDetailDialogVisible"
-          :selected-task="taskStore.selectedTask"
-          @close="taskStore.closeDetailDialog"
-        />
-      </template>
-      <template #fallback>
-        <div
-          class="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50"
-        >
-          <div
-            class="animate-spin rounded-full h-12 w-12 border-b-2 border-white"
-          />
-        </div>
-      </template>
-    </Suspense>
+    <TaskDialog
+      :is-visible="taskStore.isDetailDialogVisible"
+      :title="`タスク詳細: ${taskStore.selectedTask?.task.name}`"
+      @close="taskStore.closeDetailDialog"
+    >
+      <TaskDetail
+        v-if="taskStore.selectedTask"
+        :task="taskStore.selectedTask"
+      />
+      <div v-else class="text-red-600">
+        エラー: タスク情報が見つかりません。
+      </div>
+    </TaskDialog>
   </div>
 </template>
 
 <style scoped>
 .editor-viewer {
   width: 100%;
-  /* height: 100%; 高さは可変に */
 }
 </style>
