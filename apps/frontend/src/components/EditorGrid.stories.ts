@@ -1,5 +1,6 @@
 import '@/style.scss';
 import type { Meta, StoryObj } from '@storybook/vue3';
+import { ref } from 'vue';
 
 import EditorGrid from './EditorGrid.vue';
 
@@ -15,7 +16,15 @@ export const basic: Story = {
   name: 'basic',
   render: () => ({
     components: { EditorGrid },
-    setup() {},
-    template: '<EditorGrid />',
+    setup() {
+      const v = ref(0);
+
+      return {
+        v,
+      };
+    },
+    template: `
+    <EditorGrid
+    />`,
   }),
 };
