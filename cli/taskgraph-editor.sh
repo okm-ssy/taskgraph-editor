@@ -25,6 +25,9 @@ taskgraph_editor() {
   create_component | create-component)
     script_name='front/create_component.sh'
     ;;
+  create_prompt_context | create-prompt-context)
+    script_name='front/create_prompt_context.sh'
+    ;;
   *)
     help && return
     ;;
@@ -39,10 +42,11 @@ taskgraph_editor() {
 help() {
   cat <<-END 1>&2
 
-  edit                  vs-code で開く
-  run                   フロントを立ち上げる
-  create_component      フロントの vue ファイルと stories ファイルを作る
-  help                  ヘルプを表示する
+  edit                          vs-code で開く
+  run                           フロントを立ち上げる
+  create-component              フロントの vue ファイルと stories ファイルを作る
+  create-prompt-context         AI のプロンプト用にファイルを結合する
+  help                          ヘルプを表示する
 END
 }
 
