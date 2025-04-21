@@ -73,8 +73,14 @@ EOF
 done
 
 # クリップボードにコピー
-if command -v clip.exe &>/dev/null; then
+if command -v xsel &>/dev/null; then
   # WSL環境
+  # 文字化けしない
+  cat "$OUTPUT_FILE" | xsel -bi
+  echo 'クリップボードにコピーしました' 1>&2
+elif command -v clip.exe &>/dev/null; then
+  # WSL環境
+  # 文字化けする
   cat "$OUTPUT_FILE" | clip.exe
   echo 'クリップボードにコピーしました' 1>&2
 elif command -v xclip &>/dev/null; then
