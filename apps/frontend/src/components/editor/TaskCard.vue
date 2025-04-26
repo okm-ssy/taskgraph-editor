@@ -1,0 +1,86 @@
+<script setup lang="ts">
+import { computed } from 'vue';
+
+import type { Task } from '../../model/Taskgraph';
+import { useCurrentTasks } from '../../store/task_store';
+
+const props = defineProps<{
+  task: Task;
+  id: string;
+}>();
+
+const emit = defineEmits<{
+  (e: 'click'): void;
+}>();
+
+const taskStore = useCurrentTasks();
+
+// 難易度に基づいて背景色を計算
+const difficultyColorClass = computed(() => {
+  const difficulty = Math.min(
+    Math.max(Math.floor(props.task.difficulty), 1),
+    5,
+  );
+
+  const colors = [
+    'bg-green-100 border-green-300', // 1
+    'bg-yellow-100 border-yellow-300', // 2
+    'bg-orange-100 border-orange-300', // 3
+    'bg-red-100 border-red-300', // 4
+    'bg-purple-100 border-purple-300', // 5
+  ];
+
+  return colors[difficulty - 1];
+});
+
+// タスク削除ハンドラ
+const handleRemove = (event: Event) => {
+  event.stopPropagation();
+  if (confirm(`タスク「${props.task.name}」を削除してもよろしいですか？`)) {
+    taskStore.removeTask(props.id);
+  }
+};
+</script>
+
+<template>
+  <div
+    class="h-full w-full p-3 flex flex-col border-2 rounded-lg cursor-pointer transition-colors"
+    :class="difficultyColorClass"
+    @click="emit('click')"
+  >
+    <div class="flex justify-between items-start mb-2">
+      <h3 class="font-bold text-gray-800 truncate">{{ task.name }}</h3>
+      <button
+        @click="handleRemove"
+        class="text-gray-500 hover:text-red-500 transition-colors text-sm"
+      >
+        ×
+      </button>
+    </div>
+
+    <p class="text-sm text-gray-700 line-clamp-2 mb-2">
+      {{ task.description }}
+    </p>
+
+    <div class="mt-auto flex justify-between items-center">
+      <span class="text-xs bg-white rounded-full px-2 py-1 text-gray-700">
+        難易度: {{ task.difficulty }}
+      </span>
+
+      <span class="text-xs text-gray-600">
+        <template v-if="task.depends.length > 0 && task.depends[0] !== ''">
+          <span>依存: {{ task.depends.join(', ') }}</span>
+        </template>
+      </span>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+</style>
