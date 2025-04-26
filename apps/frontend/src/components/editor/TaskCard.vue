@@ -42,11 +42,8 @@ const handleRemove = (event: Event) => {
 };
 
 // カード本体クリック時の処理
-const handleCardClick = (event: Event) => {
-  // ドラッグハンドル以外の部分をクリックした場合のみ詳細画面を表示
-  if (!(event.target as HTMLElement).closest('.drag-handle')) {
-    emit('click');
-  }
+const handleCardClick = () => {
+  emit('click');
 };
 </script>
 
@@ -54,11 +51,10 @@ const handleCardClick = (event: Event) => {
   <div
     class="h-full w-full flex flex-col border-2 rounded-lg transition-colors overflow-hidden"
     :class="difficultyColorClass"
-    @click="handleCardClick"
   >
     <!-- ドラッグハンドル部分 (カードの上部) -->
     <div
-      class="drag-handle py-2 px-3 flex justify-between items-center border-b border-opacity-30"
+      class="drag-handle py-2 px-3 flex justify-between items-center border-b border-opacity-30 cursor-move"
       :class="difficultyColorClass.replace('bg-', 'bg-opacity-70 bg-')"
     >
       <h3 class="font-bold text-gray-800 truncate text-sm">{{ task.name }}</h3>
@@ -71,7 +67,12 @@ const handleCardClick = (event: Event) => {
     </div>
 
     <!-- カード本体 (クリックで詳細表示) -->
-    <div class="p-3 flex-1 flex flex-col cursor-pointer">
+    <div
+      class="task-content p-3 flex-1 flex flex-col cursor-pointer"
+      @click="handleCardClick"
+      @dragenter.prevent
+      @dragover.prevent
+    >
       <p class="text-sm text-gray-700 line-clamp-2 mb-2">
         {{ task.description }}
       </p>

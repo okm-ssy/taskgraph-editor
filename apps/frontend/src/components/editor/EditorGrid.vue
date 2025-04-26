@@ -97,7 +97,7 @@ const toggleAddPanel = () => {
         :vertical-compact="false"
         :use-css-transforms="true"
         :margin="[10, 10]"
-        drag-handle-class="drag-handle"
+        drag-handle=".drag-handle"
         @layout-updated="handleLayoutUpdated"
         class="min-h-[600px]"
       >
@@ -111,6 +111,7 @@ const toggleAddPanel = () => {
           :h="task.grid.h"
           :min-w="2"
           :min-h="2"
+          drag-ignore-from=".task-content"
         >
           <TaskCard
             :task="task.task"
