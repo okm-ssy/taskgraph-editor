@@ -13,8 +13,7 @@ taskgraph_editor() {
   [ $# -gt 0 ] && shift
   case $subcommand in
   edit)
-    code "${repository_root}/taskgraph-editor.code-workspace"
-    return
+    script_name='edit.sh'
     ;;
   run)
     script_name='front/run.sh'
