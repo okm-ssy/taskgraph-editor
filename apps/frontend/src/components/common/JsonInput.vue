@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue';
 
-import { useCurrentTasks } from '../store/task_store';
+import { useCurrentTasks } from '../../store/task_store';
 
 // ストアからデータと関数を取得
 const taskStore = useCurrentTasks();

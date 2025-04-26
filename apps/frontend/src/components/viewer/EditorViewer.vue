@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 
 import { useCurrentTasks } from '../../store/task_store';
-import JsonInput from '../JsonInput.vue';
+import JsonInput from '../common/JsonInput.vue';
 
 import TaskDetail from './TaskDetail.vue';
 import TaskDialog from './TaskDialog.vue';
