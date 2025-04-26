@@ -24,7 +24,7 @@ const taskCount = computed(() => taskStore.editorTasks.length);
 
 <template>
   <div class="w-full p-4">
-    <h2 class="text-xl font-bold mb-4">タスクグラフビューア</h2>
+    <h2 class="text-xl font-bold mb-4">タスクグラフツール</h2>
     <Switcher v-model="currentPage" />
 
     <JsonInput

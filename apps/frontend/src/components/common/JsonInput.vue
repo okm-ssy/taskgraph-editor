@@ -43,7 +43,7 @@ onMounted(() => {
         class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
       >
         {{
-          taskStore.jsonInputVisible ? 'JSONパネルを閉じる' : 'JSONを貼り付ける'
+          taskStore.jsonInputVisible ? 'JSONパネルを閉じる' : 'JSONパネルを開く'
         }}
       </button>
     </div>

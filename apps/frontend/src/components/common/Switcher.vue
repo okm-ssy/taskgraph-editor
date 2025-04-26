@@ -35,9 +35,10 @@ const switchPage = (page: Page) => {
       <button
         v-for="page in pages"
         :key="page.id"
-        class="px-4 py-2 border border-gray-300 rounded cursor-pointer bg-gray-50 transition-all duration-200 hover:bg-gray-100"
+        class="px-4 py-2 border rounded cursor-pointer transition-all duration-200"
         :class="{
-          'text-blue-700': currentPage.id === page.id,
+          'font-bold text-white bg-blue-500': currentPage.id === page.id,
+          'bg-gray-200': currentPage.id !== page.id,
         }"
         @click="switchPage(page)"
       >
