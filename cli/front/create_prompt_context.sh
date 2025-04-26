@@ -26,11 +26,6 @@ $(cat "${REPOSITORY_ROOT}/.github/copilot-instructions.md")
 # package.json
 $(cat "${REPOSITORY_ROOT}/apps/frontend/package.json")
 
-
-# コード結合ファイル
-# 作成日時: $(date '+%Y-%m-%d %H:%M:%S')
-# 対象ディレクトリ: ${TARGETS[@]}
-
 EOF
 
 # 各対象ディレクトリを処理
@@ -39,7 +34,7 @@ for target in "${TARGETS[@]}"; do
   cat >>"$OUTPUT_FILE" <<EOF
 
 # ${target^^} ディレクトリ構造
-# ==================================================
+# ===
 
 EOF
 
@@ -57,13 +52,13 @@ EOF
         echo "# ファイル: ${relpath}/${filename}" >>"$OUTPUT_FILE"
       fi
 
-      echo "# --------------------------------------------------" >>"$OUTPUT_FILE"
+      echo "# ---" >>"$OUTPUT_FILE"
       echo "" >>"$OUTPUT_FILE"
 
       # ファイル内容を追加
       cat "$file" >>"$OUTPUT_FILE"
       echo "" >>"$OUTPUT_FILE"
-      echo "# --------------------------------------------------" >>"$OUTPUT_FILE"
+      echo "# ---" >>"$OUTPUT_FILE"
       echo "" >>"$OUTPUT_FILE"
     done
   else
