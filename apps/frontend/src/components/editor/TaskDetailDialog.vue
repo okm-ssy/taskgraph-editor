@@ -57,7 +57,8 @@ const handleCancel = () => {
 <template>
   <div
     v-if="taskStore.isDetailDialogVisible"
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+    @click.self="handleCancel"
   >
     <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
       <div class="border-b px-6 py-4">

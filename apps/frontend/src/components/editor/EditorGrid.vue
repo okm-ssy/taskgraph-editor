@@ -97,6 +97,7 @@ const toggleAddPanel = () => {
         :vertical-compact="false"
         :use-css-transforms="true"
         :margin="[10, 10]"
+        drag-handle-class="drag-handle"
         @layout-updated="handleLayoutUpdated"
         class="min-h-[600px]"
       >

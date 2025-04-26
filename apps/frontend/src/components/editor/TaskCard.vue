@@ -40,16 +40,28 @@ const handleRemove = (event: Event) => {
     taskStore.removeTask(props.id);
   }
 };
+
+// カード本体クリック時の処理
+const handleCardClick = (event: Event) => {
+  // ドラッグハンドル以外の部分をクリックした場合のみ詳細画面を表示
+  if (!(event.target as HTMLElement).closest('.drag-handle')) {
+    emit('click');
+  }
+};
 </script>
 
 <template>
   <div
-    class="h-full w-full p-3 flex flex-col border-2 rounded-lg cursor-pointer transition-colors"
+    class="h-full w-full flex flex-col border-2 rounded-lg transition-colors overflow-hidden"
     :class="difficultyColorClass"
-    @click="emit('click')"
+    @click="handleCardClick"
   >
-    <div class="flex justify-between items-start mb-2">
-      <h3 class="font-bold text-gray-800 truncate">{{ task.name }}</h3>
+    <!-- ドラッグハンドル部分 (カードの上部) -->
+    <div
+      class="drag-handle py-2 px-3 flex justify-between items-center border-b border-opacity-30"
+      :class="difficultyColorClass.replace('bg-', 'bg-opacity-70 bg-')"
+    >
+      <h3 class="font-bold text-gray-800 truncate text-sm">{{ task.name }}</h3>
       <button
         @click="handleRemove"
         class="text-gray-500 hover:text-red-500 transition-colors text-sm"
@@ -58,29 +70,37 @@ const handleRemove = (event: Event) => {
       </button>
     </div>
 
-    <p class="text-sm text-gray-700 line-clamp-2 mb-2">
-      {{ task.description }}
-    </p>
+    <!-- カード本体 (クリックで詳細表示) -->
+    <div class="p-3 flex-1 flex flex-col cursor-pointer">
+      <p class="text-sm text-gray-700 line-clamp-2 mb-2">
+        {{ task.description }}
+      </p>
 
-    <div class="mt-auto flex justify-between items-center">
-      <span class="text-xs bg-white rounded-full px-2 py-1 text-gray-700">
-        難易度: {{ task.difficulty }}
-      </span>
+      <div class="mt-auto flex justify-between items-center">
+        <span class="text-xs bg-white rounded-full px-2 py-1 text-gray-700">
+          難易度: {{ task.difficulty }}
+        </span>
 
-      <span class="text-xs text-gray-600">
-        <template v-if="task.depends.length > 0 && task.depends[0] !== ''">
-          <span>依存: {{ task.depends.join(', ') }}</span>
-        </template>
-      </span>
+        <span class="text-xs text-gray-600">
+          <template v-if="task.depends.length > 0 && task.depends[0] !== ''">
+            <span>依存: {{ task.depends.join(', ') }}</span>
+          </template>
+        </span>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
 .line-clamp-2 {
+  line-clamp: 2;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.drag-handle {
+  cursor: move; /* ドラッグハンドルのカーソルを変更 */
 }
 </style>
