@@ -2,9 +2,9 @@
 // ComponentPublicInstance 型をインポート
 import { onMounted, defineProps, watch, ref, onBeforeUpdate } from 'vue';
 
-import type { EditorTask } from '../model/EditorTask';
-import { useCurrentTasks } from '../store/task_store';
-import { useGraphExport } from '../store/use_graph_export';
+import type { EditorTask } from '../../model/EditorTask';
+import { useCurrentTasks } from '../../store/task_store';
+import { useGraphExport } from '../../store/use_graph_export';
 
 import TaskDetail from './TaskDetail.vue';
 

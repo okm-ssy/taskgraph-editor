@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-import { useCurrentTasks } from '../store/task_store';
+import { useCurrentTasks } from '../../store/task_store';
+import JsonInput from '../JsonInput.vue';
 
-import JsonInput from './JsonInput.vue';
 import TaskDetail from './TaskDetail.vue';
 import TaskDialog from './TaskDialog.vue';
 import TaskgraphViewer from './TaskgraphViewer.vue';

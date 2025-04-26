@@ -1,8 +1,8 @@
 <script setup>
 import { ref } from 'vue';
 
-import EditorGrid from '../components/EditorGrid.vue';
 import Switcher from '../components/Switcher.vue';
+import EditorGrid from '../components/editor/EditorGrid.vue';
 
 const isSelecting = ref(false);
 </script>

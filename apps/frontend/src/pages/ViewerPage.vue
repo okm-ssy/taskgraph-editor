@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import EditorViewer from '../components/EditorViewer.vue';
 import Switcher from '../components/Switcher.vue';
+import EditorViewer from '../components/viewer/EditorViewer.vue';
 </script>
 
 <template>
