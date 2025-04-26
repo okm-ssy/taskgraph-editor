@@ -4,10 +4,10 @@ export const infoZodSchema = zod
   .object({
     github: zod
       .object({
-        organization: zod.string(),
-        projectNumber: zod.number().int().min(1),
-        repository: zod.string(),
-        trackingIssueNumber: zod.number().int().min(1),
+        organization: zod.string().optional(),
+        projectNumber: zod.number().int().min(1).optional(),
+        repository: zod.string().optional(),
+        trackingIssueNumber: zod.number().int().min(1).optional(),
       })
       .optional(),
     name: zod.string().optional(),
