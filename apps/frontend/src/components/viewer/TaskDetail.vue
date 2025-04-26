@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, defineProps } from 'vue';
 
-import type { EditorTask } from '../model/EditorTask';
-import { useCurrentTasks } from '../store/task_store';
+import type { EditorTask } from '../../model/EditorTask';
+import { useCurrentTasks } from '../../store/task_store';
 
 const props = defineProps<{
   task: EditorTask; // EditorTask オブジェクト全体を受け取る
