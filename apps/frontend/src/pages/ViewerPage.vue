@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Switcher from '../components/Switcher.vue';
+import Switcher from '../components/common/Switcher.vue';
 import EditorViewer from '../components/viewer/EditorViewer.vue';
 </script>
 

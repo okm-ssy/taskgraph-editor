@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 
-import Switcher from '../components/Switcher.vue';
+import Switcher from '../components/common/Switcher.vue';
 import EditorGrid from '../components/editor/EditorGrid.vue';
 
 const isSelecting = ref(false);
