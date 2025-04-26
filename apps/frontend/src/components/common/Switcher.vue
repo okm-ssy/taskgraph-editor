@@ -1,50 +1,48 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { computed } from 'vue';
 
-interface RouteConfig {
-  path: string;
-  name: string;
-}
+import { Page } from '@/store/types/page';
 
-// ルート設定
-const routes: RouteConfig[] = [
-  { path: '/view', name: 'ビュー' },
-  { path: '/edit', name: 'エディター' },
+const props = defineProps<{
+  modelValue: Page;
+}>();
+
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: Page): void;
+}>();
+
+// 切り替え先のページオプション
+const pages: Page[] = [
+  { name: 'ビューア', id: 'viewer' },
+  { name: 'エディタ', id: 'editor' },
 ];
 
-const router = useRouter();
-const route = useRoute();
-const currentPath = ref(route.path);
-
-// ルート変更ハンドラー
-const handleRouteChange = () => {
-  router.push(currentPath.value);
-};
-
-// コンポーネントマウント時に現在のパスを設定
-onMounted(() => {
-  currentPath.value = route.path;
+// 現在選択されているページ
+const currentPage = computed({
+  get: () => props.modelValue,
+  set: (value: Page) => emit('update:modelValue', value),
 });
+
+// ページ切り替え処理
+const switchPage = (page: Page) => {
+  currentPage.value = page;
+};
 </script>
 
 <template>
-  <div class="space-x-3 m-2">
-    <label
-      v-for="route in routes"
-      :key="route.path"
-      class="px-3 border rounded-lg border-gray-700"
-    >
-      <input
-        type="radio"
-        :value="route.path"
-        v-model="currentPath"
-        @change="handleRouteChange"
-        :checked="currentPath === route.path"
-      />
-      {{ route.name }}
-    </label>
+  <div class="my-4">
+    <div class="flex gap-2 mb-4">
+      <button
+        v-for="page in pages"
+        :key="page.id"
+        class="px-4 py-2 border border-gray-300 rounded cursor-pointer bg-gray-50 transition-all duration-200 hover:bg-gray-100"
+        :class="{
+          'text-blue-700': currentPage.id === page.id,
+        }"
+        @click="switchPage(page)"
+      >
+        {{ page.name }}
+      </button>
+    </div>
   </div>
 </template>
-
-<style scoped></style>

@@ -2,38 +2,17 @@
 import { computed } from 'vue';
 
 import { useCurrentTasks } from '../../store/task_store';
-import JsonInput from '../common/JsonInput.vue';
 
 import TaskDetail from './TaskDetail.vue';
 import TaskDialog from './TaskDialog.vue';
 import TaskgraphViewer from './TaskgraphViewer.vue';
-// TaskDialog は通常のインポートに変更 (動的である必要がなければ)
-// TaskDetail もインポート
 
 const taskStore = useCurrentTasks();
 const taskCount = computed(() => taskStore.editorTasks.length);
-
-const handleParseSuccess = (jsonString: string) => {
-  taskStore.parseJsonToTaskgraph(jsonString);
-};
-const handleParseError = (errorMessage: string) => {
-  console.error('JSONパースエラー(EditorViewer):', errorMessage);
-};
 </script>
 
 <template>
   <div class="editor-viewer p-4">
-    <h2 class="text-xl font-bold mb-4">タスクグラフビューア</h2>
-
-    <JsonInput
-      @parse-success="handleParseSuccess"
-      @parse-error="handleParseError"
-    />
-
-    <div class="text-sm text-gray-500 my-4" v-if="taskCount > 0">
-      {{ taskCount }}個のタスクを表示中
-    </div>
-
     <TaskgraphViewer :editor-tasks="taskStore.editorTasks" />
 
     <div
