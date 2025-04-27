@@ -57,13 +57,24 @@ const handleCardClick = () => {
       class="drag-handle py-2 px-3 flex justify-between items-center border-b border-opacity-30 cursor-move"
       :class="difficultyColorClass.replace('bg-', 'bg-opacity-70 bg-')"
     >
-      <h3 class="font-bold text-gray-800 truncate text-sm">{{ task.name }}</h3>
-      <button
-        @click="handleRemove"
-        class="text-gray-500 hover:text-red-500 transition-colors text-sm"
-      >
-        ×
-      </button>
+      <div class="flex items-center justify-start overflow-x-hidden">
+        <div
+          class="border-2 border-white bg-blue-500 rounded-full h-2 w-2 mr-2"
+          :id="`target-${id}`"
+        />
+        <div class="font-bold text-gray-800 truncate text-sm">
+          {{ task.name }}
+        </div>
+      </div>
+      <div>
+        <button
+          @click="handleRemove"
+          class="text-gray-500 hover:text-red-500 transition-colors text-sm"
+        >
+          ×
+        </button>
+        <div :id="`source-${id}`" />
+      </div>
     </div>
 
     <!-- カード本体 (クリックで詳細表示) -->
