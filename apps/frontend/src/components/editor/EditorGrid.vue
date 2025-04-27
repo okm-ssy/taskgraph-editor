@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, nextTick } from 'vue';
 import { GridLayout, GridItem } from 'vue3-grid-layout-next';
 
 import { useCurrentTasks } from '../../store/task_store';
 
+import Curve from './Curve.vue';
 import TaskAddButton from './TaskAddButton.vue';
 import TaskAddPanel from './TaskAddPanel.vue';
 import TaskCard from './TaskCard.vue';
@@ -20,6 +21,20 @@ const emit = defineEmits<{
 const taskStore = useCurrentTasks();
 const layout = ref([]);
 const showAddPanel = ref(false);
+
+// 矢印描画用: 依存関係のペアを取得
+type Arrow = {
+  fromId: string;
+  toId: string;
+};
+
+const arrows = ref<Arrow[]>([]);
+const arrowPositions = ref<
+  {
+    from: { x: number; y: number };
+    to: { x: number; y: number };
+  }[]
+>([]);
 
 // グリッドレイアウト初期化
 onMounted(() => {
@@ -66,6 +81,89 @@ const handleAddTask = () => {
 const toggleAddPanel = () => {
   showAddPanel.value = !showAddPanel.value;
 };
+
+// 依存関係から矢印ペアを生成
+const updateArrows = () => {
+  const result: Arrow[] = [];
+  for (const task of taskStore.editorTasks) {
+    const fromId = task.id;
+    for (const dep of task.task.depends) {
+      if (!dep) continue;
+      const depTask = taskStore.editorTasks.find((t) => t.task.name === dep);
+      if (depTask) {
+        result.push({ fromId, toId: depTask.id });
+      }
+    }
+  }
+  arrows.value = result;
+};
+
+// DOM座標取得
+const updateArrowPositions = () => {
+  nextTick(() => {
+    const container = document.querySelector(
+      '.flex-1.overflow-auto.p-4.relative',
+    ) as HTMLElement;
+    if (!container) return;
+    const containerRect = container.getBoundingClientRect();
+    const scrollLeft = container.scrollLeft;
+    const scrollTop = container.scrollTop;
+
+    const positions = arrows.value
+      .map(({ fromId, toId }) => {
+        const fromEl = document.getElementById(`source-${fromId}`);
+        const toEl = document.getElementById(`target-${toId}`);
+        if (!fromEl || !toEl) return null;
+        const fromRect = fromEl.getBoundingClientRect();
+        const toRect = toEl.getBoundingClientRect();
+        // スクロール位置も考慮して補正
+        return {
+          from: {
+            x:
+              fromRect.left +
+              fromRect.width / 2 -
+              containerRect.left +
+              scrollLeft,
+            y:
+              fromRect.top +
+              fromRect.height / 2 -
+              containerRect.top +
+              scrollTop,
+          },
+          to: {
+            x: toRect.left + toRect.width / 2 - containerRect.left + scrollLeft,
+            y: toRect.top + toRect.height / 2 - containerRect.top + scrollTop,
+          },
+        };
+      })
+      .filter(Boolean) as {
+      from: { x: number; y: number };
+      to: { x: number; y: number };
+    }[];
+    arrowPositions.value = positions;
+  });
+};
+
+// タスクやレイアウトが変わったら再計算
+watch(
+  () => [
+    taskStore.editorTasks.map((t) => t.id + t.task.depends.join(',')),
+    layout.value,
+  ],
+  () => {
+    updateArrows();
+    updateArrowPositions();
+  },
+  { immediate: true, deep: true },
+);
+
+// リサイズ時も再計算
+window.addEventListener('resize', updateArrowPositions);
+
+onMounted(() => {
+  updateArrows();
+  updateArrowPositions();
+});
 </script>
 
 <template>
@@ -84,6 +182,16 @@ const toggleAddPanel = () => {
     </div>
 
     <div class="flex-1 overflow-auto p-4 relative">
+      <!-- 矢印SVGレイヤー -->
+      <svg class="absolute left-0 top-0 w-full h-full pointer-events-none z-10">
+        <Curve
+          v-for="(arrow, idx) in arrowPositions"
+          :key="idx"
+          :start="arrow.from"
+          :end="arrow.to"
+        />
+      </svg>
+
       <!-- 新規タスク追加パネル -->
       <TaskAddPanel v-if="showAddPanel" @close="showAddPanel = false" />
 
