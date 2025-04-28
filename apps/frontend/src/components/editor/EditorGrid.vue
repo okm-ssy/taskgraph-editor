@@ -2,6 +2,7 @@
 import { ref, onMounted, watch, nextTick } from 'vue';
 import { GridLayout, GridItem } from 'vue3-grid-layout-next';
 
+import { GridTask } from '../../model/GridTask';
 import { useCurrentTasks } from '../../store/task_store';
 
 import Curve from './Curve.vue';
@@ -19,7 +20,7 @@ const emit = defineEmits<{
 }>();
 
 const taskStore = useCurrentTasks();
-const layout = ref([]);
+const layout = ref<GridTask[]>([]);
 const showAddPanel = ref(false);
 
 // 矢印描画用: 依存関係のペアを取得
@@ -53,7 +54,7 @@ watch(
 );
 
 // レイアウト更新時の処理
-const handleLayoutUpdated = (newLayout) => {
+const handleLayoutUpdated = (newLayout: GridTask[]) => {
   newLayout.forEach((item) => {
     taskStore.updateGridTask(item.i, {
       x: item.x,
