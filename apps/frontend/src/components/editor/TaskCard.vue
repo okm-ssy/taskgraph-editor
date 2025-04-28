@@ -9,10 +9,6 @@ const props = defineProps<{
   id: string;
 }>();
 
-const emit = defineEmits<{
-  (e: 'click'): void;
-}>();
-
 const taskStore = useCurrentTasks();
 
 // 難易度に基づいて背景色を計算
@@ -43,7 +39,7 @@ const handleRemove = (event: Event) => {
 
 // カード本体クリック時の処理
 const handleCardClick = () => {
-  emit('click');
+  taskStore.selectTask(props.id);
 };
 </script>
 

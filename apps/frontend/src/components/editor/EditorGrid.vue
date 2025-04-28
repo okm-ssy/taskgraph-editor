@@ -70,12 +70,6 @@ const handleLayoutUpdated = (newLayout: GridTask[]) => {
   });
 };
 
-// タスク選択のハンドラ
-const handleTaskSelect = (id: string) => {
-  emit('update:selecting', true);
-  taskStore.selectTask(id);
-};
-
 // タスク追加ボタンのクリックハンドラ
 const handleAddTask = () => {
   taskStore.addTask();
@@ -119,6 +113,14 @@ watch(
 onMounted(() => {
   updateArrows();
 });
+
+// 選択状態の監視（選択されたらselecting=trueに設定）
+watch(
+  () => taskStore.selectedTask?.id,
+  (newSelectedId) => {
+    emit('update:selecting', !!newSelectedId);
+  },
+);
 </script>
 
 <template>
@@ -170,11 +172,7 @@ onMounted(() => {
           :min-h="2"
           drag-ignore-from=".task-content"
         >
-          <TaskCard
-            :task="task.task"
-            :id="task.id"
-            @click="handleTaskSelect(task.id)"
-          />
+          <TaskCard :task="task.task" :id="task.id" />
         </GridItem>
       </GridLayout>
     </div>
