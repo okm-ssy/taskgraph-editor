@@ -61,20 +61,20 @@ const handleCardClick = () => {
       <div class="flex items-center justify-start overflow-x-hidden">
         <div
           :id="`target-${id}`"
-          class="border-2 border-white bg-blue-500 rounded-full h-2 w-2 mr-2"
+          class="border-2 border-white bg-blue-500 rounded-full h-3 w-3 mr-2"
         />
         <div class="font-bold text-gray-800 truncate text-sm">
           {{ task.name }}
         </div>
       </div>
-      <div>
+      <div class="flex items-center">
         <button
           @click="handleRemove"
-          class="text-gray-500 hover:text-red-500 transition-colors text-sm"
+          class="text-gray-500 hover:text-red-500 transition-colors"
         >
           ×
         </button>
-        <div :id="`source-${id}`" />
+        <div :id="`source-${id}`" class="ml-3" />
       </div>
     </div>
 
