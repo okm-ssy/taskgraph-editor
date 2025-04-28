@@ -53,10 +53,6 @@ const handleCardClick = () => {
     :class="difficultyColorClass"
   >
     <!-- target: カード上部中央 -->
-    <div
-      :id="`target-${id}`"
-      class="absolute left-1/2 top-0 -translate-x-1/2 w-2 h-2 z-20"
-    />
     <!-- ドラッグハンドル部分 (カードの上部) -->
     <div
       class="drag-handle py-2 px-3 flex justify-between items-center border-b border-opacity-30 cursor-move relative"
@@ -64,6 +60,7 @@ const handleCardClick = () => {
     >
       <div class="flex items-center justify-start overflow-x-hidden">
         <div
+          :id="`target-${id}`"
           class="border-2 border-white bg-blue-500 rounded-full h-2 w-2 mr-2"
         />
         <div class="font-bold text-gray-800 truncate text-sm">
@@ -77,6 +74,7 @@ const handleCardClick = () => {
         >
           ×
         </button>
+        <div :id="`source-${id}`" />
       </div>
     </div>
 
@@ -101,11 +99,6 @@ const handleCardClick = () => {
           </template>
         </span>
       </div>
-      <!-- source: カード下部中央 -->
-      <div
-        :id="`source-${id}`"
-        class="absolute left-1/2 bottom-0 -translate-x-1/2 w-2 h-2 z-20"
-      />
     </div>
   </div>
 </template>
