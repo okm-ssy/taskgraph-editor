@@ -67,14 +67,17 @@ const handleCardClick = () => {
           {{ task.name }}
         </div>
       </div>
-      <div class="flex items-center">
+      <div class="flex items-center justify-center">
         <button
           @click="handleRemove"
-          class="text-gray-500 hover:text-red-500 transition-colors"
+          class="text-gray-500 hover:bg-white rounded-full p-1"
         >
           ×
         </button>
-        <div :id="`source-${id}`" class="ml-3" />
+        <div
+          :id="`source-${id}`"
+          class="border-2 border-white bg-blue-500 rounded-full h-3 w-3"
+        />
       </div>
     </div>
 

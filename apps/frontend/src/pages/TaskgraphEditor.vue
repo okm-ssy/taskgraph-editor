@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 
+import { useCurrentTasks } from '../store/task_store';
+import { Page, viewerPage } from '../store/types/page';
+
 import EditorPage from './EditorPage.vue';
 import ViewerPage from './ViewerPage.vue';
 
 import JsonInput from '@/components/common/JsonInput.vue';
 import Switcher from '@/components/common/Switcher.vue';
-import { useCurrentTasks } from '@/store/task_store';
-import { Page, viewerPage } from '@/store/types/page.ts';
 
 const taskStore = useCurrentTasks();
 const currentPage = ref<Page>(viewerPage);
