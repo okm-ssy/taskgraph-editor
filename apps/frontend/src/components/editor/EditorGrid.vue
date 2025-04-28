@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, nextTick } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { GridLayout, GridItem } from 'vue3-grid-layout-next';
 
 import { GridTask } from '../../model/GridTask';
 import { useCurrentTasks } from '../../store/task_store';
 
-import Curve from './Curve.vue';
+import Curve, { type Connection } from './Curve.vue';
 import TaskAddButton from './TaskAddButton.vue';
 import TaskAddPanel from './TaskAddPanel.vue';
 import TaskCard from './TaskCard.vue';
@@ -30,12 +30,17 @@ type Arrow = {
 };
 
 const arrows = ref<Arrow[]>([]);
-const arrowPositions = ref<
-  {
-    from: { x: number; y: number };
-    to: { x: number; y: number };
-  }[]
->([]);
+
+// Curve.vueに渡すconnections配列
+const connections = computed<Connection[]>(() => {
+  return arrows.value.map((arrow) => ({
+    sourceId: `source-${arrow.fromId}`,
+    targetId: `target-${arrow.toId}`,
+    color: '#94a3b8',
+    strokeWidth: 1.5,
+    interval: 100, // 更新間隔（ミリ秒）
+  }));
+});
 
 // グリッドレイアウト初期化
 onMounted(() => {
@@ -99,52 +104,6 @@ const updateArrows = () => {
   arrows.value = result;
 };
 
-// DOM座標取得
-const updateArrowPositions = () => {
-  nextTick(() => {
-    const container = document.querySelector(
-      '.flex-1.overflow-auto.p-4.relative',
-    ) as HTMLElement;
-    if (!container) return;
-    const containerRect = container.getBoundingClientRect();
-    const scrollLeft = container.scrollLeft;
-    const scrollTop = container.scrollTop;
-
-    const positions = arrows.value
-      .map(({ fromId, toId }) => {
-        const fromEl = document.getElementById(`source-${fromId}`);
-        const toEl = document.getElementById(`target-${toId}`);
-        if (!fromEl || !toEl) return null;
-        const fromRect = fromEl.getBoundingClientRect();
-        const toRect = toEl.getBoundingClientRect();
-        // スクロール位置も考慮して補正
-        return {
-          from: {
-            x:
-              fromRect.left +
-              fromRect.width / 2 -
-              containerRect.left +
-              scrollLeft,
-            y:
-              fromRect.top +
-              fromRect.height / 2 -
-              containerRect.top +
-              scrollTop,
-          },
-          to: {
-            x: toRect.left + toRect.width / 2 - containerRect.left + scrollLeft,
-            y: toRect.top + toRect.height / 2 - containerRect.top + scrollTop,
-          },
-        };
-      })
-      .filter(Boolean) as {
-      from: { x: number; y: number };
-      to: { x: number; y: number };
-    }[];
-    arrowPositions.value = positions;
-  });
-};
-
 // タスクやレイアウトが変わったら再計算
 watch(
   () => [
@@ -153,23 +112,22 @@ watch(
   ],
   () => {
     updateArrows();
-    updateArrowPositions();
   },
   { immediate: true, deep: true },
 );
 
-// リサイズ時も再計算
-window.addEventListener('resize', updateArrowPositions);
-
 onMounted(() => {
   updateArrows();
-  updateArrowPositions();
 });
 </script>
 
 <template>
   <div class="h-full flex flex-col">
     <div class="flex justify-between items-center p-3 border-b bg-gray-50">
+      <!-- 矢印SVGレイヤー -->
+      <div class="absolute inset-0 pointer-events-none z-10">
+        <Curve :connections="connections" />
+      </div>
       <h3 class="font-semibold">タスクグリッドエディター</h3>
       <div class="flex gap-2">
         <button
@@ -183,16 +141,6 @@ onMounted(() => {
     </div>
 
     <div class="flex-1 overflow-auto p-4 relative">
-      <!-- 矢印SVGレイヤー -->
-      <svg class="absolute left-0 top-0 w-full h-full pointer-events-none z-10">
-        <Curve
-          v-for="(arrow, idx) in arrowPositions"
-          :key="idx"
-          :start="arrow.from"
-          :end="arrow.to"
-        />
-      </svg>
-
       <!-- 新規タスク追加パネル -->
       <TaskAddPanel v-if="showAddPanel" @close="showAddPanel = false" />
 
