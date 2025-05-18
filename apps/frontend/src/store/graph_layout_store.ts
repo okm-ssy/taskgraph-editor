@@ -416,15 +416,17 @@ export const useGraphLayout = () => {
   // 難易度に応じた色クラスを返す
   const getDifficultyColor = (difficulty: number) => {
     const colors = [
-      'bg-green-100 border-green-300', // 1
-      'bg-yellow-100 border-yellow-300', // 2
-      'bg-orange-100 border-orange-300', // 3
-      'bg-red-100 border-red-300', // 4
-      'bg-purple-100 border-purple-300', // 5
+      'bg-gray-100 border-gray-400', // ~0
+      'bg-blue-100 border-blue-400', // ~1
+      'bg-emerald-100 border-emerald-500', // ~2
+      'bg-yellow-100 border-yellow-500', // ~3
+      'bg-orange-100 border-orange-500', // ~4
+      'bg-red-100 border-red-500', // ~5
+      'bg-purple-100 border-purple-500', // ~6
     ];
 
     const index = Math.min(
-      Math.max(Math.floor(difficulty) - 1, 0),
+      Math.max(Math.ceil(difficulty), 0),
       colors.length - 1,
     );
     return colors[index];
