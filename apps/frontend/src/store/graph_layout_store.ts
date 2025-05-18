@@ -31,9 +31,21 @@ export const useGraphLayout = () => {
   const buildGraphData = (editorTasks: EditorTask[]) => {
     const nodesMap = new Map<string, GraphNode>();
 
+    // タスク名の重複チェックを追加
+    const taskNames = new Set<string>();
+    editorTasks.forEach((task) => {
+      if (taskNames.has(task.task.name)) {
+        console.warn(`重複するタスク名が検出されました: ${task.task.name}`);
+      }
+      taskNames.add(task.task.name);
+    });
+
     // 各タスクのノード情報を作成
     editorTasks.forEach((editorTask) => {
       const task = editorTask.task;
+
+      // 空文字列の依存関係を除外する
+      const cleanedParents = task.depends.filter((dep) => dep !== '');
 
       nodesMap.set(task.name, {
         id: editorTask.id,
@@ -43,7 +55,7 @@ export const useGraphLayout = () => {
         level: 0,
         treeIndex: 0,
         children: [],
-        parents: task.depends.filter((dep) => dep !== ''),
+        parents: cleanedParents, // 空文字列をフィルタリング
         x: 0,
         y: 0,
       });
