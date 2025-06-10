@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
+import { useTaskActions } from '../../composables/useTaskActions';
 import type { Task } from '../../model/Taskgraph';
-import { useCurrentTasks } from '../../store/task_store';
 
 const props = defineProps<{
   task: Task;
   id: string;
 }>();
 
-const taskStore = useCurrentTasks();
+const taskActions = useTaskActions();
 
 // 難易度に基づいて背景色を計算
 const difficultyColorClass = computed(() => {
@@ -33,13 +33,13 @@ const difficultyColorClass = computed(() => {
 const handleRemove = (event: Event) => {
   event.stopPropagation();
   if (confirm(`タスク「${props.task.name}」を削除してもよろしいですか？`)) {
-    taskStore.removeTask(props.id);
+    taskActions.deleteTask(props.id);
   }
 };
 
 // カード本体クリック時の処理
 const handleCardClick = () => {
-  taskStore.selectTask(props.id);
+  taskActions.selectTask(props.id);
 };
 </script>
 

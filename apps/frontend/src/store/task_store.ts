@@ -6,6 +6,7 @@ import { EditorTask } from '../model/EditorTask'; // EditorTask をインポー�
 import type { GridTask } from '../model/GridTask';
 import type { Taskgraph, Task } from '../model/Taskgraph';
 
+import { useEditorUIStore } from './editor_ui_store';
 import { useGraphLayout } from './graph_layout_store';
 import { useJsonProcessor } from './json_processor';
 
@@ -15,12 +16,13 @@ export const useCurrentTasks = defineStore('editorTask', () => {
 
   // JSON処理関連
   const jsonProcessor = useJsonProcessor();
+  
+  // UIストア
+  const uiStore = useEditorUIStore();
 
   // Store State
   const editorTasks = ref<EditorTask[]>([]);
   const info = ref<Taskgraph['info']>({});
-  const selectedTaskId = ref<string | null>(null); // 追加: 選択中のタスクID
-  const isDetailDialogVisible = ref(false); // 追加: 詳細ダイアログの表示状態
 
   // Getters
   const tasks = computed(() => editorTasks.value.map((et) => et.task));
@@ -38,10 +40,10 @@ export const useCurrentTasks = defineStore('editorTask', () => {
       ): Task[] => // 型を明確化
         tasks.value.filter((task) => task.depends.includes(taskName)),
   );
-  // 追加: 選択中のタスクオブジェクトを取得
+  // 選択中のタスクオブジェクトを取得（UIストアから）
   const selectedTask = computed((): EditorTask | null => {
-    if (!selectedTaskId.value) return null;
-    return getTaskById.value(selectedTaskId.value) ?? null;
+    if (!uiStore.selectedTaskId) return null;
+    return getTaskById.value(uiStore.selectedTaskId) ?? null;
   });
 
   // Actions
@@ -58,8 +60,9 @@ export const useCurrentTasks = defineStore('editorTask', () => {
       editorTasks.value.splice(index, 1);
       graphLayout.buildGraphData(editorTasks.value);
       // 削除されたタスクが選択中だったらダイアログを閉じる
-      if (selectedTaskId.value === id) {
-        closeDetailDialog();
+      if (uiStore.selectedTaskId === id) {
+        uiStore.closeDetailDialog();
+        uiStore.clearSelection();
       }
       return true;
     }
@@ -90,7 +93,8 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     info.value = newInfo;
     editorTasks.value = newTasks;
     graphLayout.buildGraphData(editorTasks.value);
-    closeDetailDialog(); // インポートしたら選択状態をリセット
+    uiStore.closeDetailDialog(); // インポートしたら選択状態をリセット
+    uiStore.clearSelection();
   };
 
   // JSON処理メソッドのラッパー
@@ -115,17 +119,11 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     graphLayout.buildGraphData(editorTasks.value);
   };
 
-  // --- 追加: ダイアログ関連のアクション ---
+  // タスク選択のアクション（UIストアに委譲）
   const selectTask = (id: string) => {
-    selectedTaskId.value = id;
-    isDetailDialogVisible.value = true;
+    uiStore.selectTask(id);
+    uiStore.openDetailDialog();
   };
-
-  const closeDetailDialog = () => {
-    isDetailDialogVisible.value = false;
-    selectedTaskId.value = null; // 選択状態を解除
-  };
-  // --- ここまで追加 ---
 
   return {
     // Store State
@@ -150,8 +148,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     exportTaskgraphToJson,
     loadSampleData,
     buildGraphData,
-    selectTask, // 追加
-    closeDetailDialog, // 追加
+    selectTask, // UIストアに委譲
 
     // JSONProcessor State & Methods
     taskLoadError: jsonProcessor.taskLoadError,
@@ -167,7 +164,5 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     getDifficultyColor: graphLayout.getDifficultyColor,
     GRAPH_SETTINGS: graphLayout.GRAPH_SETTINGS,
 
-    // 追加: ダイアログ表示状態
-    isDetailDialogVisible,
   };
 });
