@@ -126,16 +126,26 @@ const toggleAddPanel = () => {
   uiStore.toggleAddPanel();
 };
 
-// 依存関係から矢印ペアを生成
+// 自動配置の実行
+const handleAutoLayout = () => {
+  taskStore.autoLayoutTasks();
+  // レイアウトを更新
+  layout.value = taskStore.gridTasks;
+  // Curve更新をトリガー
+  triggerCurveUpdate();
+};
+
+// 依存関係から矢印ペアを生成（左から右へ）
 const updateArrows = () => {
   const result: Arrow[] = [];
   for (const task of taskStore.editorTasks) {
-    const fromId = task.id;
+    const toId = task.id; // 依存しているタスク（矢印の先端）
     for (const dep of task.task.depends) {
       if (!dep) continue;
       const depTask = taskStore.editorTasks.find((t) => t.task.name === dep);
       if (depTask) {
-        result.push({ fromId, toId: depTask.id });
+        // 依存されているタスク → 依存しているタスク（左から右）
+        result.push({ fromId: depTask.id, toId });
       }
     }
   }
@@ -176,6 +186,13 @@ watch(
       </div>
       <h3 class="font-semibold">タスクグリッドエディター</h3>
       <div class="flex gap-2">
+        <button
+          class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm transition-colors"
+          @click="handleAutoLayout"
+          :disabled="taskStore.editorTasks.length === 0"
+        >
+          自動配置
+        </button>
         <button
           class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-md text-sm transition-colors"
           @click="toggleAddPanel"

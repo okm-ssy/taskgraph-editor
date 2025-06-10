@@ -432,6 +432,112 @@ export const useGraphLayout = () => {
     return colors[index];
   };
 
+  // グラフ座標をグリッド座標に変換する機能
+  const convertGraphToGrid = (editorTasks: EditorTask[]) => {
+    // まずグラフレイアウトを計算
+    buildGraphData(editorTasks);
+    
+    // グリッド設定
+    const GRID_SETTINGS = {
+      colNum: 12,
+      rowHeight: 50,
+      margin: [10, 10],
+      gridItemWidth: 2, // デフォルトのグリッドアイテム幅
+      gridItemHeight: 3, // デフォルトのグリッドアイテム高さ
+    };
+    
+    // ピクセル座標をグリッド座標に変換
+    const pixelToGrid = (pixelX: number, pixelY: number) => {
+      // グリッドの実際のセル幅を計算（マージンを考慮）
+      const effectiveGridWidth = (canvasWidth.value - (GRID_SETTINGS.colNum + 1) * GRID_SETTINGS.margin[0]) / GRID_SETTINGS.colNum;
+      const effectiveGridHeight = GRID_SETTINGS.rowHeight;
+      
+      // ピクセル座標をグリッド座標に変換
+      const gridX = Math.round(pixelX / (effectiveGridWidth + GRID_SETTINGS.margin[0]));
+      const gridY = Math.round(pixelY / (effectiveGridHeight + GRID_SETTINGS.margin[1]));
+      
+      // グリッドの境界内に収める
+      const clampedX = Math.max(0, Math.min(gridX, GRID_SETTINGS.colNum - GRID_SETTINGS.gridItemWidth));
+      const clampedY = Math.max(0, gridY);
+      
+      return { x: clampedX, y: clampedY };
+    };
+    
+    // 各EditorTaskのグリッド座標を更新
+    editorTasks.forEach((editorTask) => {
+      const graphNode = graphNodes.value.find(node => node.id === editorTask.id);
+      if (graphNode) {
+        const gridPos = pixelToGrid(graphNode.x, graphNode.y);
+        
+        // EditorTaskのgrid座標を更新
+        editorTask.grid.x = gridPos.x;
+        editorTask.grid.y = gridPos.y;
+        editorTask.grid.w = GRID_SETTINGS.gridItemWidth;
+        editorTask.grid.h = GRID_SETTINGS.gridItemHeight;
+      }
+    });
+    
+    return editorTasks;
+  };
+  
+  // グリッド配置の最適化（重複回避）
+  const optimizeGridLayout = (editorTasks: EditorTask[]) => {
+    const GRID_SETTINGS_LOCAL = {
+      colNum: 12,
+      gridItemWidth: 2,
+      gridItemHeight: 3,
+    };
+    
+    const occupiedPositions = new Set<string>();
+    
+    // Y座標でソート（上から下へ配置）
+    const sortedTasks = [...editorTasks].sort((a, b) => a.grid.y - b.grid.y);
+    
+    sortedTasks.forEach((task) => {
+      let { x, y, w, h } = task.grid;
+      
+      // 重複チェックとずらし処理
+      while (isPositionOccupied(x, y, w, h, occupiedPositions)) {
+        x++;
+        // 右端に達したら次の行へ
+        if (x + w > GRID_SETTINGS_LOCAL.colNum) {
+          x = 0;
+          y++;
+        }
+      }
+      
+      // 最終的な位置を設定
+      task.grid.x = x;
+      task.grid.y = y;
+      
+      // 占有位置を記録
+      markPositionOccupied(x, y, w, h, occupiedPositions);
+    });
+    
+    return editorTasks;
+  };
+  
+  // 位置が占有されているかチェック
+  const isPositionOccupied = (x: number, y: number, w: number, h: number, occupied: Set<string>) => {
+    for (let i = x; i < x + w; i++) {
+      for (let j = y; j < y + h; j++) {
+        if (occupied.has(`${i},${j}`)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+  
+  // 位置を占有済みとしてマーク
+  const markPositionOccupied = (x: number, y: number, w: number, h: number, occupied: Set<string>) => {
+    for (let i = x; i < x + w; i++) {
+      for (let j = y; j < y + h; j++) {
+        occupied.add(`${i},${j}`);
+      }
+    }
+  };
+
   return {
     graphNodes,
     canvasWidth,
@@ -440,6 +546,8 @@ export const useGraphLayout = () => {
     buildGraphData,
     getPathD,
     getDifficultyColor,
+    convertGraphToGrid,
+    optimizeGridLayout,
     GRAPH_SETTINGS,
   };
 };
