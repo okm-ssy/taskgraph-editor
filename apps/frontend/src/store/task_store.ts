@@ -92,7 +92,10 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   const updateTasks = (newTasks: EditorTask[], newInfo: Taskgraph['info']) => {
     info.value = newInfo;
     editorTasks.value = newTasks;
-    graphLayout.buildGraphData(editorTasks.value);
+    
+    // JSONインポート時は自動配置を適用
+    autoLayoutTasks();
+    
     uiStore.closeDetailDialog(); // インポートしたら選択状態をリセット
     uiStore.clearSelection();
   };
@@ -117,6 +120,22 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   // グラフデータ構築
   const buildGraphData = () => {
     graphLayout.buildGraphData(editorTasks.value);
+  };
+
+  // グラフレイアウトベースの自動配置
+  const autoLayoutTasks = () => {
+    if (editorTasks.value.length === 0) return;
+    
+    // グラフレイアウトを使ってグリッド座標を計算
+    const updatedTasks = graphLayout.convertGraphToGrid(editorTasks.value);
+    
+    // 重複を避けて最適化
+    graphLayout.optimizeGridLayout(updatedTasks);
+    
+    // グラフデータも更新
+    buildGraphData();
+    
+    return updatedTasks;
   };
 
   // タスク選択のアクション（UIストアに委譲）
@@ -148,6 +167,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     exportTaskgraphToJson,
     loadSampleData,
     buildGraphData,
+    autoLayoutTasks,
     selectTask, // UIストアに委譲
 
     // JSONProcessor State & Methods

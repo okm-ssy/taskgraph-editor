@@ -95,9 +95,9 @@ const scheduleUpdate = (immediate = false) => {
     }, 16); // 約1フレーム分待機
     return;
   }
-  
+
   if (animationFrameId) return; // 既にスケジュール済みの場合はスキップ
-  
+
   animationFrameId = requestAnimationFrame(() => {
     updatePositions();
     animationFrameId = null;
@@ -114,7 +114,7 @@ const setupObservers = () => {
   mutationObserver.value = new MutationObserver((mutations) => {
     let shouldUpdate = false;
     let hasTransformChange = false;
-    
+
     mutations.forEach((mutation) => {
       if (mutation.type === 'attributes') {
         // style属性やclass属性の変更を監視
@@ -125,18 +125,20 @@ const setupObservers = () => {
             hasTransformChange = true;
           }
           shouldUpdate = true;
-        } else if (mutation.attributeName === 'class' ||
-                   mutation.attributeName === 'transform') {
+        } else if (
+          mutation.attributeName === 'class' ||
+          mutation.attributeName === 'transform'
+        ) {
           shouldUpdate = true;
         }
       }
-      
+
       // 子要素の変更も監視（グリッドアイテムの構造変更対応）
       if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
         shouldUpdate = true;
       }
     });
-    
+
     if (shouldUpdate) {
       // Transform変更の場合は少し遅延して確実に更新
       if (hasTransformChange) {
@@ -155,25 +157,25 @@ const setupObservers = () => {
     [sourceElement, targetElement].forEach((element) => {
       if (element && !observedElements.has(element)) {
         resizeObserver.value?.observe(element);
-        
+
         // 要素自体とその親コンテナを監視
         mutationObserver.value?.observe(element, {
           attributes: true,
           attributeFilter: ['style', 'class', 'transform'],
-          subtree: false
+          subtree: false,
         });
-        
+
         // グリッドアイテムの親コンテナも監視
         const gridItem = element.closest('.vue-grid-item');
         if (gridItem && !observedElements.has(gridItem)) {
           mutationObserver.value?.observe(gridItem, {
             attributes: true,
             attributeFilter: ['style', 'class', 'transform'],
-            subtree: false
+            subtree: false,
           });
           observedElements.add(gridItem);
         }
-        
+
         observedElements.add(element);
       }
     });
@@ -184,7 +186,7 @@ const cleanupObservers = () => {
   resizeObserver.value?.disconnect();
   mutationObserver.value?.disconnect();
   observedElements.clear();
-  
+
   if (animationFrameId) {
     cancelAnimationFrame(animationFrameId);
     animationFrameId = null;

@@ -4,19 +4,22 @@ import * as zod from 'zod';
 const taskNameSchema = zod
   .string()
   .min(1, 'タスク名は必須です')
-  .regex(/^[a-zA-Z0-9-_]+$/, 'タスク名は英数字、ハイフン、アンダースコアのみ使用できます');
+  .regex(
+    /^[a-zA-Z0-9-_]+$/,
+    'タスク名は英数字、ハイフン、アンダースコアのみ使用できます',
+  );
 
 // 依存関係のバリデーション: 空文字列と重複を除外
 const dependsSchema = zod
   .array(taskNameSchema)
   .refine(
     (deps) => {
-      const filtered = deps.filter(dep => dep.trim() !== '');
+      const filtered = deps.filter((dep) => dep.trim() !== '');
       return new Set(filtered).size === filtered.length;
     },
-    { message: '依存関係に重複があります' }
+    { message: '依存関係に重複があります' },
   )
-  .transform(deps => deps.filter(dep => dep.trim() !== ''));
+  .transform((deps) => deps.filter((dep) => dep.trim() !== ''));
 
 export const infoZodSchema = zod
   .object({
@@ -50,21 +53,21 @@ export const detectCycles = (tasks: Task[]): string[][] => {
   const cycles: string[][] = [];
   const visited = new Set<string>();
   const recursionStack = new Set<string>();
-  
+
   // タスク名からタスクオブジェクトを引くためのマップ
   const taskMap = new Map<string, Task>();
-  tasks.forEach(task => taskMap.set(task.name, task));
-  
+  tasks.forEach((task) => taskMap.set(task.name, task));
+
   const dfs = (taskName: string, path: string[]): void => {
     visited.add(taskName);
     recursionStack.add(taskName);
     path.push(taskName);
-    
+
     const task = taskMap.get(taskName);
     if (task) {
       for (const dep of task.depends) {
         if (!dep) continue;
-        
+
         if (recursionStack.has(dep)) {
           // 循環を発見
           const cycleStart = path.indexOf(dep);
@@ -74,24 +77,24 @@ export const detectCycles = (tasks: Task[]): string[][] => {
         }
       }
     }
-    
+
     recursionStack.delete(taskName);
   };
-  
+
   // 全タスクをチェック
-  tasks.forEach(task => {
+  tasks.forEach((task) => {
     if (!visited.has(task.name)) {
       dfs(task.name, []);
     }
   });
-  
+
   return cycles;
 };
 
 // タスクグラフの検証（循環依存チェック付き）
 export const validateTaskgraph = (data: unknown) => {
   const result = taskgraphZodSchema.safeParse(data);
-  
+
   if (!result.success) {
     return {
       success: false,
@@ -99,9 +102,9 @@ export const validateTaskgraph = (data: unknown) => {
       cycles: [],
     };
   }
-  
+
   const cycles = detectCycles(result.data.tasks);
-  
+
   return {
     success: true,
     data: result.data,
