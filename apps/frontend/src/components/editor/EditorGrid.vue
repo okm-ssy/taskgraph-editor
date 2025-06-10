@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue';
+import { ref, onMounted, watch, computed, nextTick } from 'vue';
 import { GridLayout, GridItem } from 'vue3-grid-layout-next';
 
+import { useTaskActionsProvider } from '../../composables/useTaskActions';
 import { GridTask } from '../../model/GridTask';
+import { useEditorUIStore } from '../../store/editor_ui_store';
 import { useCurrentTasks } from '../../store/task_store';
 
 import Curve, { type Connection } from './Curve.vue';
@@ -20,8 +22,11 @@ const emit = defineEmits<{
 }>();
 
 const taskStore = useCurrentTasks();
+const uiStore = useEditorUIStore();
 const layout = ref<GridTask[]>([]);
-const showAddPanel = ref(false);
+
+// provide/injectでコンポーネント通信を改善
+const taskActions = useTaskActionsProvider();
 
 // 矢印描画用: 依存関係のペアを取得
 type Arrow = {
@@ -30,6 +35,7 @@ type Arrow = {
 };
 
 const arrows = ref<Arrow[]>([]);
+const curveUpdateTrigger = ref(0);
 
 // Curve.vueに渡すconnections配列
 const connections = computed<Connection[]>(() => {
@@ -38,7 +44,7 @@ const connections = computed<Connection[]>(() => {
     targetId: `target-${arrow.toId}`,
     color: '#94a3b8',
     strokeWidth: 1.5,
-    interval: 100, // 更新間隔（ミリ秒）
+    interval: 10, // 更新間隔（ミリ秒）
   }));
 });
 
@@ -58,6 +64,17 @@ watch(
   },
 );
 
+// nextTickを使った遅延実行でCurve更新
+const triggerCurveUpdate = () => {
+  // DOM更新を待ってからCurve更新
+  nextTick(() => {
+    // さらに少し遅延してCSS Transform完了を待つ
+    setTimeout(() => {
+      curveUpdateTrigger.value++;
+    }, 10);
+  });
+};
+
 // レイアウト更新時の処理
 const handleLayoutUpdated = (newLayout: GridTask[]) => {
   newLayout.forEach((item) => {
@@ -68,18 +85,45 @@ const handleLayoutUpdated = (newLayout: GridTask[]) => {
       h: item.h,
     });
   });
+  triggerCurveUpdate();
+};
+
+// より細かなイベント処理
+const handleLayoutChange = (newLayout: GridTask[]) => {
+  layout.value = newLayout;
+  triggerCurveUpdate();
+};
+
+const handleItemMove = () => {
+  // ドラッグ中の連続更新（パフォーマンス重視）
+  triggerCurveUpdate();
+};
+
+const handleItemMoved = () => {
+  // ドラッグ完了時の確実な更新
+  triggerCurveUpdate();
+};
+
+const handleItemResize = () => {
+  // リサイズ中の連続更新
+  triggerCurveUpdate();
+};
+
+const handleItemResized = () => {
+  // リサイズ完了時の確実な更新
+  triggerCurveUpdate();
 };
 
 // タスク追加ボタンのクリックハンドラ
 const handleAddTask = () => {
-  taskStore.addTask();
+  taskActions.addTask();
   // レイアウトを更新
   layout.value = taskStore.gridTasks;
 };
 
 // タスク追加パネルの切り替え
 const toggleAddPanel = () => {
-  showAddPanel.value = !showAddPanel.value;
+  uiStore.toggleAddPanel();
 };
 
 // 依存関係から矢印ペアを生成
@@ -116,7 +160,7 @@ onMounted(() => {
 
 // 選択状態の監視（選択されたらselecting=trueに設定）
 watch(
-  () => taskStore.selectedTask?.id,
+  () => uiStore.selectedTaskId,
   (newSelectedId) => {
     emit('update:selecting', !!newSelectedId);
   },
@@ -127,8 +171,8 @@ watch(
   <div class="h-full flex flex-col">
     <div class="flex justify-between items-center p-3 border-b bg-gray-50">
       <!-- 矢印SVGレイヤー -->
-      <div class="absolute inset-0 pointer-events-none z-10">
-        <Curve :connections="connections" />
+      <div class="absolute inset-0 pointer-events-none z-10 overflow-hidden">
+        <Curve :connections="connections" :force-update="curveUpdateTrigger" />
       </div>
       <h3 class="font-semibold">タスクグリッドエディター</h3>
       <div class="flex gap-2">
@@ -144,7 +188,10 @@ watch(
 
     <div class="flex-1 overflow-auto p-4 relative">
       <!-- 新規タスク追加パネル -->
-      <TaskAddPanel v-if="showAddPanel" @close="showAddPanel = false" />
+      <TaskAddPanel
+        v-if="uiStore.showAddPanel"
+        @close="uiStore.toggleAddPanel"
+      />
 
       <!-- グリッドレイアウト -->
       <GridLayout
@@ -158,6 +205,11 @@ watch(
         :margin="[10, 10]"
         drag-handle=".drag-handle"
         @layout-updated="handleLayoutUpdated"
+        @update:layout="handleLayoutChange"
+        @item-move="handleItemMove"
+        @item-moved="handleItemMoved"
+        @item-resize="handleItemResize"
+        @item-resized="handleItemResized"
         class="min-h-[600px]"
       >
         <GridItem

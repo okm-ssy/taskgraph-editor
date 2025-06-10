@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 
+import { useEditorUIStore } from '../../store/editor_ui_store';
 import { useCurrentTasks } from '../../store/task_store';
 
 const taskStore = useCurrentTasks();
+const uiStore = useEditorUIStore();
 const nameInput = ref('');
 const descriptionInput = ref('');
 const difficultyInput = ref(1);
@@ -46,17 +48,17 @@ const handleSubmit = () => {
   });
 
   // ダイアログを閉じる
-  taskStore.closeDetailDialog();
+  uiStore.closeDetailDialog();
 };
 
 const handleCancel = () => {
-  taskStore.closeDetailDialog();
+  uiStore.closeDetailDialog();
 };
 </script>
 
 <template>
   <div
-    v-if="taskStore.isDetailDialogVisible"
+    v-if="uiStore.isDetailDialogVisible"
     class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
     @click.self="handleCancel"
   >
