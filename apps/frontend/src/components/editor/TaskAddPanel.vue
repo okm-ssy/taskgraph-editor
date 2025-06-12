@@ -12,33 +12,23 @@ const taskStore = useCurrentTasks();
 const nameInput = ref('new-task');
 const descriptionInput = ref('タスクの説明');
 const difficultyInput = ref(1);
-const dependsInput = ref('');
 
 // 新規タスク追加
 const addNewTask = () => {
   const newTask = taskStore.addTask();
 
-  // 依存関係を配列に変換
-  const dependsArray = dependsInput.value
-    ? dependsInput.value
-        .split(',')
-        .map((d) => d.trim())
-        .filter((d) => d !== '')
-    : [''];
-
-  // タスク情報の更新
+  // タスク情報の更新（依存関係は空配列）
   taskStore.updateTask(newTask.id, {
     name: nameInput.value,
     description: descriptionInput.value,
     difficulty: parseFloat(difficultyInput.value.toString()),
-    depends: dependsArray,
+    depends: [''],
   });
 
   // 入力フィールドをリセット
   nameInput.value = 'new-task';
   descriptionInput.value = 'タスクの説明';
   difficultyInput.value = 1;
-  dependsInput.value = '';
 
   // パネルを閉じる
   emit('close');
@@ -107,18 +97,12 @@ const handleCancel = () => {
       </div>
 
       <div>
-        <label
-          for="task-depends"
-          class="block text-sm font-medium text-gray-700 mb-1"
-          >依存タスク (カンマ区切り)</label
+        <label class="block text-sm font-medium text-gray-700 mb-1"
+          >依存タスク</label
         >
-        <input
-          id="task-depends"
-          v-model="dependsInput"
-          type="text"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-          placeholder="task-1, task-2"
-        />
+        <div class="text-xs text-gray-500 p-2 bg-gray-50 rounded-md">
+          タスク作成後、タスクカードの青い丸をドラッグ&ドロップして依存関係を設定してください
+        </div>
       </div>
 
       <div class="flex justify-end gap-2 mt-4">
