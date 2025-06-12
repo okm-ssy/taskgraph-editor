@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, computed, nextTick } from 'vue';
+import { ref, onMounted, watch, computed, nextTick, onBeforeUnmount } from 'vue';
 import { GridLayout, GridItem } from 'vue3-grid-layout-next';
 
 import { useTaskActionsProvider } from '../../composables/useTaskActions';
 import { GridTask } from '../../model/GridTask';
 import { useEditorUIStore } from '../../store/editor_ui_store';
 import { useCurrentTasks } from '../../store/task_store';
+import { useDragDropStore } from '../../store/drag_drop_store';
 
 import Curve, { type Connection } from './Curve.vue';
 import TaskAddButton from './TaskAddButton.vue';
@@ -23,7 +24,9 @@ const emit = defineEmits<{
 
 const taskStore = useCurrentTasks();
 const uiStore = useEditorUIStore();
+const dragDropStore = useDragDropStore();
 const layout = ref<GridTask[]>([]);
+const gridContainer = ref<HTMLDivElement | null>(null);
 
 // provide/injectでコンポーネント通信を改善
 const taskActions = useTaskActionsProvider();
@@ -37,7 +40,7 @@ type Arrow = {
 const arrows = ref<Arrow[]>([]);
 const curveUpdateTrigger = ref(0);
 
-// Curve.vueに渡すconnections配列
+// Curve.vueに渡すconnections配列（仮矢印は除外）
 const connections = computed<Connection[]>(() => {
   return arrows.value.map((arrow) => ({
     sourceId: `source-${arrow.fromId}`,
@@ -48,27 +51,8 @@ const connections = computed<Connection[]>(() => {
   }));
 });
 
-// グリッドレイアウト初期化
-onMounted(() => {
-  layout.value = taskStore.gridTasks;
-
-  // タスクグラフの初期構築
-  taskStore.buildGraphData();
-});
-
-// タスク数の変化を監視してレイアウトを更新
-watch(
-  () => taskStore.editorTasks.length,
-  () => {
-    layout.value = taskStore.gridTasks;
-  },
-);
-
-// nextTickを使った遅延実行でCurve更新
 const triggerCurveUpdate = () => {
-  // DOM更新を待ってからCurve更新
   nextTick(() => {
-    // さらに少し遅延してCSS Transform完了を待つ
     setTimeout(() => {
       curveUpdateTrigger.value++;
     }, 10);
@@ -165,8 +149,52 @@ watch(
 );
 
 onMounted(() => {
+  layout.value = taskStore.gridTasks;
+  taskStore.buildGraphData();
   updateArrows();
+  document.addEventListener('mousemove', handleMouseMove);
 });
+
+onBeforeUnmount(() => {
+  document.removeEventListener('mousemove', handleMouseMove);
+});
+
+watch(() => taskStore.editorTasks.length, () => {
+  layout.value = taskStore.gridTasks;
+});
+
+// マウス移動ハンドラ（ドラッグ中のマウス位置を追跡）
+const handleMouseMove = (event: MouseEvent) => {
+  if (dragDropStore.isDragging && gridContainer.value) {
+    const rect = gridContainer.value.getBoundingClientRect();
+    dragDropStore.updateDragPosition(
+      event.clientX - rect.left,
+      event.clientY - rect.top
+    );
+  }
+};
+
+// 依存関係クリック時の処理（削除）
+const handleConnectionClick = (connection: Connection) => {
+  // source と target の ID から実際のタスクを特定
+  const sourceTaskId = connection.sourceId.replace('source-', '');
+  const targetTaskId = connection.targetId.replace('target-', '');
+  
+  const sourceTask = taskStore.getTaskById(sourceTaskId);
+  const targetTask = taskStore.getTaskById(targetTaskId);
+  
+  if (sourceTask && targetTask) {
+    // sourceTask が targetTask に依存している
+    // つまり、targetTask.depends から sourceTask.name を削除
+    const newDepends = targetTask.task.depends.filter(
+      dep => dep !== sourceTask.task.name
+    );
+    
+    if (confirm(`「${targetTask.task.name}」から「${sourceTask.task.name}」への依存を削除しますか？`)) {
+      taskStore.updateTask(targetTaskId, { depends: newDepends });
+    }
+  }
+};
 
 // 選択状態の監視（選択されたらselecting=trueに設定）
 watch(
@@ -180,10 +208,6 @@ watch(
 <template>
   <div class="h-full flex flex-col">
     <div class="flex justify-between items-center p-3 border-b bg-gray-50">
-      <!-- 矢印SVGレイヤー -->
-      <div class="absolute inset-0 pointer-events-none z-10 overflow-hidden">
-        <Curve :connections="connections" :force-update="curveUpdateTrigger" />
-      </div>
       <h3 class="font-semibold">タスクグリッドエディター</h3>
       <div class="flex gap-2">
         <button
@@ -203,7 +227,15 @@ watch(
       </div>
     </div>
 
-    <div class="flex-1 overflow-auto p-4 relative">
+    <div ref="gridContainer" class="flex-1 overflow-auto p-4 relative">
+      <!-- 矢印SVGレイヤー（タスクカードより後ろに配置） -->
+      <div class="absolute inset-0 z-0 pointer-events-none">
+        <Curve 
+          :connections="connections" 
+          :force-update="curveUpdateTrigger"
+          @connection-click="handleConnectionClick"
+        />
+      </div>
       <!-- 新規タスク追加パネル -->
       <TaskAddPanel
         v-if="uiStore.showAddPanel"
@@ -239,7 +271,7 @@ watch(
           :h="task.grid.h"
           :min-w="2"
           :min-h="2"
-          drag-ignore-from=".task-content"
+          drag-ignore-from=".task-content, .dependency-handle, .task-action-button"
         >
           <TaskCard :task="task.task" :id="task.id" />
         </GridItem>

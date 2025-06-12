@@ -9,7 +9,6 @@ const uiStore = useEditorUIStore();
 const nameInput = ref('');
 const descriptionInput = ref('');
 const difficultyInput = ref(1);
-const dependsInput = ref('');
 
 // 選択中のタスクが変更されたら入力フィールドを更新
 watch(
@@ -19,9 +18,6 @@ watch(
       nameInput.value = newTask.task.name;
       descriptionInput.value = newTask.task.description;
       difficultyInput.value = newTask.task.difficulty;
-      dependsInput.value = newTask.task.depends
-        .filter((d) => d !== '')
-        .join(', ');
     }
   },
   { immediate: true },
@@ -31,20 +27,11 @@ watch(
 const handleSubmit = () => {
   if (!taskStore.selectedTask) return;
 
-  // 依存関係を配列に変換
-  const dependsArray = dependsInput.value
-    ? dependsInput.value
-        .split(',')
-        .map((d) => d.trim())
-        .filter((d) => d !== '')
-    : [''];
-
-  // タスク更新
+  // タスク更新（依存関係は変更しない）
   taskStore.updateTask(taskStore.selectedTask.id, {
     name: nameInput.value,
     description: descriptionInput.value,
     difficulty: difficultyInput.value,
-    depends: dependsArray,
   });
 
   // ダイアログを閉じる
@@ -112,18 +99,20 @@ const handleCancel = () => {
         </div>
 
         <div class="mb-4">
-          <label
-            for="depends"
-            class="block text-sm font-medium text-gray-700 mb-1"
-            >依存タスク (カンマ区切り)</label
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >依存タスク</label
           >
-          <input
-            id="depends"
-            v-model="dependsInput"
-            type="text"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md"
-            placeholder="task-1, task-2"
-          />
+          <div class="text-sm text-gray-600 p-3 bg-gray-50 rounded-md">
+            <p v-if="taskStore.selectedTask && taskStore.selectedTask.task.depends.length > 0 && taskStore.selectedTask.task.depends[0] !== ''">
+              {{ taskStore.selectedTask.task.depends.join(', ') }}
+            </p>
+            <p v-else class="text-gray-400">
+              依存関係はありません
+            </p>
+            <p class="mt-2 text-xs text-gray-500">
+              ※ 依存関係の追加・削除は、タスクカードの青い丸をドラッグ&ドロップするか、矢印をクリックして行ってください
+            </p>
+          </div>
         </div>
 
         <div class="flex justify-end gap-2 mt-6">

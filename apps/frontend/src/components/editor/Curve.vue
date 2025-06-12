@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, watch, type PropType } from 'vue';
 
+import { useDragDropStore } from '../../store/drag_drop_store';
+
 interface Position {
   x: number;
   y: number;
@@ -13,6 +15,12 @@ export interface Connection {
   strokeWidth?: number;
   interval?: number;
 }
+
+const emit = defineEmits<{
+  (e: 'connection-click', connection: Connection): void;
+}>();
+
+const dragDropStore = useDragDropStore();
 
 const props = defineProps({
   connections: {
@@ -30,8 +38,24 @@ const connectionPosition = ref<Map<string, { start: Position; end: Position }>>(
   new Map(),
 );
 
+// 仮矢印用の位置情報を別管理
+const tempConnectionPosition = ref<{ start: Position; end: Position } | null>(
+  null,
+);
+
+const svgElement = ref<SVGSVGElement | null>(null);
+
 const updatePositions = () => {
-  props.connections.forEach((connection) => {
+  if (!svgElement.value) return;
+
+  const svgRect = svgElement.value.getBoundingClientRect();
+
+  // 通常の接続を処理（mouse-pointerは除外）
+  const normalConnections = props.connections.filter(
+    (conn) => conn.targetId !== 'mouse-pointer',
+  );
+
+  normalConnections.forEach((connection) => {
     const startElement = document.getElementById(connection.sourceId);
     const endElement = document.getElementById(connection.targetId);
 
@@ -42,16 +66,51 @@ const updatePositions = () => {
       const key = `${connection.sourceId}-${connection.targetId}`;
       connectionPosition.value.set(key, {
         start: {
-          x: startRect.x + startRect.width / 2,
-          y: startRect.y + startRect.height / 2,
+          x: startRect.x + startRect.width / 2 - svgRect.x,
+          y: startRect.y + startRect.height / 2 - svgRect.y,
         },
         end: {
-          x: endRect.x + endRect.width / 2,
-          y: endRect.y + endRect.height / 2,
+          // targetの左端を指すように調整（endRect.x はtargetの左端）
+          x: endRect.x - svgRect.x,
+          y: endRect.y + endRect.height / 2 - svgRect.y,
         },
       });
     }
   });
+
+  // 仮矢印の位置を別途更新
+  updateTempConnection();
+};
+
+const updateTempConnection = () => {
+  if (!svgElement.value) return;
+
+  if (
+    dragDropStore.isDragging &&
+    dragDropStore.draggingSourceId &&
+    dragDropStore.dragPosition
+  ) {
+    const svgRect = svgElement.value.getBoundingClientRect();
+    const startElement = document.getElementById(
+      `source-${dragDropStore.draggingSourceId}`,
+    );
+
+    if (startElement) {
+      const startRect = startElement.getBoundingClientRect();
+      tempConnectionPosition.value = {
+        start: {
+          x: startRect.x + startRect.width / 2 - svgRect.x,
+          y: startRect.y + startRect.height / 2 - svgRect.y,
+        },
+        end: {
+          x: dragDropStore.dragPosition.x,
+          y: dragDropStore.dragPosition.y,
+        },
+      };
+    }
+  } else {
+    tempConnectionPosition.value = null;
+  }
 };
 
 const getPathD = (start: Position, end: Position) => {
@@ -74,6 +133,11 @@ const getPathD = (start: Position, end: Position) => {
       `C ${start.x + controlPointOffset},${start.y} ${end.x - controlPointOffset},${end.y} ${end.x},${end.y}`,
     ].join(' ');
   }
+};
+
+// 接続線クリックハンドラ
+const handleConnectionClick = (connection: Connection) => {
+  emit('connection-click', connection);
 };
 
 // グリッドレイアウト対応の効率的な更新システム
@@ -212,6 +276,15 @@ watch(
   },
 );
 
+// ドラッグ中のマウス位置変更を監視
+watch(
+  () => dragDropStore.dragPosition,
+  () => {
+    updateTempConnection(); // 仮矢印のみ更新
+  },
+  { deep: true },
+);
+
 onMounted(() => {
   updatePositions();
   setupObservers();
@@ -225,10 +298,19 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <svg class="w-full h-full pointer-events-none">
+  <svg
+    ref="svgElement"
+    :class="[
+      'w-full h-full pointer-events-none',
+      dragDropStore.isDragging ? 'dragging' : '',
+    ]"
+  >
     <defs>
+      <!-- 通常の矢印マーカー -->
       <marker
-        v-for="connection in connections"
+        v-for="connection in connections.filter(
+          (c) => c.targetId !== 'mouse-pointer',
+        )"
         :key="`arrow-${connection.sourceId}-${connection.targetId}`"
         :id="`arrow-${connection.sourceId}-${connection.targetId}`"
         markerWidth="10"
@@ -245,25 +327,80 @@ onBeforeUnmount(() => {
       </marker>
     </defs>
 
-    <path
-      v-for="connection in connections"
+    <!-- 通常の接続線 -->
+    <g
+      v-for="connection in connections.filter(
+        (c) => c.targetId !== 'mouse-pointer',
+      )"
       :key="`${connection.sourceId}-${connection.targetId}`"
-      :d="
-        connectionPosition.get(`${connection.sourceId}-${connection.targetId}`)
-          ? getPathD(
-              connectionPosition.get(
-                `${connection.sourceId}-${connection.targetId}`,
-              )!.start,
-              connectionPosition.get(
-                `${connection.sourceId}-${connection.targetId}`,
-              )!.end,
-            )
-          : ''
-      "
-      fill="none"
-      :stroke="connection.color ?? '#2563eb'"
-      :stroke-width="connection.strokeWidth ?? 2"
-      :marker-end="`url(#arrow-${connection.sourceId}-${connection.targetId})`"
-    ></path>
+    >
+      <!-- クリック可能な太い透明パス -->
+      <path
+        :d="
+          connectionPosition.get(
+            `${connection.sourceId}-${connection.targetId}`,
+          )
+            ? getPathD(
+                connectionPosition.get(
+                  `${connection.sourceId}-${connection.targetId}`,
+                )!.start,
+                connectionPosition.get(
+                  `${connection.sourceId}-${connection.targetId}`,
+                )!.end,
+              )
+            : ''
+        "
+        fill="none"
+        stroke="transparent"
+        stroke-width="20"
+        :class="[
+          dragDropStore.isDragging
+            ? 'pointer-events-none'
+            : 'cursor-pointer pointer-events-auto',
+        ]"
+        style="z-index: 5"
+        @click="handleConnectionClick(connection)"
+      ></path>
+      <!-- 表示用のパス -->
+      <path
+        :d="
+          connectionPosition.get(
+            `${connection.sourceId}-${connection.targetId}`,
+          )
+            ? getPathD(
+                connectionPosition.get(
+                  `${connection.sourceId}-${connection.targetId}`,
+                )!.start,
+                connectionPosition.get(
+                  `${connection.sourceId}-${connection.targetId}`,
+                )!.end,
+              )
+            : ''
+        "
+        fill="none"
+        :stroke="connection.color ?? '#2563eb'"
+        :stroke-width="connection.strokeWidth ?? 2"
+        :marker-end="`url(#arrow-${connection.sourceId}-${connection.targetId})`"
+        class="pointer-events-none"
+      ></path>
+    </g>
+
+    <!-- 仮矢印（ドラッグ中のみ） -->
+    <g v-if="tempConnectionPosition">
+      <path
+        :d="getPathD(tempConnectionPosition.start, tempConnectionPosition.end)"
+        fill="none"
+        stroke="#3b82f6"
+        stroke-width="2"
+        class="pointer-events-none"
+      ></path>
+    </g>
   </svg>
 </template>
+
+<style scoped>
+svg:not(.dragging) path.cursor-pointer:hover + path {
+  stroke: #ef4444;
+  stroke-width: 3;
+}
+</style>
