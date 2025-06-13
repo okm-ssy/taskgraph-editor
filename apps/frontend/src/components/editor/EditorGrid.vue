@@ -40,6 +40,10 @@ type Arrow = {
 const arrows = ref<Arrow[]>([]);
 const curveUpdateTrigger = ref(0);
 const isDraggingOrResizing = ref(false);
+const disableGrid = ref(false);
+const draggedItemId = ref<string | null>(null);
+const dragOffset = ref({ x: 0, y: 0 });
+const dragStartPos = ref({ x: 0, y: 0 });
 
 // Curve.vueに渡すconnections配列（仮矢印は除外）
 const connections = computed<Connection[]>(() => {
@@ -65,8 +69,10 @@ const triggerCurveUpdate = () => {
   });
 };
 
-// レイアウト更新時の処理
+// レイアウト更新時の処理（グリッド有効時のみ）
 const handleLayoutUpdated = (newLayout: GridTask[]) => {
+  if (disableGrid.value) return; // グリッド無効時はスキップ
+  
   newLayout.forEach((item) => {
     taskStore.updateGridTask(item.i, {
       x: item.x,
@@ -87,31 +93,34 @@ const handleLayoutChange = (newLayout: GridTask[]) => {
 const handleItemMove = () => {
   // ドラッグ中は矢印更新を完全停止
   isDraggingOrResizing.value = true;
+  // グリッドを無効化してパフォーマンス向上
+  disableGrid.value = true;
 };
 
 const handleItemMoved = () => {
-  // ドラッグ完了時に矢印を一括更新
-  isDraggingOrResizing.value = false;
-  // 少し遅延して確実に更新
+  // ドラッグ完了時にグリッドを復帰
   setTimeout(() => {
+    disableGrid.value = false;
+    isDraggingOrResizing.value = false;
     triggerCurveUpdate();
     triggerCurveUpdate(); // 2回実行で確実に
-  }, 50);
+  }, 100);
 };
 
 const handleItemResize = () => {
-  // リサイズ中は連続更新モードを有効化
+  // リサイズ中もグリッドを無効化
   isDraggingOrResizing.value = true;
+  disableGrid.value = true;
 };
 
 const handleItemResized = () => {
-  // リサイズ完了時に矢印を一括更新
-  isDraggingOrResizing.value = false;
-  // 少し遅延して確実に更新
+  // リサイズ完了時にグリッドを復帰
   setTimeout(() => {
+    disableGrid.value = false;
+    isDraggingOrResizing.value = false;
     triggerCurveUpdate();
     triggerCurveUpdate(); // 2回実行で確実に
-  }, 50);
+  }, 100);
 };
 
 // タスク追加ボタンのクリックハンドラ
@@ -275,8 +284,8 @@ watch(
         v-model:layout="layout"
         :col-num="12"
         :row-height="50"
-        :is-draggable="true"
-        :is-resizable="true"
+        :is-draggable="!disableGrid"
+        :is-resizable="!disableGrid"
         :vertical-compact="false"
         :use-css-transforms="true"
         :margin="[10, 10]"
@@ -292,6 +301,7 @@ watch(
         @item-resize="handleItemResize"
         @item-resized="handleItemResized"
         class="min-h-[600px]"
+        :class="{ 'grid-disabled': disableGrid }"
       >
         <GridItem
           v-for="task in taskStore.editorTasks"
@@ -361,5 +371,20 @@ watch(
   /* リサイズ中もGPU最適化 */
   will-change: transform, width, height;
   transform: translateZ(0);
+}
+
+/* グリッド無効化時のスタイル */
+.grid-disabled .vue-grid-item:not(.vue-grid-placeholder) {
+  /* ドラッグ中はトランジションを完全に無効化 */
+  transition: none !important;
+  /* ポインターイベントも最適化 */
+  pointer-events: auto;
+}
+
+.grid-disabled .vue-grid-item.dragging {
+  /* ドラッグ中は最大限最適化 */
+  will-change: transform;
+  contain: layout style paint;
+  isolation: isolate;
 }
 </style>
