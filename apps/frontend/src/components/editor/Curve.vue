@@ -178,13 +178,23 @@ const observedElements = new Set<Element>();
 const transitionElements = new Map<Element, boolean>();
 let animationFrameId: number | null = null;
 
-// 連続更新モード
-const startContinuousUpdate = () => {
+// 連続更新モード（ドラッグ中は低頻度）
+const startContinuousUpdate = (isLowFrequency = false) => {
   if (continuousUpdateId) return;
   
   const update = () => {
     updatePositions();
-    continuousUpdateId = requestAnimationFrame(update);
+    if (isLowFrequency) {
+      // ドラッグ中は低頻度（30FPS）で更新
+      setTimeout(() => {
+        if (continuousUpdateId) {
+          continuousUpdateId = requestAnimationFrame(update);
+        }
+      }, 33);
+    } else {
+      // 通常は60FPSで更新
+      continuousUpdateId = requestAnimationFrame(update);
+    }
   };
   continuousUpdateId = requestAnimationFrame(update);
 };
@@ -226,9 +236,9 @@ const handleTransitionStart = (event: TransitionEvent) => {
   if (event.propertyName === 'transform') {
     const element = event.target as Element;
     transitionElements.set(element, true);
-    // トランジション中は連続更新を開始
+    // トランジション中は通常頻度で連続更新を開始
     if (!props.continuousUpdate) {
-      startContinuousUpdate();
+      startContinuousUpdate(false);
     }
   }
 };
@@ -377,7 +387,8 @@ watch(
   () => props.continuousUpdate,
   (newValue) => {
     if (newValue) {
-      startContinuousUpdate();
+      // ドラッグ中は低頻度モードで開始
+      startContinuousUpdate(true);
     } else {
       stopContinuousUpdate();
     }

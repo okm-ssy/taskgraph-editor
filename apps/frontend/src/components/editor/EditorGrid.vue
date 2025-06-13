@@ -52,11 +52,22 @@ const connections = computed<Connection[]>(() => {
   }));
 });
 
+// ドラッグ中の更新間隔を制御
+let lastUpdateTime = 0;
+const UPDATE_THROTTLE = 16; // 60FPS相当
+
 const triggerCurveUpdate = () => {
+  const now = performance.now();
+  if (isDraggingOrResizing.value && now - lastUpdateTime < UPDATE_THROTTLE) {
+    // ドラッグ中はスロットリング
+    return;
+  }
+  lastUpdateTime = now;
+  
   nextTick(() => {
     setTimeout(() => {
       curveUpdateTrigger.value++;
-    }, 10);
+    }, isDraggingOrResizing.value ? 0 : 10);
   });
 };
 
@@ -80,7 +91,7 @@ const handleLayoutChange = (newLayout: GridTask[]) => {
 };
 
 const handleItemMove = () => {
-  // ドラッグ中は連続更新モードを有効化
+  // ドラッグ中は連続更新モードを有効化（低頻度）
   isDraggingOrResizing.value = true;
 };
 
@@ -267,6 +278,9 @@ watch(
         :vertical-compact="false"
         :use-css-transforms="true"
         :margin="[10, 10]"
+        :responsive="false"
+        :auto-size="false"
+        :prevent-collision="false"
         drag-handle=".drag-handle"
         @layout-updated="handleLayoutUpdated"
         @update:layout="handleLayoutChange"
@@ -325,8 +339,24 @@ watch(
   transition: none !important;
 }
 
-/* トランジションのパフォーマンス最適化 */
+/* ドラッグ・リサイズ時のパフォーマンス最適化 */
 .vue-grid-item {
   will-change: transform;
+  /* GPU層分離でドラッグ性能向上 */
+  transform: translateZ(0);
+}
+
+.vue-grid-item.dragging {
+  /* ドラッグ中はより積極的にGPU最適化 */
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+.vue-grid-item.resizing {
+  /* リサイズ中もGPU最適化 */
+  will-change: transform, width, height;
+  transform: translateZ(0);
 }
 </style>
