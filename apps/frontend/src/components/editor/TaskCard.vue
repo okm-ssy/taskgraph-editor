@@ -199,4 +199,22 @@ const isDraggingSource = computed(() => {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* ドラッグ中のパフォーマンス最適化 */
+.task-card {
+  will-change: auto;
+  contain: layout style paint;
+}
+
+/* ドラッグハンドルの最適化 */
+.drag-handle {
+  touch-action: none;
+  user-select: none;
+}
+
+/* 依存関係ハンドルの最適化 */
+.dependency-handle {
+  will-change: transform;
+  contain: layout;
+}
 </style>

@@ -52,22 +52,16 @@ const connections = computed<Connection[]>(() => {
   }));
 });
 
-// ドラッグ中の更新間隔を制御
-let lastUpdateTime = 0;
-const UPDATE_THROTTLE = 16; // 60FPS相当
-
 const triggerCurveUpdate = () => {
-  const now = performance.now();
-  if (isDraggingOrResizing.value && now - lastUpdateTime < UPDATE_THROTTLE) {
-    // ドラッグ中はスロットリング
+  // ドラッグ中は矢印更新をスキップ
+  if (isDraggingOrResizing.value) {
     return;
   }
-  lastUpdateTime = now;
   
   nextTick(() => {
     setTimeout(() => {
       curveUpdateTrigger.value++;
-    }, isDraggingOrResizing.value ? 0 : 10);
+    }, 10);
   });
 };
 
@@ -91,14 +85,18 @@ const handleLayoutChange = (newLayout: GridTask[]) => {
 };
 
 const handleItemMove = () => {
-  // ドラッグ中は連続更新モードを有効化（低頻度）
+  // ドラッグ中は矢印更新を完全停止
   isDraggingOrResizing.value = true;
 };
 
 const handleItemMoved = () => {
-  // ドラッグ完了時に連続更新モードを無効化
+  // ドラッグ完了時に矢印を一括更新
   isDraggingOrResizing.value = false;
-  triggerCurveUpdate();
+  // 少し遅延して確実に更新
+  setTimeout(() => {
+    triggerCurveUpdate();
+    triggerCurveUpdate(); // 2回実行で確実に
+  }, 50);
 };
 
 const handleItemResize = () => {
@@ -107,9 +105,13 @@ const handleItemResize = () => {
 };
 
 const handleItemResized = () => {
-  // リサイズ完了時に連続更新モードを無効化
+  // リサイズ完了時に矢印を一括更新
   isDraggingOrResizing.value = false;
-  triggerCurveUpdate();
+  // 少し遅延して確実に更新
+  setTimeout(() => {
+    triggerCurveUpdate();
+    triggerCurveUpdate(); // 2回実行で確実に
+  }, 50);
 };
 
 // タスク追加ボタンのクリックハンドラ
@@ -281,9 +283,10 @@ watch(
         :responsive="false"
         :auto-size="false"
         :prevent-collision="false"
+        :compact-type="null"
+        :transform-scale="1"
         drag-handle=".drag-handle"
         @layout-updated="handleLayoutUpdated"
-        @update:layout="handleLayoutChange"
         @item-move="handleItemMove"
         @item-moved="handleItemMoved"
         @item-resize="handleItemResize"
