@@ -39,6 +39,7 @@ type Arrow = {
 
 const arrows = ref<Arrow[]>([]);
 const curveUpdateTrigger = ref(0);
+const isDraggingOrResizing = ref(false);
 
 // Curve.vueに渡すconnections配列（仮矢印は除外）
 const connections = computed<Connection[]>(() => {
@@ -79,22 +80,24 @@ const handleLayoutChange = (newLayout: GridTask[]) => {
 };
 
 const handleItemMove = () => {
-  // ドラッグ中の連続更新（パフォーマンス重視）
-  triggerCurveUpdate();
+  // ドラッグ中は連続更新モードを有効化
+  isDraggingOrResizing.value = true;
 };
 
 const handleItemMoved = () => {
-  // ドラッグ完了時の確実な更新
+  // ドラッグ完了時に連続更新モードを無効化
+  isDraggingOrResizing.value = false;
   triggerCurveUpdate();
 };
 
 const handleItemResize = () => {
-  // リサイズ中の連続更新
-  triggerCurveUpdate();
+  // リサイズ中は連続更新モードを有効化
+  isDraggingOrResizing.value = true;
 };
 
 const handleItemResized = () => {
-  // リサイズ完了時の確実な更新
+  // リサイズ完了時に連続更新モードを無効化
+  isDraggingOrResizing.value = false;
   triggerCurveUpdate();
 };
 
@@ -153,6 +156,17 @@ onMounted(() => {
   taskStore.buildGraphData();
   updateArrows();
   document.addEventListener('mousemove', handleMouseMove);
+  
+  // 初期描画のために複数回更新をトリガー
+  nextTick(() => {
+    triggerCurveUpdate();
+    setTimeout(() => {
+      triggerCurveUpdate();
+    }, 100);
+    setTimeout(() => {
+      triggerCurveUpdate();
+    }, 300);
+  });
 });
 
 onBeforeUnmount(() => {
@@ -233,6 +247,7 @@ watch(
         <Curve 
           :connections="connections" 
           :force-update="curveUpdateTrigger"
+          :continuous-update="isDraggingOrResizing"
           @connection-click="handleConnectionClick"
         />
       </div>
@@ -287,6 +302,8 @@ watch(
 .vue-grid-item:not(.vue-grid-placeholder) {
   background: #fff;
   border-radius: 0.5rem;
+  /* CSS トランジションを追加（ドラッグ中は除く） */
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .vue-grid-item.vue-grid-placeholder {
@@ -297,10 +314,19 @@ watch(
 
 .vue-grid-item.resizing {
   opacity: 0.9;
+  /* リサイズ中はトランジションを無効化 */
+  transition: none !important;
 }
 
 .vue-grid-item.dragging {
   opacity: 0.7;
   z-index: 10;
+  /* ドラッグ中もトランジションを無効化 */
+  transition: none !important;
+}
+
+/* トランジションのパフォーマンス最適化 */
+.vue-grid-item {
+  will-change: transform;
 }
 </style>

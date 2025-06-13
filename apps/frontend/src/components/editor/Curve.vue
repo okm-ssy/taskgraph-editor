@@ -32,6 +32,10 @@ const props = defineProps({
     type: Number,
     default: 0,
   },
+  continuousUpdate: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const connectionPosition = ref<Map<string, { start: Position; end: Position }>>(
@@ -44,6 +48,8 @@ const tempConnectionPosition = ref<{ start: Position; end: Position } | null>(
 );
 
 const svgElement = ref<SVGSVGElement | null>(null);
+let continuousUpdateId: number | null = null;
+const updateRetryMap = new Map<string, number>();
 
 const updatePositions = () => {
   if (!svgElement.value) return;
@@ -58,12 +64,28 @@ const updatePositions = () => {
   normalConnections.forEach((connection) => {
     const startElement = document.getElementById(connection.sourceId);
     const endElement = document.getElementById(connection.targetId);
+    const key = `${connection.sourceId}-${connection.targetId}`;
 
     if (startElement && endElement) {
       const startRect = startElement.getBoundingClientRect();
       const endRect = endElement.getBoundingClientRect();
 
-      const key = `${connection.sourceId}-${connection.targetId}`;
+      // サイズがゼロの場合は再試行をスケジュール
+      if (startRect.width === 0 || startRect.height === 0 || 
+          endRect.width === 0 || endRect.height === 0) {
+        const retryCount = updateRetryMap.get(key) || 0;
+        if (retryCount < 10) {
+          updateRetryMap.set(key, retryCount + 1);
+          setTimeout(() => {
+            updatePositions();
+          }, 100 * (retryCount + 1)); // 徐々に間隔を長くする
+        }
+        return;
+      }
+
+      // 正常にサイズが取得できたらリトライカウントをリセット
+      updateRetryMap.delete(key);
+
       connectionPosition.value.set(key, {
         start: {
           x: startRect.x + startRect.width / 2 - svgRect.x,
@@ -75,6 +97,15 @@ const updatePositions = () => {
           y: endRect.y + endRect.height / 2 - svgRect.y,
         },
       });
+    } else {
+      // 要素が見つからない場合も再試行
+      const retryCount = updateRetryMap.get(key) || 0;
+      if (retryCount < 5) {
+        updateRetryMap.set(key, retryCount + 1);
+        setTimeout(() => {
+          updatePositions();
+        }, 50);
+      }
     }
   });
 
@@ -144,19 +175,41 @@ const handleConnectionClick = (connection: Connection) => {
 const resizeObserver = ref<ResizeObserver | null>(null);
 const mutationObserver = ref<MutationObserver | null>(null);
 const observedElements = new Set<Element>();
+const transitionElements = new Map<Element, boolean>();
 let animationFrameId: number | null = null;
+
+// 連続更新モード
+const startContinuousUpdate = () => {
+  if (continuousUpdateId) return;
+  
+  const update = () => {
+    updatePositions();
+    continuousUpdateId = requestAnimationFrame(update);
+  };
+  continuousUpdateId = requestAnimationFrame(update);
+};
+
+const stopContinuousUpdate = () => {
+  if (continuousUpdateId) {
+    cancelAnimationFrame(continuousUpdateId);
+    continuousUpdateId = null;
+  }
+};
 
 // アニメーションフレームを使った効率的な更新
 const scheduleUpdate = (immediate = false) => {
+  if (props.continuousUpdate) {
+    // 連続更新モードが有効な場合は何もしない（既に更新ループが回っている）
+    return;
+  }
+
   if (immediate) {
-    // 即座に更新（CSS Transformの完了を待つ）
+    // 即座に更新
     if (animationFrameId) {
       cancelAnimationFrame(animationFrameId);
       animationFrameId = null;
     }
-    setTimeout(() => {
-      updatePositions();
-    }, 16); // 約1フレーム分待機
+    updatePositions();
     return;
   }
 
@@ -166,6 +219,33 @@ const scheduleUpdate = (immediate = false) => {
     updatePositions();
     animationFrameId = null;
   });
+};
+
+// CSS Transitionイベントのハンドラー
+const handleTransitionStart = (event: TransitionEvent) => {
+  if (event.propertyName === 'transform') {
+    const element = event.target as Element;
+    transitionElements.set(element, true);
+    // トランジション中は連続更新を開始
+    if (!props.continuousUpdate) {
+      startContinuousUpdate();
+    }
+  }
+};
+
+const handleTransitionEnd = (event: TransitionEvent) => {
+  if (event.propertyName === 'transform') {
+    const element = event.target as Element;
+    transitionElements.delete(element);
+    // すべてのトランジションが終了したら連続更新を停止
+    if (transitionElements.size === 0 && !props.continuousUpdate) {
+      stopContinuousUpdate();
+      // 最終位置を確実に更新
+      setTimeout(() => {
+        updatePositions();
+      }, 10);
+    }
+  }
 };
 
 const setupObservers = () => {
@@ -237,6 +317,11 @@ const setupObservers = () => {
             attributeFilter: ['style', 'class', 'transform'],
             subtree: false,
           });
+          
+          // CSS Transitionイベントリスナーを追加
+          gridItem.addEventListener('transitionstart', handleTransitionStart);
+          gridItem.addEventListener('transitionend', handleTransitionEnd);
+          
           observedElements.add(gridItem);
         }
 
@@ -249,7 +334,18 @@ const setupObservers = () => {
 const cleanupObservers = () => {
   resizeObserver.value?.disconnect();
   mutationObserver.value?.disconnect();
+  
+  // トランジションイベントリスナーをクリーンアップ
+  observedElements.forEach((element) => {
+    const gridItem = element.closest('.vue-grid-item');
+    if (gridItem) {
+      gridItem.removeEventListener('transitionstart', handleTransitionStart);
+      gridItem.removeEventListener('transitionend', handleTransitionEnd);
+    }
+  });
+  
   observedElements.clear();
+  transitionElements.clear();
 
   if (animationFrameId) {
     cancelAnimationFrame(animationFrameId);
@@ -276,6 +372,18 @@ watch(
   },
 );
 
+// 連続更新モードの切り替え
+watch(
+  () => props.continuousUpdate,
+  (newValue) => {
+    if (newValue) {
+      startContinuousUpdate();
+    } else {
+      stopContinuousUpdate();
+    }
+  },
+);
+
 // ドラッグ中のマウス位置変更を監視
 watch(
   () => dragDropStore.dragPosition,
@@ -286,14 +394,33 @@ watch(
 );
 
 onMounted(() => {
-  updatePositions();
+  // 初期描画を少し遅延させて、要素が確実にレンダリングされるのを待つ
+  setTimeout(() => {
+    updatePositions();
+  }, 50);
+  
+  // 複数回の初期更新で確実に位置を取得
+  setTimeout(() => {
+    updatePositions();
+  }, 150);
+  
+  setTimeout(() => {
+    updatePositions();
+  }, 300);
+  
   setupObservers();
   window.addEventListener('resize', updatePositions);
+  
+  if (props.continuousUpdate) {
+    startContinuousUpdate();
+  }
 });
 
 onBeforeUnmount(() => {
   cleanupObservers();
   window.removeEventListener('resize', updatePositions);
+  stopContinuousUpdate();
+  updateRetryMap.clear();
 });
 </script>
 
@@ -402,5 +529,10 @@ onBeforeUnmount(() => {
 svg:not(.dragging) path.cursor-pointer:hover + path {
   stroke: #ef4444;
   stroke-width: 3;
+}
+
+/* グリッドアイテムのトランジションを検知しやすくする */
+:global(.vue-grid-item) {
+  will-change: transform;
 }
 </style>

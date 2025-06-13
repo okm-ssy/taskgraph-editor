@@ -8,6 +8,13 @@ JSONでタスクを分解管理するアプリ。schema は apps/frontend/src/mo
 - コンポーネント: ロジックを持たせない
 - 新規作成: `tg create-component <名前>` で自動生成
 
+## よく使うコマンド
+
+```sh
+# 開発サーバを立ち上げる
+tg run
+```
+
 ## ディレクトリ構成
 
 - apps/frontend/src/components/editor/ - エディタページ
@@ -17,4 +24,5 @@ JSONでタスクを分解管理するアプリ。schema は apps/frontend/src/mo
 ## Git コミット
 
 ファイルに変更があるたびに、以下の形式でコミットしてください。
+指示も含んでください。
 `[cc] <type>: <内容>` で敬体。例：`[cc] feat: ドラッグ&ドロップ機能を追加します`
