@@ -382,13 +382,13 @@ watch(
   },
 );
 
-// 連続更新モードの切り替え
+// 連続更新モードの切り替え（ドラッグ中は無効）
 watch(
   () => props.continuousUpdate,
   (newValue) => {
+    // ドラッグ中は連続更新を無効化
     if (newValue) {
-      // ドラッグ中は低頻度モードで開始
-      startContinuousUpdate(true);
+      // 何もしない（ドラッグ中は更新しない）
     } else {
       stopContinuousUpdate();
     }
