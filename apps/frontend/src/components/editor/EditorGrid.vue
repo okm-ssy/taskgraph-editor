@@ -264,12 +264,15 @@ watch(
     </div>
 
     <div ref="gridContainer" class="flex-1 overflow-auto p-4 relative">
-      <!-- 矢印SVGレイヤー（タスクカードより後ろに配置） -->
-      <div class="absolute inset-0 z-0 pointer-events-none">
+      <!-- 矢印SVGレイヤー（ドラッグ中は完全非表示） -->
+      <div 
+        v-show="!disableGrid"
+        class="absolute inset-0 z-0 pointer-events-none"
+      >
         <Curve 
           :connections="connections" 
           :force-update="curveUpdateTrigger"
-          :continuous-update="isDraggingOrResizing"
+          :continuous-update="false"
           @connection-click="handleConnectionClick"
         />
       </div>
@@ -294,6 +297,8 @@ watch(
         :prevent-collision="false"
         :compact-type="null"
         :transform-scale="1"
+        :mirrored="false"
+        :use-style-cursor="false"
         drag-handle=".drag-handle"
         @layout-updated="handleLayoutUpdated"
         @item-move="handleItemMove"
@@ -329,8 +334,8 @@ watch(
 .vue-grid-item:not(.vue-grid-placeholder) {
   background: #fff;
   border-radius: 0.5rem;
-  /* CSS トランジションを追加（ドラッグ中は除く） */
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  /* トランジションを無効化（カクカクの原因） */
+  transition: none;
 }
 
 .vue-grid-item.vue-grid-placeholder {
@@ -341,15 +346,16 @@ watch(
 
 .vue-grid-item.resizing {
   opacity: 0.9;
-  /* リサイズ中はトランジションを無効化 */
   transition: none !important;
 }
 
 .vue-grid-item.dragging {
   opacity: 0.7;
   z-index: 10;
-  /* ドラッグ中もトランジションを無効化 */
   transition: none !important;
+  /* ドラッグ中は最大限最適化 */
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 /* ドラッグ・リサイズ時のパフォーマンス最適化 */
@@ -374,17 +380,18 @@ watch(
 }
 
 /* グリッド無効化時のスタイル */
-.grid-disabled .vue-grid-item:not(.vue-grid-placeholder) {
-  /* ドラッグ中はトランジションを完全に無効化 */
-  transition: none !important;
-  /* ポインターイベントも最適化 */
-  pointer-events: auto;
+.grid-disabled {
+  /* グリッド全体でアニメーションを無効化 */
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
 }
 
-.grid-disabled .vue-grid-item.dragging {
-  /* ドラッグ中は最大限最適化 */
+.grid-disabled .vue-grid-item {
+  transition: none !important;
+  animation: none !important;
   will-change: transform;
-  contain: layout style paint;
-  isolation: isolate;
+  contain: strict;
 }
 </style>
