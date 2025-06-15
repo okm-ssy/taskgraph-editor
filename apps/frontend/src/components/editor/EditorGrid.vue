@@ -178,6 +178,7 @@ defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:selecting', value: boolean): void;
+  (e: 'update:minimal-header', value: boolean): void;
 }>();
 
 const taskStore = useCurrentTasks();
@@ -335,6 +336,7 @@ const toggleCompactMode = () => {
 // ヘッダー最小化モードの切り替え
 const toggleMinimalHeader = () => {
   isMinimalHeader.value = !isMinimalHeader.value;
+  emit('update:minimal-header', isMinimalHeader.value);
 };
 
 // タスク追加パネルの切り替え

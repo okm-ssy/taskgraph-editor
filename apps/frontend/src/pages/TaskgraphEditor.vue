@@ -1,13 +1,19 @@
 <template>
-  <div :class="[
-    'w-full transition-all duration-200',
-    isMinimalHeader ? 'p-1' : 'p-4'
-  ]">
-    <h2 :class="[
-      'font-bold transition-all duration-200',
-      isMinimalHeader ? 'text-sm mb-1' : 'text-xl mb-4'
-    ]">タスクグラフツール</h2>
-    
+  <div
+    :class="[
+      'w-full transition-all duration-200',
+      isMinimalHeader ? 'p-1' : 'p-4',
+    ]"
+  >
+    <h2
+      :class="[
+        'font-bold transition-all duration-200',
+        isMinimalHeader ? 'text-sm mb-1' : 'text-xl mb-4',
+      ]"
+    >
+      タスクグラフツール
+    </h2>
+
     <div v-if="!isMinimalHeader">
       <Switcher v-model="currentPage" />
 
@@ -34,7 +40,7 @@
             'px-2 py-1 text-xs rounded transition-colors',
             currentPage.id === page.id
               ? 'bg-blue-500 text-white'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              : 'bg-gray-200 text-gray-700 hover:bg-gray-300',
           ]"
           @click="currentPage = page"
         >
@@ -47,8 +53,8 @@
     </div>
 
     <ViewerPage v-if="currentPage.id === 'viewer'" />
-    <EditorPage 
-      v-else-if="currentPage.id === 'editor'" 
+    <EditorPage
+      v-else-if="currentPage.id === 'editor'"
       @update:minimal-header="handleMinimalHeaderUpdate"
     />
   </div>

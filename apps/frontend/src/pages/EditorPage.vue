@@ -1,6 +1,10 @@
 <template>
   <div class="flex h-dvh flex-col">
-    <EditorGrid v-model:selecting="isSelecting" class="h-full" />
+    <EditorGrid 
+      v-model:selecting="isSelecting" 
+      @update:minimal-header="handleMinimalHeaderUpdate"
+      class="h-full" 
+    />
   </div>
 </template>
 
@@ -9,7 +13,15 @@ import { ref } from 'vue';
 
 import EditorGrid from '../components/editor/EditorGrid.vue';
 
+const emit = defineEmits<{
+  (e: 'update:minimal-header', value: boolean): void;
+}>();
+
 const isSelecting = ref(false);
+
+const handleMinimalHeaderUpdate = (value: boolean) => {
+  emit('update:minimal-header', value);
+};
 </script>
 
 <style scoped></style>
