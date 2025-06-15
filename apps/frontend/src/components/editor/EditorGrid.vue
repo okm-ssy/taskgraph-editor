@@ -1,15 +1,24 @@
 <template>
   <div class="h-full flex flex-col">
-    <div :class="[
-      'flex justify-between items-center border-b bg-gray-50 transition-all duration-200',
-      isMinimalHeader ? 'p-1' : 'p-3'
-    ]">
+    <div
+      :class="[
+        'flex justify-between items-center border-b bg-gray-50 transition-all duration-200',
+        isMinimalHeader ? 'p-1' : 'p-3',
+      ]"
+    >
       <div class="flex items-center gap-4">
-        <h3 :class="[
-          'font-semibold transition-all duration-200',
-          isMinimalHeader ? 'text-sm' : ''
-        ]">タスクグリッドエディター</h3>
-        <div v-if="editorTasks.length > 0 && !isMinimalHeader" class="text-sm text-gray-600">
+        <h3
+          :class="[
+            'font-semibold transition-all duration-200',
+            isMinimalHeader ? 'text-sm' : '',
+          ]"
+        >
+          タスクグリッドエディター
+        </h3>
+        <div
+          v-if="editorTasks.length > 0 && !isMinimalHeader"
+          class="text-sm text-gray-600"
+        >
           <span class="font-medium">総工数: {{ totalDifficulty }}</span>
           <span class="ml-3 text-blue-600"
             >クリティカルパス: {{ criticalTaskNames.length }}タスク</span
@@ -17,8 +26,14 @@
           <span class="ml-3 font-medium">最低工数: {{ projectDuration }}</span>
         </div>
         <!-- 最小化モード時の簡潔な情報表示 -->
-        <div v-if="editorTasks.length > 0 && isMinimalHeader" class="text-xs text-gray-600">
-          工数:{{ Math.round(totalDifficulty * 10) / 10 }} | 最低:{{ Math.round(projectDuration * 10) / 10 }} | CP:{{ criticalTaskNames.length }}
+        <div
+          v-if="editorTasks.length > 0 && isMinimalHeader"
+          class="text-xs text-gray-600"
+        >
+          工数:{{ Math.round(totalDifficulty * 10) / 10 }} | 最低:{{
+            Math.round(projectDuration * 10) / 10
+          }}
+          | CP:{{ criticalTaskNames.length }}
         </div>
       </div>
       <div class="flex gap-2">
@@ -34,7 +49,7 @@
             'px-3 py-1 rounded-md text-sm transition-colors',
             isCompactMode
               ? 'bg-green-500 hover:bg-green-600 text-white'
-              : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+              : 'bg-gray-200 hover:bg-gray-300 text-gray-700',
           ]"
           @click="toggleCompactMode"
           :title="`コンパクトモード: ${isCompactMode ? 'ON' : 'OFF'}`"
@@ -46,7 +61,7 @@
             'px-3 py-1 rounded-md text-sm transition-colors',
             isMinimalHeader
               ? 'bg-purple-500 hover:bg-purple-600 text-white'
-              : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+              : 'bg-gray-200 hover:bg-gray-300 text-gray-700',
           ]"
           @click="toggleMinimalHeader"
           :title="`ヘッダー最小化: ${isMinimalHeader ? 'ON' : 'OFF'}`"
@@ -190,8 +205,12 @@ const layout = ref<GridTask[]>([]);
 const gridContainer = ref<HTMLDivElement | null>(null);
 
 // 表示モード管理（localStorage から復元）
-const isCompactMode = ref(localStorage.getItem('taskgraph-compact-mode') === 'true');
-const isMinimalHeader = ref(localStorage.getItem('taskgraph-minimal-header') === 'true');
+const isCompactMode = ref(
+  localStorage.getItem('taskgraph-compact-mode') === 'true',
+);
+const isMinimalHeader = ref(
+  localStorage.getItem('taskgraph-minimal-header') === 'true',
+);
 
 // provide/injectでコンポーネント通信を改善
 const taskActions = useTaskActionsProvider();
@@ -203,7 +222,6 @@ const {
   criticalPath,
   projectDuration,
   criticalTaskNames,
-  dependencyEdges,
 } = toRefs(taskStore);
 
 // 矢印描画用: 依存関係のペアを取得
@@ -223,18 +241,18 @@ const gridBounds = computed(() => {
   if (layout.value.length === 0) {
     return { width: 800, height: 600 }; // デフォルトサイズ
   }
-  
+
   let maxX = 0;
   let maxY = 0;
-  
+
   layout.value.forEach((item) => {
     const itemRightEdge = (item.x + item.w) * 160; // グリッドセルの幅（概算）
     const itemBottomEdge = (item.y + item.h) * 60; // グリッドセルの高さ（概算）
-    
+
     if (itemRightEdge > maxX) maxX = itemRightEdge;
     if (itemBottomEdge > maxY) maxY = itemBottomEdge;
   });
-  
+
   // 余白を追加
   return {
     width: Math.max(maxX + 200, 800),
@@ -332,16 +350,32 @@ const handleAddTask = () => {
 // コンパクトモードの切り替え
 const toggleCompactMode = () => {
   isCompactMode.value = !isCompactMode.value;
-  localStorage.setItem('taskgraph-compact-mode', isCompactMode.value.toString());
-  console.log('コンパクトモード:', isCompactMode.value, 'ヘッダー最小:', isMinimalHeader.value);
+  localStorage.setItem(
+    'taskgraph-compact-mode',
+    isCompactMode.value.toString(),
+  );
+  console.log(
+    'コンパクトモード:',
+    isCompactMode.value,
+    'ヘッダー最小:',
+    isMinimalHeader.value,
+  );
   triggerCurveUpdate();
 };
 
 // ヘッダー最小化モードの切り替え
 const toggleMinimalHeader = () => {
   isMinimalHeader.value = !isMinimalHeader.value;
-  localStorage.setItem('taskgraph-minimal-header', isMinimalHeader.value.toString());
-  console.log('ヘッダー最小:', isMinimalHeader.value, 'コンパクトモード:', isCompactMode.value);
+  localStorage.setItem(
+    'taskgraph-minimal-header',
+    isMinimalHeader.value.toString(),
+  );
+  console.log(
+    'ヘッダー最小:',
+    isMinimalHeader.value,
+    'コンパクトモード:',
+    isCompactMode.value,
+  );
   emit('update:minimal-header', isMinimalHeader.value);
 };
 
@@ -362,14 +396,14 @@ const handleAutoLayout = () => {
 // 依存関係エッジから矢印ペアを生成
 const updateArrows = () => {
   const newArrows: Arrow[] = [];
-  
+
   // 各タスクの依存関係から矢印を生成
   editorTasks.value.forEach((task) => {
     task.task.depends.forEach((dependencyName) => {
       if (dependencyName.trim() !== '') {
         // 依存するタスクを見つける
         const dependencyTask = editorTasks.value.find(
-          (t) => t.task.name === dependencyName
+          (t) => t.task.name === dependencyName,
         );
         if (dependencyTask) {
           newArrows.push({
@@ -380,7 +414,7 @@ const updateArrows = () => {
       }
     });
   });
-  
+
   arrows.value = newArrows;
 };
 

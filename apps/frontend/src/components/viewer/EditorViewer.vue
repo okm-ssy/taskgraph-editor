@@ -18,7 +18,7 @@
             'px-3 py-1 rounded-md text-sm transition-colors',
             isCompactMode
               ? 'bg-green-500 hover:bg-green-600 text-white'
-              : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+              : 'bg-gray-200 hover:bg-gray-300 text-gray-700',
           ]"
           @click="toggleCompactMode"
           :title="`コンパクトモード: ${isCompactMode ? 'ON' : 'OFF'}`"
@@ -30,7 +30,7 @@
             'px-3 py-1 rounded-md text-sm transition-colors',
             isMinimalHeader
               ? 'bg-purple-500 hover:bg-purple-600 text-white'
-              : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+              : 'bg-gray-200 hover:bg-gray-300 text-gray-700',
           ]"
           @click="toggleMinimalHeader"
           :title="`ヘッダー最小化: ${isMinimalHeader ? 'ON' : 'OFF'}`"
@@ -95,7 +95,6 @@ import { onMounted, ref, toRefs } from 'vue';
 
 import { useEditorUIStore } from '../../store/editor_ui_store';
 import { useCurrentTasks } from '../../store/task_store';
-import { useGraphExport } from '../../store/use_graph_export';
 
 import TaskDetail from './TaskDetail.vue';
 import TaskDialog from './TaskDialog.vue';
@@ -110,8 +109,12 @@ const uiStore = useEditorUIStore();
 const isExporting = ref(false);
 
 // 表示モード管理（localStorage から復元）
-const isCompactMode = ref(localStorage.getItem('taskgraph-compact-mode') === 'true');
-const isMinimalHeader = ref(localStorage.getItem('taskgraph-minimal-header') === 'true');
+const isCompactMode = ref(
+  localStorage.getItem('taskgraph-compact-mode') === 'true',
+);
+const isMinimalHeader = ref(
+  localStorage.getItem('taskgraph-minimal-header') === 'true',
+);
 
 // toRefsでリアクティブな値を取得
 const {
@@ -123,11 +126,12 @@ const {
   criticalPath,
 } = toRefs(taskStore);
 
-// SVG export関連
-const { setGraphRef, exportAsSvg } = useGraphExport();
+// SVG export関連（現在は TaskgraphViewer 内で直接処理）
 
 // TaskgraphViewerからgraphRefを受け取るためのref
-const taskgraphViewerRef = ref<InstanceType<typeof TaskgraphViewer> | null>(null);
+const taskgraphViewerRef = ref<InstanceType<typeof TaskgraphViewer> | null>(
+  null,
+);
 
 const exportSvg = () => {
   if (taskgraphViewerRef.value) {
@@ -139,13 +143,19 @@ const exportSvg = () => {
 // コンパクトモードの切り替え
 const toggleCompactMode = () => {
   isCompactMode.value = !isCompactMode.value;
-  localStorage.setItem('taskgraph-compact-mode', isCompactMode.value.toString());
+  localStorage.setItem(
+    'taskgraph-compact-mode',
+    isCompactMode.value.toString(),
+  );
 };
 
 // ヘッダー最小化モードの切り替え
 const toggleMinimalHeader = () => {
   isMinimalHeader.value = !isMinimalHeader.value;
-  localStorage.setItem('taskgraph-minimal-header', isMinimalHeader.value.toString());
+  localStorage.setItem(
+    'taskgraph-minimal-header',
+    isMinimalHeader.value.toString(),
+  );
   emit('update:minimal-header', isMinimalHeader.value);
 };
 

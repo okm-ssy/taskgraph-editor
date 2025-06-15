@@ -1,7 +1,7 @@
 <template>
   <div class="flex h-dvh flex-col justify-between">
-    <EditorViewer 
-      class="h-full" 
+    <EditorViewer
+      class="h-full"
       @update:minimal-header="handleMinimalHeaderUpdate"
     />
   </div>
