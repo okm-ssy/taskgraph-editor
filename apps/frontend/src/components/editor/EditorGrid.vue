@@ -34,8 +34,8 @@
         />
       </div>
 
-      <!-- 矢印クリック用の透明レイヤー（最前面） -->
-      <div class="absolute inset-0 z-20 pointer-events-none arrow-click-layer">
+      <!-- 矢印クリック用の透明レイヤー（タスクより下） -->
+      <div class="absolute inset-0 z-5 pointer-events-none">
         <Curve
           :connections="connections"
           :force-update="curveUpdateTrigger"
@@ -423,19 +423,4 @@ watch(
   contain: strict;
 }
 
-/* 矢印クリック領域からタスクカードエリアを除外 */
-.arrow-click-layer {
-  /* 矢印クリック有効 */
-  pointer-events: auto;
-}
-
-/* タスクカード上では矢印クリックを無効化（青い丸は除く） */
-.arrow-click-layer .vue-grid-item {
-  pointer-events: none;
-}
-
-/* 青い丸（依存関係ハンドル）は有効のまま */
-.arrow-click-layer .vue-grid-item .dependency-handle {
-  pointer-events: auto;
-}
 </style>
