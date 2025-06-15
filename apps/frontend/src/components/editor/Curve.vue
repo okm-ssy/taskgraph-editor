@@ -14,15 +14,15 @@
         )"
         :key="`arrow-${connection.sourceId}-${connection.targetId}`"
         :id="`arrow-${connection.sourceId}-${connection.targetId}`"
-        markerWidth="10"
-        markerHeight="7"
-        refX="10"
-        refY="3.5"
+        markerWidth="8"
+        markerHeight="6"
+        refX="8"
+        refY="3"
         orient="auto"
         markerUnits="userSpaceOnUse"
       >
         <polygon
-          points="0 0, 10 3.5, 0 7"
+          points="0 0, 8 3, 0 6"
           :fill="connection.color ?? '#94a3b8'"
         ></polygon>
       </marker>
@@ -565,8 +565,8 @@ svg:not(.dragging) path.cursor-pointer:hover + path {
 
 /* マーカーのサイズと色を固定 */
 svg marker {
-  markerWidth: 10 !important;
-  markerHeight: 7 !important;
+  markerWidth: 8 !important;
+  markerHeight: 6 !important;
 }
 
 svg marker polygon {
