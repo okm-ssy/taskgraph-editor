@@ -25,6 +25,7 @@ export class EditorTask {
       difficulty: 1,
       name: 'new-task',
       notes: [''],
+      category: '',
     };
   }
 }
