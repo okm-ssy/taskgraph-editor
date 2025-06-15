@@ -1,48 +1,3 @@
-<script setup lang="ts">
-import { ref, watch } from 'vue';
-
-import { useEditorUIStore } from '../../store/editor_ui_store';
-import { useCurrentTasks } from '../../store/task_store';
-
-const taskStore = useCurrentTasks();
-const uiStore = useEditorUIStore();
-const nameInput = ref('');
-const descriptionInput = ref('');
-const difficultyInput = ref(1);
-
-// 選択中のタスクが変更されたら入力フィールドを更新
-watch(
-  () => taskStore.selectedTask,
-  (newTask) => {
-    if (newTask) {
-      nameInput.value = newTask.task.name;
-      descriptionInput.value = newTask.task.description;
-      difficultyInput.value = newTask.task.difficulty;
-    }
-  },
-  { immediate: true },
-);
-
-// フォーム送信時の処理
-const handleSubmit = () => {
-  if (!taskStore.selectedTask) return;
-
-  // タスク更新（依存関係は変更しない）
-  taskStore.updateTask(taskStore.selectedTask.id, {
-    name: nameInput.value,
-    description: descriptionInput.value,
-    difficulty: difficultyInput.value,
-  });
-
-  // ダイアログを閉じる
-  uiStore.closeDetailDialog();
-};
-
-const handleCancel = () => {
-  uiStore.closeDetailDialog();
-};
-</script>
-
 <template>
   <div
     v-if="uiStore.isDetailDialogVisible"
@@ -134,5 +89,50 @@ const handleCancel = () => {
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { ref, watch } from 'vue';
+
+import { useEditorUIStore } from '../../store/editor_ui_store';
+import { useCurrentTasks } from '../../store/task_store';
+
+const taskStore = useCurrentTasks();
+const uiStore = useEditorUIStore();
+const nameInput = ref('');
+const descriptionInput = ref('');
+const difficultyInput = ref(1);
+
+// 選択中のタスクが変更されたら入力フィールドを更新
+watch(
+  () => taskStore.selectedTask,
+  (newTask) => {
+    if (newTask) {
+      nameInput.value = newTask.task.name;
+      descriptionInput.value = newTask.task.description;
+      difficultyInput.value = newTask.task.difficulty;
+    }
+  },
+  { immediate: true },
+);
+
+// フォーム送信時の処理
+const handleSubmit = () => {
+  if (!taskStore.selectedTask) return;
+
+  // タスク更新（依存関係は変更しない）
+  taskStore.updateTask(taskStore.selectedTask.id, {
+    name: nameInput.value,
+    description: descriptionInput.value,
+    difficulty: difficultyInput.value,
+  });
+
+  // ダイアログを閉じる
+  uiStore.closeDetailDialog();
+};
+
+const handleCancel = () => {
+  uiStore.closeDetailDialog();
+};
+</script>
 
 <style scoped></style>
