@@ -49,17 +49,24 @@ export const useCurrentTasks = defineStore('editorTask', () => {
 
   // 全タスクの難易度合計（余剰工数1.2倍を含む）
   const totalDifficulty = computed(() => {
-    const baseDifficulty = tasks.value.reduce((sum, task) => sum + task.difficulty, 0);
-    return baseDifficulty * 1.2; // 1.2倍
+    const baseDifficulty = tasks.value.reduce(
+      (sum, task) => sum + task.difficulty,
+      0,
+    );
+    return baseDifficulty * 1.2;
   });
 
   // クリティカルパス計算
-  const { criticalPath, projectDuration: baseDuration, criticalTaskNames, dependencyEdges } =
-    useCriticalPath(editorTasks);
-  
+  const {
+    criticalPath,
+    projectDuration: baseDuration,
+    criticalTaskNames,
+    dependencyEdges,
+  } = useCriticalPath(editorTasks);
+
   // プロジェクト所要時間（余剰工数1.2倍を含む）
   const projectDuration = computed(() => {
-    return baseDuration.value * 1.2; // 1.2倍
+    return baseDuration.value * 1.2;
   });
 
   // Actions
