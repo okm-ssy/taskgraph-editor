@@ -347,8 +347,14 @@ const setupObservers = () => {
           });
 
           // CSS Transitionイベントリスナーを追加
-          gridItem.addEventListener('transitionstart', handleTransitionStart as EventListener);
-          gridItem.addEventListener('transitionend', handleTransitionEnd as EventListener);
+          gridItem.addEventListener(
+            'transitionstart',
+            handleTransitionStart as any,
+          );
+          gridItem.addEventListener(
+            'transitionend',
+            handleTransitionEnd as any,
+          );
 
           observedElements.add(gridItem);
         }
@@ -367,8 +373,14 @@ const cleanupObservers = () => {
   observedElements.forEach((element) => {
     const gridItem = element.closest('.vue-grid-item');
     if (gridItem) {
-      gridItem.removeEventListener('transitionstart', handleTransitionStart as EventListener);
-      gridItem.removeEventListener('transitionend', handleTransitionEnd as EventListener);
+      gridItem.removeEventListener(
+        'transitionstart',
+        handleTransitionStart as any,
+      );
+      gridItem.removeEventListener(
+        'transitionend',
+        handleTransitionEnd as any,
+      );
     }
   });
 
