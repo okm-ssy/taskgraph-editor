@@ -53,7 +53,7 @@
         "
         fill="none"
         stroke="transparent"
-        stroke-width="20"
+        stroke-width="15"
         :class="[
           props.isDragging
             ? 'pointer-events-none'
@@ -200,12 +200,13 @@ const updatePositions = () => {
 
       connectionPosition.value.set(key, {
         start: {
-          x: startRect.x + startRect.width / 2 - svgRect.x,
+          // 青い丸から少し離れた位置から開始
+          x: startRect.x + startRect.width / 2 - svgRect.x + 20,
           y: startRect.y + startRect.height / 2 - svgRect.y,
         },
         end: {
-          // targetの左端を指すように調整（endRect.x はtargetの左端）
-          x: endRect.x - svgRect.x,
+          // targetの左端の青い丸から少し離れた位置で終了
+          x: endRect.x - svgRect.x - 20,
           y: endRect.y + endRect.height / 2 - svgRect.y,
         },
       });
