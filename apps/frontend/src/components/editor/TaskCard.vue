@@ -5,7 +5,7 @@
       difficultyColorClass,
       isDroppable ? 'ring-4 ring-blue-400 scale-105' : '',
       isDraggingSource ? 'opacity-50' : '',
-      props.compact ? 'compact-mode' : 'normal-mode'
+      props.compact ? 'compact-mode' : 'normal-mode',
     ]"
     style="z-index: 1; overflow: visible"
     @dragover="handleDragOver"
@@ -54,24 +54,28 @@
     <div
       :class="[
         'task-content flex-1 flex flex-col cursor-pointer relative overflow-hidden',
-        props.compact ? 'p-2' : 'p-3'
+        props.compact ? 'p-2' : 'p-3',
       ]"
       @click="handleCardClick"
       @dragenter.prevent
       @dragover.prevent
     >
-      <p :class="[
-        'text-gray-700 line-clamp-2 mb-2',
-        props.compact ? 'text-xs' : 'text-sm'
-      ]">
+      <p
+        :class="[
+          'text-gray-700 line-clamp-2 mb-2',
+          props.compact ? 'text-xs' : 'text-sm',
+        ]"
+      >
         {{ task.description }}
       </p>
 
       <div class="mt-auto flex justify-end">
-        <span :class="[
-          'bg-white rounded-full px-2 py-1 text-gray-700',
-          props.compact ? 'text-[10px]' : 'text-xs'
-        ]">
+        <span
+          :class="[
+            'bg-white rounded-full px-2 py-1 text-gray-700',
+            props.compact ? 'text-[10px]' : 'text-xs',
+          ]"
+        >
           {{ task.category || `難易度: ${task.difficulty}` }}
           <span v-if="task.category" class="text-gray-500"
             >({{ task.difficulty }})</span
@@ -87,7 +91,6 @@ import { computed } from 'vue';
 
 import type { Task } from '../../model/Taskgraph';
 import { useDragDropStore } from '../../store/drag_drop_store';
-import { useEditorUIStore } from '../../store/editor_ui_store';
 import { useCurrentTasks } from '../../store/task_store';
 
 const props = defineProps<{
@@ -98,7 +101,6 @@ const props = defineProps<{
 
 const dragDropStore = useDragDropStore();
 const taskStore = useCurrentTasks();
-const uiStore = useEditorUIStore();
 
 // 難易度に基づいて背景色を計算
 const difficultyColorClass = computed(() => {

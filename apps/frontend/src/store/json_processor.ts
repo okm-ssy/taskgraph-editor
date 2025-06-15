@@ -33,11 +33,14 @@ export const useJsonProcessor = () => {
       if (!validationResult.success) {
         // Zodエラーの詳細を取得
         const zodError = validationResult.error;
-        const errorDetails = zodError.issues.map(issue => {
-          const path = issue.path.length > 0 ? ` (${issue.path.join('.')})` : '';
-          return `${issue.message}${path}`;
-        }).join(', ');
-        
+        const errorDetails = zodError.issues
+          .map((issue) => {
+            const path =
+              issue.path.length > 0 ? ` (${issue.path.join('.')})` : '';
+            return `${issue.message}${path}`;
+          })
+          .join(', ');
+
         const errorMessage = `バリデーションエラー: ${errorDetails}`;
         taskLoadError.value = errorMessage;
         errorStore.addValidationError(errorMessage, validationResult.error);

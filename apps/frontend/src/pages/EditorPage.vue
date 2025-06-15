@@ -1,9 +1,9 @@
 <template>
   <div class="flex h-dvh flex-col">
-    <EditorGrid 
-      v-model:selecting="isSelecting" 
+    <EditorGrid
+      v-model:selecting="isSelecting"
       @update:minimal-header="handleMinimalHeaderUpdate"
-      class="h-full" 
+      class="h-full"
     />
   </div>
 </template>
