@@ -60,8 +60,8 @@
 <script setup lang="ts">
 import { onMounted, toRefs } from 'vue';
 
-import { useCurrentTasks } from '../../store/task_store';
 import { useEditorUIStore } from '../../store/editor_ui_store';
+import { useCurrentTasks } from '../../store/task_store';
 
 import TaskDetail from './TaskDetail.vue';
 import TaskDialog from './TaskDialog.vue';
