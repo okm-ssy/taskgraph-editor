@@ -75,14 +75,21 @@ const updatePositions = () => {
       const endRect = endElement.getBoundingClientRect();
 
       // サイズがゼロの場合は再試行をスケジュール
-      if (startRect.width === 0 || startRect.height === 0 || 
-          endRect.width === 0 || endRect.height === 0) {
+      if (
+        startRect.width === 0 ||
+        startRect.height === 0 ||
+        endRect.width === 0 ||
+        endRect.height === 0
+      ) {
         const retryCount = updateRetryMap.get(key) || 0;
         if (retryCount < 10) {
           updateRetryMap.set(key, retryCount + 1);
-          setTimeout(() => {
-            updatePositions();
-          }, 100 * (retryCount + 1)); // 徐々に間隔を長くする
+          setTimeout(
+            () => {
+              updatePositions();
+            },
+            100 * (retryCount + 1),
+          ); // 徐々に間隔を長くする
         }
         return;
       }
@@ -187,7 +194,7 @@ let animationFrameId: number | null = null;
 // 連続更新モード（ドラッグ中は低頻度）
 const startContinuousUpdate = (isLowFrequency = false) => {
   if (continuousUpdateId) return;
-  
+
   const update = () => {
     updatePositions();
     if (isLowFrequency) {
@@ -218,7 +225,7 @@ const scheduleUpdate = (immediate = false) => {
   if (props.isDragging) {
     return;
   }
-  
+
   if (props.continuousUpdate) {
     // 連続更新モードが有効な場合は何もしない（既に更新ループが回っている）
     return;
@@ -338,11 +345,11 @@ const setupObservers = () => {
             attributeFilter: ['style', 'class', 'transform'],
             subtree: false,
           });
-          
+
           // CSS Transitionイベントリスナーを追加
-          gridItem.addEventListener('transitionstart', handleTransitionStart);
-          gridItem.addEventListener('transitionend', handleTransitionEnd);
-          
+          gridItem.addEventListener('transitionstart', handleTransitionStart as EventListener);
+          gridItem.addEventListener('transitionend', handleTransitionEnd as EventListener);
+
           observedElements.add(gridItem);
         }
 
@@ -355,16 +362,16 @@ const setupObservers = () => {
 const cleanupObservers = () => {
   resizeObserver.value?.disconnect();
   mutationObserver.value?.disconnect();
-  
+
   // トランジションイベントリスナーをクリーンアップ
   observedElements.forEach((element) => {
     const gridItem = element.closest('.vue-grid-item');
     if (gridItem) {
-      gridItem.removeEventListener('transitionstart', handleTransitionStart);
-      gridItem.removeEventListener('transitionend', handleTransitionEnd);
+      gridItem.removeEventListener('transitionstart', handleTransitionStart as EventListener);
+      gridItem.removeEventListener('transitionend', handleTransitionEnd as EventListener);
     }
   });
-  
+
   observedElements.clear();
   transitionElements.clear();
 
@@ -420,19 +427,19 @@ onMounted(() => {
   setTimeout(() => {
     updatePositions();
   }, 50);
-  
+
   // 複数回の初期更新で確実に位置を取得
   setTimeout(() => {
     updatePositions();
   }, 150);
-  
+
   setTimeout(() => {
     updatePositions();
   }, 300);
-  
+
   setupObservers();
   window.addEventListener('resize', updatePositions);
-  
+
   if (props.continuousUpdate) {
     startContinuousUpdate();
   }
@@ -449,10 +456,7 @@ onBeforeUnmount(() => {
 <template>
   <svg
     ref="svgElement"
-    :class="[
-      'w-full h-full',
-      props.isDragging ? 'dragging' : '',
-    ]"
+    :class="['w-full h-full', props.isDragging ? 'dragging' : '']"
   >
     <defs>
       <!-- 通常の矢印マーカー -->
