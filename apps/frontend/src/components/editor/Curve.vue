@@ -313,27 +313,35 @@ const getPathD = (start: Position, end: Position) => {
 const handleConnectionClick = (event: MouseEvent, connection: Connection) => {
   // ドラッグ中はクリックを無視
   if (props.isDragging) return;
-  
+
   // クリック位置がタスクカード上かチェック
-  const target = event.target as Element;
-  const clickedElement = document.elementFromPoint(event.clientX, event.clientY);
+  const clickedElement = document.elementFromPoint(
+    event.clientX,
+    event.clientY,
+  );
   if (clickedElement?.closest('.vue-grid-item')) {
     return; // タスクカード上ならクリックを無視
   }
-  
+
   emit('connection-click', connection);
 };
 
 // ホバーイベントハンドラー
-const handleConnectionMouseEnter = (event: MouseEvent, connection: Connection) => {
+const handleConnectionMouseEnter = (
+  event: MouseEvent,
+  connection: Connection,
+) => {
   if (props.isDragging) return;
-  
+
   // ホバー位置がタスクカード上かチェック
-  const hoveredElement = document.elementFromPoint(event.clientX, event.clientY);
+  const hoveredElement = document.elementFromPoint(
+    event.clientX,
+    event.clientY,
+  );
   if (hoveredElement?.closest('.vue-grid-item')) {
     return; // タスクカード上ならホバーを無視
   }
-  
+
   const connectionKey = `${connection.sourceId}-${connection.targetId}`;
   hoveredConnection.value = connectionKey;
   emit('connection-hover', connectionKey);
