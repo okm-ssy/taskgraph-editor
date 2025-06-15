@@ -15,14 +15,14 @@
     <div
       :id="`target-${id}`"
       class="absolute -left-1 top-6 -translate-x-1/4 -translate-y-1/2 bg-blue-500 rounded-full h-4 w-4"
-      style="z-index: -1"
+      style="z-index: 30"
     />
 
     <!-- source: 依存元（矢印の起点、ドラッグ可能） -->
     <div
       :id="`source-${id}`"
       class="dependency-handle absolute right-0 top-6 translate-x-1/2 -translate-y-1/2 bg-blue-500 rounded-full h-4 w-4 cursor-move hover:scale-125 transition-transform"
-      style="z-index: -1"
+      style="z-index: 30"
       draggable="true"
       @dragstart="handleDragStart"
       @dragend="handleDragEnd"
