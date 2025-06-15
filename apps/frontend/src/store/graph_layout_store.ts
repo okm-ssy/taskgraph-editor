@@ -507,7 +507,8 @@ export const useGraphLayout = () => {
     const sortedTasks = [...editorTasks].sort((a, b) => a.grid.y - b.grid.y);
 
     sortedTasks.forEach((task) => {
-      let { x, y, w, h } = task.grid;
+      let { x, y } = task.grid;
+      const { w, h } = task.grid;
 
       // 重複チェックとずらし処理
       while (isPositionOccupied(x, y, w, h, occupiedPositions)) {
