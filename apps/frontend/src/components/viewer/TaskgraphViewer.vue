@@ -70,22 +70,34 @@
           }"
         >
           <div
-            class="border-2 rounded-lg p-3 shadow-md transition-transform hover:translate-y-[-2px] hover:shadow-lg cursor-pointer bg-opacity-90 w-full h-full focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
-            :class="taskStore.getDifficultyColor(node.difficulty)"
+            :class="[
+              'border-2 rounded-lg shadow-md transition-transform hover:translate-y-[-2px] hover:shadow-lg cursor-pointer bg-opacity-90 w-full h-full focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1',
+              taskStore.getDifficultyColor(node.difficulty),
+              props.compact ? 'p-2' : 'p-3'
+            ]"
             :style="{
-              width: `${taskStore.GRAPH_SETTINGS.nodeWidth}px`,
-              height: `${taskStore.GRAPH_SETTINGS.nodeHeight}px`,
+              width: `${props.compact ? taskStore.GRAPH_SETTINGS.nodeWidth * 0.8 : taskStore.GRAPH_SETTINGS.nodeWidth}px`,
+              height: `${props.compact ? taskStore.GRAPH_SETTINGS.nodeHeight * 0.8 : taskStore.GRAPH_SETTINGS.nodeHeight}px`,
             }"
             @click="taskStore.selectTask(node.id)"
             role="button"
             tabindex="0"
             :aria-describedby="`tooltip-for-${node.id}`"
           >
-            <div class="font-bold truncate text-sm">{{ node.name }}</div>
-            <div class="text-xs mt-1 truncate text-gray-700">
+            <div :class="[
+              'font-bold truncate',
+              props.compact ? 'text-xs' : 'text-sm'
+            ]">{{ node.name }}</div>
+            <div :class="[
+              'mt-1 truncate text-gray-700',
+              props.compact ? 'text-[10px]' : 'text-xs'
+            ]">
               {{ node.description }}
             </div>
-            <div class="text-xs mt-2 font-medium">
+            <div :class="[
+              'mt-2 font-medium',
+              props.compact ? 'text-[10px]' : 'text-xs'
+            ]">
               {{ node.category || `難易度: ${node.difficulty}` }}
               <span v-if="node.category" class="text-gray-600 font-normal"
                 >({{ node.difficulty }})</span
@@ -122,6 +134,7 @@ import TaskDetail from './TaskDetail.vue';
 const props = defineProps<{
   editorTasks: EditorTask[];
   criticalPath: CriticalPathEdge[];
+  compact?: boolean;
 }>();
 
 const taskStore = useCurrentTasks();
