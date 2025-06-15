@@ -41,7 +41,7 @@ export const taskZodSchema = zod
   .object({
     depends: dependsSchema,
     description: zod.string().min(0, '説明は空文字でも構いません'),
-    difficulty: zod.number().int().min(1).max(5).default(1),
+    difficulty: zod.number().min(0).default(0),
     name: taskNameSchema,
     notes: zod.array(zod.string()).default([]),
     issueNumber: zod.number().int().min(1).optional(),
@@ -122,10 +122,14 @@ export const taskgraphZodSchema = zod
   .strict()
   .refine(
     (data) => {
-      const taskNames = data.tasks.map(task => task.name);
+      const taskNames = data.tasks.map((task) => task.name);
       return new Set(taskNames).size === taskNames.length;
     },
-    { message: 'タスク名に重複があります。すべてのタスク名は一意である必要があります。', path: ['tasks'] }
+    {
+      message:
+        'タスク名に重複があります。すべてのタスク名は一意である必要があります。',
+      path: ['tasks'],
+    },
   );
 
 export type Task = zod.infer<typeof taskZodSchema>;
