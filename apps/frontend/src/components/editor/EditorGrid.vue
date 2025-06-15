@@ -111,7 +111,7 @@
 
     <!-- タスク詳細ダイアログ -->
     <TaskDetailDialog />
-    
+
     <!-- エラー表示 -->
     <ErrorDisplay />
   </div>
@@ -134,13 +134,13 @@ import { GridTask } from '../../model/GridTask';
 import { useDragDropStore } from '../../store/drag_drop_store';
 import { useEditorUIStore } from '../../store/editor_ui_store';
 import { useCurrentTasks } from '../../store/task_store';
+import ErrorDisplay from '../common/ErrorDisplay.vue';
 
 import Curve, { type Connection } from './Curve.vue';
 import TaskAddButton from './TaskAddButton.vue';
 import TaskAddPanel from './TaskAddPanel.vue';
 import TaskCard from './TaskCard.vue';
 import TaskDetailDialog from './TaskDetailDialog.vue';
-import ErrorDisplay from '../common/ErrorDisplay.vue';
 
 defineProps<{
   selecting?: boolean;
@@ -160,12 +160,8 @@ const gridContainer = ref<HTMLDivElement | null>(null);
 const taskActions = useTaskActionsProvider();
 
 // クリティカルパス計算
-const {
-  criticalPath,
-  projectDuration,
-  criticalTaskNames,
-  dependencyEdges,
-} = useCriticalPath(taskStore.editorTasks);
+const { criticalPath, projectDuration, criticalTaskNames, dependencyEdges } =
+  useCriticalPath(taskStore.editorTasks);
 
 // 矢印描画用: 依存関係のペアを取得
 type Arrow = {
