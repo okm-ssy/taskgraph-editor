@@ -24,63 +24,47 @@ interface TaskNode {
 }
 
 export const useCriticalPath = (editorTasks: EditorTask[]) => {
-  // 冗長な依存関係を除去
-  const removeRedundantDependencies = (nodeMap: Map<string, TaskNode>) => {
-    nodeMap.forEach((node) => {
-      const redundantDeps = new Set<string>();
-
-      // 各直接依存について、他の直接依存を経由して到達可能かチェック
-      node.dependencies.forEach((directDep) => {
-        const visited = new Set<string>();
-        const canReachViaOtherPath = (
-          currentNode: string,
-          target: string,
-          excludeDirect: string,
-        ): boolean => {
-          if (visited.has(currentNode)) return false;
-          visited.add(currentNode);
-
-          const current = nodeMap.get(currentNode);
-          if (!current) return false;
-
-          for (const dep of current.dependencies) {
-            if (dep === excludeDirect) continue; // 直接依存は除外
-            if (dep === target) return true; // 目標に到達
-            if (canReachViaOtherPath(dep, target, excludeDirect)) return true;
+  // トポロジカルソート（カーンのアルゴリズム）
+  const topologicalSort = (nodeMap: Map<string, TaskNode>): string[] => {
+    const result: string[] = [];
+    const inDegree = new Map<string, number>();
+    
+    // 入次数を計算
+    nodeMap.forEach((node, name) => {
+      inDegree.set(name, node.dependencies.length);
+    });
+    
+    // 入次数が0のノードをキューに追加
+    const queue: string[] = [];
+    inDegree.forEach((degree, name) => {
+      if (degree === 0) {
+        queue.push(name);
+      }
+    });
+    
+    // トポロジカルソート実行
+    while (queue.length > 0) {
+      const current = queue.shift()!;
+      result.push(current);
+      
+      const currentNode = nodeMap.get(current);
+      if (currentNode) {
+        currentNode.dependents.forEach((dependentName) => {
+          const currentInDegree = inDegree.get(dependentName)!;
+          inDegree.set(dependentName, currentInDegree - 1);
+          if (currentInDegree - 1 === 0) {
+            queue.push(dependentName);
           }
-          return false;
-        };
-
-        // 他の直接依存を経由してこの依存に到達可能なら冗長
-        const otherDirectDeps = node.dependencies.filter(
-          (dep) => dep !== directDep,
-        );
-        for (const otherDep of otherDirectDeps) {
-          if (canReachViaOtherPath(otherDep, directDep, directDep)) {
-            redundantDeps.add(directDep);
-            break;
-          }
-        }
-      });
-
-      // 冗長な依存を除去
-      node.dependencies = node.dependencies.filter(
-        (dep) => !redundantDeps.has(dep),
-      );
-    });
-
-    // dependent関係を再構築
-    nodeMap.forEach((node) => {
-      node.dependents = [];
-    });
-    nodeMap.forEach((node) => {
-      node.dependencies.forEach((depName) => {
-        const depNode = nodeMap.get(depName);
-        if (depNode) {
-          depNode.dependents.push(node.name);
-        }
-      });
-    });
+        });
+      }
+    }
+    
+    // 循環依存のチェック
+    if (result.length !== nodeMap.size) {
+      console.warn('循環依存が検出されました');
+    }
+    
+    return result;
   };
 
   // タスクグラフの構築
@@ -106,82 +90,78 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
       });
     });
 
-    // 冗長な依存関係を除去
-    removeRedundantDependencies(nodeMap);
+    // dependent関係を構築
+    nodeMap.forEach((node) => {
+      node.dependencies.forEach((depName) => {
+        const depNode = nodeMap.get(depName);
+        if (depNode) {
+          depNode.dependents.push(node.name);
+        }
+      });
+    });
 
     return nodeMap;
   };
 
   // 最早開始時刻の計算（フォワードパス）
   const calculateEarliestTimes = (nodeMap: Map<string, TaskNode>) => {
-    const visited = new Set<string>();
-
-    const calculateNode = (nodeName: string): number => {
-      if (visited.has(nodeName)) {
-        return nodeMap.get(nodeName)!.earliestFinish;
-      }
-
+    const sortedNodes = topologicalSort(nodeMap);
+    
+    // トポロジカル順序で最早時刻を計算
+    sortedNodes.forEach((nodeName) => {
       const node = nodeMap.get(nodeName);
-      if (!node) return 0;
-
-      visited.add(nodeName);
-
+      if (!node) return;
+      
       // 依存タスクの最遅完了時刻を求める
       let maxDependencyFinish = 0;
       node.dependencies.forEach((depName) => {
-        const depFinish = calculateNode(depName);
-        maxDependencyFinish = Math.max(maxDependencyFinish, depFinish);
+        const depNode = nodeMap.get(depName);
+        if (depNode) {
+          maxDependencyFinish = Math.max(maxDependencyFinish, depNode.earliestFinish);
+        }
       });
-
+      
       node.earliestStart = maxDependencyFinish;
       node.earliestFinish = node.earliestStart + node.weight;
-
-      return node.earliestFinish;
-    };
-
-    // 全ノードの最早時刻を計算
-    nodeMap.forEach((_, nodeName) => {
-      calculateNode(nodeName);
     });
   };
 
   // 最遅開始時刻の計算（バックワードパス）
   const calculateLatestTimes = (nodeMap: Map<string, TaskNode>) => {
-    const visited = new Set<string>();
-
-    const calculateNode = (nodeName: string): number => {
-      if (visited.has(nodeName)) {
-        return nodeMap.get(nodeName)!.latestStart;
-      }
-
-      const node = nodeMap.get(nodeName);
-      if (!node) return 0;
-
-      visited.add(nodeName);
-
-      // 依存されているタスクがない場合（終端ノード）
+    // プロジェクト完了時刻を取得
+    const projectFinishTime = Math.max(
+      ...Array.from(nodeMap.values()).map((node) => node.earliestFinish)
+    );
+    
+    // 終端ノード（dependentsが空）の最遅完了時刻を設定
+    nodeMap.forEach((node) => {
       if (node.dependents.length === 0) {
-        node.latestFinish = node.earliestFinish; // 終端ノードは最早完了時刻と同じ
-      } else {
-        // 依存されているタスクの最遅開始時刻の最小値を求める
+        node.latestFinish = projectFinishTime;
+      }
+    });
+    
+    // トポロジカル順序の逆順で最遅時刻を計算
+    const sortedNodes = topologicalSort(nodeMap);
+    for (let i = sortedNodes.length - 1; i >= 0; i--) {
+      const nodeName = sortedNodes[i];
+      const node = nodeMap.get(nodeName);
+      if (!node) continue;
+      
+      // 終端ノードでない場合、依存されているタスクの最遅開始時刻の最小値を求める
+      if (node.dependents.length > 0) {
         let minDependentStart = Infinity;
         node.dependents.forEach((depName) => {
-          const depStart = calculateNode(depName);
-          minDependentStart = Math.min(minDependentStart, depStart);
+          const depNode = nodeMap.get(depName);
+          if (depNode) {
+            minDependentStart = Math.min(minDependentStart, depNode.latestStart);
+          }
         });
         node.latestFinish = minDependentStart;
       }
-
+      
       node.latestStart = node.latestFinish - node.weight;
       node.buffer = node.latestStart - node.earliestStart;
-
-      return node.latestStart;
-    };
-
-    // 全ノードの最遅時刻を計算
-    nodeMap.forEach((_, nodeName) => {
-      calculateNode(nodeName);
-    });
+    }
   };
 
   // クリティカルパスの抽出
@@ -260,8 +240,8 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
       .map((node) => node.name);
   });
 
-  // 冗長依存除去後の依存関係エッジを取得
-  const reducedDependencyEdges = computed(() => {
+  // 依存関係エッジを取得
+  const dependencyEdges = computed(() => {
     if (editorTasks.length === 0) return [];
 
     const nodeMap = buildTaskGraph();
@@ -286,6 +266,6 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
     criticalPath,
     projectDuration,
     criticalTaskNames,
-    reducedDependencyEdges,
+    dependencyEdges,
   };
 };

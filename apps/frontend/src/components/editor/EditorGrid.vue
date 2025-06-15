@@ -160,7 +160,7 @@ const {
   criticalPath,
   projectDuration,
   criticalTaskNames,
-  reducedDependencyEdges,
+  dependencyEdges,
 } = useCriticalPath(taskStore.editorTasks);
 
 // 矢印描画用: 依存関係のペアを取得
@@ -276,10 +276,10 @@ const handleAutoLayout = () => {
   triggerCurveUpdate();
 };
 
-// 冗長依存除去後のエッジから矢印ペアを生成
+// 依存関係エッジから矢印ペアを生成
 const updateArrows = () => {
-  // 冗長依存除去後のエッジを使用
-  arrows.value = reducedDependencyEdges.value.map((edge) => ({
+  // 元の依存関係エッジを使用
+  arrows.value = dependencyEdges.value.map((edge) => ({
     fromId: edge.fromTaskId,
     toId: edge.toTaskId,
   }));
@@ -287,7 +287,7 @@ const updateArrows = () => {
 
 // タスクやレイアウトが変わったら再計算
 watch(
-  () => [reducedDependencyEdges.value, layout.value],
+  () => [dependencyEdges.value, layout.value],
   () => {
     updateArrows();
   },
