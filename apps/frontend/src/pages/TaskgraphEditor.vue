@@ -20,7 +20,7 @@
         <div class="flex gap-2">
           <button
             :class="[
-              'px-3 py-1 rounded-md text-sm transition-colors',
+              'px-4 py-2 rounded-md text-base transition-colors',
               isCompactMode
                 ? 'bg-green-500 hover:bg-green-600 text-white'
                 : 'bg-gray-200 hover:bg-gray-300 text-gray-700',
@@ -32,7 +32,7 @@
           </button>
           <button
             :class="[
-              'px-3 py-1 rounded-md text-sm transition-colors',
+              'px-4 py-2 rounded-md text-base transition-colors',
               isMinimalHeader
                 ? 'bg-purple-500 hover:bg-purple-600 text-white'
                 : 'bg-gray-200 hover:bg-gray-300 text-gray-700',
