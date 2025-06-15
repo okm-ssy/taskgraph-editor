@@ -4,11 +4,12 @@
       <button
         v-for="page in pages"
         :key="page.id"
-        class="px-4 py-2 border rounded cursor-pointer transition-all duration-200"
-        :class="{
-          'font-bold text-white bg-blue-500': currentPage.id === page.id,
-          'bg-gray-200': currentPage.id !== page.id,
-        }"
+        :class="[
+          'px-4 py-2 rounded-md text-base transition-colors',
+          currentPage.id === page.id
+            ? 'bg-blue-500 hover:bg-blue-600 text-white'
+            : 'bg-gray-200 hover:bg-gray-300 text-gray-700',
+        ]"
         @click="switchPage(page)"
       >
         {{ page.name }}
