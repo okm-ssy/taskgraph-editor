@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, watch, onMounted } from 'vue';
 
 import { useCriticalPath } from '../../composables/useCriticalPath';
 import { useCurrentTasks } from '../../store/task_store';
@@ -15,6 +15,22 @@ const taskCount = computed(() => taskStore.editorTasks.length);
 const { projectDuration, criticalTaskNames, criticalPath } = useCriticalPath(
   taskStore.editorTasks,
 );
+
+// デバッグ用
+watch(
+  () => taskStore.editorTasks.length,
+  (newLength) => {
+    console.log('EditorViewer: Task count changed to:', newLength);
+    console.log('EditorViewer: Tasks:', taskStore.editorTasks);
+  },
+  { immediate: true },
+);
+
+onMounted(() => {
+  console.log('EditorViewer mounted, initializing...');
+  // グラフデータを構築してタスクストアを初期化
+  taskStore.buildGraphData();
+});
 </script>
 
 <template>
