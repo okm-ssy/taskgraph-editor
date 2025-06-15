@@ -6,7 +6,7 @@
       props.isDragging ? 'dragging' : '',
     ]"
   >
-    <defs>
+    <defs v-if="!props.clickLayerOnly">
       <!-- 通常の矢印マーカー -->
       <marker
         v-for="connection in connections.filter(
@@ -35,8 +35,9 @@
       )"
       :key="`${connection.sourceId}-${connection.targetId}`"
     >
-      <!-- クリック可能な太い透明パス -->
+      <!-- クリック可能な太い透明パス（クリックレイヤーモードでのみ表示） -->
       <path
+        v-if="props.clickLayerOnly"
         :d="
           connectionPosition.get(
             `${connection.sourceId}-${connection.targetId}`,
@@ -59,11 +60,11 @@
             ? 'pointer-events-none'
             : 'cursor-pointer pointer-events-auto',
         ]"
-        style="z-index: 15"
         @click="handleConnectionClick(connection)"
       ></path>
-      <!-- 表示用のパス -->
+      <!-- 表示用のパス（通常モードでのみ表示） -->
       <path
+        v-if="!props.clickLayerOnly"
         :d="
           connectionPosition.get(
             `${connection.sourceId}-${connection.targetId}`,
@@ -86,8 +87,8 @@
       ></path>
     </g>
 
-    <!-- 仮矢印（ドラッグ中のみ） -->
-    <g v-if="tempConnectionPosition">
+    <!-- 仮矢印（ドラッグ中のみ、通常モードでのみ表示） -->
+    <g v-if="tempConnectionPosition && !props.clickLayerOnly">
       <path
         :d="getPathD(tempConnectionPosition.start, tempConnectionPosition.end)"
         fill="none"
@@ -138,6 +139,10 @@ const props = defineProps({
     default: false,
   },
   isDragging: {
+    type: Boolean,
+    default: false,
+  },
+  clickLayerOnly: {
     type: Boolean,
     default: false,
   },
