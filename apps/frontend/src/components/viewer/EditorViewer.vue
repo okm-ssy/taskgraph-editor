@@ -1,30 +1,3 @@
-<script setup lang="ts">
-import { onMounted, toRefs } from 'vue';
-
-import { useCurrentTasks } from '../../store/task_store';
-
-import TaskDetail from './TaskDetail.vue';
-import TaskDialog from './TaskDialog.vue';
-import TaskgraphViewer from './TaskgraphViewer.vue';
-
-const taskStore = useCurrentTasks();
-
-// toRefsでリアクティブな値を取得
-const {
-  editorTasks,
-  taskCount,
-  totalDifficulty,
-  projectDuration,
-  criticalTaskNames,
-  criticalPath,
-} = toRefs(taskStore);
-
-onMounted(() => {
-  // グラフデータを構築してタスクストアを初期化
-  taskStore.buildGraphData();
-});
-</script>
-
 <template>
   <div class="editor-viewer">
     <!-- ヘッダー情報 -->
@@ -85,6 +58,33 @@ onMounted(() => {
     </TaskDialog>
   </div>
 </template>
+
+<script setup lang="ts">
+import { onMounted, toRefs } from 'vue';
+
+import { useCurrentTasks } from '../../store/task_store';
+
+import TaskDetail from './TaskDetail.vue';
+import TaskDialog from './TaskDialog.vue';
+import TaskgraphViewer from './TaskgraphViewer.vue';
+
+const taskStore = useCurrentTasks();
+
+// toRefsでリアクティブな値を取得
+const {
+  editorTasks,
+  taskCount,
+  totalDifficulty,
+  projectDuration,
+  criticalTaskNames,
+  criticalPath,
+} = toRefs(taskStore);
+
+onMounted(() => {
+  // グラフデータを構築してタスクストアを初期化
+  taskStore.buildGraphData();
+});
+</script>
 
 <style scoped>
 .editor-viewer {
