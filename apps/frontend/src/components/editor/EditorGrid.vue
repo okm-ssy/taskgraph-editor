@@ -8,6 +8,9 @@
           class="text-sm text-gray-600"
         >
           <span class="font-medium"
+            >総難易度: {{ taskStore.totalDifficulty }}</span
+          >
+          <span class="ml-3 font-medium"
             >プロジェクト所要時間: {{ projectDuration }}</span
           >
           <span class="ml-3 text-blue-600"
