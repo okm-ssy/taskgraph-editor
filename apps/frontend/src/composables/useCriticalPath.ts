@@ -1,4 +1,4 @@
-import { computed } from 'vue';
+import { computed, ref, watchEffect } from 'vue';
 
 import type { EditorTask } from '../model/EditorTask';
 import { useErrorStore } from '../store/error_store';
@@ -67,21 +67,13 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
         name => !result.includes(name)
       );
       const errorMessage = `循環依存が検出されました。確認してください: ${unprocessedNodes.join(', ')}`;
-      
-      // エラーストアに追加
-      errorStore.addValidationError(errorMessage, {
-        unprocessedNodes,
-        processedNodes: result,
-        totalNodes: nodeMap.size
-      });
-      
       console.warn(errorMessage);
-    } else {
-      // 循環依存がない場合は、以前の循環依存エラーをクリア
-      errorStore.clearErrorsByType('validation');
+      
+      // 循環依存の情報を返す
+      return { result, hasCircularDependency: true, unprocessedNodes };
     }
 
-    return result;
+    return { result, hasCircularDependency: false, unprocessedNodes: [] };
   };
 
   // タスクグラフの構築
@@ -122,7 +114,7 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
 
   // 最早開始時刻の計算（フォワードパス）
   const calculateEarliestTimes = (nodeMap: Map<string, TaskNode>) => {
-    const sortedNodes = topologicalSort(nodeMap);
+    const { result: sortedNodes } = topologicalSort(nodeMap);
 
     // トポロジカル順序で最早時刻を計算
     sortedNodes.forEach((nodeName) => {
@@ -161,7 +153,7 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
     });
 
     // トポロジカル順序の逆順で最遅時刻を計算
-    const sortedNodes = topologicalSort(nodeMap);
+    const { result: sortedNodes } = topologicalSort(nodeMap);
     for (let i = sortedNodes.length - 1; i >= 0; i--) {
       const nodeName = sortedNodes[i];
       const node = nodeMap.get(nodeName);
@@ -216,11 +208,25 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
     return criticalEdges;
   };
 
+  // 循環依存チェック結果を保持
+  const circularDependencyInfo = ref<{
+    hasCircularDependency: boolean;
+    unprocessedNodes: string[];
+  }>({ hasCircularDependency: false, unprocessedNodes: [] });
+
   // クリティカルパスの計算
   const criticalPath = computed(() => {
     if (editorTasks.length === 0) return [];
 
     const nodeMap = buildTaskGraph();
+    
+    // 循環依存チェック
+    const topologicalResult = topologicalSort(nodeMap);
+    circularDependencyInfo.value = {
+      hasCircularDependency: topologicalResult.hasCircularDependency,
+      unprocessedNodes: topologicalResult.unprocessedNodes
+    };
+    
     calculateEarliestTimes(nodeMap);
     calculateLatestTimes(nodeMap);
 
@@ -283,6 +289,19 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
     });
 
     return edges;
+  });
+
+  // 循環依存エラーの管理（computed外で実行）
+  watchEffect(() => {
+    if (circularDependencyInfo.value.hasCircularDependency) {
+      const errorMessage = `循環依存が検出されました。確認してください: ${circularDependencyInfo.value.unprocessedNodes.join(', ')}`;
+      errorStore.addValidationError(errorMessage, {
+        unprocessedNodes: circularDependencyInfo.value.unprocessedNodes
+      });
+    } else if (circularDependencyInfo.value.unprocessedNodes.length === 0 && editorTasks.length > 0) {
+      // 循環依存が解消されたらエラーをクリア
+      errorStore.clearErrorsByType('validation');
+    }
   });
 
   return {
