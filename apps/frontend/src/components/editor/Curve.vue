@@ -19,7 +19,7 @@
         refX="10"
         refY="3.5"
         orient="auto"
-        markerUnits="strokeWidth"
+        markerUnits="userSpaceOnUse"
       >
         <polygon
           points="0 0, 10 3.5, 0 7"
@@ -563,7 +563,12 @@ svg:not(.dragging) path.cursor-pointer:hover + path {
   stroke-width: 3 !important;
 }
 
-/* マーカーの色は変更しない */
+/* マーカーのサイズと色を固定 */
+svg marker {
+  markerWidth: 10 !important;
+  markerHeight: 7 !important;
+}
+
 svg marker polygon {
   fill: #94a3b8 !important;
 }
