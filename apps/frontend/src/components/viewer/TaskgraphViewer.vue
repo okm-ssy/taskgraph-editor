@@ -33,6 +33,16 @@ watch(
   () => {
     taskStore.buildGraphData();
   },
+  { deep: true, immediate: true },
+);
+
+// クリティカルパスの変更も監視
+watch(
+  () => props.criticalPath,
+  () => {
+    // クリティカルパスが更新されたら再描画をトリガー
+    console.log('Critical path updated:', props.criticalPath);
+  },
   { deep: true },
 );
 
