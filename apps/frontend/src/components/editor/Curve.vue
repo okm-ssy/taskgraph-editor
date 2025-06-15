@@ -1,7 +1,7 @@
 <template>
   <svg
     ref="svgElement"
-    :class="['w-full h-full', props.isDragging ? 'dragging' : '']"
+    :class="['w-full h-full pointer-events-none', props.isDragging ? 'dragging' : '']"
   >
     <defs>
       <!-- 通常の矢印マーカー -->
@@ -277,6 +277,7 @@ const getPathD = (start: Position, end: Position) => {
 
 // 接続線クリックハンドラ
 const handleConnectionClick = (connection: Connection) => {
+  console.log('Arrow clicked!', connection);
   // ドラッグ中はクリックを無視
   if (props.isDragging) return;
   emit('connection-click', connection);
