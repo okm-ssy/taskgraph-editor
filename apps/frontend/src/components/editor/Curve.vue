@@ -23,7 +23,7 @@
       >
         <polygon
           points="0 0, 12 4.5, 0 9"
-          :fill="connection.color ?? '#94a3b8'"
+          :fill="getConnectionColor(connection, hoveredConnection === `${connection.sourceId}-${connection.targetId}`)"
         ></polygon>
       </marker>
     </defs>
@@ -61,6 +61,8 @@
             : 'cursor-pointer pointer-events-auto',
         ]"
         @click="handleConnectionClick(connection)"
+        @mouseenter="handleConnectionMouseEnter(connection)"
+        @mouseleave="handleConnectionMouseLeave"
       ></path>
       <!-- 表示用のパス（通常モードでのみ表示） -->
       <path
@@ -80,8 +82,8 @@
             : ''
         "
         fill="none"
-        :stroke="connection.color ?? '#2563eb'"
-        :stroke-width="connection.strokeWidth ?? 2"
+        :stroke="getConnectionColor(connection, hoveredConnection === `${connection.sourceId}-${connection.targetId}`)"
+        :stroke-width="hoveredConnection === `${connection.sourceId}-${connection.targetId}` ? 3 : (connection.strokeWidth ?? 2)"
         :marker-end="`url(#arrow-${connection.sourceId}-${connection.targetId})`"
         class="pointer-events-none"
       ></path>
@@ -160,6 +162,7 @@ const tempConnectionPosition = ref<{ start: Position; end: Position } | null>(
 const svgElement = ref<SVGSVGElement | null>(null);
 let continuousUpdateId: number | null = null;
 const updateRetryMap = new Map<string, number>();
+const hoveredConnection = ref<string | null>(null);
 
 const updatePositions = () => {
   if (!svgElement.value) return;
@@ -289,6 +292,24 @@ const handleConnectionClick = (connection: Connection) => {
   // ドラッグ中はクリックを無視
   if (props.isDragging) return;
   emit('connection-click', connection);
+};
+
+// ホバーイベントハンドラー
+const handleConnectionMouseEnter = (connection: Connection) => {
+  if (props.isDragging) return;
+  hoveredConnection.value = `${connection.sourceId}-${connection.targetId}`;
+};
+
+const handleConnectionMouseLeave = () => {
+  hoveredConnection.value = null;
+};
+
+// ホバー状態に基づいて色を決定
+const getConnectionColor = (connection: Connection, isHovered: boolean) => {
+  if (isHovered) {
+    return '#ef4444'; // ホバー時は赤色
+  }
+  return connection.color ?? '#94a3b8'; // 通常色
 };
 
 // グリッドレイアウト対応の効率的な更新システム
@@ -563,16 +584,6 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-/* ホバー時のスタイル変更 - 線のみ色を変更、マーカーは固定 */
-svg:not(.dragging) path.cursor-pointer:hover + path {
-  stroke: #ef4444 !important;
-  stroke-width: 3 !important;
-}
-
-svg marker polygon {
-  fill: #94a3b8 !important;
-}
-
 /* ドラッグ中はホバー効果を無効化 */
 svg.dragging path {
   pointer-events: none !important;
