@@ -264,15 +264,13 @@ watch(
     </div>
 
     <div ref="gridContainer" class="flex-1 overflow-auto p-4 relative">
-      <!-- 矢印SVGレイヤー（ドラッグ中は完全非表示） -->
-      <div 
-        v-show="!disableGrid"
-        class="absolute inset-0 z-0 pointer-events-none"
-      >
+      <!-- 矢印SVGレイヤー（タスクカードより後ろに配置） -->
+      <div class="absolute inset-0 z-0 pointer-events-none">
         <Curve 
           :connections="connections" 
           :force-update="curveUpdateTrigger"
           :continuous-update="false"
+          :is-dragging="isDraggingOrResizing"
           @connection-click="handleConnectionClick"
         />
       </div>
