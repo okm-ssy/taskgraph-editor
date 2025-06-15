@@ -31,6 +31,18 @@
           @connection-click="handleConnectionClick"
         />
       </div>
+      
+      <!-- 矢印クリック用の透明レイヤー（最前面） -->
+      <div class="absolute inset-0 z-20 pointer-events-none">
+        <Curve
+          :connections="connections"
+          :force-update="curveUpdateTrigger"
+          :continuous-update="false"
+          :is-dragging="isDraggingOrResizing"
+          :click-layer-only="true"
+          @connection-click="handleConnectionClick"
+        />
+      </div>
       <!-- 新規タスク追加パネル -->
       <TaskAddPanel
         v-if="uiStore.showAddPanel"
