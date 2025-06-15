@@ -39,14 +39,17 @@ const validNotes = computed(() => {
     </div>
 
     <div class="flex items-center space-x-2">
-      <label class="block text-xs font-medium text-gray-500">難易度:</label>
+      <label class="block text-xs font-medium text-gray-500">
+        {{ task.task.category ? '分類:' : '難易度:' }}
+      </label>
       <span
         :class="[
           'inline-block px-2 py-0.5 text-xs font-semibold rounded-full leading-none',
           taskStore.getDifficultyColor(task.task.difficulty),
         ]"
       >
-        {{ task.task.difficulty }}
+        {{ task.task.category || `難易度: ${task.task.difficulty}` }}
+        <span v-if="task.task.category" class="text-gray-600 font-normal">({{ task.task.difficulty }})</span>
       </span>
     </div>
 

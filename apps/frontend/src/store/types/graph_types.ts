@@ -3,6 +3,7 @@ export interface GraphNode {
   name: string;
   description: string;
   difficulty: number;
+  category: string;
   level: number; // 木の中での水平位置
   treeIndex: number; // 木の識別インデックス（縦方向の位置決め用）
   children: string[];
