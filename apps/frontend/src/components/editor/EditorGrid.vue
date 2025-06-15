@@ -22,7 +22,7 @@
 
     <div ref="gridContainer" class="flex-1 overflow-auto p-4 relative">
       <!-- 矢印SVGレイヤー（タスクカードより奥に配置） -->
-      <div class="absolute inset-0 z-5 pointer-events-none">
+      <div class="absolute inset-0 z-0">
         <Curve
           :connections="connections"
           :force-update="curveUpdateTrigger"
@@ -366,6 +366,9 @@ watch(
   will-change: transform;
   /* GPU層分離でドラッグ性能向上 */
   transform: translateZ(0);
+  /* タスクカードを矢印より手前に配置 */
+  position: relative;
+  z-index: 10;
 }
 
 .vue-grid-item.dragging {
