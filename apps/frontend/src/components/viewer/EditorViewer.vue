@@ -12,7 +12,7 @@ const taskStore = useCurrentTasks();
 const taskCount = computed(() => taskStore.editorTasks.length);
 
 // クリティカルパス計算
-const { projectDuration, criticalTaskNames } = useCriticalPath(
+const { projectDuration, criticalTaskNames, criticalPath } = useCriticalPath(
   taskStore.editorTasks,
 );
 </script>
@@ -39,7 +39,10 @@ const { projectDuration, criticalTaskNames } = useCriticalPath(
 
     <!-- メインコンテンツ -->
     <div class="p-4">
-      <TaskgraphViewer :editor-tasks="taskStore.editorTasks" />
+      <TaskgraphViewer
+        :editor-tasks="taskStore.editorTasks"
+        :critical-path="criticalPath"
+      />
 
       <div
         v-if="taskCount === 0 && !taskStore.taskLoadError"

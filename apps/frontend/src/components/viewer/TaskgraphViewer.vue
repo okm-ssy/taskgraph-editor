@@ -2,6 +2,7 @@
 // ComponentPublicInstance 型をインポート
 import { onMounted, defineProps, watch, ref, onBeforeUpdate } from 'vue';
 
+import type { CriticalPathEdge } from '../../composables/useCriticalPath';
 import type { EditorTask } from '../../model/EditorTask';
 import { useCurrentTasks } from '../../store/task_store';
 import { useGraphExport } from '../../store/use_graph_export';
@@ -10,6 +11,7 @@ import TaskDetail from './TaskDetail.vue';
 
 const props = defineProps<{
   editorTasks: EditorTask[];
+  criticalPath: CriticalPathEdge[];
 }>();
 
 const taskStore = useCurrentTasks();
@@ -46,6 +48,13 @@ const dropdownOptions = {
   delay: { show: 200, hide: 100 },
   placement: 'auto',
 };
+
+// クリティカルパス上のエッジかどうかを判定
+const isCriticalPath = (fromId: string, toId: string): boolean => {
+  return props.criticalPath.some(
+    (edge) => edge.fromTaskId === fromId && edge.toTaskId === toId,
+  );
+};
 </script>
 
 <template>
@@ -75,6 +84,7 @@ const dropdownOptions = {
           :height="taskStore.canvasHeight"
         >
           <defs>
+            <!-- 通常の矢印マーカー -->
             <marker
               id="arrow"
               viewBox="0 0 10 10"
@@ -86,15 +96,33 @@ const dropdownOptions = {
             >
               <path d="M 0 0 L 10 5 L 0 10 z" fill="#666"></path>
             </marker>
+            <!-- クリティカルパス用の青い矢印マーカー -->
+            <marker
+              id="arrow-critical"
+              viewBox="0 0 10 10"
+              refX="10"
+              refY="5"
+              markerWidth="6"
+              markerHeight="6"
+              orient="auto-start-reverse"
+            >
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb"></path>
+            </marker>
           </defs>
           <path
             v-for="(path, index) in taskStore.graphPaths"
             :key="`path-${path.from.id}-${path.to.id}-${index}`"
             :d="taskStore.getPathD(path.from, path.to)"
-            stroke="#666"
-            stroke-width="2"
+            :stroke="
+              isCriticalPath(path.from.id, path.to.id) ? '#2563eb' : '#666'
+            "
+            :stroke-width="isCriticalPath(path.from.id, path.to.id) ? 2.5 : 2"
             fill="none"
-            marker-end="url(#arrow)"
+            :marker-end="
+              isCriticalPath(path.from.id, path.to.id)
+                ? 'url(#arrow-critical)'
+                : 'url(#arrow)'
+            "
           ></path>
         </svg>
 
