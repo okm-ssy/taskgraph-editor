@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, nextTick, ref } from 'vue';
+import { onMounted, toRefs } from 'vue';
 
-import { useCriticalPath } from '../../composables/useCriticalPath';
 import { useCurrentTasks } from '../../store/task_store';
 
 import TaskDetail from './TaskDetail.vue';
@@ -9,41 +8,20 @@ import TaskDialog from './TaskDialog.vue';
 import TaskgraphViewer from './TaskgraphViewer.vue';
 
 const taskStore = useCurrentTasks();
-const taskCount = computed(() => taskStore.editorTasks.length);
 
-// 強制更新用のトリガー
-const forceUpdateTrigger = ref(0);
+// toRefsでリアクティブな値を取得
+const {
+  editorTasks,
+  taskCount,
+  totalDifficulty,
+  projectDuration,
+  criticalTaskNames,
+  criticalPath,
+} = toRefs(taskStore);
 
-// クリティカルパス計算（強制更新トリガーも含める）
-const criticalPathComputed = computed(() => {
-  // トリガーを参照して強制的に再計算
-  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-  forceUpdateTrigger.value;
-  return useCriticalPath(taskStore.editorTasks);
-});
-
-const { projectDuration, criticalTaskNames, criticalPath } =
-  criticalPathComputed.value;
-
-onMounted(async () => {
+onMounted(() => {
   // グラフデータを構築してタスクストアを初期化
   taskStore.buildGraphData();
-
-  // 次のティックまで待ってから強制的にクリティカルパス再計算
-  await nextTick();
-
-  // 強制更新をトリガー
-  forceUpdateTrigger.value++;
-
-  // さらに待ってもう一度トリガー
-  await nextTick();
-  forceUpdateTrigger.value++;
-
-  // タスクが存在する場合は追加の初期化
-  if (taskStore.editorTasks.length > 0) {
-    console.log('ビューアー初期化: タスク数', taskStore.editorTasks.length);
-    console.log('ビューアー初期化: クリティカルパス', criticalPath);
-  }
 });
 </script>
 
@@ -55,7 +33,7 @@ onMounted(async () => {
         <h3 class="font-semibold">タスクグラフビューアー</h3>
         <div v-if="taskCount > 0" class="text-sm text-gray-600">
           <span class="font-medium"
-            >総難易度: {{ taskStore.totalDifficulty }}</span
+            >総難易度: {{ totalDifficulty }}</span
           >
           <span class="ml-3 font-medium"
             >プロジェクト所要時間: {{ projectDuration }}</span
@@ -70,7 +48,7 @@ onMounted(async () => {
     <!-- メインコンテンツ -->
     <div class="p-4">
       <TaskgraphViewer
-        :editor-tasks="taskStore.editorTasks"
+        :editor-tasks="editorTasks"
         :critical-path="criticalPath"
       />
 
