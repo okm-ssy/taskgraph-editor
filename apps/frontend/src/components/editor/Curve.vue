@@ -28,7 +28,7 @@
               connection,
               (props.hoveredConnectionKey || hoveredConnection) ===
                 `${connection.sourceId}-${connection.targetId}`,
-            )
+            ) || connection.color || '#94a3b8'
           "
         ></polygon>
       </marker>
@@ -93,7 +93,7 @@
             connection,
             (props.hoveredConnectionKey || hoveredConnection) ===
               `${connection.sourceId}-${connection.targetId}`,
-          )
+          ) || connection.color || '#94a3b8'
         "
         :stroke-width="
           (props.hoveredConnectionKey || hoveredConnection) ===
@@ -357,7 +357,7 @@ const getConnectionColor = (connection: Connection, isHovered: boolean) => {
   if (isHovered) {
     return '#ef4444'; // ホバー時は赤色
   }
-  return connection.color ?? '#94a3b8'; // 通常色
+  return null; // ホバーしていない時はnullを返して元の色を使用
 };
 
 // グリッドレイアウト対応の効率的な更新システム
