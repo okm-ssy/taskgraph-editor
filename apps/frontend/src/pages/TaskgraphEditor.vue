@@ -15,7 +15,35 @@
     </h2>
 
     <div v-if="!isMinimalHeader">
-      <Switcher v-model="currentPage" />
+      <div class="flex items-center gap-4 mb-4">
+        <Switcher v-model="currentPage" />
+        <div class="flex gap-2">
+          <button
+            :class="[
+              'px-3 py-1 rounded-md text-sm transition-colors',
+              isCompactMode
+                ? 'bg-green-500 hover:bg-green-600 text-white'
+                : 'bg-gray-200 hover:bg-gray-300 text-gray-700',
+            ]"
+            @click="toggleCompactMode"
+            :title="`コンパクトモード: ${isCompactMode ? 'ON' : 'OFF'}`"
+          >
+            {{ isCompactMode ? 'コンパクト中' : 'コンパクト' }}
+          </button>
+          <button
+            :class="[
+              'px-3 py-1 rounded-md text-sm transition-colors',
+              isMinimalHeader
+                ? 'bg-purple-500 hover:bg-purple-600 text-white'
+                : 'bg-gray-200 hover:bg-gray-300 text-gray-700',
+            ]"
+            @click="toggleMinimalHeader"
+            :title="`ヘッダー最小化: ${isMinimalHeader ? 'ON' : 'OFF'}`"
+          >
+            {{ isMinimalHeader ? 'ヘッダー最小中' : 'ヘッダー最小' }}
+          </button>
+        </div>
+      </div>
 
       <JsonInput
         @parse-success="handleParseSuccess"
@@ -47,14 +75,46 @@
           {{ page.name }}
         </button>
       </div>
+      <div class="flex gap-1">
+        <button
+          :class="[
+            'px-2 py-1 text-xs rounded transition-colors',
+            isCompactMode
+              ? 'bg-green-500 hover:bg-green-600 text-white'
+              : 'bg-gray-200 hover:bg-gray-300 text-gray-700',
+          ]"
+          @click="toggleCompactMode"
+          :title="`コンパクトモード: ${isCompactMode ? 'ON' : 'OFF'}`"
+        >
+          {{ isCompactMode ? 'コンパクト中' : 'コンパクト' }}
+        </button>
+        <button
+          :class="[
+            'px-2 py-1 text-xs rounded transition-colors',
+            isMinimalHeader
+              ? 'bg-purple-500 hover:bg-purple-600 text-white'
+              : 'bg-gray-200 hover:bg-gray-300 text-gray-700',
+          ]"
+          @click="toggleMinimalHeader"
+          :title="`ヘッダー最小化: ${isMinimalHeader ? 'ON' : 'OFF'}`"
+        >
+          {{ isMinimalHeader ? 'ヘッダー最小中' : 'ヘッダー最小' }}
+        </button>
+      </div>
       <div v-if="taskCount > 0" class="text-xs text-gray-500">
         {{ taskCount }}個のタスク
       </div>
     </div>
 
-    <ViewerPage v-if="currentPage.id === 'viewer'" />
+    <ViewerPage
+      v-if="currentPage.id === 'viewer'"
+      :compact-mode="isCompactMode"
+      :minimal-header="isMinimalHeader"
+    />
     <EditorPage
       v-else-if="currentPage.id === 'editor'"
+      :compact-mode="isCompactMode"
+      :minimal-header="isMinimalHeader"
       @update:minimal-header="handleMinimalHeaderUpdate"
     />
   </div>
@@ -77,6 +137,9 @@ const currentPage = ref<Page>(viewerPage);
 const isMinimalHeader = ref(
   localStorage.getItem('taskgraph-minimal-header') === 'true',
 );
+const isCompactMode = ref(
+  localStorage.getItem('taskgraph-compact-mode') === 'true',
+);
 
 const handleParseSuccess = (jsonString: string) => {
   taskStore.parseJsonToTaskgraph(jsonString);
@@ -87,6 +150,24 @@ const handleParseError = (errorMessage: string) => {
 
 const handleMinimalHeaderUpdate = (value: boolean) => {
   isMinimalHeader.value = value;
+};
+
+// コンパクトモードの切り替え
+const toggleCompactMode = () => {
+  isCompactMode.value = !isCompactMode.value;
+  localStorage.setItem(
+    'taskgraph-compact-mode',
+    isCompactMode.value.toString(),
+  );
+};
+
+// ヘッダー最小化モードの切り替え
+const toggleMinimalHeader = () => {
+  isMinimalHeader.value = !isMinimalHeader.value;
+  localStorage.setItem(
+    'taskgraph-minimal-header',
+    isMinimalHeader.value.toString(),
+  );
 };
 
 const taskCount = computed(() => taskStore.editorTasks.length);
