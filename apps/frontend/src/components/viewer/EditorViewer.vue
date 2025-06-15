@@ -12,11 +12,21 @@
           <span class="ml-3 font-medium">最低工数: {{ projectDuration }}</span>
         </div>
       </div>
+      <div class="flex gap-2">
+        <button
+          @click="exportSvg"
+          class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+          :disabled="isExporting"
+        >
+          SVGとして保存
+        </button>
+      </div>
     </div>
 
     <!-- メインコンテンツ -->
     <div class="p-4">
       <TaskgraphViewer
+        ref="taskgraphViewerRef"
         :editor-tasks="editorTasks"
         :critical-path="criticalPath"
       />
@@ -56,10 +66,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, toRefs } from 'vue';
+import { onMounted, ref, toRefs } from 'vue';
 
 import { useEditorUIStore } from '../../store/editor_ui_store';
 import { useCurrentTasks } from '../../store/task_store';
+import { useGraphExport } from '../../store/use_graph_export';
 
 import TaskDetail from './TaskDetail.vue';
 import TaskDialog from './TaskDialog.vue';
@@ -67,6 +78,7 @@ import TaskgraphViewer from './TaskgraphViewer.vue';
 
 const taskStore = useCurrentTasks();
 const uiStore = useEditorUIStore();
+const isExporting = ref(false);
 
 // toRefsでリアクティブな値を取得
 const {
@@ -77,6 +89,19 @@ const {
   criticalTaskNames,
   criticalPath,
 } = toRefs(taskStore);
+
+// SVG export関連
+const { setGraphRef, exportAsSvg } = useGraphExport();
+
+// TaskgraphViewerからgraphRefを受け取るためのref
+const taskgraphViewerRef = ref<InstanceType<typeof TaskgraphViewer> | null>(null);
+
+const exportSvg = () => {
+  if (taskgraphViewerRef.value) {
+    // TaskgraphViewerからgraphRefを取得してSVG出力
+    taskgraphViewerRef.value.exportSvg();
+  }
+};
 
 onMounted(() => {
   // グラフデータを構築してタスクストアを初期化

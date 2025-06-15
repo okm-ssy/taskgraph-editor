@@ -1,15 +1,5 @@
 <template>
   <div>
-    <div class="flex justify-end mb-4 gap-2">
-      <button
-        @click="exportSvg"
-        class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-        :disabled="isExporting"
-      >
-        SVGとして保存
-      </button>
-    </div>
-
     <div class="overflow-auto border border-gray-300 rounded-lg bg-gray-50 p-4">
       <div
         ref="graphRef"
@@ -175,6 +165,11 @@ const isCriticalPath = (fromId: string, toId: string): boolean => {
     (edge) => edge.fromTaskId === fromId && edge.toTaskId === toId,
   );
 };
+
+// 親コンポーネントからアクセス可能な関数を公開
+defineExpose({
+  exportSvg,
+});
 </script>
 
 <style scoped>
