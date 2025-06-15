@@ -1,62 +1,3 @@
-<script setup lang="ts">
-// ComponentPublicInstance 型をインポート
-import { onMounted, defineProps, watch, ref, onBeforeUpdate } from 'vue';
-
-import type { CriticalPathEdge } from '../../composables/useCriticalPath';
-import type { EditorTask } from '../../model/EditorTask';
-import { useCurrentTasks } from '../../store/task_store';
-import { useGraphExport } from '../../store/use_graph_export';
-
-import TaskDetail from './TaskDetail.vue';
-
-const props = defineProps<{
-  editorTasks: EditorTask[];
-  criticalPath: CriticalPathEdge[];
-}>();
-
-const taskStore = useCurrentTasks();
-const graphRef = ref<HTMLElement | null>(null);
-const isExporting = ref(false);
-
-const triggerElementRefs = ref<Map<string, HTMLElement>>(new Map());
-
-onBeforeUpdate(() => {
-  triggerElementRefs.value.clear();
-});
-
-onMounted(() => {
-  taskStore.buildGraphData();
-});
-
-watch(
-  () => props.editorTasks,
-  () => {
-    taskStore.buildGraphData();
-  },
-  { deep: true, immediate: true },
-);
-
-const { setGraphRef, exportAsSvg } = useGraphExport();
-
-const exportSvg = () => {
-  setGraphRef(graphRef.value);
-  exportAsSvg();
-};
-
-const dropdownOptions = {
-  triggers: ['hover', 'focus'],
-  delay: { show: 200, hide: 100 },
-  placement: 'auto',
-};
-
-// クリティカルパス上のエッジかどうかを判定
-const isCriticalPath = (fromId: string, toId: string): boolean => {
-  return props.criticalPath.some(
-    (edge) => edge.fromTaskId === fromId && edge.toTaskId === toId,
-  );
-};
-</script>
-
 <template>
   <div>
     <div class="flex justify-end mb-4 gap-2">
@@ -176,6 +117,65 @@ const isCriticalPath = (fromId: string, toId: string): boolean => {
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+// ComponentPublicInstance 型をインポート
+import { onMounted, defineProps, watch, ref, onBeforeUpdate } from 'vue';
+
+import type { CriticalPathEdge } from '../../composables/useCriticalPath';
+import type { EditorTask } from '../../model/EditorTask';
+import { useCurrentTasks } from '../../store/task_store';
+import { useGraphExport } from '../../store/use_graph_export';
+
+import TaskDetail from './TaskDetail.vue';
+
+const props = defineProps<{
+  editorTasks: EditorTask[];
+  criticalPath: CriticalPathEdge[];
+}>();
+
+const taskStore = useCurrentTasks();
+const graphRef = ref<HTMLElement | null>(null);
+const isExporting = ref(false);
+
+const triggerElementRefs = ref<Map<string, HTMLElement>>(new Map());
+
+onBeforeUpdate(() => {
+  triggerElementRefs.value.clear();
+});
+
+onMounted(() => {
+  taskStore.buildGraphData();
+});
+
+watch(
+  () => props.editorTasks,
+  () => {
+    taskStore.buildGraphData();
+  },
+  { deep: true, immediate: true },
+);
+
+const { setGraphRef, exportAsSvg } = useGraphExport();
+
+const exportSvg = () => {
+  setGraphRef(graphRef.value);
+  exportAsSvg();
+};
+
+const dropdownOptions = {
+  triggers: ['hover', 'focus'],
+  delay: { show: 200, hide: 100 },
+  placement: 'auto',
+};
+
+// クリティカルパス上のエッジかどうかを判定
+const isCriticalPath = (fromId: string, toId: string): boolean => {
+  return props.criticalPath.some(
+    (edge) => edge.fromTaskId === fromId && edge.toTaskId === toId,
+  );
+};
+</script>
 
 <style scoped>
 :deep(.v-popper__inner) {

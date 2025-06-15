@@ -1,3 +1,22 @@
+<template>
+  <div class="w-full p-4">
+    <h2 class="text-xl font-bold mb-4">タスクグラフツール</h2>
+    <Switcher v-model="currentPage" />
+
+    <JsonInput
+      @parse-success="handleParseSuccess"
+      @parse-error="handleParseError"
+    />
+
+    <div class="text-sm text-gray-500 my-4" v-if="taskCount > 0">
+      {{ taskCount }}個のタスク
+    </div>
+
+    <ViewerPage v-if="currentPage.id === 'viewer'" />
+    <EditorPage v-else-if="currentPage.id === 'editor'" />
+  </div>
+</template>
+
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 
@@ -22,24 +41,5 @@ const handleParseError = (errorMessage: string) => {
 
 const taskCount = computed(() => taskStore.editorTasks.length);
 </script>
-
-<template>
-  <div class="w-full p-4">
-    <h2 class="text-xl font-bold mb-4">タスクグラフツール</h2>
-    <Switcher v-model="currentPage" />
-
-    <JsonInput
-      @parse-success="handleParseSuccess"
-      @parse-error="handleParseError"
-    />
-
-    <div class="text-sm text-gray-500 my-4" v-if="taskCount > 0">
-      {{ taskCount }}個のタスク
-    </div>
-
-    <ViewerPage v-if="currentPage.id === 'viewer'" />
-    <EditorPage v-else-if="currentPage.id === 'editor'" />
-  </div>
-</template>
 
 <style scoped lang="scss" />

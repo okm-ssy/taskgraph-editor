@@ -1,32 +1,3 @@
-<script setup lang="ts">
-import { computed, defineProps } from 'vue';
-
-import type { EditorTask } from '../../model/EditorTask';
-import { useCurrentTasks } from '../../store/task_store';
-
-const props = defineProps<{
-  task: EditorTask; // EditorTask オブジェクト全体を受け取る
-}>();
-
-const taskStore = useCurrentTasks();
-
-// 依存関係の計算ロジックは taskStore から利用
-const dependentTaskNames = computed(() => {
-  if (!props.task?.task.name) return [];
-  return taskStore.getDependentTasks(props.task.task.name).map((t) => t.name);
-});
-
-const dependingOnTaskNames = computed(() => {
-  if (!props.task?.task.depends) return [];
-  return props.task.task.depends.filter((dep) => dep && dep !== '');
-});
-
-const validNotes = computed(() => {
-  if (!props.task?.task.notes) return [];
-  return props.task.task.notes.filter((note) => note && note !== '');
-});
-</script>
-
 <template>
   <div
     class="p-3 space-y-3 text-sm max-w-xs bg-white rounded shadow-lg border border-gray-200"
@@ -118,6 +89,35 @@ const validNotes = computed(() => {
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { computed, defineProps } from 'vue';
+
+import type { EditorTask } from '../../model/EditorTask';
+import { useCurrentTasks } from '../../store/task_store';
+
+const props = defineProps<{
+  task: EditorTask; // EditorTask オブジェクト全体を受け取る
+}>();
+
+const taskStore = useCurrentTasks();
+
+// 依存関係の計算ロジックは taskStore から利用
+const dependentTaskNames = computed(() => {
+  if (!props.task?.task.name) return [];
+  return taskStore.getDependentTasks(props.task.task.name).map((t) => t.name);
+});
+
+const dependingOnTaskNames = computed(() => {
+  if (!props.task?.task.depends) return [];
+  return props.task.task.depends.filter((dep) => dep && dep !== '');
+});
+
+const validNotes = computed(() => {
+  if (!props.task?.task.notes) return [];
+  return props.task.task.notes.filter((note) => note && note !== '');
+});
+</script>
 
 <style scoped>
 /* 必要に応じてスタイルを追加 */

@@ -1,39 +1,3 @@
-<script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
-
-import { useCurrentTasks } from '../../store/task_store';
-
-// ストアからデータと関数を取得
-const taskStore = useCurrentTasks();
-const jsonInput = ref('');
-let ignoreNextChange = false;
-
-// textarea内容が変更されたら自動的にパースする
-watch(jsonInput, () => {
-  if (ignoreNextChange) {
-    ignoreNextChange = false;
-    return;
-  }
-  taskStore.parseJsonString(jsonInput.value);
-});
-
-// ストアの状態が変更されたらtextareaの内容を更新する
-watch(
-  () => taskStore.editorTasks,
-  () => {
-    ignoreNextChange = true;
-    jsonInput.value = taskStore.exportTaskgraphToJson();
-  },
-  { deep: true },
-);
-
-// コンポーネント初期化時にサンプルデータをロード
-onMounted(() => {
-  // ストアからサンプルデータをロード
-  taskStore.loadSampleData();
-});
-</script>
-
 <template>
   <div class="json-input-container">
     <!-- JSON入力パネル切り替えボタン -->
@@ -69,6 +33,42 @@ onMounted(() => {
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { ref, watch, onMounted } from 'vue';
+
+import { useCurrentTasks } from '../../store/task_store';
+
+// ストアからデータと関数を取得
+const taskStore = useCurrentTasks();
+const jsonInput = ref('');
+let ignoreNextChange = false;
+
+// textarea内容が変更されたら自動的にパースする
+watch(jsonInput, () => {
+  if (ignoreNextChange) {
+    ignoreNextChange = false;
+    return;
+  }
+  taskStore.parseJsonString(jsonInput.value);
+});
+
+// ストアの状態が変更されたらtextareaの内容を更新する
+watch(
+  () => taskStore.editorTasks,
+  () => {
+    ignoreNextChange = true;
+    jsonInput.value = taskStore.exportTaskgraphToJson();
+  },
+  { deep: true },
+);
+
+// コンポーネント初期化時にサンプルデータをロード
+onMounted(() => {
+  // ストアからサンプルデータをロード
+  taskStore.loadSampleData();
+});
+</script>
 
 <style scoped>
 .json-input-container {

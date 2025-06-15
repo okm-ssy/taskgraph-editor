@@ -1,28 +1,3 @@
-<script setup lang="ts">
-import { defineProps, defineEmits } from 'vue';
-
-defineProps<{
-  isVisible: boolean;
-  title?: string; // ダイアログのタイトルをオプションで受け取る
-}>();
-
-const emit = defineEmits<{
-  (e: 'close'): void;
-}>();
-
-const closeDialog = () => {
-  emit('close');
-};
-
-// 背景クリックで閉じる
-const onClickOutside = (event: MouseEvent) => {
-  // event.target が modal-content の外側(.fixed) かどうかを判定
-  if (event.target === event.currentTarget) {
-    closeDialog();
-  }
-};
-</script>
-
 <template>
   <div
     v-if="isVisible"
@@ -74,6 +49,31 @@ const onClickOutside = (event: MouseEvent) => {
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { defineProps, defineEmits } from 'vue';
+
+defineProps<{
+  isVisible: boolean;
+  title?: string; // ダイアログのタイトルをオプションで受け取る
+}>();
+
+const emit = defineEmits<{
+  (e: 'close'): void;
+}>();
+
+const closeDialog = () => {
+  emit('close');
+};
+
+// 背景クリックで閉じる
+const onClickOutside = (event: MouseEvent) => {
+  // event.target が modal-content の外側(.fixed) かどうかを判定
+  if (event.target === event.currentTarget) {
+    closeDialog();
+  }
+};
+</script>
 
 <style scoped>
 /* スクロールバーのスタイル */

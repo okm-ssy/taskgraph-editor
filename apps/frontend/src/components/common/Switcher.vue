@@ -1,3 +1,22 @@
+<template>
+  <div class="my-4">
+    <div class="flex gap-2 mb-4">
+      <button
+        v-for="page in pages"
+        :key="page.id"
+        class="px-4 py-2 border rounded cursor-pointer transition-all duration-200"
+        :class="{
+          'font-bold text-white bg-blue-500': currentPage.id === page.id,
+          'bg-gray-200': currentPage.id !== page.id,
+        }"
+        @click="switchPage(page)"
+      >
+        {{ page.name }}
+      </button>
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { computed } from 'vue';
 
@@ -28,22 +47,3 @@ const switchPage = (page: Page) => {
   currentPage.value = page;
 };
 </script>
-
-<template>
-  <div class="my-4">
-    <div class="flex gap-2 mb-4">
-      <button
-        v-for="page in pages"
-        :key="page.id"
-        class="px-4 py-2 border rounded cursor-pointer transition-all duration-200"
-        :class="{
-          'font-bold text-white bg-blue-500': currentPage.id === page.id,
-          'bg-gray-200': currentPage.id !== page.id,
-        }"
-        @click="switchPage(page)"
-      >
-        {{ page.name }}
-      </button>
-    </div>
-  </div>
-</template>
