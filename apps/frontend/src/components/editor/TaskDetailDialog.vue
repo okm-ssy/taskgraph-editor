@@ -58,14 +58,19 @@
             >依存タスク</label
           >
           <div class="text-sm text-gray-600 p-3 bg-gray-50 rounded-md">
-            <p v-if="taskStore.selectedTask && taskStore.selectedTask.task.depends.length > 0 && taskStore.selectedTask.task.depends[0] !== ''">
+            <p
+              v-if="
+                taskStore.selectedTask &&
+                taskStore.selectedTask.task.depends.length > 0 &&
+                taskStore.selectedTask.task.depends[0] !== ''
+              "
+            >
               {{ taskStore.selectedTask.task.depends.join(', ') }}
             </p>
-            <p v-else class="text-gray-400">
-              依存関係はありません
-            </p>
+            <p v-else class="text-gray-400">依存関係はありません</p>
             <p class="mt-2 text-xs text-gray-500">
-              ※ 依存関係の追加・削除は、タスクカードの青い丸をドラッグ&ドロップするか、矢印をクリックして行ってください
+              ※
+              依存関係の追加・削除は、タスクカードの青い丸をドラッグ&ドロップするか、矢印をクリックして行ってください
             </p>
           </div>
         </div>
