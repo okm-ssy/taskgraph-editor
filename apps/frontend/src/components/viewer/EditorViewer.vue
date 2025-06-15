@@ -5,13 +5,11 @@
       <div class="flex items-center gap-4">
         <h3 class="font-semibold">タスクグラフビューアー</h3>
         <div v-if="taskCount > 0" class="text-sm text-gray-600">
-          <span class="font-medium">総難易度: {{ totalDifficulty }}</span>
-          <span class="ml-3 font-medium"
-            >プロジェクト所要時間: {{ projectDuration }}</span
-          >
+          <span class="font-medium">総工数: {{ totalDifficulty }}</span>
           <span class="ml-3 text-blue-600"
             >クリティカルパス: {{ criticalTaskNames.length }}タスク</span
           >
+          <span class="ml-3 font-medium">最低工数: {{ projectDuration }}</span>
         </div>
       </div>
     </div>
