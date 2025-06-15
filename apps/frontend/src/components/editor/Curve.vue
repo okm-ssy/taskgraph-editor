@@ -450,7 +450,7 @@ onBeforeUnmount(() => {
   <svg
     ref="svgElement"
     :class="[
-      'w-full h-full pointer-events-none',
+      'w-full h-full',
       props.isDragging ? 'dragging' : '',
     ]"
   >
