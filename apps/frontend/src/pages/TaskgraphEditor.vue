@@ -74,7 +74,7 @@ import Switcher from '@/components/common/Switcher.vue';
 
 const taskStore = useCurrentTasks();
 const currentPage = ref<Page>(viewerPage);
-const isMinimalHeader = ref(false);
+const isMinimalHeader = ref(localStorage.getItem('taskgraph-minimal-header') === 'true');
 
 const handleParseSuccess = (jsonString: string) => {
   taskStore.parseJsonToTaskgraph(jsonString);

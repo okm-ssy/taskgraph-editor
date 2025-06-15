@@ -37,6 +37,7 @@
               : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
           ]"
           @click="toggleCompactMode"
+          :title="`コンパクトモード: ${isCompactMode ? 'ON' : 'OFF'}`"
         >
           {{ isCompactMode ? 'コンパクト中' : 'コンパクト' }}
         </button>
@@ -48,6 +49,7 @@
               : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
           ]"
           @click="toggleMinimalHeader"
+          :title="`ヘッダー最小化: ${isMinimalHeader ? 'ON' : 'OFF'}`"
         >
           {{ isMinimalHeader ? 'ヘッダー最小中' : 'ヘッダー最小' }}
         </button>
@@ -187,9 +189,9 @@ const dragDropStore = useDragDropStore();
 const layout = ref<GridTask[]>([]);
 const gridContainer = ref<HTMLDivElement | null>(null);
 
-// 表示モード管理
-const isCompactMode = ref(false);
-const isMinimalHeader = ref(false);
+// 表示モード管理（localStorage から復元）
+const isCompactMode = ref(localStorage.getItem('taskgraph-compact-mode') === 'true');
+const isMinimalHeader = ref(localStorage.getItem('taskgraph-minimal-header') === 'true');
 
 // provide/injectでコンポーネント通信を改善
 const taskActions = useTaskActionsProvider();
@@ -330,12 +332,16 @@ const handleAddTask = () => {
 // コンパクトモードの切り替え
 const toggleCompactMode = () => {
   isCompactMode.value = !isCompactMode.value;
+  localStorage.setItem('taskgraph-compact-mode', isCompactMode.value.toString());
+  console.log('コンパクトモード:', isCompactMode.value, 'ヘッダー最小:', isMinimalHeader.value);
   triggerCurveUpdate();
 };
 
 // ヘッダー最小化モードの切り替え
 const toggleMinimalHeader = () => {
   isMinimalHeader.value = !isMinimalHeader.value;
+  localStorage.setItem('taskgraph-minimal-header', isMinimalHeader.value.toString());
+  console.log('ヘッダー最小:', isMinimalHeader.value, 'コンパクトモード:', isCompactMode.value);
   emit('update:minimal-header', isMinimalHeader.value);
 };
 
