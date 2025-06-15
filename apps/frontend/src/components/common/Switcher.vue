@@ -1,6 +1,6 @@
 <template>
-  <div class="my-4">
-    <div class="flex gap-2 mb-4">
+  <div>
+    <div class="flex items-center gap-2">
       <button
         v-for="page in pages"
         :key="page.id"
