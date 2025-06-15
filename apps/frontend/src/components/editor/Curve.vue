@@ -201,12 +201,12 @@ const updatePositions = () => {
       connectionPosition.value.set(key, {
         start: {
           // 青い丸から少し離れた位置から開始
-          x: startRect.x + startRect.width / 2 - svgRect.x + 20,
+          x: startRect.x + startRect.width / 2 - svgRect.x + 7,
           y: startRect.y + startRect.height / 2 - svgRect.y,
         },
         end: {
           // targetの左端の青い丸から少し離れた位置で終了
-          x: endRect.x - svgRect.x - 20,
+          x: endRect.x - svgRect.x,
           y: endRect.y + endRect.height / 2 - svgRect.y,
         },
       });
@@ -562,12 +562,6 @@ onBeforeUnmount(() => {
 svg:not(.dragging) path.cursor-pointer:hover + path {
   stroke: #ef4444 !important;
   stroke-width: 3 !important;
-}
-
-/* マーカーのサイズと色を固定 */
-svg marker {
-  markerWidth: 12 !important;
-  markerHeight: 9 !important;
 }
 
 svg marker polygon {
