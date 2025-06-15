@@ -42,9 +42,9 @@
     </div>
 
     <TaskDialog
-      :is-visible="taskStore.isDetailDialogVisible"
+      :is-visible="uiStore.isDetailDialogVisible"
       :title="`タスク詳細: ${taskStore.selectedTask?.task.name}`"
-      @close="taskStore.closeDetailDialog"
+      @close="uiStore.closeDetailDialog"
     >
       <TaskDetail
         v-if="taskStore.selectedTask"
@@ -61,12 +61,14 @@
 import { onMounted, toRefs } from 'vue';
 
 import { useCurrentTasks } from '../../store/task_store';
+import { useEditorUIStore } from '../../store/editor_ui_store';
 
 import TaskDetail from './TaskDetail.vue';
 import TaskDialog from './TaskDialog.vue';
 import TaskgraphViewer from './TaskgraphViewer.vue';
 
 const taskStore = useCurrentTasks();
+const uiStore = useEditorUIStore();
 
 // toRefsでリアクティブな値を取得
 const {
