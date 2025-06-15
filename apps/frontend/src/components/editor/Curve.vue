@@ -23,7 +23,13 @@
       >
         <polygon
           points="0 0, 12 4.5, 0 9"
-          :fill="getConnectionColor(connection, hoveredConnection === `${connection.sourceId}-${connection.targetId}`)"
+          :fill="
+            getConnectionColor(
+              connection,
+              (props.hoveredConnectionKey || hoveredConnection) ===
+                `${connection.sourceId}-${connection.targetId}`,
+            )
+          "
         ></polygon>
       </marker>
     </defs>
@@ -82,8 +88,18 @@
             : ''
         "
         fill="none"
-        :stroke="getConnectionColor(connection, hoveredConnection === `${connection.sourceId}-${connection.targetId}`)"
-        :stroke-width="hoveredConnection === `${connection.sourceId}-${connection.targetId}` ? 3 : (connection.strokeWidth ?? 2)"
+        :stroke="
+          getConnectionColor(
+            connection,
+            (props.hoveredConnectionKey || hoveredConnection) ===
+              `${connection.sourceId}-${connection.targetId}`,
+          )
+        "
+        :stroke-width="
+          (props.hoveredConnectionKey || hoveredConnection) === `${connection.sourceId}-${connection.targetId}`
+            ? 3
+            : (connection.strokeWidth ?? 2)
+        "
         :marker-end="`url(#arrow-${connection.sourceId}-${connection.targetId})`"
         class="pointer-events-none"
       ></path>
@@ -122,6 +138,7 @@ export interface Connection {
 
 const emit = defineEmits<{
   (e: 'connection-click', connection: Connection): void;
+  (e: 'connection-hover', connectionKey: string | null): void;
 }>();
 
 const dragDropStore = useDragDropStore();
@@ -147,6 +164,10 @@ const props = defineProps({
   clickLayerOnly: {
     type: Boolean,
     default: false,
+  },
+  hoveredConnectionKey: {
+    type: String,
+    default: null,
   },
 });
 
@@ -297,11 +318,14 @@ const handleConnectionClick = (connection: Connection) => {
 // ホバーイベントハンドラー
 const handleConnectionMouseEnter = (connection: Connection) => {
   if (props.isDragging) return;
-  hoveredConnection.value = `${connection.sourceId}-${connection.targetId}`;
+  const connectionKey = `${connection.sourceId}-${connection.targetId}`;
+  hoveredConnection.value = connectionKey;
+  emit('connection-hover', connectionKey);
 };
 
 const handleConnectionMouseLeave = () => {
   hoveredConnection.value = null;
+  emit('connection-hover', null);
 };
 
 // ホバー状態に基づいて色を決定

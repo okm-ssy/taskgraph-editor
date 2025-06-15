@@ -28,10 +28,12 @@
           :force-update="curveUpdateTrigger"
           :continuous-update="false"
           :is-dragging="isDraggingOrResizing"
+          :hovered-connection-key="hoveredConnectionKey"
           @connection-click="handleConnectionClick"
+          @connection-hover="handleConnectionHover"
         />
       </div>
-      
+
       <!-- 矢印クリック用の透明レイヤー（最前面） -->
       <div class="absolute inset-0 z-20 pointer-events-none">
         <Curve
@@ -40,7 +42,9 @@
           :continuous-update="false"
           :is-dragging="isDraggingOrResizing"
           :click-layer-only="true"
+          :hovered-connection-key="hoveredConnectionKey"
           @connection-click="handleConnectionClick"
+          @connection-hover="handleConnectionHover"
         />
       </div>
       <!-- 新規タスク追加パネル -->
@@ -147,6 +151,7 @@ const arrows = ref<Arrow[]>([]);
 const curveUpdateTrigger = ref(0);
 const isDraggingOrResizing = ref(false);
 const disableGrid = ref(false);
+const hoveredConnectionKey = ref<string | null>(null);
 
 // Curve.vueに渡すconnections配列（仮矢印は除外）
 const connections = computed<Connection[]>(() => {
@@ -334,6 +339,11 @@ const handleConnectionClick = (connection: Connection) => {
       taskStore.updateTask(targetTaskId, { depends: newDepends });
     }
   }
+};
+
+// 依存関係ホバー時の処理
+const handleConnectionHover = (connectionKey: string | null) => {
+  hoveredConnectionKey.value = connectionKey;
 };
 
 // 選択状態の監視（選択されたらselecting=trueに設定）
