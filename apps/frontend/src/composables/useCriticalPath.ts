@@ -64,11 +64,11 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
     // 循環依存のチェック
     if (result.length !== nodeMap.size) {
       const unprocessedNodes = Array.from(nodeMap.keys()).filter(
-        name => !result.includes(name)
+        (name) => !result.includes(name),
       );
       const errorMessage = `循環依存が検出されました。確認してください: ${unprocessedNodes.join(', ')}`;
       console.warn(errorMessage);
-      
+
       // 循環依存の情報を返す
       return { result, hasCircularDependency: true, unprocessedNodes };
     }
@@ -190,19 +190,34 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
       (node) => Math.abs(node.buffer) < 0.001, // 浮動小数点誤差を考慮
     );
 
-    // クリティカルタスク間の依存関係を抽出
+    // クリティカルタスク間の依存関係を抽出（実際のクリティカルパスのみ）
     criticalTasks.forEach((task) => {
+      // このタスクの最早開始時刻を決定した依存タスクを見つける
+      let criticalPredecessor: TaskNode | null = null;
+      let maxFinishTime = -1;
+      
       task.dependencies.forEach((depName) => {
         const depTask = nodeMap.get(depName);
         if (depTask && Math.abs(depTask.buffer) < 0.001) {
-          // 依存タスクもクリティカルパス上にある場合
-          criticalEdges.push({
-            fromTaskId: depTask.id,
-            toTaskId: task.id,
-            weight: depTask.weight,
-          });
+          // 依存タスクもクリティカルパス上にあり、
+          // かつその完了時刻がこのタスクの開始時刻と一致する場合
+          if (Math.abs(depTask.earliestFinish - task.earliestStart) < 0.001) {
+            if (depTask.earliestFinish > maxFinishTime) {
+              maxFinishTime = depTask.earliestFinish;
+              criticalPredecessor = depTask;
+            }
+          }
         }
       });
+      
+      // 実際のクリティカルパス上の先行タスクが見つかった場合のみエッジを追加
+      if (criticalPredecessor) {
+        criticalEdges.push({
+          fromTaskId: criticalPredecessor.id,
+          toTaskId: task.id,
+          weight: criticalPredecessor.weight,
+        });
+      }
     });
 
     return criticalEdges;
@@ -219,14 +234,14 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
     if (editorTasks.length === 0) return [];
 
     const nodeMap = buildTaskGraph();
-    
+
     // 循環依存チェック
     const topologicalResult = topologicalSort(nodeMap);
     circularDependencyInfo.value = {
       hasCircularDependency: topologicalResult.hasCircularDependency,
-      unprocessedNodes: topologicalResult.unprocessedNodes
+      unprocessedNodes: topologicalResult.unprocessedNodes,
     };
-    
+
     calculateEarliestTimes(nodeMap);
     calculateLatestTimes(nodeMap);
 
@@ -296,9 +311,12 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
     if (circularDependencyInfo.value.hasCircularDependency) {
       const errorMessage = `循環依存が検出されました。確認してください: ${circularDependencyInfo.value.unprocessedNodes.join(', ')}`;
       errorStore.addValidationError(errorMessage, {
-        unprocessedNodes: circularDependencyInfo.value.unprocessedNodes
+        unprocessedNodes: circularDependencyInfo.value.unprocessedNodes,
       });
-    } else if (circularDependencyInfo.value.unprocessedNodes.length === 0 && editorTasks.length > 0) {
+    } else if (
+      circularDependencyInfo.value.unprocessedNodes.length === 0 &&
+      editorTasks.length > 0
+    ) {
       // 循環依存が解消されたらエラーをクリア
       errorStore.clearErrorsByType('validation');
     }
