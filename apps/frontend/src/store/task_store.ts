@@ -47,13 +47,14 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     return getTaskById.value(uiStore.selectedTaskId) ?? null;
   });
 
+  // 各タスクの元の難易度合計（1.2倍する前）
+  const baseTotalDifficulty = computed(() => {
+    return tasks.value.reduce((sum, task) => sum + task.difficulty, 0);
+  });
+
   // 全タスクの難易度合計（余剰工数1.2倍を含む）
   const totalDifficulty = computed(() => {
-    const baseDifficulty = tasks.value.reduce(
-      (sum, task) => sum + task.difficulty,
-      0,
-    );
-    return baseDifficulty * 1.2;
+    return baseTotalDifficulty.value * 1.2;
   });
 
   // クリティカルパス計算
@@ -176,6 +177,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     tasks,
     gridTasks,
     taskCount,
+    baseTotalDifficulty,
     totalDifficulty,
     getTaskById,
     getDependentTasks,
