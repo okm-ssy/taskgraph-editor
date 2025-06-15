@@ -15,6 +15,9 @@ taskgraph_editor() {
   edit)
     script_name='edit.sh'
     ;;
+  lint)
+    script_name='front/lint.sh'
+    ;;
   run)
     script_name='front/run.sh'
     ;;
