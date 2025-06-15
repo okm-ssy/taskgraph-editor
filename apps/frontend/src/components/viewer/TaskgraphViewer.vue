@@ -178,8 +178,6 @@ const isCriticalPath = (fromId: string, toId: string): boolean => {
 </template>
 
 <style scoped>
-/* ... (既存のスタイル) ... */
-
 :deep(.v-popper__inner) {
   border: none;
   background: transparent;
