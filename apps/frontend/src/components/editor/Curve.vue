@@ -1,7 +1,10 @@
 <template>
   <svg
     ref="svgElement"
-    :class="['w-full h-full pointer-events-none', props.isDragging ? 'dragging' : '']"
+    :class="[
+      'w-full h-full pointer-events-none',
+      props.isDragging ? 'dragging' : '',
+    ]"
   >
     <defs>
       <!-- 通常の矢印マーカー -->
@@ -20,7 +23,7 @@
       >
         <polygon
           points="0 0, 10 3.5, 0 7"
-          :fill="connection.color ?? '#2563eb'"
+          :fill="connection.color ?? '#94a3b8'"
         ></polygon>
       </marker>
     </defs>
@@ -277,7 +280,6 @@ const getPathD = (start: Position, end: Position) => {
 
 // 接続線クリックハンドラ
 const handleConnectionClick = (connection: Connection) => {
-  console.log('Arrow clicked!', connection);
   // ドラッグ中はクリックを無視
   if (props.isDragging) return;
   emit('connection-click', connection);
@@ -555,10 +557,15 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-/* ホバー時のスタイル変更 - 隣接する表示パスの色を変更 */
+/* ホバー時のスタイル変更 - 線のみ色を変更、マーカーは固定 */
 svg:not(.dragging) path.cursor-pointer:hover + path {
   stroke: #ef4444 !important;
   stroke-width: 3 !important;
+}
+
+/* マーカーの色は変更しない */
+svg marker polygon {
+  fill: #94a3b8 !important;
 }
 
 /* ドラッグ中はホバー効果を無効化 */
