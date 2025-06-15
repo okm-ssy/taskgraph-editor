@@ -149,7 +149,7 @@ const gridContainer = ref<HTMLDivElement | null>(null);
 const taskActions = useTaskActionsProvider();
 
 // クリティカルパス計算
-const { criticalPath, projectDuration, criticalTaskNames } = useCriticalPath(taskStore.editorTasks);
+const { criticalPath, projectDuration, criticalTaskNames, reducedDependencyEdges } = useCriticalPath(taskStore.editorTasks);
 
 // 矢印描画用: 依存関係のペアを取得
 type Arrow = {
@@ -263,27 +263,19 @@ const handleAutoLayout = () => {
   triggerCurveUpdate();
 };
 
-// 依存関係から矢印ペアを生成（左から右へ）
+// 冗長依存除去後のエッジから矢印ペアを生成
 const updateArrows = () => {
-  const result: Arrow[] = [];
-  for (const task of taskStore.editorTasks) {
-    const toId = task.id; // 依存しているタスク（矢印の先端）
-    for (const dep of task.task.depends) {
-      if (!dep) continue;
-      const depTask = taskStore.editorTasks.find((t) => t.task.name === dep);
-      if (depTask) {
-        // 依存されているタスク → 依存しているタスク（左から右）
-        result.push({ fromId: depTask.id, toId });
-      }
-    }
-  }
-  arrows.value = result;
+  // 冗長依存除去後のエッジを使用
+  arrows.value = reducedDependencyEdges.value.map(edge => ({
+    fromId: edge.fromTaskId,
+    toId: edge.toTaskId
+  }));
 };
 
 // タスクやレイアウトが変わったら再計算
 watch(
   () => [
-    taskStore.editorTasks.map((t) => t.id + t.task.depends.join(',')),
+    reducedDependencyEdges.value,
     layout.value,
   ],
   () => {
