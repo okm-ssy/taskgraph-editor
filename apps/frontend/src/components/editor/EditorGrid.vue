@@ -4,11 +4,11 @@
       <div class="flex items-center gap-4">
         <h3 class="font-semibold">タスクグリッドエディター</h3>
         <div
-          v-if="taskStore.editorTasks.length > 0"
+          v-if="editorTasks.length > 0"
           class="text-sm text-gray-600"
         >
           <span class="font-medium"
-            >総難易度: {{ taskStore.totalDifficulty }}</span
+            >総難易度: {{ totalDifficulty }}</span
           >
           <span class="ml-3 font-medium"
             >プロジェクト所要時間: {{ projectDuration }}</span
@@ -22,7 +22,7 @@
         <button
           class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm transition-colors"
           @click="handleAutoLayout"
-          :disabled="taskStore.editorTasks.length === 0"
+          :disabled="editorTasks.length === 0"
         >
           自動配置
         </button>
@@ -96,7 +96,7 @@
         :class="{ 'grid-disabled': disableGrid }"
       >
         <GridItem
-          v-for="task in taskStore.editorTasks"
+          v-for="task in editorTasks"
           :key="task.id"
           :i="task.id"
           :x="task.grid.x"
@@ -128,6 +128,7 @@ import {
   computed,
   nextTick,
   onBeforeUnmount,
+  toRefs,
 } from 'vue';
 import { GridLayout, GridItem } from 'vue3-grid-layout-next';
 
@@ -162,9 +163,15 @@ const gridContainer = ref<HTMLDivElement | null>(null);
 // provide/injectでコンポーネント通信を改善
 const taskActions = useTaskActionsProvider();
 
-// クリティカルパス計算
-const { criticalPath, projectDuration, criticalTaskNames, dependencyEdges } =
-  useCriticalPath(taskStore.editorTasks);
+// storeからtoRefsで値を取得
+const {
+  editorTasks,
+  totalDifficulty,
+  criticalPath,
+  projectDuration,
+  criticalTaskNames,
+  dependencyEdges,
+} = toRefs(taskStore);
 
 // 矢印描画用: 依存関係のペアを取得
 type Arrow = {
@@ -320,7 +327,7 @@ onBeforeUnmount(() => {
 });
 
 watch(
-  () => taskStore.editorTasks.length,
+  () => editorTasks.value.length,
   () => {
     layout.value = taskStore.gridTasks;
   },
