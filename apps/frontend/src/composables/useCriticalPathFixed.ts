@@ -135,13 +135,16 @@ export const useCriticalPathFixed = (editorTasks: EditorTask[]) => {
 
     sortedNodes.forEach((nodeName) => {
       const node = nodeMap.get(nodeName)!;
-      
+
       // 依存タスクの最遅完了時刻を求める
       let maxDependencyFinish = 0;
       node.dependencies.forEach((depName) => {
         const depNode = nodeMap.get(depName);
         if (depNode) {
-          maxDependencyFinish = Math.max(maxDependencyFinish, depNode.earliestFinish);
+          maxDependencyFinish = Math.max(
+            maxDependencyFinish,
+            depNode.earliestFinish,
+          );
         }
       });
 
@@ -153,10 +156,10 @@ export const useCriticalPathFixed = (editorTasks: EditorTask[]) => {
   // 最遅開始時刻の計算（逆トポロジカルソート順）
   const calculateLatestTimes = (nodeMap: Map<string, TaskNode>) => {
     const reverseSortedNodes = reverseTopologicalSort(nodeMap);
-    
+
     // プロジェクト全体の完了時刻を計算
     const projectEndTime = Math.max(
-      ...Array.from(nodeMap.values()).map((node) => node.earliestFinish)
+      ...Array.from(nodeMap.values()).map((node) => node.earliestFinish),
     );
 
     reverseSortedNodes.forEach((nodeName) => {
@@ -171,7 +174,10 @@ export const useCriticalPathFixed = (editorTasks: EditorTask[]) => {
         node.dependents.forEach((depName) => {
           const depNode = nodeMap.get(depName);
           if (depNode) {
-            minDependentStart = Math.min(minDependentStart, depNode.latestStart);
+            minDependentStart = Math.min(
+              minDependentStart,
+              depNode.latestStart,
+            );
           }
         });
         node.latestFinish = minDependentStart;

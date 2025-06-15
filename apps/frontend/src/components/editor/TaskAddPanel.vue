@@ -111,7 +111,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 
 import { useTaskCategories } from '../../composables/useTaskCategories';
 import { useCurrentTasks } from '../../store/task_store';

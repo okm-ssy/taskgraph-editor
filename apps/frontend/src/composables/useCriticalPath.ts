@@ -196,7 +196,7 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
     // クリティカルタスク間の依存関係を抽出（実際のクリティカルパスのみ）
     criticalTasks.forEach((task) => {
       // このタスクの最早開始時刻を決定した依存タスクを見つける
-      let criticalPredecessor: TaskNode | null = null;
+      let criticalPredecessor: TaskNode | undefined;
       let maxFinishTime = -1;
 
       task.dependencies.forEach((depName) => {
@@ -214,7 +214,7 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
       });
 
       // 実際のクリティカルパス上の先行タスクが見つかった場合のみエッジを追加
-      if (criticalPredecessor !== null) {
+      if (criticalPredecessor !== undefined) {
         criticalEdges.push({
           fromTaskId: criticalPredecessor.id,
           toTaskId: task.id,
