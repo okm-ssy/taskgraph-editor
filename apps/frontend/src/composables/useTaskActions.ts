@@ -1,5 +1,6 @@
 import { InjectionKey, inject, provide } from 'vue';
 
+import type { Task } from '../model/Taskgraph';
 import { useEditorUIStore } from '../store/editor_ui_store';
 import { useErrorStore } from '../store/error_store';
 import { useCurrentTasks } from '../store/task_store';
@@ -8,7 +9,7 @@ export interface TaskActions {
   selectTask: (id: string) => void;
   deleteTask: (id: string) => boolean;
   addTask: () => void;
-  updateTask: (id: string, data: any) => boolean;
+  updateTask: (id: string, data: Partial<Task>) => boolean;
   clearSelection: () => void;
   showError: (
     message: string,
@@ -46,7 +47,7 @@ export const useTaskActionsProvider = () => {
       }
     },
 
-    updateTask: (id: string, data: any) => {
+    updateTask: (id: string, data: Partial<Task>) => {
       const success = taskStore.updateTask(id, data);
       if (!success) {
         errorStore.addUserError('タスクの更新に失敗しました');

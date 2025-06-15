@@ -110,8 +110,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-
 import { useCriticalPath } from '../../composables/useCriticalPath';
 import { useCriticalPathFixed } from '../../composables/useCriticalPathFixed';
 import { EditorTask } from '../../model/EditorTask';
