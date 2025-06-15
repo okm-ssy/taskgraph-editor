@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch, onMounted } from 'vue';
+import { computed, onMounted, nextTick, ref } from 'vue';
 
 import { useCriticalPath } from '../../composables/useCriticalPath';
 import { useCurrentTasks } from '../../store/task_store';
@@ -11,14 +11,39 @@ import TaskgraphViewer from './TaskgraphViewer.vue';
 const taskStore = useCurrentTasks();
 const taskCount = computed(() => taskStore.editorTasks.length);
 
-// クリティカルパス計算
-const { projectDuration, criticalTaskNames, criticalPath } = useCriticalPath(
-  taskStore.editorTasks,
-);
+// 強制更新用のトリガー
+const forceUpdateTrigger = ref(0);
 
-onMounted(() => {
+// クリティカルパス計算（強制更新トリガーも含める）
+const criticalPathComputed = computed(() => {
+  // トリガーを参照して強制的に再計算
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+  forceUpdateTrigger.value;
+  return useCriticalPath(taskStore.editorTasks);
+});
+
+const { projectDuration, criticalTaskNames, criticalPath } =
+  criticalPathComputed.value;
+
+onMounted(async () => {
   // グラフデータを構築してタスクストアを初期化
   taskStore.buildGraphData();
+
+  // 次のティックまで待ってから強制的にクリティカルパス再計算
+  await nextTick();
+
+  // 強制更新をトリガー
+  forceUpdateTrigger.value++;
+
+  // さらに待ってもう一度トリガー
+  await nextTick();
+  forceUpdateTrigger.value++;
+
+  // タスクが存在する場合は追加の初期化
+  if (taskStore.editorTasks.length > 0) {
+    console.log('ビューアー初期化: タスク数', taskStore.editorTasks.length);
+    console.log('ビューアー初期化: クリティカルパス', criticalPath);
+  }
 });
 </script>
 
