@@ -1,4 +1,4 @@
-import { computed, ref, watchEffect } from 'vue';
+import { computed, ref, watchEffect, type Ref } from 'vue';
 
 import type { EditorTask } from '../model/EditorTask';
 import { useErrorStore } from '../store/error_store';
@@ -24,7 +24,7 @@ interface TaskNode {
   buffer: number; // 余裕時間
 }
 
-export const useCriticalPath = (editorTasks: EditorTask[]) => {
+export const useCriticalPath = (editorTasks: Ref<EditorTask[]>) => {
   const errorStore = useErrorStore();
   // トポロジカルソート（カーンのアルゴリズム）
   const topologicalSort = (
@@ -84,7 +84,7 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
     const nodeMap = new Map<string, TaskNode>();
 
     // 全タスクのノードを作成
-    editorTasks.forEach((editorTask) => {
+    editorTasks.value.forEach((editorTask) => {
       const task = editorTask.task;
       const cleanDependencies = task.depends.filter((dep) => dep !== '');
 
@@ -234,7 +234,7 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
 
   // クリティカルパスの計算
   const criticalPath = computed(() => {
-    if (editorTasks.length === 0) return [];
+    if (editorTasks.value.length === 0) return [];
 
     const nodeMap = buildTaskGraph();
 
@@ -254,7 +254,7 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
 
   // プロジェクトの総所要時間
   const projectDuration = computed(() => {
-    if (editorTasks.length === 0) return 0;
+    if (editorTasks.value.length === 0) return 0;
 
     const nodeMap = buildTaskGraph();
     calculateEarliestTimes(nodeMap);
@@ -266,7 +266,7 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
 
   // クリティカルパス上のタスク名一覧
   const criticalTaskNames = computed(() => {
-    if (editorTasks.length === 0) return [];
+    if (editorTasks.value.length === 0) return [];
 
     const nodeMap = buildTaskGraph();
     calculateEarliestTimes(nodeMap);
@@ -279,7 +279,7 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
 
   // 依存関係エッジを取得
   const dependencyEdges = computed(() => {
-    if (editorTasks.length === 0) return [];
+    if (editorTasks.value.length === 0) return [];
 
     const nodeMap = buildTaskGraph();
     const edges: { fromTaskId: string; toTaskId: string }[] = [];
@@ -308,7 +308,7 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
       });
     } else if (
       circularDependencyInfo.value.unprocessedNodes.length === 0 &&
-      editorTasks.length > 0
+      editorTasks.value.length > 0
     ) {
       // 循環依存が解消されたらエラーをクリア
       errorStore.clearErrorsByType('validation');
