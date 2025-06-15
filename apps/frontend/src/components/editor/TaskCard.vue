@@ -75,9 +75,9 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-import { useTaskActions } from '../../composables/useTaskActions';
 import type { Task } from '../../model/Taskgraph';
 import { useDragDropStore } from '../../store/drag_drop_store';
+import { useEditorUIStore } from '../../store/editor_ui_store';
 import { useCurrentTasks } from '../../store/task_store';
 
 const props = defineProps<{
@@ -85,9 +85,9 @@ const props = defineProps<{
   id: string;
 }>();
 
-const taskActions = useTaskActions();
 const dragDropStore = useDragDropStore();
 const taskStore = useCurrentTasks();
+const uiStore = useEditorUIStore();
 
 // 難易度に基づいて背景色を計算
 const difficultyColorClass = computed(() => {
@@ -111,13 +111,13 @@ const difficultyColorClass = computed(() => {
 const handleRemove = (event: Event) => {
   event.stopPropagation();
   if (confirm(`タスク「${props.task.name}」を削除してもよろしいですか？`)) {
-    taskActions.deleteTask(props.id);
+    taskStore.removeTask(props.id);
   }
 };
 
 // カード本体クリック時の処理
 const handleCardClick = () => {
-  taskActions.selectTask(props.id);
+  taskStore.selectTask(props.id);
 };
 
 // ドラッグ開始（source から）
