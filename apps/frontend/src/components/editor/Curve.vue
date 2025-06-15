@@ -36,6 +36,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  isDragging: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const connectionPosition = ref<Map<string, { start: Position; end: Position }>>(
@@ -168,6 +172,8 @@ const getPathD = (start: Position, end: Position) => {
 
 // 接続線クリックハンドラ
 const handleConnectionClick = (connection: Connection) => {
+  // ドラッグ中はクリックを無視
+  if (props.isDragging) return;
   emit('connection-click', connection);
 };
 
@@ -208,6 +214,11 @@ const stopContinuousUpdate = () => {
 
 // アニメーションフレームを使った効率的な更新
 const scheduleUpdate = (immediate = false) => {
+  // ドラッグ中は更新をスケジュールしない
+  if (props.isDragging) {
+    return;
+  }
+  
   if (props.continuousUpdate) {
     // 連続更新モードが有効な場合は何もしない（既に更新ループが回っている）
     return;
@@ -440,7 +451,7 @@ onBeforeUnmount(() => {
     ref="svgElement"
     :class="[
       'w-full h-full pointer-events-none',
-      dragDropStore.isDragging ? 'dragging' : '',
+      props.isDragging ? 'dragging' : '',
     ]"
   >
     <defs>
@@ -540,6 +551,11 @@ onBeforeUnmount(() => {
 svg:not(.dragging) path.cursor-pointer:hover + path {
   stroke: #ef4444;
   stroke-width: 3;
+}
+
+/* ドラッグ中はホバー効果を無効化 */
+svg.dragging path {
+  pointer-events: none !important;
 }
 
 /* グリッドアイテムのトランジションを検知しやすくする */
