@@ -1,12 +1,19 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, computed, nextTick, onBeforeUnmount } from 'vue';
+import {
+  ref,
+  onMounted,
+  watch,
+  computed,
+  nextTick,
+  onBeforeUnmount,
+} from 'vue';
 import { GridLayout, GridItem } from 'vue3-grid-layout-next';
 
 import { useTaskActionsProvider } from '../../composables/useTaskActions';
 import { GridTask } from '../../model/GridTask';
+import { useDragDropStore } from '../../store/drag_drop_store';
 import { useEditorUIStore } from '../../store/editor_ui_store';
 import { useCurrentTasks } from '../../store/task_store';
-import { useDragDropStore } from '../../store/drag_drop_store';
 
 import Curve, { type Connection } from './Curve.vue';
 import TaskAddButton from './TaskAddButton.vue';
@@ -61,7 +68,7 @@ const triggerCurveUpdate = () => {
   if (isDraggingOrResizing.value) {
     return;
   }
-  
+
   nextTick(() => {
     setTimeout(() => {
       curveUpdateTrigger.value++;
@@ -72,7 +79,7 @@ const triggerCurveUpdate = () => {
 // レイアウト更新時の処理（グリッド有効時のみ）
 const handleLayoutUpdated = (newLayout: GridTask[]) => {
   if (disableGrid.value) return; // グリッド無効時はスキップ
-  
+
   newLayout.forEach((item) => {
     taskStore.updateGridTask(item.i, {
       x: item.x,
@@ -178,7 +185,7 @@ onMounted(() => {
   taskStore.buildGraphData();
   updateArrows();
   document.addEventListener('mousemove', handleMouseMove);
-  
+
   // 初期描画のために複数回更新をトリガー
   nextTick(() => {
     triggerCurveUpdate();
@@ -195,9 +202,12 @@ onBeforeUnmount(() => {
   document.removeEventListener('mousemove', handleMouseMove);
 });
 
-watch(() => taskStore.editorTasks.length, () => {
-  layout.value = taskStore.gridTasks;
-});
+watch(
+  () => taskStore.editorTasks.length,
+  () => {
+    layout.value = taskStore.gridTasks;
+  },
+);
 
 // マウス移動ハンドラ（ドラッグ中のマウス位置を追跡）
 const handleMouseMove = (event: MouseEvent) => {
@@ -205,7 +215,7 @@ const handleMouseMove = (event: MouseEvent) => {
     const rect = gridContainer.value.getBoundingClientRect();
     dragDropStore.updateDragPosition(
       event.clientX - rect.left,
-      event.clientY - rect.top
+      event.clientY - rect.top,
     );
   }
 };
@@ -215,18 +225,22 @@ const handleConnectionClick = (connection: Connection) => {
   // source と target の ID から実際のタスクを特定
   const sourceTaskId = connection.sourceId.replace('source-', '');
   const targetTaskId = connection.targetId.replace('target-', '');
-  
+
   const sourceTask = taskStore.getTaskById(sourceTaskId);
   const targetTask = taskStore.getTaskById(targetTaskId);
-  
+
   if (sourceTask && targetTask) {
     // sourceTask が targetTask に依存している
     // つまり、targetTask.depends から sourceTask.name を削除
     const newDepends = targetTask.task.depends.filter(
-      dep => dep !== sourceTask.task.name
+      (dep) => dep !== sourceTask.task.name,
     );
-    
-    if (confirm(`「${targetTask.task.name}」から「${sourceTask.task.name}」への依存を削除しますか？`)) {
+
+    if (
+      confirm(
+        `「${targetTask.task.name}」から「${sourceTask.task.name}」への依存を削除しますか？`,
+      )
+    ) {
       taskStore.updateTask(targetTaskId, { depends: newDepends });
     }
   }
@@ -266,8 +280,8 @@ watch(
     <div ref="gridContainer" class="flex-1 overflow-auto p-4 relative">
       <!-- 矢印SVGレイヤー（タスクカードより後ろに配置） -->
       <div class="absolute inset-0 z-0">
-        <Curve 
-          :connections="connections" 
+        <Curve
+          :connections="connections"
           :force-update="curveUpdateTrigger"
           :continuous-update="false"
           :is-dragging="isDraggingOrResizing"
