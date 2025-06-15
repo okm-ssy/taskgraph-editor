@@ -96,7 +96,8 @@
           )
         "
         :stroke-width="
-          (props.hoveredConnectionKey || hoveredConnection) === `${connection.sourceId}-${connection.targetId}`
+          (props.hoveredConnectionKey || hoveredConnection) ===
+          `${connection.sourceId}-${connection.targetId}`
             ? 3
             : (connection.strokeWidth ?? 2)
         "
@@ -166,7 +167,7 @@ const props = defineProps({
     default: false,
   },
   hoveredConnectionKey: {
-    type: String,
+    type: Object as PropType<string | null>,
     default: null,
   },
 });
