@@ -59,7 +59,7 @@
             ? 'pointer-events-none'
             : 'cursor-pointer pointer-events-auto',
         ]"
-        style="z-index: 8"
+        style="z-index: 15"
         @click="handleConnectionClick(connection)"
       ></path>
       <!-- 表示用のパス -->
