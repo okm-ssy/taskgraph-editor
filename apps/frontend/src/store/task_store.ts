@@ -45,7 +45,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     if (!uiStore.selectedTaskId) return null;
     return getTaskById.value(uiStore.selectedTaskId) ?? null;
   });
-  
+
   // 全タスクの難易度合計
   const totalDifficulty = computed(() => {
     return tasks.value.reduce((sum, task) => sum + task.difficulty, 0);

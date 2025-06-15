@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
+import { useCriticalPath } from '../../composables/useCriticalPath';
 import { useCurrentTasks } from '../../store/task_store';
 
 import TaskDetail from './TaskDetail.vue';
@@ -9,27 +10,53 @@ import TaskgraphViewer from './TaskgraphViewer.vue';
 
 const taskStore = useCurrentTasks();
 const taskCount = computed(() => taskStore.editorTasks.length);
+
+// クリティカルパス計算
+const { projectDuration, criticalTaskNames } = useCriticalPath(
+  taskStore.editorTasks,
+);
 </script>
 
 <template>
-  <div class="editor-viewer p-4">
-    <TaskgraphViewer :editor-tasks="taskStore.editorTasks" />
-
-    <div
-      v-if="taskCount === 0 && !taskStore.taskLoadError"
-      class="text-center py-10 text-gray-500"
-    >
-      <p>タスクがありません。</p>
-      <p class="mt-2 text-sm">
-        「JSONを編集する」ボタンでJSONデータを入力するか、エディタ画面でタスクを追加してください。
-      </p>
+  <div class="editor-viewer">
+    <!-- ヘッダー情報 -->
+    <div class="flex justify-between items-center p-3 border-b bg-gray-50">
+      <div class="flex items-center gap-4">
+        <h3 class="font-semibold">タスクグラフビューアー</h3>
+        <div v-if="taskCount > 0" class="text-sm text-gray-600">
+          <span class="font-medium"
+            >総難易度: {{ taskStore.totalDifficulty }}</span
+          >
+          <span class="ml-3 font-medium"
+            >プロジェクト所要時間: {{ projectDuration }}</span
+          >
+          <span class="ml-3 text-blue-600"
+            >クリティカルパス: {{ criticalTaskNames.length }}タスク</span
+          >
+        </div>
+      </div>
     </div>
 
-    <div
-      v-if="taskStore.taskLoadError"
-      class="mt-4 p-3 bg-red-100 text-red-700 border border-red-300 rounded"
-    >
-      <strong>エラー:</strong> {{ taskStore.taskLoadError }}
+    <!-- メインコンテンツ -->
+    <div class="p-4">
+      <TaskgraphViewer :editor-tasks="taskStore.editorTasks" />
+
+      <div
+        v-if="taskCount === 0 && !taskStore.taskLoadError"
+        class="text-center py-10 text-gray-500"
+      >
+        <p>タスクがありません。</p>
+        <p class="mt-2 text-sm">
+          「JSONを編集する」ボタンでJSONデータを入力するか、エディタ画面でタスクを追加してください。
+        </p>
+      </div>
+
+      <div
+        v-if="taskStore.taskLoadError"
+        class="mt-4 p-3 bg-red-100 text-red-700 border border-red-300 rounded"
+      >
+        <strong>エラー:</strong> {{ taskStore.taskLoadError }}
+      </div>
     </div>
 
     <TaskDialog
