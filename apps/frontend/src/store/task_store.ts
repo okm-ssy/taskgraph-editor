@@ -50,7 +50,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   // 全タスクの難易度合計（余剰工数1.2倍を含む）
   const totalDifficulty = computed(() => {
     const baseDifficulty = tasks.value.reduce((sum, task) => sum + task.difficulty, 0);
-    return Math.round(baseDifficulty * 1.2 * 10) / 10; // 1.2倍して小数点第1位で四捨五入
+    return baseDifficulty * 1.2; // 1.2倍
   });
 
   // クリティカルパス計算
@@ -59,7 +59,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   
   // プロジェクト所要時間（余剰工数1.2倍を含む）
   const projectDuration = computed(() => {
-    return Math.round(baseDuration.value * 1.2 * 10) / 10; // 1.2倍して小数点第1位で四捨五入
+    return baseDuration.value * 1.2; // 1.2倍
   });
 
   // Actions
