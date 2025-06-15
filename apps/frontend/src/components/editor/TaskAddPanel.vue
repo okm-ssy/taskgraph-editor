@@ -12,29 +12,6 @@
     <div class="space-y-3">
       <div>
         <label
-          for="task-category"
-          class="block text-sm font-medium text-gray-700 mb-1"
-          >タスク分類</label
-        >
-        <select
-          id="task-category"
-          v-model="categoryInput"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-          @change="handleCategoryChange"
-        >
-          <option value="">分類を選択してください</option>
-          <option
-            v-for="category in allCategories"
-            :key="category"
-            :value="category"
-          >
-            {{ category }}
-          </option>
-        </select>
-      </div>
-
-      <div>
-        <label
           for="task-name"
           class="block text-sm font-medium text-gray-700 mb-1"
           >タスク名</label
@@ -59,6 +36,29 @@
           class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
           rows="2"
         />
+      </div>
+
+      <div>
+        <label
+          for="task-category"
+          class="block text-sm font-medium text-gray-700 mb-1"
+          >タスク分類</label
+        >
+        <select
+          id="task-category"
+          v-model="categoryInput"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+          @change="handleCategoryChange"
+        >
+          <option value="">分類を選択してください</option>
+          <option
+            v-for="category in allCategories"
+            :key="category"
+            :value="category"
+          >
+            {{ category }}
+          </option>
+        </select>
       </div>
 
       <div>
