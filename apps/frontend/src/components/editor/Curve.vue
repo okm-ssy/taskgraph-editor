@@ -250,9 +250,10 @@ const scheduleUpdate = (immediate = false) => {
 };
 
 // CSS Transitionイベントのハンドラー
-const handleTransitionStart = (event: TransitionEvent) => {
-  if (event.propertyName === 'transform') {
-    const element = event.target as Element;
+const handleTransitionStart = (event: Event) => {
+  const transitionEvent = event as TransitionEvent;
+  if (transitionEvent.propertyName === 'transform') {
+    const element = transitionEvent.target as Element;
     transitionElements.set(element, true);
     // トランジション中は通常頻度で連続更新を開始
     if (!props.continuousUpdate) {
@@ -261,9 +262,10 @@ const handleTransitionStart = (event: TransitionEvent) => {
   }
 };
 
-const handleTransitionEnd = (event: TransitionEvent) => {
-  if (event.propertyName === 'transform') {
-    const element = event.target as Element;
+const handleTransitionEnd = (event: Event) => {
+  const transitionEvent = event as TransitionEvent;
+  if (transitionEvent.propertyName === 'transform') {
+    const element = transitionEvent.target as Element;
     transitionElements.delete(element);
     // すべてのトランジションが終了したら連続更新を停止
     if (transitionElements.size === 0 && !props.continuousUpdate) {
@@ -349,11 +351,11 @@ const setupObservers = () => {
           // CSS Transitionイベントリスナーを追加
           gridItem.addEventListener(
             'transitionstart',
-            handleTransitionStart as any,
+            handleTransitionStart,
           );
           gridItem.addEventListener(
             'transitionend',
-            handleTransitionEnd as any,
+            handleTransitionEnd,
           );
 
           observedElements.add(gridItem);
@@ -375,11 +377,11 @@ const cleanupObservers = () => {
     if (gridItem) {
       gridItem.removeEventListener(
         'transitionstart',
-        handleTransitionStart as any,
+        handleTransitionStart,
       );
       gridItem.removeEventListener(
         'transitionend',
-        handleTransitionEnd as any,
+        handleTransitionEnd,
       );
     }
   });
