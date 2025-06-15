@@ -27,7 +27,11 @@ interface TaskNode {
 export const useCriticalPath = (editorTasks: EditorTask[]) => {
   const errorStore = useErrorStore();
   // トポロジカルソート（カーンのアルゴリズム）
-  const topologicalSort = (nodeMap: Map<string, TaskNode>): string[] => {
+  const topologicalSort = (nodeMap: Map<string, TaskNode>): {
+    result: string[];
+    hasCircularDependency: boolean;
+    unprocessedNodes: string[];
+  } => {
     const result: string[] = [];
     const inDegree = new Map<string, number>();
 
@@ -192,7 +196,7 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
       // このタスクの最早開始時刻を決定した依存タスクを見つける
       let criticalPredecessor: TaskNode | null = null;
       let maxFinishTime = -1;
-      
+
       task.dependencies.forEach((depName) => {
         const depTask = nodeMap.get(depName);
         if (depTask && Math.abs(depTask.buffer) < 0.001) {
@@ -206,7 +210,7 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
           }
         }
       });
-      
+
       // 実際のクリティカルパス上の先行タスクが見つかった場合のみエッジを追加
       if (criticalPredecessor) {
         criticalEdges.push({
