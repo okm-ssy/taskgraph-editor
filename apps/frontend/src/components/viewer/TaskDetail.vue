@@ -49,7 +49,9 @@ const validNotes = computed(() => {
         ]"
       >
         {{ task.task.category || `難易度: ${task.task.difficulty}` }}
-        <span v-if="task.task.category" class="text-gray-600 font-normal">({{ task.task.difficulty }})</span>
+        <span v-if="task.task.category" class="text-gray-600 font-normal"
+          >({{ task.task.difficulty }})</span
+        >
       </span>
     </div>
 

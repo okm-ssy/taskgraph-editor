@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import sampleTaskgraphData from '../assets/sample.taskgraph.json';
 import { EditorTask } from '../model/EditorTask';
 import { validateTaskgraph, type Taskgraph } from '../model/Taskgraph';
+
 import { useErrorStore } from './error_store';
 
 export const useJsonProcessor = () => {
@@ -38,7 +39,7 @@ export const useJsonProcessor = () => {
 
       // 循環依存のチェック
       if (validationResult.hasCycles) {
-        const cycleMessage = `循環依存が検出されました: ${validationResult.cycles.map(cycle => cycle.join(' -> ')).join(', ')}`;
+        const cycleMessage = `循環依存が検出されました: ${validationResult.cycles.map((cycle) => cycle.join(' -> ')).join(', ')}`;
         taskLoadError.value = cycleMessage;
         errorStore.addValidationError(cycleMessage, validationResult.cycles);
         return false;

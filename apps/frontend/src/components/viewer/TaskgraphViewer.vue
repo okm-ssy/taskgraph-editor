@@ -128,7 +128,9 @@ const dropdownOptions = {
             </div>
             <div class="text-xs mt-2 font-medium">
               {{ node.category || `難易度: ${node.difficulty}` }}
-              <span v-if="node.category" class="text-gray-600 font-normal">({{ node.difficulty }})</span>
+              <span v-if="node.category" class="text-gray-600 font-normal"
+                >({{ node.difficulty }})</span
+              >
             </div>
           </div>
 

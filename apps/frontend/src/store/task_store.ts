@@ -16,7 +16,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
 
   // JSON処理関連
   const jsonProcessor = useJsonProcessor();
-  
+
   // UIストア
   const uiStore = useEditorUIStore();
 
@@ -92,10 +92,10 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   const updateTasks = (newTasks: EditorTask[], newInfo: Taskgraph['info']) => {
     info.value = newInfo;
     editorTasks.value = newTasks;
-    
+
     // JSONインポート時は自動配置を適用
     autoLayoutTasks();
-    
+
     uiStore.closeDetailDialog(); // インポートしたら選択状態をリセット
     uiStore.clearSelection();
   };
@@ -125,16 +125,16 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   // グラフレイアウトベースの自動配置
   const autoLayoutTasks = () => {
     if (editorTasks.value.length === 0) return;
-    
+
     // グラフレイアウトを使ってグリッド座標を計算
     const updatedTasks = graphLayout.convertGraphToGrid(editorTasks.value);
-    
+
     // 重複を避けて最適化
     graphLayout.optimizeGridLayout(updatedTasks);
-    
+
     // グラフデータも更新
     buildGraphData();
-    
+
     return updatedTasks;
   };
 
@@ -183,6 +183,5 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     getPathD: graphLayout.getPathD,
     getDifficultyColor: graphLayout.getDifficultyColor,
     GRAPH_SETTINGS: graphLayout.GRAPH_SETTINGS,
-
   };
 });

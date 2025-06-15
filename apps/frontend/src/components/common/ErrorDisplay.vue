@@ -12,7 +12,10 @@
       <div class="flex justify-between items-start">
         <div class="flex-1">
           <div class="flex items-center">
-            <div class="text-sm font-medium" :class="getTextColorByType(error.type)">
+            <div
+              class="text-sm font-medium"
+              :class="getTextColorByType(error.type)"
+            >
               {{ getErrorTypeLabel(error.type) }}
             </div>
             <div class="ml-2 text-xs text-gray-500">
@@ -90,7 +93,7 @@ const formatTimestamp = (timestamp: number) => {
   return date.toLocaleTimeString('ja-JP', {
     hour: '2-digit',
     minute: '2-digit',
-    second: '2-digit'
+    second: '2-digit',
   });
 };
 </script>
