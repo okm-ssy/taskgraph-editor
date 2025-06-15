@@ -1,7 +1,13 @@
 <template>
   <div class="h-full flex flex-col">
     <div class="flex justify-between items-center p-3 border-b bg-gray-50">
-      <h3 class="font-semibold">タスクグリッドエディター</h3>
+      <div class="flex items-center gap-4">
+        <h3 class="font-semibold">タスクグリッドエディター</h3>
+        <div v-if="taskStore.editorTasks.length > 0" class="text-sm text-gray-600">
+          <span class="font-medium">プロジェクト所要時間: {{ projectDuration }}</span>
+          <span class="ml-3 text-blue-600">クリティカルパス: {{ criticalTaskNames.length }}タスク</span>
+        </div>
+      </div>
       <div class="flex gap-2">
         <button
           class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm transition-colors"
@@ -113,6 +119,7 @@ import {
 import { GridLayout, GridItem } from 'vue3-grid-layout-next';
 
 import { useTaskActionsProvider } from '../../composables/useTaskActions';
+import { useCriticalPath } from '../../composables/useCriticalPath';
 import { GridTask } from '../../model/GridTask';
 import { useDragDropStore } from '../../store/drag_drop_store';
 import { useEditorUIStore } from '../../store/editor_ui_store';
@@ -141,6 +148,9 @@ const gridContainer = ref<HTMLDivElement | null>(null);
 // provide/injectでコンポーネント通信を改善
 const taskActions = useTaskActionsProvider();
 
+// クリティカルパス計算
+const { criticalPath, projectDuration, criticalTaskNames } = useCriticalPath(taskStore.editorTasks);
+
 // 矢印描画用: 依存関係のペアを取得
 type Arrow = {
   fromId: string;
@@ -155,13 +165,20 @@ const hoveredConnectionKey = ref<string | null>(null);
 
 // Curve.vueに渡すconnections配列（仮矢印は除外）
 const connections = computed<Connection[]>(() => {
-  return arrows.value.map((arrow) => ({
-    sourceId: `source-${arrow.fromId}`,
-    targetId: `target-${arrow.toId}`,
-    color: '#94a3b8',
-    strokeWidth: 1.5,
-    interval: 10, // 更新間隔（ミリ秒）
-  }));
+  return arrows.value.map((arrow) => {
+    // クリティカルパス上の矢印かチェック
+    const isCritical = criticalPath.value.some(edge => 
+      edge.fromTaskId === arrow.fromId && edge.toTaskId === arrow.toId
+    );
+    
+    return {
+      sourceId: `source-${arrow.fromId}`,
+      targetId: `target-${arrow.toId}`,
+      color: isCritical ? '#2563eb' : '#94a3b8', // クリティカルパスは青色
+      strokeWidth: isCritical ? 2.5 : 1.5, // クリティカルパスは太く
+      interval: 10, // 更新間隔（ミリ秒）
+    };
+  });
 });
 
 const triggerCurveUpdate = () => {
