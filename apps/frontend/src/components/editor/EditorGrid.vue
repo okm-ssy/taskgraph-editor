@@ -21,8 +21,8 @@
     </div>
 
     <div ref="gridContainer" class="flex-1 overflow-auto p-4 relative">
-      <!-- 矢印SVGレイヤー（タスクカードより手前だがpointer-eventsで制御） -->
-      <div class="absolute inset-0 z-20 pointer-events-none">
+      <!-- 矢印SVGレイヤー（タスクカードより奥に配置） -->
+      <div class="absolute inset-0 z-5 pointer-events-none">
         <Curve
           :connections="connections"
           :force-update="curveUpdateTrigger"
