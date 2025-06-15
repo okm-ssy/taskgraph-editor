@@ -66,9 +66,6 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
       const unprocessedNodes = Array.from(nodeMap.keys()).filter(
         (name) => !result.includes(name),
       );
-      const errorMessage = `循環依存が検出されました。確認してください: ${unprocessedNodes.join(', ')}`;
-      console.warn(errorMessage);
-
       // 循環依存の情報を返す
       return { result, hasCircularDependency: true, unprocessedNodes };
     }
@@ -245,17 +242,7 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
     calculateEarliestTimes(nodeMap);
     calculateLatestTimes(nodeMap);
 
-    // デバッグ用ログ
-    console.log('=== Critical Path Analysis ===');
-    nodeMap.forEach((node) => {
-      console.log(
-        `${node.name}: ES=${node.earliestStart}, EF=${node.earliestFinish}, LS=${node.latestStart}, LF=${node.latestFinish}, Buffer=${node.buffer}`,
-      );
-    });
-
     const criticalEdges = extractCriticalPath(nodeMap);
-    console.log('Critical Path Edges:', criticalEdges);
-
     return criticalEdges;
   });
 
