@@ -7,6 +7,7 @@ JSONでタスクを分解管理するアプリ。schema は apps/frontend/src/mo
 - ロジック: Pinia (store/) または Composables (composables/) に実装
 - コンポーネント: ロジックを持たせない
 - 新規作成: `tg create-component <名前>` で自動生成
+- 型に any は使わない
 
 ## よく使うコマンド
 
