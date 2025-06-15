@@ -1,6 +1,7 @@
 import { computed } from 'vue';
 
 import type { EditorTask } from '../model/EditorTask';
+import { useErrorStore } from '../store/error_store';
 
 // クリティカルパス上のタスクペア（依存関係）
 export interface CriticalPathEdge {
@@ -24,6 +25,7 @@ interface TaskNode {
 }
 
 export const useCriticalPath = (editorTasks: EditorTask[]) => {
+  const errorStore = useErrorStore();
   // トポロジカルソート（カーンのアルゴリズム）
   const topologicalSort = (nodeMap: Map<string, TaskNode>): string[] => {
     const result: string[] = [];
@@ -61,7 +63,22 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
 
     // 循環依存のチェック
     if (result.length !== nodeMap.size) {
-      console.warn('循環依存が検出されました');
+      const unprocessedNodes = Array.from(nodeMap.keys()).filter(
+        name => !result.includes(name)
+      );
+      const errorMessage = `循環依存が検出されました。確認してください: ${unprocessedNodes.join(', ')}`;
+      
+      // エラーストアに追加
+      errorStore.addValidationError(errorMessage, {
+        unprocessedNodes,
+        processedNodes: result,
+        totalNodes: nodeMap.size
+      });
+      
+      console.warn(errorMessage);
+    } else {
+      // 循環依存がない場合は、以前の循環依存エラーをクリア
+      errorStore.clearErrorsByType('validation');
     }
 
     return result;
