@@ -111,6 +111,9 @@
 
     <!-- タスク詳細ダイアログ -->
     <TaskDetailDialog />
+    
+    <!-- エラー表示 -->
+    <ErrorDisplay />
   </div>
 </template>
 
@@ -137,6 +140,7 @@ import TaskAddButton from './TaskAddButton.vue';
 import TaskAddPanel from './TaskAddPanel.vue';
 import TaskCard from './TaskCard.vue';
 import TaskDetailDialog from './TaskDetailDialog.vue';
+import ErrorDisplay from '../common/ErrorDisplay.vue';
 
 defineProps<{
   selecting?: boolean;
