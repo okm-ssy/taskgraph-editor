@@ -31,7 +31,14 @@ export const useJsonProcessor = () => {
       const validationResult = validateTaskgraph(parsedData);
 
       if (!validationResult.success) {
-        const errorMessage = 'バリデーションエラーが発生しました';
+        // Zodエラーの詳細を取得
+        const zodError = validationResult.error;
+        const errorDetails = zodError.issues.map(issue => {
+          const path = issue.path.length > 0 ? ` (${issue.path.join('.')})` : '';
+          return `${issue.message}${path}`;
+        }).join(', ');
+        
+        const errorMessage = `バリデーションエラー: ${errorDetails}`;
         taskLoadError.value = errorMessage;
         errorStore.addValidationError(errorMessage, validationResult.error);
         return false;
@@ -61,7 +68,16 @@ export const useJsonProcessor = () => {
 
       return true;
     } catch (error) {
-      const errorMessage = `JSON解析エラー: ${(error as Error).message}`;
+      let errorMessage = 'JSON解析エラー: ';
+      if (error instanceof SyntaxError) {
+        errorMessage += `構文エラー - ${error.message}`;
+        // JSON構文エラーの場合、位置情報も含める
+        if (error.message.includes('position')) {
+          errorMessage += ` (JSONの構文が正しくありません)`;
+        }
+      } else {
+        errorMessage += (error as Error).message;
+      }
       taskLoadError.value = errorMessage;
       errorStore.addValidationError(errorMessage, error);
       return false;
