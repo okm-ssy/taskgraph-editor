@@ -28,7 +28,9 @@
               connection,
               (props.hoveredConnectionKey || hoveredConnection) ===
                 `${connection.sourceId}-${connection.targetId}`,
-            ) || connection.color || '#94a3b8'
+            ) ||
+            connection.color ||
+            '#94a3b8'
           "
         ></polygon>
       </marker>
@@ -93,7 +95,9 @@
             connection,
             (props.hoveredConnectionKey || hoveredConnection) ===
               `${connection.sourceId}-${connection.targetId}`,
-          ) || connection.color || '#94a3b8'
+          ) ||
+          connection.color ||
+          '#94a3b8'
         "
         :stroke-width="
           (props.hoveredConnectionKey || hoveredConnection) ===
@@ -353,7 +357,7 @@ const handleConnectionMouseLeave = () => {
 };
 
 // ホバー状態に基づいて色を決定
-const getConnectionColor = (connection: Connection, isHovered: boolean) => {
+const getConnectionColor = (_connection: Connection, isHovered: boolean) => {
   if (isHovered) {
     return '#ef4444'; // ホバー時は赤色
   }
