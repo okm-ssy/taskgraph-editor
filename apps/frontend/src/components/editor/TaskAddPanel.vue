@@ -1,45 +1,3 @@
-<script setup lang="ts">
-import { ref } from 'vue';
-
-import { useCurrentTasks } from '../../store/task_store';
-
-const emit = defineEmits<{
-  (e: 'close'): void;
-}>();
-
-const taskStore = useCurrentTasks();
-
-const nameInput = ref('new-task');
-const descriptionInput = ref('タスクの説明');
-const difficultyInput = ref(1);
-
-// 新規タスク追加
-const addNewTask = () => {
-  const newTask = taskStore.addTask();
-
-  // タスク情報の更新（依存関係は空配列）
-  taskStore.updateTask(newTask.id, {
-    name: nameInput.value,
-    description: descriptionInput.value,
-    difficulty: parseFloat(difficultyInput.value.toString()),
-    depends: [''],
-  });
-
-  // 入力フィールドをリセット
-  nameInput.value = 'new-task';
-  descriptionInput.value = 'タスクの説明';
-  difficultyInput.value = 1;
-
-  // パネルを閉じる
-  emit('close');
-};
-
-// キャンセル処理
-const handleCancel = () => {
-  emit('close');
-};
-</script>
-
 <template>
   <div
     class="absolute top-4 right-4 z-10 bg-white shadow-lg rounded-lg border border-gray-200 p-4 w-80"
@@ -124,5 +82,47 @@ const handleCancel = () => {
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+
+import { useCurrentTasks } from '../../store/task_store';
+
+const emit = defineEmits<{
+  (e: 'close'): void;
+}>();
+
+const taskStore = useCurrentTasks();
+
+const nameInput = ref('new-task');
+const descriptionInput = ref('タスクの説明');
+const difficultyInput = ref(1);
+
+// 新規タスク追加
+const addNewTask = () => {
+  const newTask = taskStore.addTask();
+
+  // タスク情報の更新（依存関係は空配列）
+  taskStore.updateTask(newTask.id, {
+    name: nameInput.value,
+    description: descriptionInput.value,
+    difficulty: parseFloat(difficultyInput.value.toString()),
+    depends: [''],
+  });
+
+  // 入力フィールドをリセット
+  nameInput.value = 'new-task';
+  descriptionInput.value = 'タスクの説明';
+  difficultyInput.value = 1;
+
+  // パネルを閉じる
+  emit('close');
+};
+
+// キャンセル処理
+const handleCancel = () => {
+  emit('close');
+};
+</script>
 
 <style scoped></style>

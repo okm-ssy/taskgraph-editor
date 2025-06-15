@@ -1,9 +1,3 @@
-<script setup lang="ts">
-const emit = defineEmits<{
-  (e: 'click'): void;
-}>();
-</script>
-
 <template>
   <button
     @click="emit('click')"
@@ -13,5 +7,11 @@ const emit = defineEmits<{
     <span>タスク追加</span>
   </button>
 </template>
+
+<script setup lang="ts">
+const emit = defineEmits<{
+  (e: 'click'): void;
+}>();
+</script>
 
 <style scoped></style>

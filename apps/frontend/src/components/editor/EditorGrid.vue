@@ -1,3 +1,90 @@
+<template>
+  <div class="h-full flex flex-col">
+    <div class="flex justify-between items-center p-3 border-b bg-gray-50">
+      <h3 class="font-semibold">タスクグリッドエディター</h3>
+      <div class="flex gap-2">
+        <button
+          class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm transition-colors"
+          @click="handleAutoLayout"
+          :disabled="taskStore.editorTasks.length === 0"
+        >
+          自動配置
+        </button>
+        <button
+          class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-md text-sm transition-colors"
+          @click="toggleAddPanel"
+        >
+          パネルで追加
+        </button>
+        <TaskAddButton @click="handleAddTask" />
+      </div>
+    </div>
+
+    <div ref="gridContainer" class="flex-1 overflow-auto p-4 relative">
+      <!-- 矢印SVGレイヤー（タスクカードより後ろに配置） -->
+      <div class="absolute inset-0 z-0">
+        <Curve
+          :connections="connections"
+          :force-update="curveUpdateTrigger"
+          :continuous-update="false"
+          :is-dragging="isDraggingOrResizing"
+          @connection-click="handleConnectionClick"
+        />
+      </div>
+      <!-- 新規タスク追加パネル -->
+      <TaskAddPanel
+        v-if="uiStore.showAddPanel"
+        @close="uiStore.toggleAddPanel"
+      />
+
+      <!-- グリッドレイアウト -->
+      <GridLayout
+        v-model:layout="layout"
+        :col-num="12"
+        :row-height="50"
+        :is-draggable="!disableGrid"
+        :is-resizable="!disableGrid"
+        :vertical-compact="false"
+        :use-css-transforms="true"
+        :margin="[10, 10]"
+        :responsive="false"
+        :auto-size="false"
+        :prevent-collision="false"
+        :compact-type="null"
+        :transform-scale="1"
+        :mirrored="false"
+        :use-style-cursor="false"
+        drag-handle=".drag-handle"
+        @layout-updated="handleLayoutUpdated"
+        @item-move="handleItemMove"
+        @item-moved="handleItemMoved"
+        @item-resize="handleItemResize"
+        @item-resized="handleItemResized"
+        class="min-h-[600px]"
+        :class="{ 'grid-disabled': disableGrid }"
+      >
+        <GridItem
+          v-for="task in taskStore.editorTasks"
+          :key="task.id"
+          :i="task.id"
+          :x="task.grid.x"
+          :y="task.grid.y"
+          :w="task.grid.w"
+          :h="task.grid.h"
+          :min-w="2"
+          :min-h="2"
+          drag-ignore-from=".task-content, .dependency-handle, .task-action-button"
+        >
+          <TaskCard :task="task.task" :id="task.id" />
+        </GridItem>
+      </GridLayout>
+    </div>
+
+    <!-- タスク詳細ダイアログ -->
+    <TaskDetailDialog />
+  </div>
+</template>
+
 <script setup lang="ts">
 import {
   ref,
@@ -48,9 +135,6 @@ const arrows = ref<Arrow[]>([]);
 const curveUpdateTrigger = ref(0);
 const isDraggingOrResizing = ref(false);
 const disableGrid = ref(false);
-const draggedItemId = ref<string | null>(null);
-const dragOffset = ref({ x: 0, y: 0 });
-const dragStartPos = ref({ x: 0, y: 0 });
 
 // Curve.vueに渡すconnections配列（仮矢印は除外）
 const connections = computed<Connection[]>(() => {
@@ -88,12 +172,6 @@ const handleLayoutUpdated = (newLayout: GridTask[]) => {
       h: item.h,
     });
   });
-  triggerCurveUpdate();
-};
-
-// より細かなイベント処理
-const handleLayoutChange = (newLayout: GridTask[]) => {
-  layout.value = newLayout;
   triggerCurveUpdate();
 };
 
@@ -254,93 +332,6 @@ watch(
   },
 );
 </script>
-
-<template>
-  <div class="h-full flex flex-col">
-    <div class="flex justify-between items-center p-3 border-b bg-gray-50">
-      <h3 class="font-semibold">タスクグリッドエディター</h3>
-      <div class="flex gap-2">
-        <button
-          class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm transition-colors"
-          @click="handleAutoLayout"
-          :disabled="taskStore.editorTasks.length === 0"
-        >
-          自動配置
-        </button>
-        <button
-          class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-md text-sm transition-colors"
-          @click="toggleAddPanel"
-        >
-          パネルで追加
-        </button>
-        <TaskAddButton @click="handleAddTask" />
-      </div>
-    </div>
-
-    <div ref="gridContainer" class="flex-1 overflow-auto p-4 relative">
-      <!-- 矢印SVGレイヤー（タスクカードより後ろに配置） -->
-      <div class="absolute inset-0 z-0">
-        <Curve
-          :connections="connections"
-          :force-update="curveUpdateTrigger"
-          :continuous-update="false"
-          :is-dragging="isDraggingOrResizing"
-          @connection-click="handleConnectionClick"
-        />
-      </div>
-      <!-- 新規タスク追加パネル -->
-      <TaskAddPanel
-        v-if="uiStore.showAddPanel"
-        @close="uiStore.toggleAddPanel"
-      />
-
-      <!-- グリッドレイアウト -->
-      <GridLayout
-        v-model:layout="layout"
-        :col-num="12"
-        :row-height="50"
-        :is-draggable="!disableGrid"
-        :is-resizable="!disableGrid"
-        :vertical-compact="false"
-        :use-css-transforms="true"
-        :margin="[10, 10]"
-        :responsive="false"
-        :auto-size="false"
-        :prevent-collision="false"
-        :compact-type="null"
-        :transform-scale="1"
-        :mirrored="false"
-        :use-style-cursor="false"
-        drag-handle=".drag-handle"
-        @layout-updated="handleLayoutUpdated"
-        @item-move="handleItemMove"
-        @item-moved="handleItemMoved"
-        @item-resize="handleItemResize"
-        @item-resized="handleItemResized"
-        class="min-h-[600px]"
-        :class="{ 'grid-disabled': disableGrid }"
-      >
-        <GridItem
-          v-for="task in taskStore.editorTasks"
-          :key="task.id"
-          :i="task.id"
-          :x="task.grid.x"
-          :y="task.grid.y"
-          :w="task.grid.w"
-          :h="task.grid.h"
-          :min-w="2"
-          :min-h="2"
-          drag-ignore-from=".task-content, .dependency-handle, .task-action-button"
-        >
-          <TaskCard :task="task.task" :id="task.id" />
-        </GridItem>
-      </GridLayout>
-    </div>
-
-    <!-- タスク詳細ダイアログ -->
-    <TaskDetailDialog />
-  </div>
-</template>
 
 <style scoped>
 .vue-grid-item:not(.vue-grid-placeholder) {

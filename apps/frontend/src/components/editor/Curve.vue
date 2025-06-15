@@ -1,3 +1,101 @@
+<template>
+  <svg
+    ref="svgElement"
+    :class="['w-full h-full', props.isDragging ? 'dragging' : '']"
+  >
+    <defs>
+      <!-- 通常の矢印マーカー -->
+      <marker
+        v-for="connection in connections.filter(
+          (c) => c.targetId !== 'mouse-pointer',
+        )"
+        :key="`arrow-${connection.sourceId}-${connection.targetId}`"
+        :id="`arrow-${connection.sourceId}-${connection.targetId}`"
+        markerWidth="10"
+        markerHeight="7"
+        refX="10"
+        refY="3.5"
+        orient="auto"
+        markerUnits="strokeWidth"
+      >
+        <polygon
+          points="0 0, 10 3.5, 0 7"
+          :fill="connection.color ?? '#2563eb'"
+        ></polygon>
+      </marker>
+    </defs>
+
+    <!-- 通常の接続線 -->
+    <g
+      v-for="connection in connections.filter(
+        (c) => c.targetId !== 'mouse-pointer',
+      )"
+      :key="`${connection.sourceId}-${connection.targetId}`"
+    >
+      <!-- クリック可能な太い透明パス -->
+      <path
+        :d="
+          connectionPosition.get(
+            `${connection.sourceId}-${connection.targetId}`,
+          )
+            ? getPathD(
+                connectionPosition.get(
+                  `${connection.sourceId}-${connection.targetId}`,
+                )!.start,
+                connectionPosition.get(
+                  `${connection.sourceId}-${connection.targetId}`,
+                )!.end,
+              )
+            : ''
+        "
+        fill="none"
+        stroke="transparent"
+        stroke-width="20"
+        :class="[
+          dragDropStore.isDragging
+            ? 'pointer-events-none'
+            : 'cursor-pointer pointer-events-auto',
+        ]"
+        style="z-index: 5"
+        @click="handleConnectionClick(connection)"
+      ></path>
+      <!-- 表示用のパス -->
+      <path
+        :d="
+          connectionPosition.get(
+            `${connection.sourceId}-${connection.targetId}`,
+          )
+            ? getPathD(
+                connectionPosition.get(
+                  `${connection.sourceId}-${connection.targetId}`,
+                )!.start,
+                connectionPosition.get(
+                  `${connection.sourceId}-${connection.targetId}`,
+                )!.end,
+              )
+            : ''
+        "
+        fill="none"
+        :stroke="connection.color ?? '#2563eb'"
+        :stroke-width="connection.strokeWidth ?? 2"
+        :marker-end="`url(#arrow-${connection.sourceId}-${connection.targetId})`"
+        class="pointer-events-none"
+      ></path>
+    </g>
+
+    <!-- 仮矢印（ドラッグ中のみ） -->
+    <g v-if="tempConnectionPosition">
+      <path
+        :d="getPathD(tempConnectionPosition.start, tempConnectionPosition.end)"
+        fill="none"
+        stroke="#3b82f6"
+        stroke-width="2"
+        class="pointer-events-none"
+      ></path>
+    </g>
+  </svg>
+</template>
+
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, watch, type PropType } from 'vue';
 
@@ -349,14 +447,8 @@ const setupObservers = () => {
           });
 
           // CSS Transitionイベントリスナーを追加
-          gridItem.addEventListener(
-            'transitionstart',
-            handleTransitionStart,
-          );
-          gridItem.addEventListener(
-            'transitionend',
-            handleTransitionEnd,
-          );
+          gridItem.addEventListener('transitionstart', handleTransitionStart);
+          gridItem.addEventListener('transitionend', handleTransitionEnd);
 
           observedElements.add(gridItem);
         }
@@ -375,14 +467,8 @@ const cleanupObservers = () => {
   observedElements.forEach((element) => {
     const gridItem = element.closest('.vue-grid-item');
     if (gridItem) {
-      gridItem.removeEventListener(
-        'transitionstart',
-        handleTransitionStart,
-      );
-      gridItem.removeEventListener(
-        'transitionend',
-        handleTransitionEnd,
-      );
+      gridItem.removeEventListener('transitionstart', handleTransitionStart);
+      gridItem.removeEventListener('transitionend', handleTransitionEnd);
     }
   });
 
@@ -466,104 +552,6 @@ onBeforeUnmount(() => {
   updateRetryMap.clear();
 });
 </script>
-
-<template>
-  <svg
-    ref="svgElement"
-    :class="['w-full h-full', props.isDragging ? 'dragging' : '']"
-  >
-    <defs>
-      <!-- 通常の矢印マーカー -->
-      <marker
-        v-for="connection in connections.filter(
-          (c) => c.targetId !== 'mouse-pointer',
-        )"
-        :key="`arrow-${connection.sourceId}-${connection.targetId}`"
-        :id="`arrow-${connection.sourceId}-${connection.targetId}`"
-        markerWidth="10"
-        markerHeight="7"
-        refX="10"
-        refY="3.5"
-        orient="auto"
-        markerUnits="strokeWidth"
-      >
-        <polygon
-          points="0 0, 10 3.5, 0 7"
-          :fill="connection.color ?? '#2563eb'"
-        ></polygon>
-      </marker>
-    </defs>
-
-    <!-- 通常の接続線 -->
-    <g
-      v-for="connection in connections.filter(
-        (c) => c.targetId !== 'mouse-pointer',
-      )"
-      :key="`${connection.sourceId}-${connection.targetId}`"
-    >
-      <!-- クリック可能な太い透明パス -->
-      <path
-        :d="
-          connectionPosition.get(
-            `${connection.sourceId}-${connection.targetId}`,
-          )
-            ? getPathD(
-                connectionPosition.get(
-                  `${connection.sourceId}-${connection.targetId}`,
-                )!.start,
-                connectionPosition.get(
-                  `${connection.sourceId}-${connection.targetId}`,
-                )!.end,
-              )
-            : ''
-        "
-        fill="none"
-        stroke="transparent"
-        stroke-width="20"
-        :class="[
-          dragDropStore.isDragging
-            ? 'pointer-events-none'
-            : 'cursor-pointer pointer-events-auto',
-        ]"
-        style="z-index: 5"
-        @click="handleConnectionClick(connection)"
-      ></path>
-      <!-- 表示用のパス -->
-      <path
-        :d="
-          connectionPosition.get(
-            `${connection.sourceId}-${connection.targetId}`,
-          )
-            ? getPathD(
-                connectionPosition.get(
-                  `${connection.sourceId}-${connection.targetId}`,
-                )!.start,
-                connectionPosition.get(
-                  `${connection.sourceId}-${connection.targetId}`,
-                )!.end,
-              )
-            : ''
-        "
-        fill="none"
-        :stroke="connection.color ?? '#2563eb'"
-        :stroke-width="connection.strokeWidth ?? 2"
-        :marker-end="`url(#arrow-${connection.sourceId}-${connection.targetId})`"
-        class="pointer-events-none"
-      ></path>
-    </g>
-
-    <!-- 仮矢印（ドラッグ中のみ） -->
-    <g v-if="tempConnectionPosition">
-      <path
-        :d="getPathD(tempConnectionPosition.start, tempConnectionPosition.end)"
-        fill="none"
-        stroke="#3b82f6"
-        stroke-width="2"
-        class="pointer-events-none"
-      ></path>
-    </g>
-  </svg>
-</template>
 
 <style scoped>
 svg:not(.dragging) path.cursor-pointer:hover + path {

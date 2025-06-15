@@ -1,3 +1,74 @@
+<template>
+  <div
+    class="h-full w-full flex flex-col border-2 rounded-lg transition-all relative"
+    style="z-index: 1; overflow: visible"
+    :class="[
+      difficultyColorClass,
+      isDroppable ? 'ring-4 ring-blue-400 scale-105' : '',
+      isDraggingSource ? 'opacity-50' : '',
+    ]"
+    @dragover="handleDragOver"
+    @dragleave="handleDragLeave"
+    @drop="handleDrop"
+  >
+    <!-- target: 依存先（矢印の終点） -->
+    <div
+      :id="`target-${id}`"
+      class="absolute -left-1 top-6 -translate-x-1/4 -translate-y-1/2 bg-blue-500 rounded-full h-4 w-4"
+      style="z-index: -1"
+    />
+
+    <!-- source: 依存元（矢印の起点、ドラッグ可能） -->
+    <div
+      :id="`source-${id}`"
+      class="dependency-handle absolute right-0 top-6 translate-x-1/2 -translate-y-1/2 bg-blue-500 rounded-full h-4 w-4 cursor-move hover:scale-125 transition-transform"
+      style="z-index: -1"
+      draggable="true"
+      @dragstart="handleDragStart"
+      @dragend="handleDragEnd"
+      title="ドラッグして依存関係を作成"
+    />
+
+    <!-- ドラッグハンドル部分 (カードの上部) -->
+    <div
+      class="drag-handle py-2 px-3 flex justify-between items-center border-b border-opacity-30 cursor-move relative"
+      :class="difficultyColorClass.replace('bg-', 'bg-opacity-70 bg-')"
+    >
+      <div class="flex items-center justify-start overflow-x-hidden">
+        <div class="font-bold text-gray-800 truncate text-sm">
+          {{ task.name }}
+        </div>
+      </div>
+      <div class="flex items-center justify-center">
+        <button
+          @click="handleRemove"
+          class="task-action-button text-gray-500 hover:bg-white rounded-full p-1"
+        >
+          ×
+        </button>
+      </div>
+    </div>
+
+    <!-- カード本体 (クリックで詳細表示) -->
+    <div
+      class="task-content p-3 flex-1 flex flex-col cursor-pointer relative overflow-hidden"
+      @click="handleCardClick"
+      @dragenter.prevent
+      @dragover.prevent
+    >
+      <p class="text-sm text-gray-700 line-clamp-2 mb-2">
+        {{ task.description }}
+      </p>
+
+      <div class="mt-auto flex justify-end">
+        <span class="text-xs bg-white rounded-full px-2 py-1 text-gray-700">
+          難易度: {{ task.difficulty }}
+        </span>
+      </div>
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { computed } from 'vue';
 
@@ -120,77 +191,6 @@ const isDraggingSource = computed(() => {
   return dragDropStore.draggingSourceId === props.id;
 });
 </script>
-
-<template>
-  <div
-    class="h-full w-full flex flex-col border-2 rounded-lg transition-all relative"
-    style="z-index: 1; overflow: visible"
-    :class="[
-      difficultyColorClass,
-      isDroppable ? 'ring-4 ring-blue-400 scale-105' : '',
-      isDraggingSource ? 'opacity-50' : '',
-    ]"
-    @dragover="handleDragOver"
-    @dragleave="handleDragLeave"
-    @drop="handleDrop"
-  >
-    <!-- target: 依存先（矢印の終点） -->
-    <div
-      :id="`target-${id}`"
-      class="absolute -left-1 top-6 -translate-x-1/4 -translate-y-1/2 bg-blue-500 rounded-full h-4 w-4"
-      style="z-index: -1"
-    />
-
-    <!-- source: 依存元（矢印の起点、ドラッグ可能） -->
-    <div
-      :id="`source-${id}`"
-      class="dependency-handle absolute right-0 top-6 translate-x-1/2 -translate-y-1/2 bg-blue-500 rounded-full h-4 w-4 cursor-move hover:scale-125 transition-transform"
-      style="z-index: -1"
-      draggable="true"
-      @dragstart="handleDragStart"
-      @dragend="handleDragEnd"
-      title="ドラッグして依存関係を作成"
-    />
-
-    <!-- ドラッグハンドル部分 (カードの上部) -->
-    <div
-      class="drag-handle py-2 px-3 flex justify-between items-center border-b border-opacity-30 cursor-move relative"
-      :class="difficultyColorClass.replace('bg-', 'bg-opacity-70 bg-')"
-    >
-      <div class="flex items-center justify-start overflow-x-hidden">
-        <div class="font-bold text-gray-800 truncate text-sm">
-          {{ task.name }}
-        </div>
-      </div>
-      <div class="flex items-center justify-center">
-        <button
-          @click="handleRemove"
-          class="task-action-button text-gray-500 hover:bg-white rounded-full p-1"
-        >
-          ×
-        </button>
-      </div>
-    </div>
-
-    <!-- カード本体 (クリックで詳細表示) -->
-    <div
-      class="task-content p-3 flex-1 flex flex-col cursor-pointer relative overflow-hidden"
-      @click="handleCardClick"
-      @dragenter.prevent
-      @dragover.prevent
-    >
-      <p class="text-sm text-gray-700 line-clamp-2 mb-2">
-        {{ task.description }}
-      </p>
-
-      <div class="mt-auto flex justify-end">
-        <span class="text-xs bg-white rounded-full px-2 py-1 text-gray-700">
-          難易度: {{ task.difficulty }}
-        </span>
-      </div>
-    </div>
-  </div>
-</template>
 
 <style scoped>
 .line-clamp-2 {
