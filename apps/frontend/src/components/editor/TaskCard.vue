@@ -1,12 +1,13 @@
 <template>
   <div
-    class="h-full w-full flex flex-col border-2 rounded-lg transition-all relative"
-    style="z-index: 1; overflow: visible"
     :class="[
+      'h-full w-full flex flex-col border-2 rounded-lg transition-all relative',
       difficultyColorClass,
       isDroppable ? 'ring-4 ring-blue-400 scale-105' : '',
       isDraggingSource ? 'opacity-50' : '',
+      props.compact ? 'compact-mode' : 'normal-mode'
     ]"
+    style="z-index: 1; overflow: visible"
     @dragover="handleDragOver"
     @dragleave="handleDragLeave"
     @drop="handleDrop"
@@ -51,17 +52,26 @@
 
     <!-- カード本体 (クリックで詳細表示) -->
     <div
-      class="task-content p-3 flex-1 flex flex-col cursor-pointer relative overflow-hidden"
+      :class="[
+        'task-content flex-1 flex flex-col cursor-pointer relative overflow-hidden',
+        props.compact ? 'p-2' : 'p-3'
+      ]"
       @click="handleCardClick"
       @dragenter.prevent
       @dragover.prevent
     >
-      <p class="text-sm text-gray-700 line-clamp-2 mb-2">
+      <p :class="[
+        'text-gray-700 line-clamp-2 mb-2',
+        props.compact ? 'text-xs' : 'text-sm'
+      ]">
         {{ task.description }}
       </p>
 
       <div class="mt-auto flex justify-end">
-        <span class="text-xs bg-white rounded-full px-2 py-1 text-gray-700">
+        <span :class="[
+          'bg-white rounded-full px-2 py-1 text-gray-700',
+          props.compact ? 'text-[10px]' : 'text-xs'
+        ]">
           {{ task.category || `難易度: ${task.difficulty}` }}
           <span v-if="task.category" class="text-gray-500"
             >({{ task.difficulty }})</span

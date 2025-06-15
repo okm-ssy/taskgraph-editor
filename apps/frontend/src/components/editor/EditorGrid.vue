@@ -1,14 +1,24 @@
 <template>
   <div class="h-full flex flex-col">
-    <div class="flex justify-between items-center p-3 border-b bg-gray-50">
+    <div :class="[
+      'flex justify-between items-center border-b bg-gray-50 transition-all duration-200',
+      isMinimalHeader ? 'p-1' : 'p-3'
+    ]">
       <div class="flex items-center gap-4">
-        <h3 class="font-semibold">タスクグリッドエディター</h3>
-        <div v-if="editorTasks.length > 0" class="text-sm text-gray-600">
+        <h3 :class="[
+          'font-semibold transition-all duration-200',
+          isMinimalHeader ? 'text-sm' : ''
+        ]">タスクグリッドエディター</h3>
+        <div v-if="editorTasks.length > 0 && !isMinimalHeader" class="text-sm text-gray-600">
           <span class="font-medium">総工数: {{ totalDifficulty }}</span>
           <span class="ml-3 text-blue-600"
             >クリティカルパス: {{ criticalTaskNames.length }}タスク</span
           >
           <span class="ml-3 font-medium">最低工数: {{ projectDuration }}</span>
+        </div>
+        <!-- 最小化モード時の簡潔な情報表示 -->
+        <div v-if="editorTasks.length > 0 && isMinimalHeader" class="text-xs text-gray-600">
+          工数:{{ Math.round(totalDifficulty * 10) / 10 }} | 最低:{{ Math.round(projectDuration * 10) / 10 }} | CP:{{ criticalTaskNames.length }}
         </div>
       </div>
       <div class="flex gap-2">
