@@ -1,6 +1,6 @@
 <template>
   <div
-    class="absolute top-4 right-4 z-10 bg-white shadow-lg rounded-lg border border-gray-200 p-4 w-80"
+    class="absolute top-4 right-4 z-30 bg-white shadow-lg rounded-lg border border-gray-200 p-4 w-80"
   >
     <div class="flex justify-between items-center mb-4">
       <h4 class="font-semibold">新規タスク追加</h4>
@@ -10,6 +10,29 @@
     </div>
 
     <div class="space-y-3">
+      <div>
+        <label
+          for="task-category"
+          class="block text-sm font-medium text-gray-700 mb-1"
+          >タスク分類</label
+        >
+        <select
+          id="task-category"
+          v-model="categoryInput"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+          @change="handleCategoryChange"
+        >
+          <option value="">分類を選択してください</option>
+          <option
+            v-for="category in allCategories"
+            :key="category"
+            :value="category"
+          >
+            {{ category }}
+          </option>
+        </select>
+      </div>
+
       <div>
         <label
           for="task-name"
@@ -36,26 +59,6 @@
           class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
           rows="2"
         />
-      </div>
-
-      <div>
-        <label
-          for="task-category"
-          class="block text-sm font-medium text-gray-700 mb-1"
-          >タスク分類</label
-        >
-        <input
-          id="task-category"
-          v-model="categoryInput"
-          type="text"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-          placeholder="例: Vue - Story作成"
-          @input="handleCategoryInput"
-          list="category-suggestions"
-        />
-        <datalist id="category-suggestions">
-          <option v-for="suggestion in categorySuggestions" :key="suggestion" :value="suggestion" />
-        </datalist>
       </div>
 
       <div>
@@ -118,7 +121,7 @@ const emit = defineEmits<{
 }>();
 
 const taskStore = useCurrentTasks();
-const { getDifficultyByCategory, getCategorySuggestions } = useTaskCategories();
+const { getDifficultyByCategory, allCategories } = useTaskCategories();
 
 const nameInput = ref('new-task');
 const descriptionInput = ref('タスクの説明');
@@ -126,13 +129,8 @@ const categoryInput = ref('');
 const difficultyInput = ref(1);
 const isAutoDifficulty = ref(false);
 
-// 分類候補の取得
-const categorySuggestions = computed(() => 
-  getCategorySuggestions(categoryInput.value)
-);
-
-// 分類入力時の処理
-const handleCategoryInput = () => {
+// 分類選択時の処理
+const handleCategoryChange = () => {
   const autoDifficulty = getDifficultyByCategory(categoryInput.value);
   if (autoDifficulty !== null) {
     difficultyInput.value = autoDifficulty;
