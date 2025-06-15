@@ -40,6 +40,26 @@
 
       <div>
         <label
+          for="task-category"
+          class="block text-sm font-medium text-gray-700 mb-1"
+          >タスク分類</label
+        >
+        <input
+          id="task-category"
+          v-model="categoryInput"
+          type="text"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+          placeholder="例: Vue - Story作成"
+          @input="handleCategoryInput"
+          list="category-suggestions"
+        />
+        <datalist id="category-suggestions">
+          <option v-for="suggestion in categorySuggestions" :key="suggestion" :value="suggestion" />
+        </datalist>
+      </div>
+
+      <div>
+        <label
           for="task-difficulty"
           class="block text-sm font-medium text-gray-700 mb-1"
           >難易度 (1-5)</label
@@ -51,7 +71,11 @@
           min="1"
           max="5"
           class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+          :class="{ 'bg-yellow-50': isAutoDifficulty }"
         />
+        <p v-if="isAutoDifficulty" class="text-xs text-yellow-600 mt-1">
+          分類から自動設定されました
+        </p>
       </div>
 
       <div>
@@ -84,8 +108,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
+import { useTaskCategories } from '../../composables/useTaskCategories';
 import { useCurrentTasks } from '../../store/task_store';
 
 const emit = defineEmits<{
@@ -93,10 +118,29 @@ const emit = defineEmits<{
 }>();
 
 const taskStore = useCurrentTasks();
+const { getDifficultyByCategory, getCategorySuggestions } = useTaskCategories();
 
 const nameInput = ref('new-task');
 const descriptionInput = ref('タスクの説明');
+const categoryInput = ref('');
 const difficultyInput = ref(1);
+const isAutoDifficulty = ref(false);
+
+// 分類候補の取得
+const categorySuggestions = computed(() => 
+  getCategorySuggestions(categoryInput.value)
+);
+
+// 分類入力時の処理
+const handleCategoryInput = () => {
+  const autoDifficulty = getDifficultyByCategory(categoryInput.value);
+  if (autoDifficulty !== null) {
+    difficultyInput.value = autoDifficulty;
+    isAutoDifficulty.value = true;
+  } else {
+    isAutoDifficulty.value = false;
+  }
+};
 
 // 新規タスク追加
 const addNewTask = () => {
@@ -107,13 +151,16 @@ const addNewTask = () => {
     name: nameInput.value,
     description: descriptionInput.value,
     difficulty: parseFloat(difficultyInput.value.toString()),
+    category: categoryInput.value,
     depends: [''],
   });
 
   // 入力フィールドをリセット
   nameInput.value = 'new-task';
   descriptionInput.value = 'タスクの説明';
+  categoryInput.value = '';
   difficultyInput.value = 1;
+  isAutoDifficulty.value = false;
 
   // パネルを閉じる
   emit('close');

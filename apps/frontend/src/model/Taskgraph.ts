@@ -45,6 +45,7 @@ export const taskZodSchema = zod
     name: taskNameSchema,
     notes: zod.array(zod.string()).default([]),
     issueNumber: zod.number().int().min(1).optional(),
+    category: zod.string().default(''),
   })
   .strict();
 

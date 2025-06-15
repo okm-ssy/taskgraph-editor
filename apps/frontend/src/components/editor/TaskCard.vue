@@ -62,7 +62,8 @@
 
       <div class="mt-auto flex justify-end">
         <span class="text-xs bg-white rounded-full px-2 py-1 text-gray-700">
-          難易度: {{ task.difficulty }}
+          {{ task.category || `難易度: ${task.difficulty}` }}
+          <span v-if="task.category" class="text-gray-500">({{ task.difficulty }})</span>
         </span>
       </div>
     </div>

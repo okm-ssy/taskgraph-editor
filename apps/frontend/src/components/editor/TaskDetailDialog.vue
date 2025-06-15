@@ -39,6 +39,29 @@
 
         <div class="mb-4">
           <label
+            for="category"
+            class="block text-sm font-medium text-gray-700 mb-1"
+            >カテゴリ</label
+          >
+          <select
+            id="category"
+            v-model="categoryInput"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md"
+            @change="onCategoryChange"
+          >
+            <option value="">カテゴリを選択してください</option>
+            <option
+              v-for="category in allCategories"
+              :key="category"
+              :value="category"
+            >
+              {{ category }}
+            </option>
+          </select>
+        </div>
+
+        <div class="mb-4">
+          <label
             for="difficulty"
             class="block text-sm font-medium text-gray-700 mb-1"
             >難易度 (1-5)</label
@@ -51,6 +74,9 @@
             max="5"
             class="w-full px-3 py-2 border border-gray-300 rounded-md"
           />
+          <p v-if="categoryInput" class="text-xs text-gray-500 mt-1">
+            カテゴリ「{{ categoryInput }}」の推奨難易度: {{ getDifficultyByCategory(categoryInput) }}
+          </p>
         </div>
 
         <div class="mb-4">
@@ -98,14 +124,18 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 
+import { useTaskCategories } from '../../composables/useTaskCategories';
 import { useEditorUIStore } from '../../store/editor_ui_store';
 import { useCurrentTasks } from '../../store/task_store';
 
 const taskStore = useCurrentTasks();
 const uiStore = useEditorUIStore();
+const { allCategories, getDifficultyByCategory } = useTaskCategories();
+
 const nameInput = ref('');
 const descriptionInput = ref('');
 const difficultyInput = ref(1);
+const categoryInput = ref('');
 
 // 選択中のタスクが変更されたら入力フィールドを更新
 watch(
@@ -115,10 +145,21 @@ watch(
       nameInput.value = newTask.task.name;
       descriptionInput.value = newTask.task.description;
       difficultyInput.value = newTask.task.difficulty;
+      categoryInput.value = newTask.task.category || '';
     }
   },
   { immediate: true },
 );
+
+// カテゴリが変更された時の処理
+const onCategoryChange = () => {
+  if (categoryInput.value) {
+    const suggestedDifficulty = getDifficultyByCategory(categoryInput.value);
+    if (suggestedDifficulty !== null) {
+      difficultyInput.value = suggestedDifficulty;
+    }
+  }
+};
 
 // フォーム送信時の処理
 const handleSubmit = () => {
@@ -129,6 +170,7 @@ const handleSubmit = () => {
     name: nameInput.value,
     description: descriptionInput.value,
     difficulty: difficultyInput.value,
+    category: categoryInput.value,
   });
 
   // ダイアログを閉じる
