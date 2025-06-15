@@ -280,16 +280,32 @@ const handleAutoLayout = () => {
 
 // 依存関係エッジから矢印ペアを生成
 const updateArrows = () => {
-  // 元の依存関係エッジを使用
-  arrows.value = dependencyEdges.value.map((edge) => ({
-    fromId: edge.fromTaskId,
-    toId: edge.toTaskId,
-  }));
+  const newArrows: Arrow[] = [];
+  
+  // 各タスクの依存関係から矢印を生成
+  editorTasks.value.forEach((task) => {
+    task.task.depends.forEach((dependencyName) => {
+      if (dependencyName.trim() !== '') {
+        // 依存するタスクを見つける
+        const dependencyTask = editorTasks.value.find(
+          (t) => t.task.name === dependencyName
+        );
+        if (dependencyTask) {
+          newArrows.push({
+            fromId: dependencyTask.id, // 依存元のタスク
+            toId: task.id, // 依存先のタスク（現在のタスク）
+          });
+        }
+      }
+    });
+  });
+  
+  arrows.value = newArrows;
 };
 
 // タスクやレイアウトが変わったら再計算
 watch(
-  () => [dependencyEdges.value, layout.value],
+  () => [editorTasks.value, layout.value],
   () => {
     updateArrows();
   },
