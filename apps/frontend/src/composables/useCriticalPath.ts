@@ -254,9 +254,32 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
       .map(node => node.name);
   });
 
+  // 冗長依存除去後の依存関係エッジを取得
+  const reducedDependencyEdges = computed(() => {
+    if (editorTasks.length === 0) return [];
+    
+    const nodeMap = buildTaskGraph();
+    const edges: { fromTaskId: string; toTaskId: string }[] = [];
+    
+    nodeMap.forEach(node => {
+      node.dependencies.forEach(depName => {
+        const depNode = nodeMap.get(depName);
+        if (depNode) {
+          edges.push({
+            fromTaskId: depNode.id,
+            toTaskId: node.id
+          });
+        }
+      });
+    });
+    
+    return edges;
+  });
+
   return {
     criticalPath,
     projectDuration,
-    criticalTaskNames
+    criticalTaskNames,
+    reducedDependencyEdges
   };
 };
