@@ -45,30 +45,6 @@
           自動配置
         </button>
         <button
-          :class="[
-            'px-3 py-1 rounded-md text-sm transition-colors',
-            isCompactMode
-              ? 'bg-green-500 hover:bg-green-600 text-white'
-              : 'bg-gray-200 hover:bg-gray-300 text-gray-700',
-          ]"
-          @click="toggleCompactMode"
-          :title="`コンパクトモード: ${isCompactMode ? 'ON' : 'OFF'}`"
-        >
-          {{ isCompactMode ? 'コンパクト中' : 'コンパクト' }}
-        </button>
-        <button
-          :class="[
-            'px-3 py-1 rounded-md text-sm transition-colors',
-            isMinimalHeader
-              ? 'bg-purple-500 hover:bg-purple-600 text-white'
-              : 'bg-gray-200 hover:bg-gray-300 text-gray-700',
-          ]"
-          @click="toggleMinimalHeader"
-          :title="`ヘッダー最小化: ${isMinimalHeader ? 'ON' : 'OFF'}`"
-        >
-          {{ isMinimalHeader ? 'ヘッダー最小中' : 'ヘッダー最小' }}
-        </button>
-        <button
           class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-md text-sm transition-colors"
           @click="toggleAddPanel"
         >
@@ -189,8 +165,10 @@ import TaskAddPanel from './TaskAddPanel.vue';
 import TaskCard from './TaskCard.vue';
 import TaskDetailDialog from './TaskDetailDialog.vue';
 
-defineProps<{
+const props = defineProps<{
   selecting?: boolean;
+  compactMode?: boolean;
+  minimalHeader?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -204,13 +182,9 @@ const dragDropStore = useDragDropStore();
 const layout = ref<GridTask[]>([]);
 const gridContainer = ref<HTMLDivElement | null>(null);
 
-// 表示モード管理（localStorage から復元）
-const isCompactMode = ref(
-  localStorage.getItem('taskgraph-compact-mode') === 'true',
-);
-const isMinimalHeader = ref(
-  localStorage.getItem('taskgraph-minimal-header') === 'true',
-);
+// 表示モード管理（propsから取得）
+const isCompactMode = computed(() => props.compactMode ?? false);
+const isMinimalHeader = computed(() => props.minimalHeader ?? false);
 
 // provide/injectでコンポーネント通信を改善
 const taskActions = useTaskActionsProvider();
@@ -345,38 +319,6 @@ const handleAddTask = () => {
   taskActions.addTask();
   // レイアウトを更新
   layout.value = taskStore.gridTasks;
-};
-
-// コンパクトモードの切り替え
-const toggleCompactMode = () => {
-  isCompactMode.value = !isCompactMode.value;
-  localStorage.setItem(
-    'taskgraph-compact-mode',
-    isCompactMode.value.toString(),
-  );
-  console.log(
-    'コンパクトモード:',
-    isCompactMode.value,
-    'ヘッダー最小:',
-    isMinimalHeader.value,
-  );
-  triggerCurveUpdate();
-};
-
-// ヘッダー最小化モードの切り替え
-const toggleMinimalHeader = () => {
-  isMinimalHeader.value = !isMinimalHeader.value;
-  localStorage.setItem(
-    'taskgraph-minimal-header',
-    isMinimalHeader.value.toString(),
-  );
-  console.log(
-    'ヘッダー最小:',
-    isMinimalHeader.value,
-    'コンパクトモード:',
-    isCompactMode.value,
-  );
-  emit('update:minimal-header', isMinimalHeader.value);
 };
 
 // タスク追加パネルの切り替え
