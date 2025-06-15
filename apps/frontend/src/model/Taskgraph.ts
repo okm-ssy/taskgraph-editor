@@ -119,7 +119,14 @@ export const taskgraphZodSchema = zod
     info: infoZodSchema,
     tasks: zod.array(taskZodSchema),
   })
-  .strict();
+  .strict()
+  .refine(
+    (data) => {
+      const taskNames = data.tasks.map(task => task.name);
+      return new Set(taskNames).size === taskNames.length;
+    },
+    { message: 'タスク名に重複があります。すべてのタスク名は一意である必要があります。', path: ['tasks'] }
+  );
 
 export type Task = zod.infer<typeof taskZodSchema>;
 export type Taskgraph = zod.infer<typeof taskgraphZodSchema>;
