@@ -21,19 +21,21 @@ export const useDifficultyAssignment = () => {
   ]);
 
   // 設定可能なカテゴリのリスト
-  const availableCategories = computed(() => 
-    defaultRules.value.map(rule => rule.category)
+  const availableCategories = computed(() =>
+    defaultRules.value.map((rule) => rule.category),
   );
 
   // カテゴリに基づいて難易度を取得
   const getDifficultyByCategory = (category: string): number => {
-    const rule = defaultRules.value.find(r => r.category === category);
+    const rule = defaultRules.value.find((r) => r.category === category);
     return rule ? rule.difficulty : 1; // デフォルトは1
   };
 
   // カテゴリの難易度ルールを更新
   const updateDifficultyRule = (category: string, difficulty: number) => {
-    const existingRule = defaultRules.value.find(r => r.category === category);
+    const existingRule = defaultRules.value.find(
+      (r) => r.category === category,
+    );
     if (existingRule) {
       existingRule.difficulty = difficulty;
     } else {
@@ -43,7 +45,7 @@ export const useDifficultyAssignment = () => {
 
   // カテゴリルールを削除
   const removeDifficultyRule = (category: string) => {
-    const index = defaultRules.value.findIndex(r => r.category === category);
+    const index = defaultRules.value.findIndex((r) => r.category === category);
     if (index > -1) {
       defaultRules.value.splice(index, 1);
     }
@@ -51,7 +53,7 @@ export const useDifficultyAssignment = () => {
 
   // 新しいカテゴリルールを追加
   const addDifficultyRule = (category: string, difficulty: number) => {
-    if (!defaultRules.value.find(r => r.category === category)) {
+    if (!defaultRules.value.find((r) => r.category === category)) {
       defaultRules.value.push({ category, difficulty });
     }
   };
