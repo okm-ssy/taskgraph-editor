@@ -52,7 +52,7 @@
         stroke="transparent"
         stroke-width="20"
         :class="[
-          dragDropStore.isDragging
+          props.isDragging
             ? 'pointer-events-none'
             : 'cursor-pointer pointer-events-auto',
         ]"
@@ -554,9 +554,10 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+/* ホバー時のスタイル変更 - 隣接する表示パスの色を変更 */
 svg:not(.dragging) path.cursor-pointer:hover + path {
-  stroke: #ef4444;
-  stroke-width: 3;
+  stroke: #ef4444 !important;
+  stroke-width: 3 !important;
 }
 
 /* ドラッグ中はホバー効果を無効化 */
