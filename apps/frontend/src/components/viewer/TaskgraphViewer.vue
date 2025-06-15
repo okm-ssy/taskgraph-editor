@@ -36,7 +36,6 @@ watch(
   { deep: true, immediate: true },
 );
 
-
 const { setGraphRef, exportAsSvg } = useGraphExport();
 
 const exportSvg = () => {
