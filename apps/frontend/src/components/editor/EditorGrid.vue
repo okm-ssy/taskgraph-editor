@@ -20,6 +20,28 @@
           自動配置
         </button>
         <button
+          :class="[
+            'px-3 py-1 rounded-md text-sm transition-colors',
+            isCompactMode
+              ? 'bg-green-500 hover:bg-green-600 text-white'
+              : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+          ]"
+          @click="toggleCompactMode"
+        >
+          {{ isCompactMode ? 'コンパクト中' : 'コンパクト' }}
+        </button>
+        <button
+          :class="[
+            'px-3 py-1 rounded-md text-sm transition-colors',
+            isMinimalHeader
+              ? 'bg-purple-500 hover:bg-purple-600 text-white'
+              : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+          ]"
+          @click="toggleMinimalHeader"
+        >
+          {{ isMinimalHeader ? 'ヘッダー最小中' : 'ヘッダー最小' }}
+        </button>
+        <button
           class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-md text-sm transition-colors"
           @click="toggleAddPanel"
         >
@@ -67,13 +89,13 @@
       <!-- グリッドレイアウト -->
       <GridLayout
         v-model:layout="layout"
-        :col-num="12"
-        :row-height="50"
+        :col-num="isCompactMode ? 16 : 12"
+        :row-height="isCompactMode ? 35 : 50"
         :is-draggable="!disableGrid"
         :is-resizable="!disableGrid"
         :vertical-compact="false"
         :use-css-transforms="true"
-        :margin="[10, 10]"
+        :margin="isCompactMode ? [5, 5] : [10, 10]"
         :responsive="false"
         :auto-size="false"
         :prevent-collision="false"
@@ -102,7 +124,7 @@
           :min-h="2"
           drag-ignore-from=".task-content, .dependency-handle, .task-action-button"
         >
-          <TaskCard :task="task.task" :id="task.id" />
+          <TaskCard :task="task.task" :id="task.id" :compact="isCompactMode" />
         </GridItem>
       </GridLayout>
     </div>
@@ -153,6 +175,10 @@ const uiStore = useEditorUIStore();
 const dragDropStore = useDragDropStore();
 const layout = ref<GridTask[]>([]);
 const gridContainer = ref<HTMLDivElement | null>(null);
+
+// 表示モード管理
+const isCompactMode = ref(false);
+const isMinimalHeader = ref(false);
 
 // provide/injectでコンポーネント通信を改善
 const taskActions = useTaskActionsProvider();
@@ -288,6 +314,17 @@ const handleAddTask = () => {
   taskActions.addTask();
   // レイアウトを更新
   layout.value = taskStore.gridTasks;
+};
+
+// コンパクトモードの切り替え
+const toggleCompactMode = () => {
+  isCompactMode.value = !isCompactMode.value;
+  triggerCurveUpdate();
+};
+
+// ヘッダー最小化モードの切り替え
+const toggleMinimalHeader = () => {
+  isMinimalHeader.value = !isMinimalHeader.value;
 };
 
 // タスク追加パネルの切り替え

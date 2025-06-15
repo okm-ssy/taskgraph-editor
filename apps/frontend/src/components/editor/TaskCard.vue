@@ -83,6 +83,7 @@ import { useCurrentTasks } from '../../store/task_store';
 const props = defineProps<{
   task: Task;
   id: string;
+  compact?: boolean;
 }>();
 
 const dragDropStore = useDragDropStore();
