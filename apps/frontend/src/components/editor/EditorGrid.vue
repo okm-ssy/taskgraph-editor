@@ -38,6 +38,7 @@
           :continuous-update="false"
           :is-dragging="isDraggingOrResizing"
           :hovered-connection-key="hoveredConnectionKey"
+          :grid-bounds="gridBounds"
           @connection-click="handleConnectionClick"
           @connection-hover="handleConnectionHover"
         />
@@ -52,6 +53,7 @@
           :is-dragging="isDraggingOrResizing"
           :click-layer-only="true"
           :hovered-connection-key="hoveredConnectionKey"
+          :grid-bounds="gridBounds"
           @connection-click="handleConnectionClick"
           @connection-hover="handleConnectionHover"
         />
@@ -176,6 +178,30 @@ const curveUpdateTrigger = ref(0);
 const isDraggingOrResizing = ref(false);
 const disableGrid = ref(false);
 const hoveredConnectionKey = ref<string | null>(null);
+
+// グリッド全体のサイズを計算
+const gridBounds = computed(() => {
+  if (layout.value.length === 0) {
+    return { width: 800, height: 600 }; // デフォルトサイズ
+  }
+  
+  let maxX = 0;
+  let maxY = 0;
+  
+  layout.value.forEach((item) => {
+    const itemRightEdge = (item.x + item.w) * 160; // グリッドセルの幅（概算）
+    const itemBottomEdge = (item.y + item.h) * 60; // グリッドセルの高さ（概算）
+    
+    if (itemRightEdge > maxX) maxX = itemRightEdge;
+    if (itemBottomEdge > maxY) maxY = itemBottomEdge;
+  });
+  
+  // 余白を追加
+  return {
+    width: Math.max(maxX + 200, 800),
+    height: Math.max(maxY + 200, 600),
+  };
+});
 
 // Curve.vueに渡すconnections配列（仮矢印は除外）
 const connections = computed<Connection[]>(() => {

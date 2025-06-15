@@ -2,9 +2,12 @@
   <svg
     ref="svgElement"
     :class="[
-      'w-full h-full pointer-events-none',
+      'pointer-events-none absolute top-0 left-0',
       props.isDragging ? 'dragging' : '',
     ]"
+    :width="props.gridBounds.width"
+    :height="props.gridBounds.height"
+    :viewBox="`0 0 ${props.gridBounds.width} ${props.gridBounds.height}`"
   >
     <defs v-if="!props.clickLayerOnly">
       <!-- 通常の矢印マーカー -->
@@ -173,6 +176,10 @@ const props = defineProps({
   hoveredConnectionKey: {
     type: Object as PropType<string | null>,
     default: null,
+  },
+  gridBounds: {
+    type: Object as PropType<{ width: number; height: number }>,
+    default: () => ({ width: 800, height: 600 }),
   },
 });
 
