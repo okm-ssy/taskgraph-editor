@@ -3,13 +3,8 @@
     <div class="flex justify-between items-center p-3 border-b bg-gray-50">
       <div class="flex items-center gap-4">
         <h3 class="font-semibold">タスクグリッドエディター</h3>
-        <div
-          v-if="editorTasks.length > 0"
-          class="text-sm text-gray-600"
-        >
-          <span class="font-medium"
-            >総難易度: {{ totalDifficulty }}</span
-          >
+        <div v-if="editorTasks.length > 0" class="text-sm text-gray-600">
+          <span class="font-medium">総難易度: {{ totalDifficulty }}</span>
           <span class="ml-3 font-medium"
             >プロジェクト所要時間: {{ projectDuration }}</span
           >
@@ -132,7 +127,6 @@ import {
 } from 'vue';
 import { GridLayout, GridItem } from 'vue3-grid-layout-next';
 
-import { useCriticalPath } from '../../composables/useCriticalPath';
 import { useTaskActionsProvider } from '../../composables/useTaskActions';
 import { GridTask } from '../../model/GridTask';
 import { useDragDropStore } from '../../store/drag_drop_store';
