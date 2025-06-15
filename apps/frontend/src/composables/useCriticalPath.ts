@@ -20,7 +20,7 @@ interface TaskNode {
   latestStart: number;
   earliestFinish: number;
   latestFinish: number;
-  totalFloat: number; // 余裕時間
+  buffer: number; // 余裕時間
 }
 
 export const useCriticalPath = (editorTasks: EditorTask[]) => {
@@ -102,7 +102,7 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
         latestStart: 0,
         earliestFinish: 0,
         latestFinish: 0,
-        totalFloat: 0,
+        buffer: 0,
       });
     });
 
@@ -173,7 +173,7 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
       }
 
       node.latestStart = node.latestFinish - node.weight;
-      node.totalFloat = node.latestStart - node.earliestStart;
+      node.buffer = node.latestStart - node.earliestStart;
 
       return node.latestStart;
     };
@@ -190,16 +190,16 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
   ): CriticalPathEdge[] => {
     const criticalEdges: CriticalPathEdge[] = [];
 
-    // トータルフロート（余裕時間）が0のタスクがクリティカルパス上のタスク
+    // バッファ（余裕時間）が0のタスクがクリティカルパス上のタスク
     const criticalTasks = Array.from(nodeMap.values()).filter(
-      (node) => Math.abs(node.totalFloat) < 0.001, // 浮動小数点誤差を考慮
+      (node) => Math.abs(node.buffer) < 0.001, // 浮動小数点誤差を考慮
     );
 
     // クリティカルタスク間の依存関係を抽出
     criticalTasks.forEach((task) => {
       task.dependencies.forEach((depName) => {
         const depTask = nodeMap.get(depName);
-        if (depTask && Math.abs(depTask.totalFloat) < 0.001) {
+        if (depTask && Math.abs(depTask.buffer) < 0.001) {
           // 依存タスクもクリティカルパス上にある場合
           criticalEdges.push({
             fromTaskId: depTask.id,
@@ -225,7 +225,7 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
     console.log('=== Critical Path Analysis ===');
     nodeMap.forEach((node) => {
       console.log(
-        `${node.name}: ES=${node.earliestStart}, EF=${node.earliestFinish}, LS=${node.latestStart}, LF=${node.latestFinish}, TotalFloat=${node.totalFloat}`,
+        `${node.name}: ES=${node.earliestStart}, EF=${node.earliestFinish}, LS=${node.latestStart}, LF=${node.latestFinish}, Buffer=${node.buffer}`,
       );
     });
 
@@ -256,7 +256,7 @@ export const useCriticalPath = (editorTasks: EditorTask[]) => {
     calculateLatestTimes(nodeMap);
 
     return Array.from(nodeMap.values())
-      .filter((node) => Math.abs(node.totalFloat) < 0.001)
+      .filter((node) => Math.abs(node.buffer) < 0.001)
       .map((node) => node.name);
   });
 
