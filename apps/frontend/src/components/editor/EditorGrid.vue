@@ -3,9 +3,16 @@
     <div class="flex justify-between items-center p-3 border-b bg-gray-50">
       <div class="flex items-center gap-4">
         <h3 class="font-semibold">タスクグリッドエディター</h3>
-        <div v-if="taskStore.editorTasks.length > 0" class="text-sm text-gray-600">
-          <span class="font-medium">プロジェクト所要時間: {{ projectDuration }}</span>
-          <span class="ml-3 text-blue-600">クリティカルパス: {{ criticalTaskNames.length }}タスク</span>
+        <div
+          v-if="taskStore.editorTasks.length > 0"
+          class="text-sm text-gray-600"
+        >
+          <span class="font-medium"
+            >プロジェクト所要時間: {{ projectDuration }}</span
+          >
+          <span class="ml-3 text-blue-600"
+            >クリティカルパス: {{ criticalTaskNames.length }}タスク</span
+          >
         </div>
       </div>
       <div class="flex gap-2">
@@ -118,8 +125,8 @@ import {
 } from 'vue';
 import { GridLayout, GridItem } from 'vue3-grid-layout-next';
 
-import { useTaskActionsProvider } from '../../composables/useTaskActions';
 import { useCriticalPath } from '../../composables/useCriticalPath';
+import { useTaskActionsProvider } from '../../composables/useTaskActions';
 import { GridTask } from '../../model/GridTask';
 import { useDragDropStore } from '../../store/drag_drop_store';
 import { useEditorUIStore } from '../../store/editor_ui_store';
@@ -149,7 +156,12 @@ const gridContainer = ref<HTMLDivElement | null>(null);
 const taskActions = useTaskActionsProvider();
 
 // クリティカルパス計算
-const { criticalPath, projectDuration, criticalTaskNames, reducedDependencyEdges } = useCriticalPath(taskStore.editorTasks);
+const {
+  criticalPath,
+  projectDuration,
+  criticalTaskNames,
+  reducedDependencyEdges,
+} = useCriticalPath(taskStore.editorTasks);
 
 // 矢印描画用: 依存関係のペアを取得
 type Arrow = {
@@ -167,10 +179,11 @@ const hoveredConnectionKey = ref<string | null>(null);
 const connections = computed<Connection[]>(() => {
   return arrows.value.map((arrow) => {
     // クリティカルパス上の矢印かチェック
-    const isCritical = criticalPath.value.some(edge => 
-      edge.fromTaskId === arrow.fromId && edge.toTaskId === arrow.toId
+    const isCritical = criticalPath.value.some(
+      (edge) =>
+        edge.fromTaskId === arrow.fromId && edge.toTaskId === arrow.toId,
     );
-    
+
     return {
       sourceId: `source-${arrow.fromId}`,
       targetId: `target-${arrow.toId}`,
@@ -266,18 +279,15 @@ const handleAutoLayout = () => {
 // 冗長依存除去後のエッジから矢印ペアを生成
 const updateArrows = () => {
   // 冗長依存除去後のエッジを使用
-  arrows.value = reducedDependencyEdges.value.map(edge => ({
+  arrows.value = reducedDependencyEdges.value.map((edge) => ({
     fromId: edge.fromTaskId,
-    toId: edge.toTaskId
+    toId: edge.toTaskId,
   }));
 };
 
 // タスクやレイアウトが変わったら再計算
 watch(
-  () => [
-    reducedDependencyEdges.value,
-    layout.value,
-  ],
+  () => [reducedDependencyEdges.value, layout.value],
   () => {
     updateArrows();
   },
@@ -431,5 +441,4 @@ watch(
   will-change: transform;
   contain: strict;
 }
-
 </style>
