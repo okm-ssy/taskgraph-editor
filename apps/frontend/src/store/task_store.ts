@@ -113,81 +113,81 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     return false;
   };
 
+  // Task内のlayout情報を同期
+  const syncLayoutInfo = (
+    task: EditorTask,
+    gridTask: Partial<GridTask>,
+  ): void => {
+    if (gridTask.x !== undefined || gridTask.y !== undefined) {
+      if (!task.task.layout) {
+        task.task.layout = { x: 0, y: 0 };
+      }
+      if (gridTask.x !== undefined) {
+        task.task.layout.x = gridTask.x;
+      }
+      if (gridTask.y !== undefined) {
+        task.task.layout.y = gridTask.y;
+      }
+    }
+  };
+
   const updateGridTask = (id: string, gridTask: Partial<GridTask>) => {
     const task = editorTasks.value.find((et) => et.id === id);
     if (task) {
       Object.assign(task.grid, gridTask);
-
-      // グリッド位置が更新された場合、Task内のlayout情報も同期
-      if (gridTask.x !== undefined || gridTask.y !== undefined) {
-        if (!task.task.layout) {
-          task.task.layout = { x: 0, y: 0 };
-        }
-        if (gridTask.x !== undefined) {
-          task.task.layout.x = gridTask.x;
-        }
-        if (gridTask.y !== undefined) {
-          task.task.layout.y = gridTask.y;
-        }
-      }
-
-      saveToSessionStorage(); // Session Storageに保存
+      syncLayoutInfo(task, gridTask);
+      saveToSessionStorage();
       return true;
     }
     return false;
   };
 
+  // タスク名の重複をチェック
+  const isTaskNameDuplicate = (id: string, newName: string): boolean => {
+    return editorTasks.value.some(
+      (et) => et.id !== id && et.task.name === newName,
+    );
+  };
+
+  // タスク名変更時の依存関係を更新
+  const updateTaskNameDependencies = (
+    oldName: string,
+    newName: string,
+  ): void => {
+    editorTasks.value.forEach((et) => {
+      const dependsIndex = et.task.depends.indexOf(oldName);
+      if (dependsIndex !== -1) {
+        et.task.depends[dependsIndex] = newName;
+      }
+    });
+  };
+
   const updateTask = (id: string, taskData: Partial<Task>) => {
     const task = editorTasks.value.find((et) => et.id === id);
-    if (task) {
-      // タスク名が変更された場合、重複チェックを実行
-      if (taskData.name && taskData.name !== task.task.name) {
-        const newName = taskData.name;
+    if (!task) return false;
 
-        // 他のタスクと名前が重複していないかチェック
-        const isDuplicate = editorTasks.value.some(
-          (et) => et.id !== id && et.task.name === newName,
-        );
-
-        if (isDuplicate) {
-          return false; // 重複している場合は更新失敗
-        }
-
-        const oldName = task.task.name;
-
-        // このタスクに依存している全てのタスクの depends を更新
-        editorTasks.value.forEach((et) => {
-          const dependsIndex = et.task.depends.indexOf(oldName);
-          if (dependsIndex !== -1) {
-            et.task.depends[dependsIndex] = newName;
-          }
-        });
+    // タスク名が変更された場合のバリデーションと更新
+    if (taskData.name && taskData.name !== task.task.name) {
+      if (isTaskNameDuplicate(id, taskData.name)) {
+        return false;
       }
-
-      Object.assign(task.task, taskData);
-      graphLayout.buildGraphData(editorTasks.value); // 依存関係が変わる可能性があるのでグラフ再構築
-      console.log('タスク更新:', task.task.name, taskData);
-      saveToSessionStorage(); // Session Storageに保存
-      return true;
+      updateTaskNameDependencies(task.task.name, taskData.name);
     }
-    return false;
+
+    Object.assign(task.task, taskData);
+    graphLayout.buildGraphData(editorTasks.value);
+    saveToSessionStorage();
+    return true;
   };
 
   // Session Storageにデータを保存
   const saveToSessionStorage = () => {
     try {
-      // タスクが0件の場合は保存しない（初期状態と区別するため）
       if (editorTasks.value.length === 0) {
-        console.log('Session Storage: タスクが0件のため保存スキップ');
         return;
       }
       const jsonData = exportTaskgraphToJson();
       sessionStorage.setItem('taskgraph-data', jsonData);
-      console.log(
-        'Session Storage保存完了:',
-        editorTasks.value.length,
-        'タスク',
-      );
     } catch (error) {
       console.error('Session Storage保存エラー:', error);
     }
@@ -198,14 +198,10 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     try {
       const jsonData = sessionStorage.getItem('taskgraph-data');
       if (jsonData) {
-        console.log('Session Storage読み込み開始');
         isLoadingFromStorage = true;
         const result = parseJsonToTaskgraph(jsonData);
         isLoadingFromStorage = false;
-        console.log('Session Storage読み込み完了:', result ? '成功' : '失敗');
         return result;
-      } else {
-        console.log('Session Storage: データなし');
       }
     } catch (error) {
       console.error('Session Storage読み込みエラー:', error);
@@ -222,32 +218,30 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     }
   };
 
+  // layout情報が存在するかチェック
+  const hasValidLayoutInfo = (tasks: EditorTask[]): boolean => {
+    return tasks.some(
+      (task) =>
+        task.task.layout &&
+        (task.task.layout.x !== 0 || task.task.layout.y !== 0),
+    );
+  };
+
   // 既存タスクを新しいデータで更新 (JSONインポートなどで使用)
   const updateTasks = (newTasks: EditorTask[], newInfo: Taskgraph['info']) => {
     info.value = newInfo;
     editorTasks.value = newTasks;
 
-    // layout情報が存在するかチェック
-    const hasLayoutInfo = newTasks.some(
-      (task) =>
-        task.task.layout &&
-        (task.task.layout.x !== 0 || task.task.layout.y !== 0),
-    );
-
-    // layout情報がない場合のみ自動配置を適用
-    if (!hasLayoutInfo) {
-      console.log('layout情報なし - 自動配置を実行');
-      autoLayoutTasks();
-    } else {
-      console.log('layout情報あり - 自動配置をスキップ');
-      // グラフデータのみ更新
+    // layout情報が存在する場合は自動配置をスキップ
+    if (hasValidLayoutInfo(newTasks)) {
       buildGraphData();
+    } else {
+      autoLayoutTasks();
     }
 
-    uiStore.closeDetailDialog(); // インポートしたら選択状態をリセット
+    uiStore.closeDetailDialog();
     uiStore.clearSelection();
 
-    // Session Storage読み込み中でなければ保存
     if (!isLoadingFromStorage) {
       saveToSessionStorage();
     }

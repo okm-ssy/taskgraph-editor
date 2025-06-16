@@ -268,9 +268,8 @@ const triggerCurveUpdate = () => {
 
 // レイアウト更新時の処理（グリッド有効時のみ）
 const handleLayoutUpdated = (newLayout: GridTask[]) => {
-  if (disableGrid.value) return; // グリッド無効時はスキップ
+  if (disableGrid.value) return;
 
-  console.log('ハンドルレイアウト更新:', newLayout.length, 'アイテム');
   newLayout.forEach((item) => {
     taskStore.updateGridTask(item.i, {
       x: item.x,
@@ -397,7 +396,6 @@ watch(
   () => {
     nextTick(() => {
       layout.value = [...taskStore.gridTasks];
-      console.log('レイアウト更新:', layout.value.length, 'アイテム');
     });
   },
   { deep: true, immediate: true },
