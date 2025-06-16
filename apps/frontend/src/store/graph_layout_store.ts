@@ -1,7 +1,6 @@
 import { ref, computed } from 'vue';
 
 import type { EditorTask } from '../model/EditorTask';
-import { difficultyBackgroundClass } from '../utilities/task';
 
 import type { GraphNode } from './types/graph_types';
 import { GRAPH_SETTINGS } from './types/graph_types';
@@ -415,11 +414,6 @@ export const useGraphLayout = () => {
     return `M ${fromX} ${fromY} C ${controlX} ${fromY}, ${controlX} ${toY}, ${toX} ${toY}`;
   };
 
-  // 難易度に応じた色クラスを返す
-  const getDifficultyColor = (difficulty: number) => {
-    return difficultyBackgroundClass(difficulty);
-  };
-
   // グラフ座標をグリッド座標に変換する機能
   const convertGraphToGrid = (editorTasks: EditorTask[]) => {
     // まずグラフレイアウトを計算
@@ -558,7 +552,6 @@ export const useGraphLayout = () => {
     graphPaths,
     buildGraphData,
     getPathD,
-    getDifficultyColor,
     convertGraphToGrid,
     optimizeGridLayout,
     GRAPH_SETTINGS,
