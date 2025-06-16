@@ -166,6 +166,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
 
       Object.assign(task.task, taskData);
       graphLayout.buildGraphData(editorTasks.value); // 依存関係が変わる可能性があるのでグラフ再構築
+      console.log('タスク更新:', task.task.name, taskData);
       saveToSessionStorage(); // Session Storageに保存
       return true;
     }
@@ -177,10 +178,12 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     try {
       // タスクが0件の場合は保存しない（初期状態と区別するため）
       if (editorTasks.value.length === 0) {
+        console.log('Session Storage: タスクが0件のため保存スキップ');
         return;
       }
       const jsonData = exportTaskgraphToJson();
       sessionStorage.setItem('taskgraph-data', jsonData);
+      console.log('Session Storage保存完了:', editorTasks.value.length, 'タスク');
     } catch (error) {
       console.error('Session Storage保存エラー:', error);
     }
@@ -191,10 +194,14 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     try {
       const jsonData = sessionStorage.getItem('taskgraph-data');
       if (jsonData) {
+        console.log('Session Storage読み込み開始');
         isLoadingFromStorage = true;
         const result = parseJsonToTaskgraph(jsonData);
         isLoadingFromStorage = false;
+        console.log('Session Storage読み込み完了:', result ? '成功' : '失敗');
         return result;
+      } else {
+        console.log('Session Storage: データなし');
       }
     } catch (error) {
       console.error('Session Storage読み込みエラー:', error);
