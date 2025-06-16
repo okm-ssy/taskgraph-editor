@@ -185,7 +185,14 @@ watch(
 
 // 入力値が変更されたらエラーメッセージをクリア
 watch(
-  [nameInput, descriptionInput, notesInput, difficultyInput, categoryInput],
+  [
+    nameInput,
+    descriptionInput,
+    notesInput,
+    relationsInput,
+    difficultyInput,
+    categoryInput,
+  ],
   () => {
     if (errorMessage.value) {
       errorMessage.value = '';
