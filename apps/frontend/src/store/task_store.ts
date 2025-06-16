@@ -183,7 +183,11 @@ export const useCurrentTasks = defineStore('editorTask', () => {
       }
       const jsonData = exportTaskgraphToJson();
       sessionStorage.setItem('taskgraph-data', jsonData);
-      console.log('Session Storage保存完了:', editorTasks.value.length, 'タスク');
+      console.log(
+        'Session Storage保存完了:',
+        editorTasks.value.length,
+        'タスク',
+      );
     } catch (error) {
       console.error('Session Storage保存エラー:', error);
     }
