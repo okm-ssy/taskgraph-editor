@@ -44,6 +44,7 @@ export const taskZodSchema = zod
     difficulty: zod.number().min(0).default(0),
     name: taskNameSchema,
     notes: zod.array(zod.string()).default([]),
+    relations: zod.array(zod.string()).default([]),
     issueNumber: zod.number().int().min(1).optional(),
     category: zod.string().default(''),
     layout: zod
