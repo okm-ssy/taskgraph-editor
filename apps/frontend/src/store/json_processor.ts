@@ -68,6 +68,9 @@ export const useJsonProcessor = () => {
         if (task.layout) {
           editorTask.grid.x = task.layout.x;
           editorTask.grid.y = task.layout.y;
+          console.log(
+            `layout設定: ${task.name} -> (${task.layout.x}, ${task.layout.y})`,
+          );
         }
 
         newEditorTasks.push(editorTask);
