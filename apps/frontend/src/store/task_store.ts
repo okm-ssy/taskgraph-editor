@@ -133,8 +133,17 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   // Session Storageにデータを保存
   const saveToSessionStorage = () => {
     try {
+      // タスクが0件の場合は保存しない（初期状態と区別するため）
+      if (editorTasks.value.length === 0) {
+        return;
+      }
       const jsonData = exportTaskgraphToJson();
       sessionStorage.setItem('taskgraph-data', jsonData);
+      console.log(
+        'Session Storageに保存しました:',
+        editorTasks.value.length,
+        'タスク',
+      );
     } catch (error) {
       console.error('Session Storage保存エラー:', error);
     }
@@ -145,10 +154,18 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     try {
       const jsonData = sessionStorage.getItem('taskgraph-data');
       if (jsonData) {
+        console.log('Session Storageから読み込み中...');
         isLoadingFromStorage = true;
         const result = parseJsonToTaskgraph(jsonData);
         isLoadingFromStorage = false;
+        console.log(
+          'Session Storageから読み込み完了:',
+          editorTasks.value.length,
+          'タスク',
+        );
         return result;
+      } else {
+        console.log('Session Storageにデータがありません');
       }
     } catch (error) {
       console.error('Session Storage読み込みエラー:', error);
