@@ -201,9 +201,6 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     }
   };
 
-  // ストア初期化を即座に実行
-  initializeStore();
-
   // 既存タスクを新しいデータで更新 (JSONインポートなどで使用)
   const updateTasks = (newTasks: EditorTask[], newInfo: Taskgraph['info']) => {
     info.value = newInfo;
@@ -265,7 +262,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     uiStore.openDetailDialog();
   };
 
-  return {
+  const storeResult = {
     // Store State
     editorTasks,
     info,
@@ -316,4 +313,9 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     getDifficultyColor: graphLayout.getDifficultyColor,
     GRAPH_SETTINGS: graphLayout.GRAPH_SETTINGS,
   };
+
+  // ストア初期化を実行（全ての関数定義後）
+  initializeStore();
+
+  return storeResult;
 });
