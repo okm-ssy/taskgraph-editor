@@ -270,6 +270,7 @@ const triggerCurveUpdate = () => {
 const handleLayoutUpdated = (newLayout: GridTask[]) => {
   if (disableGrid.value) return; // グリッド無効時はスキップ
 
+  console.log('ハンドルレイアウト更新:', newLayout.length, 'アイテム');
   newLayout.forEach((item) => {
     taskStore.updateGridTask(item.i, {
       x: item.x,
@@ -392,10 +393,14 @@ onBeforeUnmount(() => {
 });
 
 watch(
-  () => editorTasks.value.length,
+  () => editorTasks.value,
   () => {
-    layout.value = taskStore.gridTasks;
+    nextTick(() => {
+      layout.value = [...taskStore.gridTasks];
+      console.log('レイアウト更新:', layout.value.length, 'アイテム');
+    });
   },
+  { deep: true, immediate: true },
 );
 
 // マウス移動ハンドラ（ドラッグ中のマウス位置を追跡）
