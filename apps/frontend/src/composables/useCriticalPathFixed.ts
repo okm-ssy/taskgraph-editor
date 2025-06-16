@@ -91,7 +91,7 @@ export const useCriticalPathFixed = (editorTasks: EditorTask[]) => {
 
     // 循環依存チェック
     if (result.length !== nodeMap.size) {
-      console.warn('Circular dependency detected in task graph');
+      // 循環依存が検出された
     }
 
     return result;
@@ -225,18 +225,7 @@ export const useCriticalPathFixed = (editorTasks: EditorTask[]) => {
     calculateEarliestTimes(nodeMap);
     calculateLatestTimes(nodeMap);
 
-    // デバッグ用ログ
-    console.log('=== Fixed Critical Path Analysis ===');
-    const sortedNodes = topologicalSort(nodeMap);
-    sortedNodes.forEach((nodeName) => {
-      const node = nodeMap.get(nodeName)!;
-      console.log(
-        `${node.name}: ES=${node.earliestStart}, EF=${node.earliestFinish}, LS=${node.latestStart}, LF=${node.latestFinish}, Buffer=${node.buffer.toFixed(3)}`,
-      );
-    });
-
     const criticalEdges = extractCriticalPath(nodeMap);
-    console.log('Critical Path Edges:', criticalEdges);
 
     return criticalEdges;
   });
