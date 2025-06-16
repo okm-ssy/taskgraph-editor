@@ -28,6 +28,9 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   // ストア初期化フラグ
   const isInitialized = ref(false);
 
+  // Session Storageからの読み込み中かどうかを管理
+  let isLoadingFromStorage = false;
+
   // Getters
   const tasks = computed(() => editorTasks.value.map((et) => et.task));
   const gridTasks = computed(() => editorTasks.value.map((et) => et.grid));
@@ -200,9 +203,6 @@ export const useCurrentTasks = defineStore('editorTask', () => {
 
   // ストア初期化を即座に実行
   initializeStore();
-
-  // Session Storageからの読み込み中かどうかを管理
-  let isLoadingFromStorage = false;
 
   // 既存タスクを新しいデータで更新 (JSONインポートなどで使用)
   const updateTasks = (newTasks: EditorTask[], newInfo: Taskgraph['info']) => {
