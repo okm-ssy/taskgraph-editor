@@ -20,6 +20,7 @@
           id="task-name"
           v-model="nameInput"
           type="text"
+          placeholder="タスク名を入力"
           class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
         />
       </div>
@@ -33,6 +34,7 @@
         <textarea
           id="task-description"
           v-model="descriptionInput"
+          placeholder="タスクの説明を入力"
           class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
           rows="2"
         />
@@ -123,8 +125,8 @@ const emit = defineEmits<{
 const taskStore = useCurrentTasks();
 const { getDifficultyByCategory, allCategories } = useTaskCategories();
 
-const nameInput = ref('new-task');
-const descriptionInput = ref('タスクの説明');
+const nameInput = ref('');
+const descriptionInput = ref('');
 const categoryInput = ref('');
 const difficultyInput = ref(0);
 const isAutoDifficulty = ref(false);
@@ -146,16 +148,16 @@ const addNewTask = () => {
 
   // タスク情報の更新（依存関係は空配列）
   taskStore.updateTask(newTask.id, {
-    name: nameInput.value,
-    description: descriptionInput.value,
+    name: nameInput.value || 'new-task',
+    description: descriptionInput.value || 'タスクの説明',
     difficulty: parseFloat(difficultyInput.value.toString()),
     category: categoryInput.value,
     depends: [''],
   });
 
   // 入力フィールドをリセット
-  nameInput.value = 'new-task';
-  descriptionInput.value = 'タスクの説明';
+  nameInput.value = '';
+  descriptionInput.value = '';
   categoryInput.value = '';
   difficultyInput.value = 0;
   isAutoDifficulty.value = false;
