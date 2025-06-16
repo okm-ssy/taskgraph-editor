@@ -227,8 +227,22 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     info.value = newInfo;
     editorTasks.value = newTasks;
 
-    // JSONインポート時は自動配置を適用
-    autoLayoutTasks();
+    // layout情報が存在するかチェック
+    const hasLayoutInfo = newTasks.some(
+      (task) =>
+        task.task.layout &&
+        (task.task.layout.x !== 0 || task.task.layout.y !== 0),
+    );
+
+    // layout情報がない場合のみ自動配置を適用
+    if (!hasLayoutInfo) {
+      console.log('layout情報なし - 自動配置を実行');
+      autoLayoutTasks();
+    } else {
+      console.log('layout情報あり - 自動配置をスキップ');
+      // グラフデータのみ更新
+      buildGraphData();
+    }
 
     uiStore.closeDetailDialog(); // インポートしたら選択状態をリセット
     uiStore.clearSelection();
