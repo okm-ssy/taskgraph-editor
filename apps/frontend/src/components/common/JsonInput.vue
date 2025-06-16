@@ -43,6 +43,7 @@ import { useCurrentTasks } from '../../store/task_store';
 const taskStore = useCurrentTasks();
 const jsonInput = ref('');
 let ignoreNextChange = false;
+let isParsingJson = false;
 
 // textarea内容が変更されたら自動的にパースする
 watch(jsonInput, () => {
@@ -50,13 +51,25 @@ watch(jsonInput, () => {
     ignoreNextChange = false;
     return;
   }
+
+  // JSONパース中フラグを立てる
+  isParsingJson = true;
   taskStore.parseJsonString(jsonInput.value);
+  // パース完了後、少し待ってからフラグを下げる
+  setTimeout(() => {
+    isParsingJson = false;
+  }, 100);
 });
 
 // ストアの状態が変更されたらtextareaの内容を更新する
 watch(
   () => taskStore.editorTasks,
   () => {
+    // JSONパース中は自動エクスポートを無効にする
+    if (isParsingJson) {
+      return;
+    }
+
     ignoreNextChange = true;
     jsonInput.value = taskStore.exportTaskgraphToJson();
   },
