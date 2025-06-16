@@ -1,19 +1,26 @@
-import { createMemoryHistory, createRouter } from 'vue-router';
+import { createWebHistory, createRouter } from 'vue-router';
 
-import EditorPage from '@/pages/EditorPage.vue';
-import ViewerPage from '@/pages/ViewerPage.vue';
+import TaskgraphEditor from '@/pages/TaskgraphEditor.vue';
 
 const routes = [
   {
     path: '/',
-    redirect: 'view',
+    redirect: '/view',
   },
-  { path: '/edit', component: EditorPage },
-  { path: '/view', component: ViewerPage },
+  {
+    path: '/edit',
+    component: TaskgraphEditor,
+    props: { initialPage: 'editor' },
+  },
+  {
+    path: '/view',
+    component: TaskgraphEditor,
+    props: { initialPage: 'viewer' },
+  },
 ];
 
 const router = createRouter({
-  history: createMemoryHistory(),
+  history: createWebHistory(),
   routes,
 });
 
