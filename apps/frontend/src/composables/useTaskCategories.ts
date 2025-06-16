@@ -25,14 +25,9 @@ export const useTaskCategories = () => {
       for (const line of lines) {
         if (line.trim()) {
           const [category, difficultyStr] = line.split('\t');
-          const difficulty = parseInt(difficultyStr?.trim() || '1', 10);
+          const difficulty = parseFloat(difficultyStr?.trim() || '0');
 
-          if (
-            category?.trim() &&
-            !isNaN(difficulty) &&
-            difficulty >= 1 &&
-            difficulty <= 5
-          ) {
+          if (category?.trim() && !isNaN(difficulty) && difficulty >= 0) {
             mappings.push({
               category: category.trim(),
               difficulty,

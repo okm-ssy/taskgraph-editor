@@ -22,7 +22,7 @@ export class EditorTask {
     this.task = {
       depends: [''],
       description: 'タスクの説明',
-      difficulty: 1,
+      difficulty: 0,
       name: 'new-task',
       notes: [''],
       category: '',
