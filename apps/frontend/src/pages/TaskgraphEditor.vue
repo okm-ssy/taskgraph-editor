@@ -16,7 +16,10 @@
 
     <div v-if="!isMinimalHeader">
       <div class="flex items-center gap-4 mb-4">
-        <Switcher v-model="currentPage" />
+        <Switcher
+          :modelValue="currentPage"
+          @update:modelValue="navigateToPage"
+        />
         <div class="flex items-center gap-2 border p-2 rounded-2xl">
           <button
             :class="[
@@ -70,7 +73,9 @@
               ? 'bg-blue-500 text-white'
               : 'bg-gray-200 text-gray-700 hover:bg-gray-300',
           ]"
-          @click="currentPage = page.id === 'viewer' ? viewerPage : editorPage"
+          @click="
+            navigateToPage(page.id === 'viewer' ? viewerPage : editorPage)
+          "
         >
           {{ page.name }}
         </button>
@@ -121,7 +126,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 
 import { useCurrentTasks } from '../store/task_store';
 import { Page, viewerPage, editorPage } from '../store/types/page';
@@ -132,13 +138,17 @@ import ViewerPage from './ViewerPage.vue';
 import JsonInput from '@/components/common/JsonInput.vue';
 import Switcher from '@/components/common/Switcher.vue';
 
+const router = useRouter();
+const route = useRoute();
 const taskStore = useCurrentTasks();
 
-// Session Storageから現在のページを復元
-const savedPageId = sessionStorage.getItem('taskgraph-current-page');
-const currentPage = ref<Page>(
-  savedPageId === 'editor' ? editorPage : viewerPage,
-);
+// URLに基づいて現在のページを設定
+const currentPage = computed<Page>(() => {
+  if (route.path === '/edit') {
+    return editorPage;
+  }
+  return viewerPage;
+});
 
 const isMinimalHeader = ref(
   localStorage.getItem('taskgraph-minimal-header') === 'true',
@@ -147,10 +157,14 @@ const isCompactMode = ref(
   localStorage.getItem('taskgraph-compact-mode') === 'true',
 );
 
-// 現在のページが変更されたらSession Storageに保存
-watch(currentPage, (newPage) => {
-  sessionStorage.setItem('taskgraph-current-page', newPage.id);
-});
+// ページ切り替え時にルートを変更
+const navigateToPage = (page: Page) => {
+  if (page.id === 'editor') {
+    router.push('/edit');
+  } else {
+    router.push('/view');
+  }
+};
 
 // ページロード時にSession Storageからデータを復元
 onMounted(() => {
