@@ -108,6 +108,20 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   const updateTask = (id: string, taskData: Partial<Task>) => {
     const task = editorTasks.value.find((et) => et.id === id);
     if (task) {
+      // タスク名が変更された場合、依存しているタスクの depends を更新
+      if (taskData.name && taskData.name !== task.task.name) {
+        const oldName = task.task.name;
+        const newName = taskData.name;
+
+        // このタスクに依存している全てのタスクの depends を更新
+        editorTasks.value.forEach((et) => {
+          const dependsIndex = et.task.depends.indexOf(oldName);
+          if (dependsIndex !== -1) {
+            et.task.depends[dependsIndex] = newName;
+          }
+        });
+      }
+
       Object.assign(task.task, taskData);
       graphLayout.buildGraphData(editorTasks.value); // 依存関係が変わる可能性があるのでグラフ再構築
       saveToSessionStorage(); // Session Storageに保存
