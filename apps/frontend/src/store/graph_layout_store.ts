@@ -416,8 +416,8 @@ export const useGraphLayout = () => {
 
   // 難易度に応じた色クラスを返す
   const getDifficultyColor = (difficulty: number) => {
-    if (difficulty === 0) {
-      return 'bg-gray-200 border-gray-400'; // 難易度0は灰色
+    if (difficulty < 0.5) {
+      return 'bg-gray-200 border-gray-400'; // 難易度0～0.5未満は灰色
     }
 
     const colors = [
