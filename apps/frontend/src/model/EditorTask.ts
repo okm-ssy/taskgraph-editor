@@ -26,6 +26,10 @@ export class EditorTask {
       name: 'new-task',
       notes: [''],
       category: '',
+      layout: {
+        x: 0,
+        y: 0,
+      },
     };
   }
 }

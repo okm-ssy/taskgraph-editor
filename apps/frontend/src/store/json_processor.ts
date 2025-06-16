@@ -63,6 +63,13 @@ export const useJsonProcessor = () => {
       taskgraph.tasks.forEach((task) => {
         const editorTask = new EditorTask();
         editorTask.task = { ...task };
+
+        // layout情報があればグリッド座標に設定
+        if (task.layout) {
+          editorTask.grid.x = task.layout.x;
+          editorTask.grid.y = task.layout.y;
+        }
+
         newEditorTasks.push(editorTask);
       });
 
