@@ -92,6 +92,7 @@ import { computed } from 'vue';
 import type { Task } from '../../model/Taskgraph';
 import { useDragDropStore } from '../../store/drag_drop_store';
 import { useCurrentTasks } from '../../store/task_store';
+import { difficultyBackgroundClass } from '../../utilities/task';
 
 const props = defineProps<{
   task: Task;
@@ -104,20 +105,7 @@ const taskStore = useCurrentTasks();
 
 // 難易度に基づいて背景色を計算
 const difficultyColorClass = computed(() => {
-  const difficulty = Math.min(
-    Math.max(Math.floor(props.task.difficulty), 1),
-    5,
-  );
-
-  const colors = [
-    'bg-green-100 border-green-300', // 1
-    'bg-yellow-100 border-yellow-300', // 2
-    'bg-orange-100 border-orange-300', // 3
-    'bg-red-100 border-red-300', // 4
-    'bg-purple-100 border-purple-300', // 5
-  ];
-
-  return colors[difficulty - 1];
+  return difficultyBackgroundClass(props.task.difficulty);
 });
 
 // タスク削除ハンドラ
