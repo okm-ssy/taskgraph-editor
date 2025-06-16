@@ -16,7 +16,7 @@
       <span
         :class="[
           'inline-block px-2 py-0.5 text-xs font-semibold rounded-full leading-none',
-          taskStore.getDifficultyColor(task.task.difficulty),
+          difficultyBackgroundClass(task.task.difficulty),
         ]"
       >
         {{ task.task.category || `難易度: ${task.task.difficulty}` }}
@@ -95,6 +95,7 @@ import { computed, defineProps } from 'vue';
 
 import type { EditorTask } from '../../model/EditorTask';
 import { useCurrentTasks } from '../../store/task_store';
+import { difficultyBackgroundClass } from '../../utilities/task';
 
 const props = defineProps<{
   task: EditorTask; // EditorTask オブジェクト全体を受け取る

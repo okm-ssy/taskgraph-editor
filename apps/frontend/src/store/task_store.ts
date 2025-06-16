@@ -306,7 +306,6 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     canvasHeight: graphLayout.canvasHeight,
     graphPaths: graphLayout.graphPaths,
     getPathD: graphLayout.getPathD,
-    getDifficultyColor: graphLayout.getDifficultyColor,
     GRAPH_SETTINGS: graphLayout.GRAPH_SETTINGS,
   };
 

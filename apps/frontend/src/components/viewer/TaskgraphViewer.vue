@@ -72,7 +72,7 @@
           <div
             :class="[
               'border-2 rounded-lg shadow-md transition-transform hover:translate-y-[-2px] hover:shadow-lg cursor-pointer bg-opacity-90 w-full h-full focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1',
-              taskStore.getDifficultyColor(node.difficulty),
+              difficultyBackgroundClass(node.difficulty),
               props.compact ? 'p-2' : 'p-3',
             ]"
             :style="{
@@ -136,6 +136,7 @@ import type { CriticalPathEdge } from '../../composables/useCriticalPath';
 import type { EditorTask } from '../../model/EditorTask';
 import { useCurrentTasks } from '../../store/task_store';
 import { useGraphExport } from '../../store/use_graph_export';
+import { difficultyBackgroundClass } from '../../utilities/task';
 
 import TaskDetail from './TaskDetail.vue';
 
