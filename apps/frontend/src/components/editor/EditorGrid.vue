@@ -101,7 +101,7 @@
         :margin="isCompactMode ? [5, 5] : [10, 10]"
         :responsive="false"
         :auto-size="false"
-        :prevent-collision="false"
+        :prevent-collision="true"
         :compact-type="null"
         :transform-scale="1"
         :mirrored="false"
