@@ -29,14 +29,29 @@
         <label
           for="task-description"
           class="block text-sm font-medium text-gray-700 mb-1"
+          >概要(1行)</label
+        >
+        <input
+          id="task-description"
+          v-model="descriptionInput"
+          type="text"
+          placeholder="タスクの概要を1行で入力"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+        />
+      </div>
+
+      <div>
+        <label
+          for="task-notes"
+          class="block text-sm font-medium text-gray-700 mb-1"
           >説明</label
         >
         <textarea
-          id="task-description"
-          v-model="descriptionInput"
-          placeholder="タスクの説明を入力"
+          id="task-notes"
+          v-model="notesInput"
+          placeholder="詳細な説明やメモを入力"
           class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-          rows="2"
+          rows="3"
         />
       </div>
 
@@ -127,6 +142,7 @@ const { getDifficultyByCategory, allCategories } = useTaskCategories();
 
 const nameInput = ref('');
 const descriptionInput = ref('');
+const notesInput = ref('');
 const categoryInput = ref('');
 const difficultyInput = ref(0);
 const isAutoDifficulty = ref(false);
@@ -149,7 +165,10 @@ const addNewTask = () => {
   // タスク情報の更新（依存関係は空配列）
   taskStore.updateTask(newTask.id, {
     name: nameInput.value || 'new-task',
-    description: descriptionInput.value || 'タスクの説明',
+    description: descriptionInput.value || '',
+    notes: notesInput.value
+      ? notesInput.value.split('\n').filter((line) => line.trim() !== '')
+      : [],
     difficulty: parseFloat(difficultyInput.value.toString()),
     category: categoryInput.value,
     depends: [],
@@ -158,6 +177,7 @@ const addNewTask = () => {
   // 入力フィールドをリセット
   nameInput.value = '';
   descriptionInput.value = '';
+  notesInput.value = '';
   categoryInput.value = '';
   difficultyInput.value = 0;
   isAutoDifficulty.value = false;
