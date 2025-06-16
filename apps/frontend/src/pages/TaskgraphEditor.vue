@@ -166,9 +166,8 @@ const navigateToPage = (page: Page) => {
   }
 };
 
-// ページロード時にストアの初期化を確認
+// ストア初期化確認
 onMounted(() => {
-  // ストアは既に初期化されているが、念のため再初期化
   taskStore.initializeStore();
 });
 

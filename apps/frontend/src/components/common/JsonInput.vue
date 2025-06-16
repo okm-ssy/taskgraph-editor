@@ -63,9 +63,8 @@ watch(
   { deep: true },
 );
 
-// コンポーネント初期化時にサンプルデータをロード（タスクが0件の場合のみ）
+// 初期データロード
 onMounted(() => {
-  // タスクが0件の場合のみサンプルデータをロード
   if (taskStore.editorTasks.length === 0) {
     taskStore.loadSampleData();
   }
