@@ -99,12 +99,18 @@
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1"
-          >依存タスク</label
+        <label
+          for="task-relations"
+          class="block text-sm font-medium text-gray-700 mb-1"
+          >関連ファイル</label
         >
-        <div class="text-xs text-gray-500 p-2 bg-gray-50 rounded-md">
-          タスク作成後、タスクカードの青い丸をドラッグ&ドロップして依存関係を設定してください
-        </div>
+        <textarea
+          id="task-relations"
+          v-model="relationsInput"
+          placeholder="関連ファイルパスを1行ずつ入力"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+          rows="2"
+        />
       </div>
 
       <div class="flex justify-end gap-2 mt-4">
@@ -143,6 +149,7 @@ const { getDifficultyByCategory, allCategories } = useTaskCategories();
 const nameInput = ref('');
 const descriptionInput = ref('');
 const notesInput = ref('');
+const relationsInput = ref('');
 const categoryInput = ref('');
 const difficultyInput = ref(0);
 const isAutoDifficulty = ref(false);
@@ -167,6 +174,7 @@ const addNewTask = () => {
     name: nameInput.value || 'new-task',
     description: descriptionInput.value || '',
     notes: notesInput.value ? notesInput.value.split('\n') : [],
+    relations: relationsInput.value ? relationsInput.value.split('\n') : [],
     difficulty: parseFloat(difficultyInput.value.toString()),
     category: categoryInput.value,
     depends: [],
@@ -176,6 +184,7 @@ const addNewTask = () => {
   nameInput.value = '';
   descriptionInput.value = '';
   notesInput.value = '';
+  relationsInput.value = '';
   categoryInput.value = '';
   difficultyInput.value = 0;
   isAutoDifficulty.value = false;

@@ -98,25 +98,18 @@
         </div>
 
         <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1"
-            >依存タスク</label
+          <label
+            for="relations"
+            class="block text-sm font-medium text-gray-700 mb-1"
+            >関連ファイル</label
           >
-          <div class="text-sm text-gray-600 p-3 bg-gray-50 rounded-md">
-            <p
-              v-if="
-                taskStore.selectedTask &&
-                taskStore.selectedTask.task.depends.length > 0 &&
-                taskStore.selectedTask.task.depends[0] !== ''
-              "
-            >
-              {{ taskStore.selectedTask.task.depends.join(', ') }}
-            </p>
-            <p v-else class="text-gray-400">依存関係はありません</p>
-            <p class="mt-2 text-xs text-gray-500">
-              ※
-              依存関係の追加・削除は、タスクカードの青い丸をドラッグ&ドロップするか、矢印をクリックして行ってください
-            </p>
-          </div>
+          <textarea
+            id="relations"
+            v-model="relationsInput"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md"
+            rows="3"
+            placeholder="関連するファイルパスを1行ずつ入力してください"
+          />
         </div>
 
         <!-- エラーメッセージ表示 -->
@@ -161,6 +154,7 @@ const { allCategories, getDifficultyByCategory } = useTaskCategories();
 const nameInput = ref('');
 const descriptionInput = ref('');
 const notesInput = ref('');
+const relationsInput = ref('');
 const difficultyInput = ref(0);
 const categoryInput = ref('');
 
@@ -179,6 +173,7 @@ watch(
       nameInput.value = newTask.task.name;
       descriptionInput.value = newTask.task.description;
       notesInput.value = newTask.task.notes.join('\n');
+      relationsInput.value = newTask.task.relations?.join('\n') || '';
       difficultyInput.value = newTask.task.difficulty;
       categoryInput.value = newTask.task.category || '';
       // ダイアログが開かれたときはエラーメッセージをクリア
@@ -220,6 +215,7 @@ const handleSubmit = () => {
     name: nameInput.value,
     description: descriptionInput.value,
     notes: notesInput.value.split('\n'),
+    relations: relationsInput.value.split('\n'),
     difficulty: difficultyInput.value,
     category: categoryInput.value,
   });
