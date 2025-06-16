@@ -28,13 +28,29 @@
           <label
             for="description"
             class="block text-sm font-medium text-gray-700 mb-1"
+            >概要(1行)</label
+          >
+          <input
+            id="description"
+            v-model="descriptionInput"
+            type="text"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md"
+            placeholder="タスクの概要を1行で入力してください"
+          />
+        </div>
+
+        <div class="mb-4">
+          <label
+            for="notes"
+            class="block text-sm font-medium text-gray-700 mb-1"
             >説明</label
           >
           <textarea
-            id="description"
-            v-model="descriptionInput"
+            id="notes"
+            v-model="notesInput"
             class="w-full px-3 py-2 border border-gray-300 rounded-md"
-            rows="3"
+            rows="5"
+            placeholder="詳細な説明やメモを入力してください"
           />
         </div>
 
@@ -144,6 +160,7 @@ const { allCategories, getDifficultyByCategory } = useTaskCategories();
 
 const nameInput = ref('');
 const descriptionInput = ref('');
+const notesInput = ref('');
 const difficultyInput = ref(0);
 const categoryInput = ref('');
 
@@ -161,6 +178,7 @@ watch(
     if (newTask) {
       nameInput.value = newTask.task.name;
       descriptionInput.value = newTask.task.description;
+      notesInput.value = newTask.task.notes.join('\n');
       difficultyInput.value = newTask.task.difficulty;
       categoryInput.value = newTask.task.category || '';
       // ダイアログが開かれたときはエラーメッセージをクリア
@@ -171,11 +189,14 @@ watch(
 );
 
 // 入力値が変更されたらエラーメッセージをクリア
-watch([nameInput, descriptionInput, difficultyInput, categoryInput], () => {
-  if (errorMessage.value) {
-    errorMessage.value = '';
-  }
-});
+watch(
+  [nameInput, descriptionInput, notesInput, difficultyInput, categoryInput],
+  () => {
+    if (errorMessage.value) {
+      errorMessage.value = '';
+    }
+  },
+);
 
 // カテゴリが変更された時の処理
 const onCategoryChange = () => {
@@ -198,6 +219,7 @@ const handleSubmit = () => {
   const updateSuccess = taskStore.updateTask(taskStore.selectedTask.id, {
     name: nameInput.value,
     description: descriptionInput.value,
+    notes: notesInput.value.split('\n').filter((line) => line.trim() !== ''),
     difficulty: difficultyInput.value,
     category: categoryInput.value,
   });

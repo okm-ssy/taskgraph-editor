@@ -201,7 +201,7 @@ const tooltipText = computed(() => {
   let tooltip = `タスク名: ${props.task.name}`;
 
   if (props.task.description) {
-    tooltip += `\n説明: ${props.task.description}`;
+    tooltip += `\n概要: ${props.task.description}`;
   }
 
   if (props.task.notes && props.task.notes.length > 0) {
@@ -209,7 +209,7 @@ const tooltipText = computed(() => {
       .filter((note) => note.trim() !== '')
       .join('\n');
     if (notesText) {
-      tooltip += `\n\nメモ:\n${notesText}`;
+      tooltip += `\n\n説明:\n${notesText}`;
     }
   }
 
