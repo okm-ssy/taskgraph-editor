@@ -82,6 +82,18 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   const removeTask = (id: string) => {
     const index = editorTasks.value.findIndex((et) => et.id === id);
     if (index !== -1) {
+      // 削除するタスクの名前を取得
+      const removedTaskName = editorTasks.value[index].task.name;
+
+      // このタスクに依存している全てのタスクの depends から削除
+      editorTasks.value.forEach((et) => {
+        const dependsIndex = et.task.depends.indexOf(removedTaskName);
+        if (dependsIndex !== -1) {
+          et.task.depends.splice(dependsIndex, 1);
+        }
+      });
+
+      // タスクを削除
       editorTasks.value.splice(index, 1);
       graphLayout.buildGraphData(editorTasks.value);
       // 削除されたタスクが選択中だったらダイアログを閉じる
