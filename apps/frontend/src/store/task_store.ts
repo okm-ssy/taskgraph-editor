@@ -28,7 +28,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   // ストア初期化フラグ
   const isInitialized = ref(false);
 
-  // Session Storageからの読み込み中かどうかを管理
+  // Session Storage管理
   let isLoadingFromStorage = false;
 
   // Getters
@@ -157,11 +157,6 @@ export const useCurrentTasks = defineStore('editorTask', () => {
       }
       const jsonData = exportTaskgraphToJson();
       sessionStorage.setItem('taskgraph-data', jsonData);
-      console.log(
-        'Session Storageに保存しました:',
-        editorTasks.value.length,
-        'タスク',
-      );
     } catch (error) {
       console.error('Session Storage保存エラー:', error);
     }
@@ -172,18 +167,10 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     try {
       const jsonData = sessionStorage.getItem('taskgraph-data');
       if (jsonData) {
-        console.log('Session Storageから読み込み中...');
         isLoadingFromStorage = true;
         const result = parseJsonToTaskgraph(jsonData);
         isLoadingFromStorage = false;
-        console.log(
-          'Session Storageから読み込み完了:',
-          editorTasks.value.length,
-          'タスク',
-        );
         return result;
-      } else {
-        console.log('Session Storageにデータがありません');
       }
     } catch (error) {
       console.error('Session Storage読み込みエラー:', error);
@@ -192,10 +179,9 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     return false;
   };
 
-  // ストア初期化時にSession Storageから読み込み
+  // ストア初期化
   const initializeStore = () => {
     if (!isInitialized.value) {
-      console.log('ストアを初期化中...');
       loadFromSessionStorage();
       isInitialized.value = true;
     }
@@ -212,7 +198,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     uiStore.closeDetailDialog(); // インポートしたら選択状態をリセット
     uiStore.clearSelection();
 
-    // Session Storageからの読み込み中でない場合のみ保存
+    // Session Storage読み込み中でなければ保存
     if (!isLoadingFromStorage) {
       saveToSessionStorage();
     }
