@@ -5,7 +5,7 @@
     @mousedown="handleOverlayMouseDown"
     @click="handleOverlayClick"
   >
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-[70vw] mx-4">
       <div class="border-b px-6 py-4">
         <h3 class="text-lg font-medium">タスク詳細</h3>
       </div>
