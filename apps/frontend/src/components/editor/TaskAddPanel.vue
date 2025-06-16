@@ -65,14 +65,14 @@
         <label
           for="task-difficulty"
           class="block text-sm font-medium text-gray-700 mb-1"
-          >難易度 (1-5)</label
+          >難易度 (0以上)</label
         >
         <input
           id="task-difficulty"
           v-model="difficultyInput"
           type="number"
-          min="1"
-          max="5"
+          min="0"
+          step="0.5"
           class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
           :class="{ 'bg-yellow-50': isAutoDifficulty }"
         />
@@ -126,7 +126,7 @@ const { getDifficultyByCategory, allCategories } = useTaskCategories();
 const nameInput = ref('new-task');
 const descriptionInput = ref('タスクの説明');
 const categoryInput = ref('');
-const difficultyInput = ref(1);
+const difficultyInput = ref(0);
 const isAutoDifficulty = ref(false);
 
 // 分類選択時の処理
@@ -157,7 +157,7 @@ const addNewTask = () => {
   nameInput.value = 'new-task';
   descriptionInput.value = 'タスクの説明';
   categoryInput.value = '';
-  difficultyInput.value = 1;
+  difficultyInput.value = 0;
   isAutoDifficulty.value = false;
 
   // パネルを閉じる
