@@ -126,10 +126,20 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   const updateTask = (id: string, taskData: Partial<Task>) => {
     const task = editorTasks.value.find((et) => et.id === id);
     if (task) {
-      // タスク名が変更された場合、依存しているタスクの depends を更新
+      // タスク名が変更された場合、重複チェックを実行
       if (taskData.name && taskData.name !== task.task.name) {
-        const oldName = task.task.name;
         const newName = taskData.name;
+
+        // 他のタスクと名前が重複していないかチェック
+        const isDuplicate = editorTasks.value.some(
+          (et) => et.id !== id && et.task.name === newName,
+        );
+
+        if (isDuplicate) {
+          return false; // 重複している場合は更新失敗
+        }
+
+        const oldName = task.task.name;
 
         // このタスクに依存している全てのタスクの depends を更新
         editorTasks.value.forEach((et) => {
