@@ -205,10 +205,8 @@ const tooltipText = computed(() => {
   }
 
   if (props.task.notes && props.task.notes.length > 0) {
-    const notesText = props.task.notes
-      .filter((note) => note.trim() !== '')
-      .join('\n');
-    if (notesText) {
+    const notesText = props.task.notes.join('\n');
+    if (notesText.trim()) {
       tooltip += `\n\n説明:\n${notesText}`;
     }
   }
