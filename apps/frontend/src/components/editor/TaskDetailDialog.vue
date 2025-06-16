@@ -103,6 +103,14 @@
           </div>
         </div>
 
+        <!-- エラーメッセージ表示 -->
+        <div
+          v-if="errorMessage"
+          class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded"
+        >
+          {{ errorMessage }}
+        </div>
+
         <div class="flex justify-end gap-2 mt-6">
           <button
             type="button"
@@ -143,6 +151,9 @@ const categoryInput = ref('');
 const isDragging = ref(false);
 const dragStartedInDialog = ref(false);
 
+// エラーメッセージ表示用の状態
+const errorMessage = ref('');
+
 // 選択中のタスクが変更されたら入力フィールドを更新
 watch(
   () => taskStore.selectedTask,
@@ -152,10 +163,19 @@ watch(
       descriptionInput.value = newTask.task.description;
       difficultyInput.value = newTask.task.difficulty;
       categoryInput.value = newTask.task.category || '';
+      // ダイアログが開かれたときはエラーメッセージをクリア
+      errorMessage.value = '';
     }
   },
   { immediate: true },
 );
+
+// 入力値が変更されたらエラーメッセージをクリア
+watch([nameInput, descriptionInput, difficultyInput, categoryInput], () => {
+  if (errorMessage.value) {
+    errorMessage.value = '';
+  }
+});
 
 // カテゴリが変更された時の処理
 const onCategoryChange = () => {
@@ -171,19 +191,31 @@ const onCategoryChange = () => {
 const handleSubmit = () => {
   if (!taskStore.selectedTask) return;
 
+  // エラーメッセージをクリア
+  errorMessage.value = '';
+
   // タスク更新（依存関係は変更しない）
-  taskStore.updateTask(taskStore.selectedTask.id, {
+  const updateSuccess = taskStore.updateTask(taskStore.selectedTask.id, {
     name: nameInput.value,
     description: descriptionInput.value,
     difficulty: difficultyInput.value,
     category: categoryInput.value,
   });
 
+  if (!updateSuccess) {
+    // 更新失敗時（タスク名重複など）はエラーメッセージを表示
+    errorMessage.value =
+      'タスク名が重複しています。別の名前を入力してください。';
+    return;
+  }
+
   // ダイアログを閉じる
   uiStore.closeDetailDialog();
 };
 
 const handleCancel = () => {
+  // エラーメッセージをクリア
+  errorMessage.value = '';
   uiStore.closeDetailDialog();
 };
 
