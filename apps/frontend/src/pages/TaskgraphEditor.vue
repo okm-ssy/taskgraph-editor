@@ -166,9 +166,10 @@ const navigateToPage = (page: Page) => {
   }
 };
 
-// ページロード時にSession Storageからデータを復元
+// ページロード時にストアの初期化を確認
 onMounted(() => {
-  taskStore.loadFromSessionStorage();
+  // ストアは既に初期化されているが、念のため再初期化
+  taskStore.initializeStore();
 });
 
 const handleParseSuccess = (jsonString: string) => {
