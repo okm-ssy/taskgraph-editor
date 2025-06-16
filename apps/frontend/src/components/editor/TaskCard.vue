@@ -173,7 +173,7 @@ const handleDrop = (event: DragEvent) => {
       if (!newDepends.includes(sourceTask.task.name)) {
         newDepends.push(sourceTask.task.name);
         taskStore.updateTask(props.id, {
-          depends: newDepends.filter((d) => d !== ''),
+          depends: newDepends,
         });
       }
     }

@@ -20,11 +20,11 @@ export class EditorTask {
     };
 
     this.task = {
-      depends: [''],
+      depends: [],
       description: 'タスクの説明',
       difficulty: 0,
       name: 'new-task',
-      notes: [''],
+      notes: [],
       category: '',
       layout: {
         x: 0,

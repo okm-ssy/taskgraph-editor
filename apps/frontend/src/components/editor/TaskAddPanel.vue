@@ -152,7 +152,7 @@ const addNewTask = () => {
     description: descriptionInput.value || 'タスクの説明',
     difficulty: parseFloat(difficultyInput.value.toString()),
     category: categoryInput.value,
-    depends: [''],
+    depends: [],
   });
 
   // 入力フィールドをリセット
