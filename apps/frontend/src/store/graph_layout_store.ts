@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue';
 
 import type { EditorTask } from '../model/EditorTask';
+import { difficultyBackgroundClass } from '../utilities/task';
 
 import type { GraphNode } from './types/graph_types';
 import { GRAPH_SETTINGS } from './types/graph_types';
@@ -416,25 +417,7 @@ export const useGraphLayout = () => {
 
   // 難易度に応じた色クラスを返す
   const getDifficultyColor = (difficulty: number) => {
-    if (difficulty < 0.5) {
-      return 'bg-gray-200 border-gray-400'; // 難易度0～0.5未満は灰色
-    }
-
-    const colors = [
-      'bg-gray-100 border-gray-400', // ~0 (使用されない)
-      'bg-blue-100 border-blue-400', // ~1
-      'bg-emerald-100 border-emerald-500', // ~2
-      'bg-yellow-100 border-yellow-500', // ~3
-      'bg-orange-100 border-orange-500', // ~4
-      'bg-red-100 border-red-500', // ~5
-      'bg-purple-100 border-purple-500', // ~6
-    ];
-
-    const index = Math.min(
-      Math.max(Math.ceil(difficulty), 0),
-      colors.length - 1,
-    );
-    return colors[index];
+    return difficultyBackgroundClass(difficulty);
   };
 
   // グラフ座標をグリッド座標に変換する機能
