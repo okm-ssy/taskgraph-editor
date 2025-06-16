@@ -166,9 +166,7 @@ const addNewTask = () => {
   taskStore.updateTask(newTask.id, {
     name: nameInput.value || 'new-task',
     description: descriptionInput.value || '',
-    notes: notesInput.value
-      ? notesInput.value.split('\n').filter((line) => line.trim() !== '')
-      : [],
+    notes: notesInput.value ? notesInput.value.split('\n') : [],
     difficulty: parseFloat(difficultyInput.value.toString()),
     category: categoryInput.value,
     depends: [],

@@ -219,7 +219,7 @@ const handleSubmit = () => {
   const updateSuccess = taskStore.updateTask(taskStore.selectedTask.id, {
     name: nameInput.value,
     description: descriptionInput.value,
-    notes: notesInput.value.split('\n').filter((line) => line.trim() !== ''),
+    notes: notesInput.value.split('\n'),
     difficulty: difficultyInput.value,
     category: categoryInput.value,
   });
