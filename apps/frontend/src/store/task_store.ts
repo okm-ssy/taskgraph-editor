@@ -117,6 +117,20 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     const task = editorTasks.value.find((et) => et.id === id);
     if (task) {
       Object.assign(task.grid, gridTask);
+
+      // グリッド位置が更新された場合、Task内のlayout情報も同期
+      if (gridTask.x !== undefined || gridTask.y !== undefined) {
+        if (!task.task.layout) {
+          task.task.layout = { x: 0, y: 0 };
+        }
+        if (gridTask.x !== undefined) {
+          task.task.layout.x = gridTask.x;
+        }
+        if (gridTask.y !== undefined) {
+          task.task.layout.y = gridTask.y;
+        }
+      }
+
       saveToSessionStorage(); // Session Storageに保存
       return true;
     }
@@ -224,7 +238,16 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   };
 
   const exportTaskgraphToJson = () => {
-    return jsonProcessor.exportTaskgraphToJson(tasks.value, info.value);
+    // layout情報を含むタスクデータを作成
+    const tasksWithLayout = editorTasks.value.map((editorTask) => ({
+      ...editorTask.task,
+      layout: {
+        x: editorTask.grid.x,
+        y: editorTask.grid.y,
+      },
+    }));
+
+    return jsonProcessor.exportTaskgraphToJson(tasksWithLayout, info.value);
   };
 
   const loadSampleData = () => {
