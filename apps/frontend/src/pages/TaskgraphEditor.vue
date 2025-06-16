@@ -70,7 +70,7 @@
               ? 'bg-blue-500 text-white'
               : 'bg-gray-200 text-gray-700 hover:bg-gray-300',
           ]"
-          @click="currentPage = page"
+          @click="currentPage = page.id === 'viewer' ? viewerPage : editorPage"
         >
           {{ page.name }}
         </button>
@@ -121,10 +121,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 
 import { useCurrentTasks } from '../store/task_store';
-import { Page, viewerPage } from '../store/types/page';
+import { Page, viewerPage, editorPage } from '../store/types/page';
 
 import EditorPage from './EditorPage.vue';
 import ViewerPage from './ViewerPage.vue';
@@ -133,13 +133,24 @@ import JsonInput from '@/components/common/JsonInput.vue';
 import Switcher from '@/components/common/Switcher.vue';
 
 const taskStore = useCurrentTasks();
-const currentPage = ref<Page>(viewerPage);
+
+// Session Storageから現在のページを復元
+const savedPageId = sessionStorage.getItem('taskgraph-current-page');
+const currentPage = ref<Page>(
+  savedPageId === 'editor' ? editorPage : viewerPage,
+);
+
 const isMinimalHeader = ref(
   localStorage.getItem('taskgraph-minimal-header') === 'true',
 );
 const isCompactMode = ref(
   localStorage.getItem('taskgraph-compact-mode') === 'true',
 );
+
+// 現在のページが変更されたらSession Storageに保存
+watch(currentPage, (newPage) => {
+  sessionStorage.setItem('taskgraph-current-page', newPage.id);
+});
 
 // ページロード時にSession Storageからデータを復元
 onMounted(() => {

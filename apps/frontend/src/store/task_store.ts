@@ -145,14 +145,20 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     try {
       const jsonData = sessionStorage.getItem('taskgraph-data');
       if (jsonData) {
-        parseJsonToTaskgraph(jsonData);
-        return true;
+        isLoadingFromStorage = true;
+        const result = parseJsonToTaskgraph(jsonData);
+        isLoadingFromStorage = false;
+        return result;
       }
     } catch (error) {
       console.error('Session Storage読み込みエラー:', error);
+      isLoadingFromStorage = false;
     }
     return false;
   };
+
+  // Session Storageからの読み込み中かどうかを管理
+  let isLoadingFromStorage = false;
 
   // 既存タスクを新しいデータで更新 (JSONインポートなどで使用)
   const updateTasks = (newTasks: EditorTask[], newInfo: Taskgraph['info']) => {
@@ -165,8 +171,10 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     uiStore.closeDetailDialog(); // インポートしたら選択状態をリセット
     uiStore.clearSelection();
 
-    // Session Storageに保存
-    saveToSessionStorage();
+    // Session Storageからの読み込み中でない場合のみ保存
+    if (!isLoadingFromStorage) {
+      saveToSessionStorage();
+    }
   };
 
   // JSON処理メソッドのラッパー
