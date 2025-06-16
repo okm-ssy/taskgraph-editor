@@ -121,7 +121,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 
 import { useCurrentTasks } from '../store/task_store';
 import { Page, viewerPage } from '../store/types/page';
@@ -140,6 +140,11 @@ const isMinimalHeader = ref(
 const isCompactMode = ref(
   localStorage.getItem('taskgraph-compact-mode') === 'true',
 );
+
+// ページロード時にSession Storageからデータを復元
+onMounted(() => {
+  taskStore.loadFromSessionStorage();
+});
 
 const handleParseSuccess = (jsonString: string) => {
   taskStore.parseJsonToTaskgraph(jsonString);
