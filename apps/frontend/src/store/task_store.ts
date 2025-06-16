@@ -75,6 +75,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     const newTask = new EditorTask();
     editorTasks.value.push(newTask);
     graphLayout.buildGraphData(editorTasks.value);
+    saveToSessionStorage(); // Session Storageに保存
     return newTask;
   };
 
@@ -88,6 +89,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
         uiStore.closeDetailDialog();
         uiStore.clearSelection();
       }
+      saveToSessionStorage(); // Session Storageに保存
       return true;
     }
     return false;
@@ -97,6 +99,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     const task = editorTasks.value.find((et) => et.id === id);
     if (task) {
       Object.assign(task.grid, gridTask);
+      saveToSessionStorage(); // Session Storageに保存
       return true;
     }
     return false;
@@ -107,7 +110,32 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     if (task) {
       Object.assign(task.task, taskData);
       graphLayout.buildGraphData(editorTasks.value); // 依存関係が変わる可能性があるのでグラフ再構築
+      saveToSessionStorage(); // Session Storageに保存
       return true;
+    }
+    return false;
+  };
+
+  // Session Storageにデータを保存
+  const saveToSessionStorage = () => {
+    try {
+      const jsonData = exportTaskgraphToJson();
+      sessionStorage.setItem('taskgraph-data', jsonData);
+    } catch (error) {
+      console.error('Session Storage保存エラー:', error);
+    }
+  };
+
+  // Session Storageからデータを読み込み
+  const loadFromSessionStorage = () => {
+    try {
+      const jsonData = sessionStorage.getItem('taskgraph-data');
+      if (jsonData) {
+        parseJsonToTaskgraph(jsonData);
+        return true;
+      }
+    } catch (error) {
+      console.error('Session Storage読み込みエラー:', error);
     }
     return false;
   };
@@ -122,6 +150,9 @@ export const useCurrentTasks = defineStore('editorTask', () => {
 
     uiStore.closeDetailDialog(); // インポートしたら選択状態をリセット
     uiStore.clearSelection();
+
+    // Session Storageに保存
+    saveToSessionStorage();
   };
 
   // JSON処理メソッドのラッパー
@@ -201,6 +232,8 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     buildGraphData,
     autoLayoutTasks,
     selectTask, // UIストアに委譲
+    saveToSessionStorage,
+    loadFromSessionStorage,
 
     // JSONProcessor State & Methods
     taskLoadError: jsonProcessor.taskLoadError,
