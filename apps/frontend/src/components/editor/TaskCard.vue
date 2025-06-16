@@ -8,6 +8,7 @@
       props.compact ? 'compact-mode' : 'normal-mode',
     ]"
     style="z-index: 1; overflow: visible"
+    :title="tooltipText"
     @dragover="handleDragOver"
     @dragleave="handleDragLeave"
     @drop="handleDrop"
@@ -193,6 +194,26 @@ const isDroppable = computed(() => {
 // ドラッグ中のソースかどうか
 const isDraggingSource = computed(() => {
   return dragDropStore.draggingSourceId === props.id;
+});
+
+// ホバー時に表示するツールチップテキスト
+const tooltipText = computed(() => {
+  let tooltip = `タスク名: ${props.task.name}`;
+
+  if (props.task.description) {
+    tooltip += `\n説明: ${props.task.description}`;
+  }
+
+  if (props.task.notes && props.task.notes.length > 0) {
+    const notesText = props.task.notes
+      .filter((note) => note.trim() !== '')
+      .join('\n');
+    if (notesText) {
+      tooltip += `\n\nメモ:\n${notesText}`;
+    }
+  }
+
+  return tooltip;
 });
 </script>
 
