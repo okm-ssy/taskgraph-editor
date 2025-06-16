@@ -82,6 +82,8 @@ export const useCriticalPath = (editorTasks: Ref<EditorTask[]>) => {
   // タスクグラフの構築
   const buildTaskGraph = () => {
     const nodeMap = new Map<string, TaskNode>();
+    const missingDependencies: { taskName: string; missingDeps: string[] }[] =
+      [];
 
     // 全タスクのノードを作成
     editorTasks.value.forEach((editorTask) => {
@@ -102,8 +104,31 @@ export const useCriticalPath = (editorTasks: Ref<EditorTask[]>) => {
       });
     });
 
-    // dependent関係を構築
+    // 存在しない依存関係をチェック
     nodeMap.forEach((node) => {
+      const missing = node.dependencies.filter(
+        (depName) => !nodeMap.has(depName),
+      );
+      if (missing.length > 0) {
+        missingDependencies.push({ taskName: node.name, missingDeps: missing });
+      }
+    });
+
+    // 存在しない依存関係がある場合はエラーを追加
+    if (missingDependencies.length > 0) {
+      missingDependencies.forEach(({ taskName, missingDeps }) => {
+        const errorMessage = `タスク「${taskName}」が存在しないタスクに依存しています: ${missingDeps.join(', ')}`;
+        errorStore.addValidationError(errorMessage, { taskName, missingDeps });
+      });
+    }
+
+    // dependent関係を構築（存在するタスクのみ）
+    nodeMap.forEach((node) => {
+      // 存在する依存関係のみを保持
+      node.dependencies = node.dependencies.filter((depName) =>
+        nodeMap.has(depName),
+      );
+
       node.dependencies.forEach((depName) => {
         const depNode = nodeMap.get(depName);
         if (depNode) {
