@@ -2,7 +2,8 @@
   <div
     v-if="uiStore.isDetailDialogVisible"
     class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-    @click.self="handleCancel"
+    @mousedown="handleOverlayMouseDown"
+    @click="handleOverlayClick"
   >
     <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
       <div class="border-b px-6 py-4">
@@ -138,6 +139,10 @@ const descriptionInput = ref('');
 const difficultyInput = ref(1);
 const categoryInput = ref('');
 
+// ドラッグ検出用の状態
+const isDragging = ref(false);
+const dragStartedInDialog = ref(false);
+
 // 選択中のタスクが変更されたら入力フィールドを更新
 watch(
   () => taskStore.selectedTask,
@@ -180,6 +185,52 @@ const handleSubmit = () => {
 
 const handleCancel = () => {
   uiStore.closeDetailDialog();
+};
+
+// オーバーレイでのマウスダウン検出
+const handleOverlayMouseDown = (event: MouseEvent) => {
+  // ダイアログ内容部分でマウスダウンされた場合はダイアログ内フラグを立てる
+  const dialogContent = (event.currentTarget as Element).querySelector(
+    '.bg-white',
+  );
+  if (dialogContent && dialogContent.contains(event.target as Node)) {
+    dragStartedInDialog.value = true;
+  } else {
+    dragStartedInDialog.value = false;
+  }
+  isDragging.value = false;
+
+  // マウス移動でドラッグ状態を検出
+  const handleMouseMove = () => {
+    isDragging.value = true;
+  };
+
+  // マウスアップでイベントリスナーを削除
+  const handleMouseUp = () => {
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+  };
+
+  document.addEventListener('mousemove', handleMouseMove);
+  document.addEventListener('mouseup', handleMouseUp);
+};
+
+// オーバーレイクリックの処理
+const handleOverlayClick = (event: MouseEvent) => {
+  // ドラッグ操作だった場合はダイアログを閉じない
+  if (isDragging.value) {
+    return;
+  }
+
+  // ダイアログ内でマウスダウンが開始された場合はダイアログを閉じない
+  if (dragStartedInDialog.value) {
+    return;
+  }
+
+  // ダイアログの背景部分がクリックされた場合のみ閉じる
+  if (event.target === event.currentTarget) {
+    handleCancel();
+  }
 };
 </script>
 
