@@ -135,15 +135,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, inject, type Ref } from 'vue';
+import { ref, computed } from 'vue';
 
 import { useTaskCategories } from '../../composables/useTaskCategories';
 import { LAYOUT } from '../../constants';
 import { useCurrentTasks } from '../../store/task_store';
 
-const props = defineProps<{
-  position?: { x: number; y: number };
-}>();
+// propsは使用されていないため削除
 
 const emit = defineEmits<{
   (e: 'close'): void;
@@ -151,9 +149,6 @@ const emit = defineEmits<{
 
 const taskStore = useCurrentTasks();
 const { getDifficultyByCategory, allCategories } = useTaskCategories();
-
-// EditorGridから提供されたgridContainerのrefを取得
-const gridContainer = inject<Ref<HTMLDivElement | null>>('gridContainer');
 
 const nameInput = ref('');
 const descriptionInput = ref('');
@@ -163,52 +158,12 @@ const categoryInput = ref('');
 const difficultyInput = ref(0);
 const isAutoDifficulty = ref(false);
 
-// スクロール位置を追跡
-const scrollPosition = ref({ x: 0, y: 0 });
-
-// gridContainerを基準としたパネル位置の計算
+// パネルの固定位置（gridContainer内での相対位置）
 const panelPosition = computed(() => {
-  if (!gridContainer?.value) {
-    return {
-      top: `${LAYOUT.MODAL.MIN_MARGIN}px`,
-      right: `${LAYOUT.MODAL.MIN_MARGIN}px`,
-    };
-  }
-
-  // EditorGrid内での相対位置 + スクロール位置（上部ぴったりに配置）
-  const top = LAYOUT.MODAL.MIN_MARGIN + scrollPosition.value.y;
-  // 右端はマージン分内側
-  const right = LAYOUT.MODAL.MIN_MARGIN;
-
   return {
-    top: `${top}px`,
-    right: `${right}px`,
+    top: `${LAYOUT.MODAL.MIN_MARGIN}px`,
+    right: `${LAYOUT.MODAL.MIN_MARGIN}px`,
   };
-});
-
-// スクロール位置を更新する関数
-const updateScrollPosition = () => {
-  if (gridContainer?.value) {
-    scrollPosition.value = {
-      x: gridContainer.value.scrollLeft,
-      y: gridContainer.value.scrollTop,
-    };
-  }
-};
-
-// スクロールイベントリスナーを追加
-onMounted(() => {
-  updateScrollPosition();
-  if (gridContainer?.value) {
-    gridContainer.value.addEventListener('scroll', updateScrollPosition);
-  }
-});
-
-// スクロールイベントリスナーを削除
-onUnmounted(() => {
-  if (gridContainer?.value) {
-    gridContainer.value.removeEventListener('scroll', updateScrollPosition);
-  }
 });
 
 // 分類選択時の処理
@@ -224,9 +179,7 @@ const handleCategoryChange = () => {
 
 // 新規タスク追加
 const addNewTask = () => {
-  const newTask = props.position
-    ? taskStore.addTaskAtPosition(props.position.x, props.position.y)
-    : taskStore.addTask();
+  const newTask = taskStore.addTask();
 
   // タスク情報の更新（依存関係は空配列）
   taskStore.updateTask(newTask.id, {

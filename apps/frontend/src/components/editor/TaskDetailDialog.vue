@@ -144,15 +144,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  ref,
-  watch,
-  computed,
-  onMounted,
-  onUnmounted,
-  inject,
-  type Ref,
-} from 'vue';
+import { ref, watch, computed } from 'vue';
 
 import { useTaskCategories } from '../../composables/useTaskCategories';
 import { LAYOUT } from '../../constants';
@@ -162,9 +154,6 @@ import { useCurrentTasks } from '../../store/task_store';
 const taskStore = useCurrentTasks();
 const uiStore = useEditorUIStore();
 const { allCategories, getDifficultyByCategory } = useTaskCategories();
-
-// EditorGridから提供されたgridContainerのrefを取得
-const gridContainer = inject<Ref<HTMLDivElement | null>>('gridContainer');
 
 const nameInput = ref('');
 const descriptionInput = ref('');
@@ -180,53 +169,12 @@ const dragStartedInDialog = ref(false);
 // エラーメッセージ表示用の状態
 const errorMessage = ref('');
 
-// スクロール位置を追跡
-const scrollPosition = ref({ x: 0, y: 0 });
-
-// gridContainerを基準としたモーダル位置の計算
+// モーダルの固定位置（gridContainer内での相対位置）
 const modalPosition = computed(() => {
-  if (!gridContainer?.value) {
-    return {
-      top: `${LAYOUT.MODAL.MIN_MARGIN}px`,
-      left: `${LAYOUT.MODAL.MIN_MARGIN}px`,
-      transform: 'none',
-    };
-  }
-
-  // gridContainer内での位置（既にgridContainer内にいるため、スクロール位置のみ考慮）
-  const top = scrollPosition.value.y;
-  const left = scrollPosition.value.x + LAYOUT.MODAL.MIN_MARGIN;
-
   return {
-    top: `${top}px`,
-    left: `${left}px`,
-    transform: 'none', // flexboxのcenterを無効化
+    top: `${LAYOUT.MODAL.MIN_MARGIN}px`,
+    left: `${LAYOUT.MODAL.MIN_MARGIN}px`,
   };
-});
-
-// スクロール位置を更新する関数
-const updateScrollPosition = () => {
-  if (gridContainer?.value) {
-    scrollPosition.value = {
-      x: gridContainer.value.scrollLeft,
-      y: gridContainer.value.scrollTop,
-    };
-  }
-};
-
-// スクロールイベントリスナーを追加
-onMounted(() => {
-  updateScrollPosition();
-  if (gridContainer?.value) {
-    gridContainer.value.addEventListener('scroll', updateScrollPosition);
-  }
-});
-
-// スクロールイベントリスナーを削除
-onUnmounted(() => {
-  if (gridContainer?.value) {
-    gridContainer.value.removeEventListener('scroll', updateScrollPosition);
-  }
 });
 
 // 選択中のタスクが変更されたら入力フィールドを更新
