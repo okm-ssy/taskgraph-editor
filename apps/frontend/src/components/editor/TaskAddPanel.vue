@@ -83,7 +83,7 @@
         <label class="block text-sm font-medium text-gray-700 mb-1"
           >難易度</label
         >
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-4 gap-3">
           <!-- 左側：入力用（元の値） -->
           <div>
             <label
@@ -118,10 +118,9 @@
               </button>
             </div>
           </div>
-          <!-- 右側：表示用（1.2倍後の値） -->
           <div>
             <label class="block text-xs text-gray-600 mb-1"
-              >実際の難易度 (×1.2)</label
+              >動作確認込み (×1.2)</label
             >
             <div
               class="px-2 py-1 bg-gray-50 border border-gray-200 rounded text-center text-xs font-medium"
