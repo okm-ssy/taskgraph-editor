@@ -143,6 +143,7 @@ import { useCurrentTasks } from '../../store/task_store';
 
 const props = defineProps<{
   position?: { x: number; y: number };
+  scrollContainer?: HTMLElement | null;
 }>();
 
 const emit = defineEmits<{
@@ -179,12 +180,12 @@ const panelPosition = computed(() => {
 
 // スクロール位置を取得する関数
 const updateScrollPosition = () => {
-  // エディタグリッドのスクロールコンテナを取得
-  const gridContainer = document.querySelector('.overflow-auto');
-  if (gridContainer) {
+  // propsから渡されたスクロールコンテナを使用
+  const container = props.scrollContainer;
+  if (container) {
     scrollPosition.value = {
-      x: gridContainer.scrollLeft,
-      y: gridContainer.scrollTop,
+      x: container.scrollLeft,
+      y: container.scrollTop,
     };
   }
 };
@@ -192,18 +193,18 @@ const updateScrollPosition = () => {
 // コンポーネントマウント時にスクロール位置を取得
 onMounted(() => {
   updateScrollPosition();
-  // スクロールイベントをリスン
-  const gridContainer = document.querySelector('.overflow-auto');
-  if (gridContainer) {
-    gridContainer.addEventListener('scroll', updateScrollPosition);
+  // propsから渡されたエディタ内のスクロールコンテナを対象にリスン
+  const container = props.scrollContainer;
+  if (container) {
+    container.addEventListener('scroll', updateScrollPosition);
   }
 });
 
 // コンポーネントアンマウント時にイベントリスナーを削除
 onUnmounted(() => {
-  const gridContainer = document.querySelector('.overflow-auto');
-  if (gridContainer) {
-    gridContainer.removeEventListener('scroll', updateScrollPosition);
+  const container = props.scrollContainer;
+  if (container) {
+    container.removeEventListener('scroll', updateScrollPosition);
   }
 });
 
