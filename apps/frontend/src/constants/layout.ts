@@ -15,4 +15,11 @@ export const LAYOUT = {
   MARGIN: {
     INITIAL: 100,
   },
+  GRID: {
+    CELL_WIDTH: 160,
+    CELL_HEIGHT: 60,
+  },
+  MODAL: {
+    MIN_MARGIN: 50,
+  },
 } as const;

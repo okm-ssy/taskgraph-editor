@@ -86,6 +86,20 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     return newTask;
   };
 
+  // 指定位置にタスクを追加
+  const addTaskAtPosition = (x: number, y: number) => {
+    const newTask = new EditorTask();
+    // グリッド位置を設定
+    newTask.grid.x = x;
+    newTask.grid.y = y;
+    // レイアウト位置も設定
+    newTask.task.layout = { x, y };
+    editorTasks.value.push(newTask);
+    graphLayout.buildGraphData(editorTasks.value);
+    saveToLocalStorage(); // LocalStorageに保存
+    return newTask;
+  };
+
   const removeTask = (id: string) => {
     const index = editorTasks.value.findIndex((et) => et.id === id);
     if (index !== -1) {
@@ -354,6 +368,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
 
     // Actions
     addTask,
+    addTaskAtPosition,
     removeTask,
     updateGridTask,
     updateTask,

@@ -1,11 +1,14 @@
 <template>
   <div
     v-if="uiStore.isDetailDialogVisible"
-    class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+    class="fixed inset-0 bg-black/50 z-50"
     @mousedown="handleOverlayMouseDown"
     @click="handleOverlayClick"
   >
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-[70vw] mx-4">
+    <div 
+      class="bg-white rounded-lg shadow-xl w-full max-w-[70vw] mx-4 absolute"
+      :style="modalPosition"
+    >
       <div class="border-b px-6 py-4">
         <h3 class="text-lg font-medium">タスク詳細</h3>
       </div>
@@ -141,9 +144,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, computed, onMounted, onUnmounted } from 'vue';
 
 import { useTaskCategories } from '../../composables/useTaskCategories';
+import { LAYOUT } from '../../constants';
 import { useEditorUIStore } from '../../store/editor_ui_store';
 import { useCurrentTasks } from '../../store/task_store';
 
@@ -164,6 +168,51 @@ const dragStartedInDialog = ref(false);
 
 // エラーメッセージ表示用の状態
 const errorMessage = ref('');
+
+// スクロール位置を考慮したモーダル位置の計算
+const scrollPosition = ref({ x: 0, y: 0 });
+
+const modalPosition = computed(() => {
+  // スクロール位置を考慮して中央に配置
+  const top = Math.max(scrollPosition.value.y + LAYOUT.MODAL.MIN_MARGIN, LAYOUT.MODAL.MIN_MARGIN); // 最低マージン
+  const left = Math.max(scrollPosition.value.x + LAYOUT.MODAL.MIN_MARGIN, LAYOUT.MODAL.MIN_MARGIN); // 最低マージン
+  
+  return {
+    top: `${top}px`,
+    left: `${left}px`,
+    transform: 'none', // flexboxのcenterを無効化
+  };
+});
+
+// スクロール位置を取得する関数
+const updateScrollPosition = () => {
+  // エディタグリッドのスクロールコンテナを取得
+  const gridContainer = document.querySelector('.overflow-auto');
+  if (gridContainer) {
+    scrollPosition.value = {
+      x: gridContainer.scrollLeft,
+      y: gridContainer.scrollTop,
+    };
+  }
+};
+
+// コンポーネントマウント時にスクロール位置を取得
+onMounted(() => {
+  updateScrollPosition();
+  // スクロールイベントをリスン
+  const gridContainer = document.querySelector('.overflow-auto');
+  if (gridContainer) {
+    gridContainer.addEventListener('scroll', updateScrollPosition);
+  }
+});
+
+// コンポーネントアンマウント時にイベントリスナーを削除
+onUnmounted(() => {
+  const gridContainer = document.querySelector('.overflow-auto');
+  if (gridContainer) {
+    gridContainer.removeEventListener('scroll', updateScrollPosition);
+  }
+});
 
 // 選択中のタスクが変更されたら入力フィールドを更新
 watch(

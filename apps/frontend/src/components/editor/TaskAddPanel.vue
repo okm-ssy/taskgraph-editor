@@ -139,6 +139,10 @@ import { ref } from 'vue';
 import { useTaskCategories } from '../../composables/useTaskCategories';
 import { useCurrentTasks } from '../../store/task_store';
 
+const props = defineProps<{
+  position?: { x: number; y: number };
+}>();
+
 const emit = defineEmits<{
   (e: 'close'): void;
 }>();
@@ -167,7 +171,9 @@ const handleCategoryChange = () => {
 
 // 新規タスク追加
 const addNewTask = () => {
-  const newTask = taskStore.addTask();
+  const newTask = props.position
+    ? taskStore.addTaskAtPosition(props.position.x, props.position.y)
+    : taskStore.addTask();
 
   // タスク情報の更新（依存関係は空配列）
   taskStore.updateTask(newTask.id, {
