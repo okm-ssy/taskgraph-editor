@@ -1,12 +1,12 @@
 <template>
   <div
     v-if="uiStore.isDetailDialogVisible"
-    class="absolute inset-0 bg-black/50 z-50"
+    class="absolute inset-0 bg-black/50 z-50 pointer-events-auto"
     @mousedown="handleOverlayMouseDown"
     @click="handleOverlayClick"
   >
     <div
-      class="bg-white rounded-lg shadow-xl w-full max-w-[70vw] mx-4 absolute"
+      class="bg-white rounded-lg shadow-xl w-full max-w-[70vw] absolute"
       :style="modalPosition"
     >
       <div class="border-b px-6 py-4">
@@ -193,12 +193,9 @@ const modalPosition = computed(() => {
     };
   }
 
-  // EditorGrid内での相対位置 + スクロール位置（上部ぴったりに配置）
-  const top = gridContainer.value.offsetTop + scrollPosition.value.y;
-  const left =
-    gridContainer.value.offsetLeft +
-    scrollPosition.value.x +
-    LAYOUT.MODAL.MIN_MARGIN;
+  // gridContainer内での位置（既にgridContainer内にいるため、スクロール位置のみ考慮）
+  const top = scrollPosition.value.y;
+  const left = scrollPosition.value.x + LAYOUT.MODAL.MIN_MARGIN;
 
   return {
     top: `${top}px`,
