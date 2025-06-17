@@ -65,9 +65,7 @@
     </div>
 
     <div>
-      <label class="block text-xs font-medium text-gray-500 mb-0.5"
-        >ノート</label
-      >
+      <label class="block text-xs font-medium text-gray-500 mb-0.5">説明</label>
       <ul
         v-if="validNotes.length > 0"
         class="list-disc list-inside ml-3 space-y-0.5"
