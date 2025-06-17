@@ -203,9 +203,29 @@ const handleCategoryChange = () => {
   }
 };
 
+// スクロール位置を考慮した位置計算（EditorGridと同じロジック）
+const getVisibleAreaPosition = () => {
+  const container = document.querySelector('.overflow-auto');
+  if (!container) return { x: 0, y: 0 };
+
+  const scrollTop = container.scrollTop;
+
+  // GridLayoutの実際の設定値を使用（EditorGridと同じ）
+  const rowHeight = LAYOUT.GRID.ROW_HEIGHT.NORMAL;
+  const margin = LAYOUT.GRID.MARGIN.NORMAL;
+
+  // スクロール位置をグリッド座標に変換（マージンも考慮）
+  const gridY = Math.floor(scrollTop / (rowHeight + margin));
+
+  // X座標は左端（0）に固定
+  return { x: 0, y: gridY };
+};
+
 // 新規タスク追加
 const addNewTask = () => {
-  const newTask = taskStore.addTask();
+  // EditorGridと同じ位置計算を使用
+  const position = getVisibleAreaPosition();
+  const newTask = taskStore.addTaskAtPosition(position.x, position.y);
 
   // タスク情報の更新（依存関係は空配列）
   taskStore.updateTask(newTask.id, {
