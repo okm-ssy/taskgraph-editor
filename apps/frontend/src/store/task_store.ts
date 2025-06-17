@@ -11,6 +11,9 @@ import { useEditorUIStore } from './editor_ui_store';
 import { useGraphLayout } from './graph_layout_store';
 import { useJsonProcessor } from './json_processor';
 
+// ローカルファイル保存用の定数
+const LOCAL_STORAGE_FILE_NAME = 'taskgraph-local-data.json';
+
 export const useCurrentTasks = defineStore('editorTask', () => {
   // グラフレイアウト関連
   const graphLayout = useGraphLayout();
@@ -188,15 +191,37 @@ export const useCurrentTasks = defineStore('editorTask', () => {
       }
       const jsonData = exportTaskgraphToJson();
       sessionStorage.setItem('taskgraph-data', jsonData);
+      // ローカルファイルにも保存
+      saveToLocalFile(jsonData);
     } catch (error) {
       console.error('Session Storage保存エラー:', error);
+    }
+  };
+
+  // ローカルファイルにデータを保存
+  const saveToLocalFile = (jsonData: string) => {
+    try {
+      const blob = new Blob([jsonData], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = LOCAL_STORAGE_FILE_NAME;
+      // 自動的にダウンロードフォルダに保存されないため、localStorageを使用
+      localStorage.setItem('taskgraph-local-data', jsonData);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('ローカルファイル保存エラー:', error);
     }
   };
 
   // Session Storageからデータを読み込み
   const loadFromSessionStorage = () => {
     try {
-      const jsonData = sessionStorage.getItem('taskgraph-data');
+      let jsonData = sessionStorage.getItem('taskgraph-data');
+      // セッションストレージにない場合はローカルストレージから読み込み
+      if (!jsonData) {
+        jsonData = localStorage.getItem('taskgraph-local-data');
+      }
       if (jsonData) {
         isLoadingFromStorage = true;
         const result = parseJsonToTaskgraph(jsonData);
@@ -334,6 +359,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     autoLayoutTasks,
     selectTask, // UIストアに委譲
     saveToSessionStorage,
+    saveToLocalFile,
     loadFromSessionStorage,
     initializeStore,
 
