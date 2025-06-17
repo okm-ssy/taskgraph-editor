@@ -82,7 +82,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     const newTask = new EditorTask();
     editorTasks.value.push(newTask);
     graphLayout.buildGraphData(editorTasks.value);
-    saveToSessionStorage(); // Session Storageに保存
+    saveToLocalStorage(); // LocalStorageに保存
     return newTask;
   };
 
@@ -108,7 +108,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
         uiStore.closeDetailDialog();
         uiStore.clearSelection();
       }
-      saveToSessionStorage(); // Session Storageに保存
+      saveToLocalStorage(); // LocalStorageに保存
       return true;
     }
     return false;
@@ -137,7 +137,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     if (task) {
       Object.assign(task.grid, gridTask);
       syncLayoutInfo(task, gridTask);
-      saveToSessionStorage();
+      saveToLocalStorage();
       return true;
     }
     return false;
@@ -177,28 +177,17 @@ export const useCurrentTasks = defineStore('editorTask', () => {
 
     Object.assign(task.task, taskData);
     graphLayout.buildGraphData(editorTasks.value);
-    saveToSessionStorage();
+    saveToLocalStorage();
     return true;
   };
 
-  // Session Storageにデータを保存
-  const saveToSessionStorage = () => {
+  // LocalStorageにデータを保存（期限付き）
+  const saveToLocalStorage = () => {
     try {
       if (editorTasks.value.length === 0) {
         return;
       }
       const jsonData = exportTaskgraphToJson();
-      sessionStorage.setItem(STORAGE_KEYS.TASKGRAPH_DATA, jsonData);
-      // LocalStorageにも保存（期限付き）
-      saveToLocalStorage(jsonData);
-    } catch (error) {
-      console.error('Session Storage保存エラー:', error);
-    }
-  };
-
-  // LocalStorageにデータを保存（期限付き）
-  const saveToLocalStorage = (jsonData: string) => {
-    try {
       const expiryTime = Date.now() + STORAGE_EXPIRY.TASKGRAPH_DATA_MS;
       localStorage.setItem(STORAGE_KEYS.TASKGRAPH_DATA, jsonData);
       localStorage.setItem(
@@ -235,16 +224,10 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     }
   };
 
-  // Session Storageからデータを読み込み
-  const loadFromSessionStorage = () => {
+  // LocalStorageからデータを読み込み
+  const loadFromLocalStorage = () => {
     try {
-      let jsonData = sessionStorage.getItem(STORAGE_KEYS.TASKGRAPH_DATA);
-
-      // SessionStorageにない場合はLocalStorageから読み込み
-      if (!jsonData) {
-        jsonData = getFromLocalStorage();
-      }
-
+      const jsonData = getFromLocalStorage();
       if (jsonData) {
         isLoadingFromStorage = true;
         const result = parseJsonToTaskgraph(jsonData);
@@ -252,7 +235,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
         return result;
       }
     } catch (error) {
-      console.error('Session Storage読み込みエラー:', error);
+      console.error('LocalStorage読み込みエラー:', error);
       isLoadingFromStorage = false;
     }
     return false;
@@ -261,7 +244,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   // ストア初期化
   const initializeStore = () => {
     if (!isInitialized.value) {
-      loadFromSessionStorage();
+      loadFromLocalStorage();
       isInitialized.value = true;
     }
   };
@@ -291,7 +274,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     uiStore.clearSelection();
 
     if (!isLoadingFromStorage) {
-      saveToSessionStorage();
+      saveToLocalStorage();
     }
   };
 
@@ -381,8 +364,8 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     buildGraphData,
     autoLayoutTasks,
     selectTask, // UIストアに委譲
-    saveToSessionStorage,
-    loadFromSessionStorage,
+    saveToLocalStorage,
+    loadFromLocalStorage,
     initializeStore,
 
     // JSONProcessor State & Methods
