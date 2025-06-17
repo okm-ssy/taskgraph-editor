@@ -281,7 +281,7 @@ const addNewTask = () => {
     description: descriptionInput.value || '',
     notes: notesInput.value ? notesInput.value.split('\n') : [],
     relations: relationsInput.value ? relationsInput.value.split('\n') : [],
-    difficulty: parseFloat(difficultyInput.value.toString()),
+    baseDifficulty: parseFloat(difficultyInput.value.toString()),
     category: categoryInput.value,
     depends: [],
   });

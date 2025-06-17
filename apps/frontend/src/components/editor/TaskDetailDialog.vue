@@ -245,7 +245,7 @@ watch(
       descriptionInput.value = newTask.task.description;
       notesInput.value = newTask.task.notes.join('\n');
       relationsInput.value = newTask.task.relations?.join('\n') || '';
-      difficultyInput.value = newTask.task.difficulty;
+      difficultyInput.value = newTask.task.baseDifficulty;
       categoryInput.value = newTask.task.category || '';
       // ダイアログが開かれたときはエラーメッセージをクリア
       errorMessage.value = '';
@@ -305,7 +305,7 @@ const handleSubmit = () => {
     description: descriptionInput.value,
     notes: notesInput.value.split('\n'),
     relations: relationsInput.value.split('\n'),
-    difficulty: difficultyInput.value,
+    baseDifficulty: difficultyInput.value,
     category: categoryInput.value,
   });
 

@@ -175,6 +175,11 @@ export const useCurrentTasks = defineStore('editorTask', () => {
       updateTaskNameDependencies(task.task.name, taskData.name);
     }
 
+    // baseDifficultyが更新された場合、difficultyを1.2倍で計算
+    if (taskData.baseDifficulty !== undefined) {
+      taskData.difficulty = Math.round(taskData.baseDifficulty * 1.2 * 10) / 10;
+    }
+
     Object.assign(task.task, taskData);
     graphLayout.buildGraphData(editorTasks.value);
     saveToLocalStorage();
