@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue';
 
+import { LAYOUT } from '../constants';
 import type { EditorTask } from '../model/EditorTask';
 
 import type { GraphNode } from './types/graph_types';
@@ -8,8 +9,8 @@ import { GRAPH_SETTINGS } from './types/graph_types';
 export const useGraphLayout = () => {
   // グラフレイアウト用の状態
   const graphNodes = ref<GraphNode[]>([]);
-  const canvasWidth = ref(1200);
-  const canvasHeight = ref(800);
+  const canvasWidth = ref(LAYOUT.CANVAS.MIN_WIDTH);
+  const canvasHeight = ref(LAYOUT.CANVAS.INITIAL_HEIGHT);
 
   // グラフのパスデータを取得（矢印描画用）
   const graphPaths = computed(() => {
@@ -304,7 +305,7 @@ export const useGraphLayout = () => {
     });
 
     // 垂直方向のサイズを計算（各木の高さの合計）
-    let totalHeight = 100; // 初期マージン
+    let totalHeight = LAYOUT.MARGIN.INITIAL; // 初期マージン
     treeGroups.forEach((nodes) => {
       // 各レベルのノード数をカウント
       const levelsCount = new Map<number, number>();
@@ -326,8 +327,8 @@ export const useGraphLayout = () => {
     });
 
     // 最小サイズを確保
-    canvasWidth.value = Math.max(1000, totalWidth);
-    canvasHeight.value = Math.max(600, totalHeight);
+    canvasWidth.value = Math.max(LAYOUT.CANVAS.MIN_WIDTH, totalWidth);
+    canvasHeight.value = Math.max(LAYOUT.CANVAS.MIN_HEIGHT, totalHeight);
 
     // 位置の追跡用
     let currentYOffset = 80; // 初期オフセット
@@ -398,8 +399,14 @@ export const useGraphLayout = () => {
     });
 
     // 自動的にキャンバスサイズを調整
-    canvasWidth.value = Math.max(1000, maxX + 100); // 右端に余白を追加
-    canvasHeight.value = Math.max(600, maxY + 100); // 下端に余白を追加
+    canvasWidth.value = Math.max(
+      LAYOUT.CANVAS.MIN_WIDTH,
+      maxX + LAYOUT.PADDING.RIGHT,
+    ); // 右端に余白を追加
+    canvasHeight.value = Math.max(
+      LAYOUT.CANVAS.MIN_HEIGHT,
+      maxY + LAYOUT.PADDING.BOTTOM,
+    ); // 下端に余白を追加
   };
 
   // パスの描画用SVGパス文字列を生成

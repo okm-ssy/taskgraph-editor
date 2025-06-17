@@ -37,6 +37,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue';
 
+import { TIMING } from '../../constants/timing';
 import { useCurrentTasks } from '../../store/task_store';
 
 // ストアからデータと関数を取得
@@ -58,7 +59,7 @@ watch(jsonInput, () => {
   // パース完了後、少し待ってからフラグを下げる
   setTimeout(() => {
     isParsingJson = false;
-  }, 100);
+  }, TIMING.JSON_PARSE.FLAG_RESET_MS);
 });
 
 // ストアの状態が変更されたらtextareaの内容を更新する

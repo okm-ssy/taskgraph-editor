@@ -129,6 +129,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 
+import { STORAGE_KEYS } from '../constants';
 import { useCurrentTasks } from '../store/task_store';
 import { Page, viewerPage, editorPage } from '../store/types/page';
 
@@ -151,10 +152,10 @@ const currentPage = computed<Page>(() => {
 });
 
 const isMinimalHeader = ref(
-  localStorage.getItem('taskgraph-minimal-header') === 'true',
+  localStorage.getItem(STORAGE_KEYS.MINIMAL_HEADER) === 'true',
 );
 const isCompactMode = ref(
-  localStorage.getItem('taskgraph-compact-mode') === 'true',
+  localStorage.getItem(STORAGE_KEYS.COMPACT_MODE) === 'true',
 );
 
 // ページ切り替え時にルートを変更
@@ -186,7 +187,7 @@ const handleMinimalHeaderUpdate = (value: boolean) => {
 const toggleCompactMode = () => {
   isCompactMode.value = !isCompactMode.value;
   localStorage.setItem(
-    'taskgraph-compact-mode',
+    STORAGE_KEYS.COMPACT_MODE,
     isCompactMode.value.toString(),
   );
 };
@@ -195,7 +196,7 @@ const toggleCompactMode = () => {
 const toggleMinimalHeader = () => {
   isMinimalHeader.value = !isMinimalHeader.value;
   localStorage.setItem(
-    'taskgraph-minimal-header',
+    STORAGE_KEYS.MINIMAL_HEADER,
     isMinimalHeader.value.toString(),
   );
 };

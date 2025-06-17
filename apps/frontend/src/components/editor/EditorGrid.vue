@@ -153,6 +153,7 @@ import {
 import { GridLayout, GridItem } from 'vue3-grid-layout-next';
 
 import { useTaskActionsProvider } from '../../composables/useTaskActions';
+import { LAYOUT, TIMING } from '../../constants';
 import { GridTask } from '../../model/GridTask';
 import { useDragDropStore } from '../../store/drag_drop_store';
 import { useEditorUIStore } from '../../store/editor_ui_store';
@@ -213,7 +214,10 @@ const hoveredConnectionKey = ref<string | null>(null);
 // グリッド全体のサイズを計算
 const gridBounds = computed(() => {
   if (layout.value.length === 0) {
-    return { width: 800, height: 600 }; // デフォルトサイズ
+    return {
+      width: LAYOUT.CANVAS.DEFAULT_WIDTH,
+      height: LAYOUT.CANVAS.DEFAULT_HEIGHT,
+    }; // デフォルトサイズ
   }
 
   let maxX = 0;
@@ -229,8 +233,8 @@ const gridBounds = computed(() => {
 
   // 余白を追加
   return {
-    width: Math.max(maxX + 200, 800),
-    height: Math.max(maxY + 200, 600),
+    width: Math.max(maxX + LAYOUT.PADDING.EDGE, LAYOUT.CANVAS.DEFAULT_WIDTH),
+    height: Math.max(maxY + LAYOUT.PADDING.EDGE, LAYOUT.CANVAS.DEFAULT_HEIGHT),
   };
 });
 
@@ -295,7 +299,7 @@ const handleItemMoved = () => {
     isDraggingOrResizing.value = false;
     triggerCurveUpdate();
     triggerCurveUpdate(); // 2回実行で確実に
-  }, 100);
+  }, TIMING.DEBOUNCE.DEFAULT_MS);
 };
 
 const handleItemResize = () => {
@@ -311,7 +315,7 @@ const handleItemResized = () => {
     isDraggingOrResizing.value = false;
     triggerCurveUpdate();
     triggerCurveUpdate(); // 2回実行で確実に
-  }, 100);
+  }, TIMING.DEBOUNCE.DEFAULT_MS);
 };
 
 // タスク追加ボタンのクリックハンドラ
@@ -380,10 +384,10 @@ onMounted(() => {
     triggerCurveUpdate();
     setTimeout(() => {
       triggerCurveUpdate();
-    }, 100);
+    }, TIMING.ANIMATION.SHORT_MS);
     setTimeout(() => {
       triggerCurveUpdate();
-    }, 300);
+    }, TIMING.ANIMATION.MEDIUM_MS);
   });
 });
 

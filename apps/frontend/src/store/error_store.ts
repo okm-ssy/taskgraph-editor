@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 
+import { TIMING } from '../constants';
+
 export interface AppError {
   id: string;
   message: string;
@@ -28,10 +30,10 @@ export const useErrorStore = defineStore('errors', () => {
 
     errors.value.push(error);
 
-    // 自動削除（10秒後）
+    // 自動削除
     setTimeout(() => {
       removeError(error.id);
-    }, 10000);
+    }, TIMING.ERROR_AUTO_DISMISS_MS);
 
     return error.id;
   };

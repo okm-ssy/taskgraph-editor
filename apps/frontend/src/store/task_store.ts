@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
 import { useCriticalPath } from '../composables/useCriticalPath';
+import { STORAGE_KEYS, STORAGE_EXPIRY } from '../constants';
 import { EditorTask } from '../model/EditorTask'; // EditorTask をインポート
 import type { GridTask } from '../model/GridTask';
 import type { Taskgraph, Task } from '../model/Taskgraph';
@@ -10,11 +11,6 @@ import type { Taskgraph, Task } from '../model/Taskgraph';
 import { useEditorUIStore } from './editor_ui_store';
 import { useGraphLayout } from './graph_layout_store';
 import { useJsonProcessor } from './json_processor';
-
-// LocalStorage用の定数
-const LOCAL_STORAGE_KEY = 'taskgraph-data';
-const LOCAL_STORAGE_EXPIRY_KEY = 'taskgraph-data-expiry';
-const EXPIRY_DURATION_MS = 30 * 24 * 60 * 60 * 1000; // 30日間（ミリ秒）
 
 export const useCurrentTasks = defineStore('editorTask', () => {
   // グラフレイアウト関連
@@ -192,7 +188,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
         return;
       }
       const jsonData = exportTaskgraphToJson();
-      sessionStorage.setItem('taskgraph-data', jsonData);
+      sessionStorage.setItem(STORAGE_KEYS.TASKGRAPH_DATA, jsonData);
       // LocalStorageにも保存（期限付き）
       saveToLocalStorage(jsonData);
     } catch (error) {
@@ -203,9 +199,12 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   // LocalStorageにデータを保存（期限付き）
   const saveToLocalStorage = (jsonData: string) => {
     try {
-      const expiryTime = Date.now() + EXPIRY_DURATION_MS;
-      localStorage.setItem(LOCAL_STORAGE_KEY, jsonData);
-      localStorage.setItem(LOCAL_STORAGE_EXPIRY_KEY, expiryTime.toString());
+      const expiryTime = Date.now() + STORAGE_EXPIRY.TASKGRAPH_DATA_MS;
+      localStorage.setItem(STORAGE_KEYS.TASKGRAPH_DATA, jsonData);
+      localStorage.setItem(
+        STORAGE_KEYS.TASKGRAPH_DATA_EXPIRY,
+        expiryTime.toString(),
+      );
     } catch (error) {
       console.error('LocalStorage保存エラー:', error);
     }
@@ -214,7 +213,9 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   // LocalStorageから期限をチェックしてデータを取得
   const getFromLocalStorage = (): string | null => {
     try {
-      const expiryTime = localStorage.getItem(LOCAL_STORAGE_EXPIRY_KEY);
+      const expiryTime = localStorage.getItem(
+        STORAGE_KEYS.TASKGRAPH_DATA_EXPIRY,
+      );
       if (!expiryTime) return null;
 
       const now = Date.now();
@@ -222,12 +223,12 @@ export const useCurrentTasks = defineStore('editorTask', () => {
 
       // 期限切れの場合は削除
       if (now > expiry) {
-        localStorage.removeItem(LOCAL_STORAGE_KEY);
-        localStorage.removeItem(LOCAL_STORAGE_EXPIRY_KEY);
+        localStorage.removeItem(STORAGE_KEYS.TASKGRAPH_DATA);
+        localStorage.removeItem(STORAGE_KEYS.TASKGRAPH_DATA_EXPIRY);
         return null;
       }
 
-      return localStorage.getItem(LOCAL_STORAGE_KEY);
+      return localStorage.getItem(STORAGE_KEYS.TASKGRAPH_DATA);
     } catch (error) {
       console.error('LocalStorage読み込みエラー:', error);
       return null;
@@ -237,7 +238,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   // Session Storageからデータを読み込み
   const loadFromSessionStorage = () => {
     try {
-      let jsonData = sessionStorage.getItem('taskgraph-data');
+      let jsonData = sessionStorage.getItem(STORAGE_KEYS.TASKGRAPH_DATA);
 
       // SessionStorageにない場合はLocalStorageから読み込み
       if (!jsonData) {
