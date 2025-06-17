@@ -101,14 +101,31 @@
             class="block text-sm font-medium text-gray-700 mb-1"
             >難易度 (0以上)</label
           >
-          <input
-            id="difficulty"
-            v-model="difficultyInput"
-            type="number"
-            min="0"
-            step="0.5"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md"
-          />
+          <div class="flex items-center gap-2">
+            <button
+              type="button"
+              @click="decreaseDifficulty"
+              class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-md text-lg font-semibold transition-colors"
+              :disabled="difficultyInput <= 0"
+            >
+              −
+            </button>
+            <input
+              id="difficulty"
+              v-model="difficultyInput"
+              type="number"
+              min="0"
+              step="0.1"
+              class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-center"
+            />
+            <button
+              type="button"
+              @click="increaseDifficulty"
+              class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-md text-lg font-semibold transition-colors"
+            >
+              ＋
+            </button>
+          </div>
           <p v-if="categoryInput" class="text-xs text-gray-500 mt-1">
             カテゴリ「{{ categoryInput }}」の推奨難易度:
             {{ getDifficultyByCategory(categoryInput) }}
@@ -246,6 +263,17 @@ const onCategoryChange = () => {
       difficultyInput.value = suggestedDifficulty;
     }
   }
+};
+
+// 難易度の増減ボタン処理
+const increaseDifficulty = () => {
+  const newValue = difficultyInput.value + 0.5;
+  difficultyInput.value = Math.round(newValue * 10) / 10; // 小数点誤差対策
+};
+
+const decreaseDifficulty = () => {
+  const newValue = Math.max(0, difficultyInput.value - 0.5);
+  difficultyInput.value = Math.round(newValue * 10) / 10; // 小数点誤差対策
 };
 
 // フォーム送信時の処理
