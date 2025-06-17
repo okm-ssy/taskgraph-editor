@@ -1,6 +1,7 @@
 <template>
   <div
-    class="absolute top-4 right-4 z-30 bg-white shadow-lg rounded-lg border border-gray-200 p-4 w-80"
+    class="fixed z-30 bg-white shadow-lg rounded-lg border border-gray-200 p-4 w-80"
+    :style="panelPosition"
   >
     <div class="flex justify-between items-center mb-4">
       <h4 class="font-semibold">新規タスク追加</h4>
@@ -134,9 +135,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 import { useTaskCategories } from '../../composables/useTaskCategories';
+import { LAYOUT } from '../../constants';
 import { useCurrentTasks } from '../../store/task_store';
 
 const props = defineProps<{
@@ -157,6 +159,53 @@ const relationsInput = ref('');
 const categoryInput = ref('');
 const difficultyInput = ref(0);
 const isAutoDifficulty = ref(false);
+
+// スクロール位置を考慮したパネル位置の計算
+const scrollPosition = ref({ x: 0, y: 0 });
+
+const panelPosition = computed(() => {
+  // スクロール位置を考慮して右上に配置
+  const top = Math.max(
+    scrollPosition.value.y + LAYOUT.MODAL.MIN_MARGIN,
+    LAYOUT.MODAL.MIN_MARGIN,
+  );
+  const right = LAYOUT.MODAL.MIN_MARGIN;
+
+  return {
+    top: `${top}px`,
+    right: `${right}px`,
+  };
+});
+
+// スクロール位置を取得する関数
+const updateScrollPosition = () => {
+  // エディタグリッドのスクロールコンテナを取得
+  const gridContainer = document.querySelector('.overflow-auto');
+  if (gridContainer) {
+    scrollPosition.value = {
+      x: gridContainer.scrollLeft,
+      y: gridContainer.scrollTop,
+    };
+  }
+};
+
+// コンポーネントマウント時にスクロール位置を取得
+onMounted(() => {
+  updateScrollPosition();
+  // スクロールイベントをリスン
+  const gridContainer = document.querySelector('.overflow-auto');
+  if (gridContainer) {
+    gridContainer.addEventListener('scroll', updateScrollPosition);
+  }
+});
+
+// コンポーネントアンマウント時にイベントリスナーを削除
+onUnmounted(() => {
+  const gridContainer = document.querySelector('.overflow-auto');
+  if (gridContainer) {
+    gridContainer.removeEventListener('scroll', updateScrollPosition);
+  }
+});
 
 // 分類選択時の処理
 const handleCategoryChange = () => {

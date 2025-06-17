@@ -5,7 +5,7 @@
     @mousedown="handleOverlayMouseDown"
     @click="handleOverlayClick"
   >
-    <div 
+    <div
       class="bg-white rounded-lg shadow-xl w-full max-w-[70vw] mx-4 absolute"
       :style="modalPosition"
     >
@@ -174,9 +174,15 @@ const scrollPosition = ref({ x: 0, y: 0 });
 
 const modalPosition = computed(() => {
   // スクロール位置を考慮して中央に配置
-  const top = Math.max(scrollPosition.value.y + LAYOUT.MODAL.MIN_MARGIN, LAYOUT.MODAL.MIN_MARGIN); // 最低マージン
-  const left = Math.max(scrollPosition.value.x + LAYOUT.MODAL.MIN_MARGIN, LAYOUT.MODAL.MIN_MARGIN); // 最低マージン
-  
+  const top = Math.max(
+    scrollPosition.value.y + LAYOUT.MODAL.MIN_MARGIN,
+    LAYOUT.MODAL.MIN_MARGIN,
+  ); // 最低マージン
+  const left = Math.max(
+    scrollPosition.value.x + LAYOUT.MODAL.MIN_MARGIN,
+    LAYOUT.MODAL.MIN_MARGIN,
+  ); // 最低マージン
+
   return {
     top: `${top}px`,
     left: `${left}px`,
