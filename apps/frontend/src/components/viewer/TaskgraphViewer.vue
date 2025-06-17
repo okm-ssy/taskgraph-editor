@@ -35,11 +35,7 @@
             stroke="#666"
             stroke-width="2"
             fill="none"
-            :marker-end="
-              isCriticalPath(path.from.id, path.to.id)
-                ? 'url(#arrow-critical)'
-                : 'url(#arrow)'
-            "
+            marker-end="url(#arrow)"
           ></path>
         </svg>
 
