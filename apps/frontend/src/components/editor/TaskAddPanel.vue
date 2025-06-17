@@ -94,7 +94,7 @@
         >
         <div class="grid grid-cols-2 gap-2 items-center">
           <!-- 左側：入力用 -->
-          <div>
+          <div class="max-w-[50%]">
             <label
               for="task-difficulty"
               class="block text-xs text-gray-600 mb-1"
