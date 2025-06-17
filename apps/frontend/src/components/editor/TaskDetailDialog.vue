@@ -120,7 +120,7 @@
                   type="number"
                   min="0"
                   step="0.1"
-                  class="flex-1 px-2 py-1 border border-gray-300 rounded text-center text-sm"
+                  class="min-w-0 flex-1 px-2 py-1 border border-gray-300 rounded text-center text-sm"
                   :class="getInputColorClass()"
                 />
                 <button
