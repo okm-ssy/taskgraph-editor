@@ -80,36 +80,55 @@
       </div>
 
       <div>
-        <label
-          for="task-difficulty"
-          class="block text-sm font-medium text-gray-700 mb-1"
-          >難易度 (0以上)</label
+        <label class="block text-sm font-medium text-gray-700 mb-1"
+          >難易度</label
         >
-        <div class="flex items-center gap-2">
-          <button
-            type="button"
-            @click="decreaseDifficulty"
-            class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-md text-lg font-semibold transition-colors"
-            :disabled="difficultyInput <= 0"
-          >
-            −
-          </button>
-          <input
-            id="task-difficulty"
-            v-model="difficultyInput"
-            type="number"
-            min="0"
-            step="0.1"
-            class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm text-center"
-            :class="{ 'bg-yellow-50': isAutoDifficulty }"
-          />
-          <button
-            type="button"
-            @click="increaseDifficulty"
-            class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-md text-lg font-semibold transition-colors"
-          >
-            ＋
-          </button>
+        <div class="grid grid-cols-2 gap-3">
+          <!-- 左側：入力用（元の値） -->
+          <div>
+            <label
+              for="task-difficulty"
+              class="block text-xs text-gray-600 mb-1"
+              >入力値 (0.5刻み)</label
+            >
+            <div class="flex items-center gap-1">
+              <button
+                type="button"
+                @click="decreaseDifficulty"
+                class="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-xs font-semibold transition-colors"
+                :disabled="difficultyInput <= 0"
+              >
+                −
+              </button>
+              <input
+                id="task-difficulty"
+                v-model="difficultyInput"
+                type="number"
+                min="0"
+                step="0.1"
+                class="flex-1 px-2 py-1 border border-gray-300 rounded text-center text-xs"
+                :class="{ 'bg-yellow-50': isAutoDifficulty }"
+              />
+              <button
+                type="button"
+                @click="increaseDifficulty"
+                class="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-xs font-semibold transition-colors"
+              >
+                ＋
+              </button>
+            </div>
+          </div>
+          <!-- 右側：表示用（1.2倍後の値） -->
+          <div>
+            <label class="block text-xs text-gray-600 mb-1"
+              >実際の難易度 (×1.2)</label
+            >
+            <div
+              class="px-2 py-1 bg-gray-50 border border-gray-200 rounded text-center text-xs font-medium"
+            >
+              {{ Math.round(difficultyInput * 1.2 * 10) / 10 }}
+            </div>
+          </div>
         </div>
         <p v-if="isAutoDifficulty" class="text-xs text-yellow-600 mt-1">
           分類から自動設定されました

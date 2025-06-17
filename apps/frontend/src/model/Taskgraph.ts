@@ -38,7 +38,8 @@ export const taskZodSchema = zod
   .object({
     depends: dependsSchema,
     description: zod.string().min(0, '説明は空文字でも構いません'),
-    difficulty: zod.number().min(0).default(0),
+    difficulty: zod.number().min(0).default(0), // 表示・保存用（1.2倍された値）
+    baseDifficulty: zod.number().min(0).default(0), // 入力・編集用（元の値）
     name: taskNameSchema,
     notes: zod.array(zod.string()).default([]),
     relations: zod.array(zod.string()).default([]),
