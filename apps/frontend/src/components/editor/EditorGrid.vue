@@ -93,12 +93,20 @@
       <GridLayout
         v-model:layout="layout"
         :col-num="isCompactMode ? 16 : 12"
-        :row-height="isCompactMode ? 35 : 50"
+        :row-height="
+          isCompactMode
+            ? LAYOUT.GRID.ROW_HEIGHT.COMPACT
+            : LAYOUT.GRID.ROW_HEIGHT.NORMAL
+        "
         :is-draggable="!disableGrid"
         :is-resizable="!disableGrid"
         :vertical-compact="false"
         :use-css-transforms="true"
-        :margin="isCompactMode ? [5, 5] : [10, 10]"
+        :margin="
+          isCompactMode
+            ? [LAYOUT.GRID.MARGIN.COMPACT, LAYOUT.GRID.MARGIN.COMPACT]
+            : [LAYOUT.GRID.MARGIN.NORMAL, LAYOUT.GRID.MARGIN.NORMAL]
+        "
         :responsive="false"
         :auto-size="false"
         :prevent-collision="true"
@@ -322,17 +330,21 @@ const handleItemResized = () => {
 const getVisibleAreaPosition = () => {
   if (!gridContainer.value) return { x: 0, y: 0 };
 
-  const scrollLeft = gridContainer.value.scrollLeft;
   const scrollTop = gridContainer.value.scrollTop;
 
-  // グリッドのセルサイズを考慮してグリッド座標に変換
-  const colWidth = LAYOUT.GRID.CELL_WIDTH; // グリッドセルの幅
-  const rowHeight = LAYOUT.GRID.CELL_HEIGHT; // グリッドセルの高さ
+  // GridLayoutの実際の設定値を使用
+  const rowHeight = isCompactMode.value
+    ? LAYOUT.GRID.ROW_HEIGHT.COMPACT
+    : LAYOUT.GRID.ROW_HEIGHT.NORMAL;
+  const margin = isCompactMode.value
+    ? LAYOUT.GRID.MARGIN.COMPACT
+    : LAYOUT.GRID.MARGIN.NORMAL;
 
-  const gridX = Math.floor(scrollLeft / colWidth);
-  const gridY = Math.floor(scrollTop / rowHeight);
+  // スクロール位置をグリッド座標に変換（マージンも考慮）
+  const gridY = Math.floor(scrollTop / (rowHeight + margin));
 
-  return { x: gridX, y: gridY };
+  // X座標は左端（0）に固定
+  return { x: 0, y: gridY };
 };
 
 // タスク追加ボタンのクリックハンドラ
