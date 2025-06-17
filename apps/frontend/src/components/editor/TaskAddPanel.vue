@@ -115,7 +115,7 @@
                 type="number"
                 min="0"
                 step="0.1"
-                class="flex-1 px-1 py-1 border border-gray-300 rounded text-center text-xs"
+                class="w-12 px-1 py-1 border border-gray-300 rounded text-center text-xs"
                 :class="[
                   getInputColorClass(),
                   { 'bg-yellow-50': isAutoDifficulty },
