@@ -99,27 +99,8 @@
           <label class="block text-sm font-medium text-gray-700 mb-1"
             >難易度</label
           >
-          <div class="grid grid-cols-3 gap-3">
-            <!-- 左側：推奨難易度 -->
-            <div>
-              <label class="block text-xs text-gray-600 mb-1">推奨難易度</label>
-              <div
-                class="px-3 py-2 bg-blue-50 border border-blue-200 rounded text-center text-sm font-medium text-blue-700"
-                v-if="
-                  categoryInput &&
-                  getDifficultyByCategory(categoryInput) !== null
-                "
-              >
-                {{ getDifficultyByCategory(categoryInput) }}
-              </div>
-              <div
-                v-else
-                class="px-3 py-2 bg-gray-50 border border-gray-200 rounded text-center text-sm text-gray-400"
-              >
-                −
-              </div>
-            </div>
-            <!-- 中央：入力用（元の値） -->
+          <div class="grid grid-cols-3 gap-3 items-center">
+            <!-- 左側：入力用 -->
             <div>
               <label for="difficulty" class="block text-xs text-gray-600 mb-1"
                 >入力値 (0.5刻み)</label
@@ -149,6 +130,25 @@
                 >
                   ＋
                 </button>
+              </div>
+            </div>
+            <!-- 中央：推奨難易度 -->
+            <div>
+              <label class="block text-xs text-gray-600 mb-1">推奨難易度</label>
+              <div
+                class="px-3 py-2 bg-blue-50 border border-blue-200 rounded text-center text-sm font-medium text-blue-700"
+                v-if="
+                  categoryInput &&
+                  getDifficultyByCategory(categoryInput) !== null
+                "
+              >
+                {{ getDifficultyByCategory(categoryInput) }}
+              </div>
+              <div
+                v-else
+                class="px-3 py-2 bg-gray-50 border border-gray-200 rounded text-center text-sm text-gray-400"
+              >
+                −
               </div>
             </div>
             <!-- 右側：動作確認込み -->
