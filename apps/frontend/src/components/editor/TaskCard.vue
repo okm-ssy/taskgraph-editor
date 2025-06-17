@@ -93,7 +93,11 @@
     </div>
 
     <template #popper>
-      <TaskDetail v-if="getEditorTaskById(id)" :task="getEditorTaskById(id)!" />
+      <TaskDetail
+        v-if="getEditorTaskById(id)"
+        :task="getEditorTaskById(id)!"
+        :hide-dependencies="true"
+      />
       <div v-else class="p-2 bg-red-100 text-red-700 text-xs">
         詳細情報取得エラー
       </div>

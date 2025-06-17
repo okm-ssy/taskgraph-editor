@@ -26,7 +26,7 @@
       </span>
     </div>
 
-    <div>
+    <div v-if="!props.hideDependencies">
       <label class="block text-xs font-medium text-gray-500 mb-0.5">
         依存元 (Depends On):
       </label>
@@ -45,7 +45,7 @@
       <p v-else class="text-gray-400 italic text-xs">なし</p>
     </div>
 
-    <div>
+    <div v-if="!props.hideDependencies">
       <label class="block text-xs font-medium text-gray-500 mb-0.5">
         依存先 (Depended By):
       </label>
@@ -99,6 +99,7 @@ import { difficultyBackgroundClass } from '../../utilities/task';
 
 const props = defineProps<{
   task: EditorTask; // EditorTask オブジェクト全体を受け取る
+  hideDependencies?: boolean; // 依存関係を非表示にするオプション
 }>();
 
 const taskStore = useCurrentTasks();
