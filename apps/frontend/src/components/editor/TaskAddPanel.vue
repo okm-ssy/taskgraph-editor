@@ -1,6 +1,6 @@
 <template>
   <div
-    class="fixed z-30 bg-white shadow-lg rounded-lg border border-gray-200 p-4 w-80"
+    class="absolute z-30 bg-white shadow-lg rounded-lg border border-gray-200 p-4 w-80"
     :style="panelPosition"
   >
     <div class="flex justify-between items-center mb-4">
@@ -174,13 +174,10 @@ const panelPosition = computed(() => {
     };
   }
 
-  const containerRect = gridContainer.getBoundingClientRect();
-
-  // gridContainerの最上部 + マージン（getBoundingClientRect()には既にスクロール位置が反映されている）
-  const top = containerRect.top + LAYOUT.MODAL.MIN_MARGIN;
-  // 右端はgridContainerの右端からマージン分内側
-  const right =
-    window.innerWidth - containerRect.right + LAYOUT.MODAL.MIN_MARGIN;
+  // EditorGrid内での相対位置を使用（全体スクロールに影響されない）
+  const top = gridContainer.offsetTop + LAYOUT.MODAL.MIN_MARGIN;
+  // 右端はマージン分内側
+  const right = LAYOUT.MODAL.MIN_MARGIN;
 
   return {
     top: `${top}px`,
