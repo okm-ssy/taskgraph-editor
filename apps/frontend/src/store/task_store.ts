@@ -11,6 +11,11 @@ import { useEditorUIStore } from './editor_ui_store';
 import { useGraphLayout } from './graph_layout_store';
 import { useJsonProcessor } from './json_processor';
 
+// LocalStorage用の定数
+const LOCAL_STORAGE_KEY = 'taskgraph-data';
+const LOCAL_STORAGE_EXPIRY_KEY = 'taskgraph-data-expiry';
+const EXPIRY_DURATION_MS = 30 * 24 * 60 * 60 * 1000; // 30日間（ミリ秒）
+
 export const useCurrentTasks = defineStore('editorTask', () => {
   // グラフレイアウト関連
   const graphLayout = useGraphLayout();
@@ -188,15 +193,57 @@ export const useCurrentTasks = defineStore('editorTask', () => {
       }
       const jsonData = exportTaskgraphToJson();
       sessionStorage.setItem('taskgraph-data', jsonData);
+      // LocalStorageにも保存（期限付き）
+      saveToLocalStorage(jsonData);
     } catch (error) {
       console.error('Session Storage保存エラー:', error);
+    }
+  };
+
+  // LocalStorageにデータを保存（期限付き）
+  const saveToLocalStorage = (jsonData: string) => {
+    try {
+      const expiryTime = Date.now() + EXPIRY_DURATION_MS;
+      localStorage.setItem(LOCAL_STORAGE_KEY, jsonData);
+      localStorage.setItem(LOCAL_STORAGE_EXPIRY_KEY, expiryTime.toString());
+    } catch (error) {
+      console.error('LocalStorage保存エラー:', error);
+    }
+  };
+
+  // LocalStorageから期限をチェックしてデータを取得
+  const getFromLocalStorage = (): string | null => {
+    try {
+      const expiryTime = localStorage.getItem(LOCAL_STORAGE_EXPIRY_KEY);
+      if (!expiryTime) return null;
+
+      const now = Date.now();
+      const expiry = parseInt(expiryTime, 10);
+
+      // 期限切れの場合は削除
+      if (now > expiry) {
+        localStorage.removeItem(LOCAL_STORAGE_KEY);
+        localStorage.removeItem(LOCAL_STORAGE_EXPIRY_KEY);
+        return null;
+      }
+
+      return localStorage.getItem(LOCAL_STORAGE_KEY);
+    } catch (error) {
+      console.error('LocalStorage読み込みエラー:', error);
+      return null;
     }
   };
 
   // Session Storageからデータを読み込み
   const loadFromSessionStorage = () => {
     try {
-      const jsonData = sessionStorage.getItem('taskgraph-data');
+      let jsonData = sessionStorage.getItem('taskgraph-data');
+
+      // SessionStorageにない場合はLocalStorageから読み込み
+      if (!jsonData) {
+        jsonData = getFromLocalStorage();
+      }
+
       if (jsonData) {
         isLoadingFromStorage = true;
         const result = parseJsonToTaskgraph(jsonData);
