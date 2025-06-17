@@ -176,7 +176,7 @@ const panelPosition = computed(() => {
   }
 
   // EditorGrid内での相対位置 + スクロール位置（上部ぴったりに配置）
-  const top = gridContainer.value.offsetTop + scrollPosition.value.y;
+  const top = LAYOUT.MODAL.MIN_MARGIN + scrollPosition.value.y;
   // 右端はマージン分内側
   const right = LAYOUT.MODAL.MIN_MARGIN;
 
