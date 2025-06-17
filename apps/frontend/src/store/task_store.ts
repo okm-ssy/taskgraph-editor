@@ -2,7 +2,6 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
-import { useCriticalPath } from '../composables/useCriticalPath';
 import { STORAGE_KEYS, STORAGE_EXPIRY } from '../constants';
 import { EditorTask } from '../model/EditorTask'; // EditorTask をインポート
 import type { GridTask } from '../model/GridTask';
@@ -62,19 +61,6 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   // 全タスクの難易度合計（余剰工数1.2倍を含む）
   const totalDifficulty = computed(() => {
     return baseTotalDifficulty.value * 1.2;
-  });
-
-  // クリティカルパス計算
-  const {
-    criticalPath,
-    projectDuration: baseDuration,
-    criticalTaskNames,
-    dependencyEdges,
-  } = useCriticalPath(editorTasks);
-
-  // プロジェクト所要時間（余剰工数1.2倍を含む）
-  const projectDuration = computed(() => {
-    return baseDuration.value * 1.2;
   });
 
   // Actions
@@ -359,12 +345,6 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     getTaskById,
     getDependentTasks,
     selectedTask, // 追加
-
-    // Critical Path
-    criticalPath,
-    projectDuration,
-    criticalTaskNames,
-    dependencyEdges,
 
     // Actions
     addTask,

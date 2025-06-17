@@ -20,20 +20,13 @@
           class="text-sm text-gray-600"
         >
           <span class="font-medium">総工数: {{ totalDifficulty }}</span>
-          <span class="ml-3 text-blue-600"
-            >クリティカルパス: {{ criticalTaskNames.length }}タスク</span
-          >
-          <span class="ml-3 font-medium">最低工数: {{ projectDuration }}</span>
         </div>
         <!-- 最小化モード時の簡潔な情報表示 -->
         <div
           v-if="editorTasks.length > 0 && isMinimalHeader"
           class="text-xs text-gray-600"
         >
-          工数:{{ Math.round(totalDifficulty * 10) / 10 }} | 最低:{{
-            Math.round(projectDuration * 10) / 10
-          }}
-          | CP:{{ criticalTaskNames.length }}
+          工数:{{ Math.round(totalDifficulty * 10) / 10 }}
         </div>
       </div>
       <div class="flex gap-2">
@@ -199,13 +192,7 @@ const isMinimalHeader = computed(() => props.minimalHeader ?? false);
 const taskActions = useTaskActionsProvider();
 
 // storeからtoRefsで値を取得
-const {
-  editorTasks,
-  totalDifficulty,
-  criticalPath,
-  projectDuration,
-  criticalTaskNames,
-} = toRefs(taskStore);
+const { editorTasks, totalDifficulty } = toRefs(taskStore);
 
 // 矢印描画用: 依存関係のペアを取得
 type Arrow = {
@@ -249,17 +236,11 @@ const gridBounds = computed(() => {
 // Curve.vueに渡すconnections配列（仮矢印は除外）
 const connections = computed<Connection[]>(() => {
   return arrows.value.map((arrow) => {
-    // クリティカルパス上の矢印かチェック
-    const isCritical = criticalPath.value.some(
-      (edge) =>
-        edge.fromTaskId === arrow.fromId && edge.toTaskId === arrow.toId,
-    );
-
     return {
       sourceId: `source-${arrow.fromId}`,
       targetId: `target-${arrow.toId}`,
-      color: isCritical ? '#2563eb' : '#94a3b8', // クリティカルパスは青色
-      strokeWidth: isCritical ? 2.5 : 1.5, // クリティカルパスは太く
+      color: '#94a3b8',
+      strokeWidth: 1.5,
       interval: 10, // 更新間隔（ミリ秒）
     };
   });
