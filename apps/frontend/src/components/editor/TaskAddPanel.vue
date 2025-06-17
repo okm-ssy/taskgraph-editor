@@ -135,7 +135,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 import { useTaskCategories } from '../../composables/useTaskCategories';
 import { LAYOUT } from '../../constants';
@@ -158,12 +158,38 @@ const categoryInput = ref('');
 const difficultyInput = ref(0);
 const isAutoDifficulty = ref(false);
 
-// パネルの固定位置（gridContainer内での相対位置）
+// スクロール位置を追跡
+const scrollTop = ref(0);
+
+// パネルの位置（スクロールに追従）
 const panelPosition = computed(() => {
   return {
-    top: `${LAYOUT.MODAL.MIN_MARGIN}px`,
+    top: `${scrollTop.value + LAYOUT.MODAL.MIN_MARGIN}px`,
     right: `${LAYOUT.MODAL.MIN_MARGIN}px`,
   };
+});
+
+// スクロール位置を更新
+const updateScrollPosition = () => {
+  const container = document.querySelector('.overflow-auto');
+  if (container) {
+    scrollTop.value = container.scrollTop;
+  }
+};
+
+onMounted(() => {
+  updateScrollPosition();
+  const container = document.querySelector('.overflow-auto');
+  if (container) {
+    container.addEventListener('scroll', updateScrollPosition);
+  }
+});
+
+onUnmounted(() => {
+  const container = document.querySelector('.overflow-auto');
+  if (container) {
+    container.removeEventListener('scroll', updateScrollPosition);
+  }
 });
 
 // 分類選択時の処理
