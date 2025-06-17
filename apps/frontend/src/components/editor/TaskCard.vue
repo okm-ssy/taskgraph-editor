@@ -1,99 +1,115 @@
 <template>
-  <div
-    :class="[
-      'h-full w-full flex flex-col border-2 rounded-lg transition-all relative',
-      difficultyColorClass,
-      isDroppable ? 'ring-4 ring-blue-400 scale-105' : '',
-      isDraggingSource ? 'opacity-50' : '',
-      props.compact ? 'compact-mode' : 'normal-mode',
-    ]"
-    style="z-index: 1; overflow: visible"
-    :title="tooltipText"
-    @dragover="handleDragOver"
-    @dragleave="handleDragLeave"
-    @drop="handleDrop"
+  <VDropdown
+    :lazy="true"
+    v-bind="dropdownOptions"
+    :aria-id="`tooltip-for-${id}`"
+    class="h-full w-full"
   >
-    <!-- target: 依存先（矢印の終点） -->
-    <div
-      :id="`target-${id}`"
-      class="absolute -left-1 top-6 -translate-x-1/4 -translate-y-1/2 bg-blue-500 rounded-full h-4 w-4"
-      style="z-index: 20"
-    />
-
-    <!-- source: 依存元（矢印の起点、ドラッグ可能） -->
-    <div
-      :id="`source-${id}`"
-      class="dependency-handle absolute right-0 top-6 translate-x-1/2 -translate-y-1/2 bg-blue-500 rounded-full h-4 w-4 cursor-move hover:scale-125 transition-transform"
-      style="z-index: 20"
-      draggable="true"
-      @dragstart="handleDragStart"
-      @dragend="handleDragEnd"
-      title="ドラッグして依存関係を作成"
-    />
-
-    <!-- ドラッグハンドル部分 (カードの上部) -->
-    <div
-      class="drag-handle py-2 px-3 flex justify-between items-center border-b border-opacity-30 cursor-move relative"
-      :class="difficultyColorClass.replace('bg-', 'bg-opacity-70 bg-')"
-    >
-      <div class="flex items-center justify-start overflow-x-hidden">
-        <div class="font-bold text-gray-800 truncate text-sm">
-          {{ task.name }}
-        </div>
-      </div>
-      <div class="flex items-center justify-center">
-        <button
-          @click="handleRemove"
-          class="task-action-button text-gray-500 hover:bg-white rounded-full p-1"
-        >
-          ×
-        </button>
-      </div>
-    </div>
-
-    <!-- カード本体 (クリックで詳細表示) -->
     <div
       :class="[
-        'task-content flex-1 flex flex-col cursor-pointer relative overflow-hidden',
-        props.compact ? 'p-2' : 'p-3',
+        'h-full w-full flex flex-col border-2 rounded-lg transition-all relative',
+        difficultyColorClass,
+        isDroppable ? 'ring-4 ring-blue-400 scale-105' : '',
+        isDraggingSource ? 'opacity-50' : '',
+        props.compact ? 'compact-mode' : 'normal-mode',
       ]"
-      @click="handleCardClick"
-      @dragenter.prevent
-      @dragover.prevent
+      style="z-index: 1; overflow: visible"
+      @dragover="handleDragOver"
+      @dragleave="handleDragLeave"
+      @drop="handleDrop"
+      :aria-describedby="`tooltip-for-${id}`"
     >
-      <p
-        :class="[
-          'text-gray-700 line-clamp-2 mb-2',
-          props.compact ? 'text-xs' : 'text-sm',
-        ]"
-      >
-        {{ task.description }}
-      </p>
+      <!-- target: 依存先（矢印の終点） -->
+      <div
+        :id="`target-${id}`"
+        class="absolute -left-1 top-6 -translate-x-1/4 -translate-y-1/2 bg-blue-500 rounded-full h-4 w-4"
+        style="z-index: 20"
+      />
 
-      <div class="mt-auto flex justify-end">
-        <span
+      <!-- source: 依存元（矢印の起点、ドラッグ可能） -->
+      <div
+        :id="`source-${id}`"
+        class="dependency-handle absolute right-0 top-6 translate-x-1/2 -translate-y-1/2 bg-blue-500 rounded-full h-4 w-4 cursor-move hover:scale-125 transition-transform"
+        style="z-index: 20"
+        draggable="true"
+        @dragstart="handleDragStart"
+        @dragend="handleDragEnd"
+        title="ドラッグして依存関係を作成"
+      />
+
+      <!-- ドラッグハンドル部分 (カードの上部) -->
+      <div
+        class="drag-handle py-2 px-3 flex justify-between items-center border-b border-opacity-30 cursor-move relative"
+        :class="difficultyColorClass.replace('bg-', 'bg-opacity-70 bg-')"
+      >
+        <div class="flex items-center justify-start overflow-x-hidden">
+          <div class="font-bold text-gray-800 truncate text-sm">
+            {{ task.name }}
+          </div>
+        </div>
+        <div class="flex items-center justify-center">
+          <button
+            @click="handleRemove"
+            class="task-action-button text-gray-500 hover:bg-white rounded-full p-1"
+          >
+            ×
+          </button>
+        </div>
+      </div>
+
+      <!-- カード本体 (クリックで詳細表示) -->
+      <div
+        :class="[
+          'task-content flex-1 flex flex-col cursor-pointer relative overflow-hidden',
+          props.compact ? 'p-2' : 'p-3',
+        ]"
+        @click="handleCardClick"
+        @dragenter.prevent
+        @dragover.prevent
+      >
+        <p
           :class="[
-            'bg-white rounded-full px-2 py-1 text-gray-700',
-            props.compact ? 'text-[10px]' : 'text-xs',
+            'text-gray-700 line-clamp-2 mb-2',
+            props.compact ? 'text-xs' : 'text-sm',
           ]"
         >
-          {{ task.category || `難易度: ${task.difficulty}` }}
-          <span v-if="task.category" class="text-gray-500"
-            >({{ task.difficulty }})</span
+          {{ task.description }}
+        </p>
+
+        <div class="mt-auto flex justify-end">
+          <span
+            :class="[
+              'bg-white rounded-full px-2 py-1 text-gray-700',
+              props.compact ? 'text-[10px]' : 'text-xs',
+            ]"
           >
-        </span>
+            {{ task.category || `難易度: ${task.difficulty}` }}
+            <span v-if="task.category" class="text-gray-500"
+              >({{ task.difficulty }})</span
+            >
+          </span>
+        </div>
       </div>
     </div>
-  </div>
+
+    <template #popper>
+      <TaskDetail v-if="getEditorTaskById(id)" :task="getEditorTaskById(id)!" />
+      <div v-else class="p-2 bg-red-100 text-red-700 text-xs">
+        詳細情報取得エラー
+      </div>
+    </template>
+  </VDropdown>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
 
+import { TIMING } from '../../constants';
 import type { Task } from '../../model/Taskgraph';
 import { useDragDropStore } from '../../store/drag_drop_store';
 import { useCurrentTasks } from '../../store/task_store';
 import { difficultyBackgroundClass } from '../../utilities/task';
+import TaskDetail from '../viewer/TaskDetail.vue';
 
 const props = defineProps<{
   task: Task;
@@ -103,6 +119,21 @@ const props = defineProps<{
 
 const dragDropStore = useDragDropStore();
 const taskStore = useCurrentTasks();
+
+// ドロップダウンオプション
+const dropdownOptions = {
+  triggers: ['hover', 'focus'],
+  delay: {
+    show: TIMING.TOOLTIP.SHOW_DELAY_MS,
+    hide: TIMING.TOOLTIP.HIDE_DELAY_MS,
+  },
+  placement: 'auto',
+};
+
+// EditorTaskを取得する関数
+const getEditorTaskById = (id: string) => {
+  return taskStore.getTaskById(id);
+};
 
 // 難易度に基づいて背景色を計算
 const difficultyColorClass = computed(() => {
@@ -195,56 +226,6 @@ const isDroppable = computed(() => {
 const isDraggingSource = computed(() => {
   return dragDropStore.draggingSourceId === props.id;
 });
-
-// ホバー時に表示するツールチップテキスト
-const tooltipText = computed(() => {
-  let tooltip = `タスク名: ${props.task.name}`;
-
-  if (props.task.description) {
-    tooltip += `\n概要: ${props.task.description}`;
-  }
-
-  // 分類と難易度
-  if (props.task.category) {
-    tooltip += `\n分類: ${props.task.category} (${props.task.difficulty})`;
-  } else {
-    tooltip += `\n難易度: ${props.task.difficulty}`;
-  }
-
-  // 依存元 (Depends On)
-  if (props.task.depends && props.task.depends.length > 0) {
-    const validDepends = props.task.depends.filter((dep) => dep && dep !== '');
-    if (validDepends.length > 0) {
-      tooltip += `\n\n依存元:\n${validDepends.map((dep) => `• ${dep}`).join('\n')}`;
-    }
-  }
-
-  // 依存先 (Depended By)
-  const dependentTasks = taskStore.getDependentTasks(props.task.name);
-  if (dependentTasks.length > 0) {
-    tooltip += `\n\n依存先:\n${dependentTasks.map((task) => `• ${task.name}`).join('\n')}`;
-  }
-
-  // ノート
-  if (props.task.notes && props.task.notes.length > 0) {
-    const validNotes = props.task.notes.filter((note) => note && note !== '');
-    if (validNotes.length > 0) {
-      tooltip += `\n\nノート:\n${validNotes.map((note) => `• ${note}`).join('\n')}`;
-    }
-  }
-
-  // 関連ファイル
-  if (props.task.relations && props.task.relations.length > 0) {
-    const validRelations = props.task.relations.filter(
-      (rel) => rel && rel !== '',
-    );
-    if (validRelations.length > 0) {
-      tooltip += `\n\n関連ファイル:\n${validRelations.map((rel) => `• ${rel}`).join('\n')}`;
-    }
-  }
-
-  return tooltip;
-});
 </script>
 
 <style scoped>
@@ -270,5 +251,17 @@ const tooltipText = computed(() => {
 .dependency-handle {
   will-change: transform;
   contain: layout;
+}
+
+/* ビューアと同じtooltipスタイル */
+:deep(.v-popper__inner) {
+  border: none;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+:deep(.v-popper__arrow-container) {
+  display: none;
 }
 </style>
