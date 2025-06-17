@@ -86,7 +86,6 @@
       <!-- 新規タスク追加パネル -->
       <TaskAddPanel
         v-if="uiStore.showAddPanel"
-        :position="getVisibleAreaPosition()"
         @close="uiStore.toggleAddPanel"
       />
 
@@ -150,7 +149,6 @@ import {
   nextTick,
   onBeforeUnmount,
   toRefs,
-  provide,
 } from 'vue';
 import { GridLayout, GridItem } from 'vue3-grid-layout-next';
 
@@ -184,9 +182,6 @@ const uiStore = useEditorUIStore();
 const dragDropStore = useDragDropStore();
 const layout = ref<GridTask[]>([]);
 const gridContainer = ref<HTMLDivElement | null>(null);
-
-// gridContainerのrefを子コンポーネントに提供
-provide('gridContainer', gridContainer);
 
 // 表示モード管理（propsから取得）
 const isCompactMode = computed(() => props.compactMode ?? false);
