@@ -84,7 +84,25 @@
           >難易度</label
         >
         <div class="grid grid-cols-3 gap-2">
-          <!-- 左側：入力用（元の値） -->
+          <!-- 左側：推奨難易度 -->
+          <div>
+            <label class="block text-xs text-gray-600 mb-1">推奨難易度</label>
+            <div
+              class="px-2 py-1 bg-blue-50 border border-blue-200 rounded text-center text-xs font-medium text-blue-700"
+              v-if="
+                categoryInput && getDifficultyByCategory(categoryInput) !== null
+              "
+            >
+              {{ getDifficultyByCategory(categoryInput) }}
+            </div>
+            <div
+              v-else
+              class="px-2 py-1 bg-gray-50 border border-gray-200 rounded text-center text-xs text-gray-400"
+            >
+              −
+            </div>
+          </div>
+          <!-- 中央：入力用（元の値） -->
           <div>
             <label
               for="task-difficulty"
@@ -107,7 +125,10 @@
                 min="0"
                 step="0.1"
                 class="flex-1 px-1 py-1 border border-gray-300 rounded text-center text-xs"
-                :class="{ 'bg-yellow-50': isAutoDifficulty }"
+                :class="[
+                  getInputColorClass(),
+                  { 'bg-yellow-50': isAutoDifficulty },
+                ]"
               />
               <button
                 type="button"
@@ -118,7 +139,7 @@
               </button>
             </div>
           </div>
-          <!-- 中央：動作確認込み -->
+          <!-- 右側：動作確認込み -->
           <div>
             <label class="block text-xs text-gray-600 mb-1"
               >動作確認込み (×1.2)</label
@@ -127,24 +148,6 @@
               class="px-2 py-1 bg-gray-50 border border-gray-200 rounded text-center text-xs font-medium"
             >
               {{ Math.round(difficultyInput * 1.2 * 10) / 10 }}
-            </div>
-          </div>
-          <!-- 右側：推奨難易度 -->
-          <div>
-            <label class="block text-xs text-gray-600 mb-1">推奨難易度</label>
-            <div
-              class="px-2 py-1 bg-blue-50 border border-blue-200 rounded text-center text-xs font-medium text-blue-700"
-              v-if="
-                categoryInput && getDifficultyByCategory(categoryInput) !== null
-              "
-            >
-              {{ getDifficultyByCategory(categoryInput) }}
-            </div>
-            <div
-              v-else
-              class="px-2 py-1 bg-gray-50 border border-gray-200 rounded text-center text-xs text-gray-400"
-            >
-              −
             </div>
           </div>
         </div>
@@ -268,6 +271,20 @@ const decreaseDifficulty = () => {
   const newValue = Math.max(0, difficultyInput.value - 0.5);
   difficultyInput.value = Math.round(newValue * 10) / 10; // 小数点誤差対策
   isAutoDifficulty.value = false; // 手動変更時は自動設定フラグをオフ
+};
+
+// 入力値の文字色を推奨難易度との比較で決定
+const getInputColorClass = () => {
+  if (!categoryInput.value) return 'text-black';
+
+  const recommended = getDifficultyByCategory(categoryInput.value);
+  if (recommended === null) return 'text-black';
+
+  const input = difficultyInput.value;
+  if (input === recommended) return 'text-black';
+  if (input < recommended) return 'text-blue-600';
+  if (input > recommended) return 'text-red-600';
+  return 'text-black';
 };
 
 // スクロール位置を考慮した位置計算（EditorGridと同じロジック）
