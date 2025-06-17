@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="uiStore.isDetailDialogVisible"
-    class="fixed inset-0 bg-black/50 z-50"
+    class="absolute inset-0 bg-black/50 z-50"
     @mousedown="handleOverlayMouseDown"
     @click="handleOverlayClick"
   >
@@ -184,11 +184,9 @@ const modalPosition = computed(() => {
     };
   }
 
-  const containerRect = gridContainer.getBoundingClientRect();
-
-  // gridContainerの最上部 + マージン（getBoundingClientRect()には既にスクロール位置が反映されている）
-  const top = containerRect.top + LAYOUT.MODAL.MIN_MARGIN;
-  const left = containerRect.left + LAYOUT.MODAL.MIN_MARGIN;
+  // EditorGrid内での相対位置を使用（全体スクロールに影響されない）
+  const top = gridContainer.offsetTop + LAYOUT.MODAL.MIN_MARGIN;
+  const left = gridContainer.offsetLeft + LAYOUT.MODAL.MIN_MARGIN;
 
   return {
     top: `${top}px`,
