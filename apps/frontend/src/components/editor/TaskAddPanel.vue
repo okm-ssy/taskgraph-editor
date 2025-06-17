@@ -94,7 +94,7 @@
         >
         <div class="grid grid-cols-2 gap-2 items-center">
           <!-- 左側：入力用 -->
-          <div class="max-w-[50%]">
+          <div>
             <label
               for="task-difficulty"
               class="block text-xs text-gray-600 mb-1"
@@ -115,7 +115,7 @@
                 type="number"
                 min="0"
                 step="0.1"
-                class="flex-1 px-1 py-1 border border-gray-300 rounded text-center text-xs"
+                class="min-w-0 flex-1 px-1 py-1 border border-gray-300 rounded text-center text-xs"
                 :class="[
                   getInputColorClass(),
                   { 'bg-yellow-50': isAutoDifficulty },
