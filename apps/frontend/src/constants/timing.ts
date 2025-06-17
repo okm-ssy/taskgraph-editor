@@ -1,0 +1,42 @@
+export const TIMING = {
+  ERROR_AUTO_DISMISS_MS: 10000,
+  TOOLTIP: {
+    SHOW_DELAY_MS: 200,
+    HIDE_DELAY_MS: 100,
+  },
+  DEBOUNCE: {
+    DEFAULT_MS: 100,
+    ANIMATION_MS: 300,
+  },
+  RETRY: {
+    BASE_DELAY_MS: 100,
+  },
+  SCHEDULE: {
+    DELAY_MS: 20,
+  },
+  ANIMATION: {
+    SHORT_MS: 100,
+    MEDIUM_MS: 300,
+  },
+  FRAME_RATE: {
+    LOW_FREQUENCY_MS: 33, // 30FPS
+  },
+  INITIALIZATION: {
+    DELAY_MS: 50,
+    MEDIUM_DELAY_MS: 150,
+  },
+  CURVE_UPDATE: {
+    IMMEDIATE_MS: 10,
+  },
+  JSON_PARSE: {
+    FLAG_RESET_MS: 100,
+  },
+  RETRY_LIMITS: {
+    MAX_POSITION_RETRIES: 10,
+    MAX_ELEMENT_RETRIES: 5,
+  },
+  INTERVALS: {
+    ELEMENT_CHECK_MS: 50,
+    LONG_DELAY_MS: 300,
+  },
+} as const;

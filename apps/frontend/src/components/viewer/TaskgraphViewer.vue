@@ -133,6 +133,7 @@
 import { onMounted, defineProps, watch, ref, onBeforeUpdate } from 'vue';
 
 import type { CriticalPathEdge } from '../../composables/useCriticalPath';
+import { TIMING } from '../../constants';
 import type { EditorTask } from '../../model/EditorTask';
 import { useCurrentTasks } from '../../store/task_store';
 import { useGraphExport } from '../../store/use_graph_export';
@@ -176,7 +177,10 @@ const exportSvg = () => {
 
 const dropdownOptions = {
   triggers: ['hover', 'focus'],
-  delay: { show: 200, hide: 100 },
+  delay: {
+    show: TIMING.TOOLTIP.SHOW_DELAY_MS,
+    hide: TIMING.TOOLTIP.HIDE_DELAY_MS,
+  },
   placement: 'auto',
 };
 

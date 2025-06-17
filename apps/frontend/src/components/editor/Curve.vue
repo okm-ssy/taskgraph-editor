@@ -129,6 +129,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, watch, type PropType } from 'vue';
 
+import { TIMING } from '../../constants/timing';
 import { useDragDropStore } from '../../store/drag_drop_store';
 
 interface Position {
@@ -224,13 +225,13 @@ const updatePositions = () => {
         endRect.height === 0
       ) {
         const retryCount = updateRetryMap.get(key) || 0;
-        if (retryCount < 10) {
+        if (retryCount < TIMING.RETRY_LIMITS.MAX_POSITION_RETRIES) {
           updateRetryMap.set(key, retryCount + 1);
           setTimeout(
             () => {
               updatePositions();
             },
-            100 * (retryCount + 1),
+            TIMING.RETRY.BASE_DELAY_MS * (retryCount + 1),
           ); // 徐々に間隔を長くする
         }
         return;
@@ -254,11 +255,11 @@ const updatePositions = () => {
     } else {
       // 要素が見つからない場合も再試行
       const retryCount = updateRetryMap.get(key) || 0;
-      if (retryCount < 5) {
+      if (retryCount < TIMING.RETRY_LIMITS.MAX_ELEMENT_RETRIES) {
         updateRetryMap.set(key, retryCount + 1);
         setTimeout(() => {
           updatePositions();
-        }, 50);
+        }, TIMING.INTERVALS.ELEMENT_CHECK_MS);
       }
     }
   });
@@ -390,7 +391,7 @@ const startContinuousUpdate = (isLowFrequency = false) => {
         if (continuousUpdateId) {
           continuousUpdateId = requestAnimationFrame(update);
         }
-      }, 33);
+      }, TIMING.FRAME_RATE.LOW_FREQUENCY_MS);
     } else {
       // 通常は60FPSで更新
       continuousUpdateId = requestAnimationFrame(update);
@@ -460,7 +461,7 @@ const handleTransitionEnd = (event: Event) => {
       // 最終位置を確実に更新
       setTimeout(() => {
         updatePositions();
-      }, 10);
+      }, TIMING.CURVE_UPDATE.IMMEDIATE_MS);
     }
   }
 };
@@ -503,7 +504,7 @@ const setupObservers = () => {
     if (shouldUpdate) {
       // Transform変更の場合は少し遅延して確実に更新
       if (hasTransformChange) {
-        setTimeout(() => scheduleUpdate(), 20);
+        setTimeout(() => scheduleUpdate(), TIMING.SCHEDULE.DELAY_MS);
       } else {
         scheduleUpdate();
       }
@@ -615,16 +616,16 @@ onMounted(() => {
   // 初期描画を少し遅延させて、要素が確実にレンダリングされるのを待つ
   setTimeout(() => {
     updatePositions();
-  }, 50);
+  }, TIMING.INITIALIZATION.DELAY_MS);
 
   // 複数回の初期更新で確実に位置を取得
   setTimeout(() => {
     updatePositions();
-  }, 150);
+  }, TIMING.INITIALIZATION.MEDIUM_DELAY_MS);
 
   setTimeout(() => {
     updatePositions();
-  }, 300);
+  }, TIMING.INTERVALS.LONG_DELAY_MS);
 
   setupObservers();
   window.addEventListener('resize', updatePositions);
