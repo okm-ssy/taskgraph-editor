@@ -83,7 +83,7 @@
         <label class="block text-sm font-medium text-gray-700 mb-1"
           >難易度</label
         >
-        <div class="grid grid-cols-4 gap-3">
+        <div class="grid grid-cols-3 gap-2">
           <!-- 左側：入力用（元の値） -->
           <div>
             <label
@@ -95,7 +95,7 @@
               <button
                 type="button"
                 @click="decreaseDifficulty"
-                class="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-xs font-semibold transition-colors"
+                class="px-1 py-1 bg-gray-200 hover:bg-gray-300 rounded text-xs font-semibold transition-colors"
                 :disabled="difficultyInput <= 0"
               >
                 −
@@ -106,18 +106,19 @@
                 type="number"
                 min="0"
                 step="0.1"
-                class="flex-1 px-2 py-1 border border-gray-300 rounded text-center text-xs"
+                class="flex-1 px-1 py-1 border border-gray-300 rounded text-center text-xs"
                 :class="{ 'bg-yellow-50': isAutoDifficulty }"
               />
               <button
                 type="button"
                 @click="increaseDifficulty"
-                class="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-xs font-semibold transition-colors"
+                class="px-1 py-1 bg-gray-200 hover:bg-gray-300 rounded text-xs font-semibold transition-colors"
               >
                 ＋
               </button>
             </div>
           </div>
+          <!-- 中央：動作確認込み -->
           <div>
             <label class="block text-xs text-gray-600 mb-1"
               >動作確認込み (×1.2)</label
@@ -126,6 +127,24 @@
               class="px-2 py-1 bg-gray-50 border border-gray-200 rounded text-center text-xs font-medium"
             >
               {{ Math.round(difficultyInput * 1.2 * 10) / 10 }}
+            </div>
+          </div>
+          <!-- 右側：推奨難易度 -->
+          <div>
+            <label class="block text-xs text-gray-600 mb-1">推奨難易度</label>
+            <div
+              class="px-2 py-1 bg-blue-50 border border-blue-200 rounded text-center text-xs font-medium text-blue-700"
+              v-if="
+                categoryInput && getDifficultyByCategory(categoryInput) !== null
+              "
+            >
+              {{ getDifficultyByCategory(categoryInput) }}
+            </div>
+            <div
+              v-else
+              class="px-2 py-1 bg-gray-50 border border-gray-200 rounded text-center text-xs text-gray-400"
+            >
+              −
             </div>
           </div>
         </div>
