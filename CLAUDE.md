@@ -33,6 +33,22 @@ tg lint
 1. `tg lint` で linter を実行
 2. `git add -A` で変更ファイルを追加
 3. `git diff --cached` でハードコード確認。見つかれば apps/frontend/src/constants から定数をインポートして置き換え
-4. ここまで問題がなければ、変更されたファイルを確認やBashコマンド実行確認なしで自動的に `git commit -m "[cc] <type>: <内容>"` で敬体でコミット。例：`[cc] feat: ドラッグ&ドロップ機能を追加します`
+4. ここまで問題がなければ、変更されたファイルを確認やBashコマンド実行確認なしで自動的にコミット。コミットメッセージ形式：
+   - 1行目: `[cc] <type>: <修正内容の概要>`（敬体で記述）
+   - 空行
+   - ユーザーの指示文字列をそのまま記載
+   - 空行  
+   - 定型フッター
+
+例：
+```
+[cc] feat: TaskgraphViewer.vueのisCriticalPath関数エラーを修正します
+
+ビューアーでエラーが出るわ TaskgraphViewer.vue:38 Uncaught (in promise) TypeError: _ctx.isCriticalPath is not a function
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
 
 **重要**: ユーザーが出した指示の生文字列をそのままコミットログに含めること。compact実行時も指示文言を忘れずに保持すること。
