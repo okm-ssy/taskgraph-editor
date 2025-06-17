@@ -204,10 +204,42 @@ const tooltipText = computed(() => {
     tooltip += `\n概要: ${props.task.description}`;
   }
 
+  // 分類と難易度
+  if (props.task.category) {
+    tooltip += `\n分類: ${props.task.category} (${props.task.difficulty})`;
+  } else {
+    tooltip += `\n難易度: ${props.task.difficulty}`;
+  }
+
+  // 依存元 (Depends On)
+  if (props.task.depends && props.task.depends.length > 0) {
+    const validDepends = props.task.depends.filter((dep) => dep && dep !== '');
+    if (validDepends.length > 0) {
+      tooltip += `\n\n依存元:\n${validDepends.map((dep) => `• ${dep}`).join('\n')}`;
+    }
+  }
+
+  // 依存先 (Depended By)
+  const dependentTasks = taskStore.getDependentTasks(props.task.name);
+  if (dependentTasks.length > 0) {
+    tooltip += `\n\n依存先:\n${dependentTasks.map((task) => `• ${task.name}`).join('\n')}`;
+  }
+
+  // ノート
   if (props.task.notes && props.task.notes.length > 0) {
-    const notesText = props.task.notes.join('\n');
-    if (notesText.trim()) {
-      tooltip += `\n\n説明:\n${notesText}`;
+    const validNotes = props.task.notes.filter((note) => note && note !== '');
+    if (validNotes.length > 0) {
+      tooltip += `\n\nノート:\n${validNotes.map((note) => `• ${note}`).join('\n')}`;
+    }
+  }
+
+  // 関連ファイル
+  if (props.task.relations && props.task.relations.length > 0) {
+    const validRelations = props.task.relations.filter(
+      (rel) => rel && rel !== '',
+    );
+    if (validRelations.length > 0) {
+      tooltip += `\n\n関連ファイル:\n${validRelations.map((rel) => `• ${rel}`).join('\n')}`;
     }
   }
 
