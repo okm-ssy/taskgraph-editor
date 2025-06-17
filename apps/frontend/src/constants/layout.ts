@@ -18,6 +18,14 @@ export const LAYOUT = {
   GRID: {
     CELL_WIDTH: 160,
     CELL_HEIGHT: 60,
+    ROW_HEIGHT: {
+      NORMAL: 50,
+      COMPACT: 35,
+    },
+    MARGIN: {
+      NORMAL: 10,
+      COMPACT: 5,
+    },
   },
   MODAL: {
     MIN_MARGIN: 50,
