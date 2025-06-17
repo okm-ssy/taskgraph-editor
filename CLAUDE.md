@@ -37,18 +37,5 @@ tg lint
    - 1行目: `[cc] <type>: <修正内容の概要>`（敬体で記述）
    - 空行
    - ユーザーの指示文字列をそのまま記載
-   - 空行  
+   - 空行
    - 定型フッター
-
-例：
-```
-[cc] feat: TaskgraphViewer.vueのisCriticalPath関数エラーを修正します
-
-ビューアーでエラーが出るわ TaskgraphViewer.vue:38 Uncaught (in promise) TypeError: _ctx.isCriticalPath is not a function
-
-🤖 Generated with [Claude Code](https://claude.ai/code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>
-```
-
-**重要**: ユーザーが出した指示の生文字列をそのままコミットログに含めること。compact実行時も指示文言を忘れずに保持すること。
