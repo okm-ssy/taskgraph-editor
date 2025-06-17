@@ -144,7 +144,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, onMounted, onUnmounted } from 'vue';
 
 import { useTaskCategories } from '../../composables/useTaskCategories';
 import { LAYOUT } from '../../constants';
@@ -169,12 +169,38 @@ const dragStartedInDialog = ref(false);
 // エラーメッセージ表示用の状態
 const errorMessage = ref('');
 
-// モーダルの固定位置（gridContainer内での相対位置）
+// スクロール位置を追跡
+const scrollTop = ref(0);
+
+// モーダルの位置（スクロールに追従）
 const modalPosition = computed(() => {
   return {
-    top: `${LAYOUT.MODAL.MIN_MARGIN}px`,
+    top: `${scrollTop.value + LAYOUT.MODAL.MIN_MARGIN}px`,
     left: `${LAYOUT.MODAL.MIN_MARGIN}px`,
   };
+});
+
+// スクロール位置を更新
+const updateScrollPosition = () => {
+  const container = document.querySelector('.overflow-auto');
+  if (container) {
+    scrollTop.value = container.scrollTop;
+  }
+};
+
+onMounted(() => {
+  updateScrollPosition();
+  const container = document.querySelector('.overflow-auto');
+  if (container) {
+    container.addEventListener('scroll', updateScrollPosition);
+  }
+});
+
+onUnmounted(() => {
+  const container = document.querySelector('.overflow-auto');
+  if (container) {
+    container.removeEventListener('scroll', updateScrollPosition);
+  }
 });
 
 // 選択中のタスクが変更されたら入力フィールドを更新
