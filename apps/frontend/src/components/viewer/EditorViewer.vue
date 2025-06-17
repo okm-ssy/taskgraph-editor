@@ -6,10 +6,6 @@
         <h3 class="font-semibold">タスクグラフビューアー</h3>
         <div v-if="taskCount > 0" class="text-sm text-gray-600">
           <span class="font-medium">総工数: {{ totalDifficulty }}</span>
-          <span class="ml-3 text-blue-600"
-            >クリティカルパス: {{ criticalTaskNames.length }}タスク</span
-          >
-          <span class="ml-3 font-medium">最低工数: {{ projectDuration }}</span>
         </div>
       </div>
       <div class="flex gap-2">
@@ -28,7 +24,6 @@
       <TaskgraphViewer
         ref="taskgraphViewerRef"
         :editor-tasks="editorTasks"
-        :critical-path="criticalPath"
         :compact="isCompactMode"
       />
 
@@ -89,14 +84,7 @@ const isExporting = ref(false);
 const isCompactMode = computed(() => props.compactMode ?? false);
 
 // toRefsでリアクティブな値を取得
-const {
-  editorTasks,
-  taskCount,
-  totalDifficulty,
-  projectDuration,
-  criticalTaskNames,
-  criticalPath,
-} = toRefs(taskStore);
+const { editorTasks, taskCount, totalDifficulty } = toRefs(taskStore);
 
 // SVG export関連（現在は TaskgraphViewer 内で直接処理）
 

@@ -27,27 +27,13 @@
             >
               <path d="M 0 0 L 10 5 L 0 10 z" fill="#666"></path>
             </marker>
-            <!-- クリティカルパス用の青い矢印マーカー -->
-            <marker
-              id="arrow-critical"
-              viewBox="0 0 10 10"
-              refX="10"
-              refY="5"
-              markerWidth="6"
-              markerHeight="6"
-              orient="auto-start-reverse"
-            >
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb"></path>
-            </marker>
           </defs>
           <path
             v-for="(path, index) in taskStore.graphPaths"
             :key="`path-${path.from.id}-${path.to.id}-${index}`"
             :d="taskStore.getPathD(path.from, path.to)"
-            :stroke="
-              isCriticalPath(path.from.id, path.to.id) ? '#2563eb' : '#666'
-            "
-            :stroke-width="isCriticalPath(path.from.id, path.to.id) ? 2.5 : 2"
+            stroke="#666"
+            stroke-width="2"
             fill="none"
             :marker-end="
               isCriticalPath(path.from.id, path.to.id)
@@ -132,7 +118,6 @@
 // ComponentPublicInstance 型をインポート
 import { onMounted, defineProps, watch, ref, onBeforeUpdate } from 'vue';
 
-import type { CriticalPathEdge } from '../../composables/useCriticalPath';
 import { TIMING } from '../../constants';
 import type { EditorTask } from '../../model/EditorTask';
 import { useCurrentTasks } from '../../store/task_store';
@@ -143,7 +128,6 @@ import TaskDetail from './TaskDetail.vue';
 
 const props = defineProps<{
   editorTasks: EditorTask[];
-  criticalPath: CriticalPathEdge[];
   compact?: boolean;
 }>();
 
@@ -182,13 +166,6 @@ const dropdownOptions = {
     hide: TIMING.TOOLTIP.HIDE_DELAY_MS,
   },
   placement: 'auto',
-};
-
-// クリティカルパス上のエッジかどうかを判定
-const isCriticalPath = (fromId: string, toId: string): boolean => {
-  return props.criticalPath.some(
-    (edge) => edge.fromTaskId === fromId && edge.toTaskId === toId,
-  );
 };
 
 // 親コンポーネントからアクセス可能な関数を公開
