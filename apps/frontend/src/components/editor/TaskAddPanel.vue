@@ -85,15 +85,32 @@
           class="block text-sm font-medium text-gray-700 mb-1"
           >難易度 (0以上)</label
         >
-        <input
-          id="task-difficulty"
-          v-model="difficultyInput"
-          type="number"
-          min="0"
-          step="0.5"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-          :class="{ 'bg-yellow-50': isAutoDifficulty }"
-        />
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            @click="decreaseDifficulty"
+            class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-md text-lg font-semibold transition-colors"
+            :disabled="difficultyInput <= 0"
+          >
+            −
+          </button>
+          <input
+            id="task-difficulty"
+            v-model="difficultyInput"
+            type="number"
+            min="0"
+            step="0.1"
+            class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm text-center"
+            :class="{ 'bg-yellow-50': isAutoDifficulty }"
+          />
+          <button
+            type="button"
+            @click="increaseDifficulty"
+            class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-md text-lg font-semibold transition-colors"
+          >
+            ＋
+          </button>
+        </div>
         <p v-if="isAutoDifficulty" class="text-xs text-yellow-600 mt-1">
           分類から自動設定されました
         </p>
@@ -201,6 +218,19 @@ const handleCategoryChange = () => {
   } else {
     isAutoDifficulty.value = false;
   }
+};
+
+// 難易度の増減ボタン処理
+const increaseDifficulty = () => {
+  const newValue = difficultyInput.value + 0.5;
+  difficultyInput.value = Math.round(newValue * 10) / 10; // 小数点誤差対策
+  isAutoDifficulty.value = false; // 手動変更時は自動設定フラグをオフ
+};
+
+const decreaseDifficulty = () => {
+  const newValue = Math.max(0, difficultyInput.value - 0.5);
+  difficultyInput.value = Math.round(newValue * 10) / 10; // 小数点誤差対策
+  isAutoDifficulty.value = false; // 手動変更時は自動設定フラグをオフ
 };
 
 // スクロール位置を考慮した位置計算（EditorGridと同じロジック）
