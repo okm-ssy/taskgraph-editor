@@ -135,7 +135,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed } from 'vue';
 
 import { useTaskCategories } from '../../composables/useTaskCategories';
 import { LAYOUT } from '../../constants';
@@ -160,9 +160,7 @@ const categoryInput = ref('');
 const difficultyInput = ref(0);
 const isAutoDifficulty = ref(false);
 
-// スクロール位置を考慮したパネル位置の計算
-const scrollPosition = ref({ x: 0, y: 0 });
-
+// gridContainerを基準としたパネル位置の計算
 const panelPosition = computed(() => {
   // gridContainerの位置を取得
   const gridContainer = document.querySelector(
@@ -178,11 +176,8 @@ const panelPosition = computed(() => {
 
   const containerRect = gridContainer.getBoundingClientRect();
 
-  // gridContainerの最上部 + スクロール位置 + マージン
-  const top = Math.max(
-    containerRect.top + scrollPosition.value.y + LAYOUT.MODAL.MIN_MARGIN,
-    containerRect.top + LAYOUT.MODAL.MIN_MARGIN,
-  );
+  // gridContainerの最上部 + マージン（getBoundingClientRect()には既にスクロール位置が反映されている）
+  const top = containerRect.top + LAYOUT.MODAL.MIN_MARGIN;
   // 右端はgridContainerの右端からマージン分内側
   const right =
     window.innerWidth - containerRect.right + LAYOUT.MODAL.MIN_MARGIN;
@@ -191,42 +186,6 @@ const panelPosition = computed(() => {
     top: `${top}px`,
     right: `${right}px`,
   };
-});
-
-// スクロール位置を取得する関数
-const updateScrollPosition = () => {
-  // エディタグリッドのスクロールコンテナを取得（より具体的なクラス構成で特定）
-  const gridContainer = document.querySelector(
-    '.flex-1.overflow-auto.p-4.relative',
-  ) as HTMLElement;
-  if (gridContainer) {
-    scrollPosition.value = {
-      x: gridContainer.scrollLeft,
-      y: gridContainer.scrollTop,
-    };
-  }
-};
-
-// コンポーネントマウント時にスクロール位置を取得
-onMounted(() => {
-  updateScrollPosition();
-  // エディタ内のスクロールコンテナを対象にリスン
-  const gridContainer = document.querySelector(
-    '.flex-1.overflow-auto.p-4.relative',
-  ) as HTMLElement;
-  if (gridContainer) {
-    gridContainer.addEventListener('scroll', updateScrollPosition);
-  }
-});
-
-// コンポーネントアンマウント時にイベントリスナーを削除
-onUnmounted(() => {
-  const gridContainer = document.querySelector(
-    '.flex-1.overflow-auto.p-4.relative',
-  ) as HTMLElement;
-  if (gridContainer) {
-    gridContainer.removeEventListener('scroll', updateScrollPosition);
-  }
 });
 
 // 分類選択時の処理
