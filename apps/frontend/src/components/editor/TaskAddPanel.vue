@@ -177,9 +177,8 @@ const panelPosition = computed(() => {
     };
   }
 
-  // EditorGrid内での相対位置 + スクロール位置
-  const top =
-    gridContainer.offsetTop + scrollPosition.value.y + LAYOUT.MODAL.MIN_MARGIN;
+  // EditorGrid内での相対位置 + スクロール位置（上部ぴったりに配置）
+  const top = gridContainer.offsetTop + scrollPosition.value.y;
   // 右端はマージン分内側
   const right = LAYOUT.MODAL.MIN_MARGIN;
 
