@@ -131,10 +131,10 @@
           <TaskCard :task="task.task" :id="task.id" :compact="isCompactMode" />
         </GridItem>
       </GridLayout>
-    </div>
 
-    <!-- タスク詳細ダイアログ -->
-    <TaskDetailDialog />
+      <!-- タスク詳細ダイアログ -->
+      <TaskDetailDialog />
+    </div>
 
     <!-- エラー表示 -->
     <ErrorDisplay />
