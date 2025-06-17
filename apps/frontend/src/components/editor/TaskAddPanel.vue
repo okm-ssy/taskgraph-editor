@@ -135,7 +135,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 import { useTaskCategories } from '../../composables/useTaskCategories';
 import { LAYOUT } from '../../constants';
@@ -160,6 +160,9 @@ const categoryInput = ref('');
 const difficultyInput = ref(0);
 const isAutoDifficulty = ref(false);
 
+// スクロール位置を追跡
+const scrollPosition = ref({ x: 0, y: 0 });
+
 // gridContainerを基準としたパネル位置の計算
 const panelPosition = computed(() => {
   // gridContainerの位置を取得
@@ -174,8 +177,9 @@ const panelPosition = computed(() => {
     };
   }
 
-  // EditorGrid内での相対位置を使用（全体スクロールに影響されない）
-  const top = gridContainer.offsetTop + LAYOUT.MODAL.MIN_MARGIN;
+  // EditorGrid内での相対位置 + スクロール位置
+  const top =
+    gridContainer.offsetTop + scrollPosition.value.y + LAYOUT.MODAL.MIN_MARGIN;
   // 右端はマージン分内側
   const right = LAYOUT.MODAL.MIN_MARGIN;
 
@@ -183,6 +187,40 @@ const panelPosition = computed(() => {
     top: `${top}px`,
     right: `${right}px`,
   };
+});
+
+// スクロール位置を更新する関数
+const updateScrollPosition = () => {
+  const gridContainer = document.querySelector(
+    '.flex-1.overflow-auto.p-4.relative',
+  ) as HTMLElement;
+  if (gridContainer) {
+    scrollPosition.value = {
+      x: gridContainer.scrollLeft,
+      y: gridContainer.scrollTop,
+    };
+  }
+};
+
+// スクロールイベントリスナーを追加
+onMounted(() => {
+  updateScrollPosition();
+  const gridContainer = document.querySelector(
+    '.flex-1.overflow-auto.p-4.relative',
+  ) as HTMLElement;
+  if (gridContainer) {
+    gridContainer.addEventListener('scroll', updateScrollPosition);
+  }
+});
+
+// スクロールイベントリスナーを削除
+onUnmounted(() => {
+  const gridContainer = document.querySelector(
+    '.flex-1.overflow-auto.p-4.relative',
+  ) as HTMLElement;
+  if (gridContainer) {
+    gridContainer.removeEventListener('scroll', updateScrollPosition);
+  }
 });
 
 // 分類選択時の処理
