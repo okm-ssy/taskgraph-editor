@@ -86,6 +86,7 @@
       <!-- 新規タスク追加パネル -->
       <TaskAddPanel
         v-if="uiStore.showAddPanel"
+        :position="getVisibleAreaPosition()"
         @close="uiStore.toggleAddPanel"
       />
 
@@ -318,9 +319,27 @@ const handleItemResized = () => {
   }, TIMING.DEBOUNCE.DEFAULT_MS);
 };
 
+// スクロール位置を考慮したタスク追加位置の計算
+const getVisibleAreaPosition = () => {
+  if (!gridContainer.value) return { x: 0, y: 0 };
+  
+  const scrollLeft = gridContainer.value.scrollLeft;
+  const scrollTop = gridContainer.value.scrollTop;
+  
+  // グリッドのセルサイズを考慮してグリッド座標に変換
+  const colWidth = LAYOUT.GRID.CELL_WIDTH; // グリッドセルの幅
+  const rowHeight = LAYOUT.GRID.CELL_HEIGHT; // グリッドセルの高さ
+  
+  const gridX = Math.floor(scrollLeft / colWidth);
+  const gridY = Math.floor(scrollTop / rowHeight);
+  
+  return { x: gridX, y: gridY };
+};
+
 // タスク追加ボタンのクリックハンドラ
 const handleAddTask = () => {
-  taskActions.addTask();
+  const position = getVisibleAreaPosition();
+  taskActions.addTaskAtPosition(position.x, position.y);
   // レイアウトを更新
   layout.value = taskStore.gridTasks;
 };

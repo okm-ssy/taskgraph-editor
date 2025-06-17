@@ -9,6 +9,7 @@ export interface TaskActions {
   selectTask: (id: string) => void;
   deleteTask: (id: string) => boolean;
   addTask: () => void;
+  addTaskAtPosition: (x: number, y: number) => void;
   updateTask: (id: string, data: Partial<Task>) => boolean;
   clearSelection: () => void;
   showError: (
@@ -42,6 +43,14 @@ export const useTaskActionsProvider = () => {
     addTask: () => {
       try {
         taskStore.addTask();
+      } catch (error) {
+        errorStore.addSystemError('タスクの追加に失敗しました', error);
+      }
+    },
+
+    addTaskAtPosition: (x: number, y: number) => {
+      try {
+        taskStore.addTaskAtPosition(x, y);
       } catch (error) {
         errorStore.addSystemError('タスクの追加に失敗しました', error);
       }
