@@ -87,7 +87,6 @@
       <TaskAddPanel
         v-if="uiStore.showAddPanel"
         :position="getVisibleAreaPosition()"
-        :scroll-container="gridContainer"
         @close="uiStore.toggleAddPanel"
       />
 

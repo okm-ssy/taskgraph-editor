@@ -192,8 +192,10 @@ const modalPosition = computed(() => {
 
 // スクロール位置を取得する関数
 const updateScrollPosition = () => {
-  // エディタグリッドのスクロールコンテナを取得
-  const gridContainer = document.querySelector('.overflow-auto');
+  // エディタグリッドのスクロールコンテナを取得（より具体的なクラス構成で特定）
+  const gridContainer = document.querySelector(
+    '.flex-1.overflow-auto.p-4.relative',
+  ) as HTMLElement;
   if (gridContainer) {
     scrollPosition.value = {
       x: gridContainer.scrollLeft,
@@ -205,8 +207,10 @@ const updateScrollPosition = () => {
 // コンポーネントマウント時にスクロール位置を取得
 onMounted(() => {
   updateScrollPosition();
-  // スクロールイベントをリスン
-  const gridContainer = document.querySelector('.overflow-auto');
+  // エディタ内のスクロールコンテナを対象にリスン
+  const gridContainer = document.querySelector(
+    '.flex-1.overflow-auto.p-4.relative',
+  ) as HTMLElement;
   if (gridContainer) {
     gridContainer.addEventListener('scroll', updateScrollPosition);
   }
@@ -214,7 +218,9 @@ onMounted(() => {
 
 // コンポーネントアンマウント時にイベントリスナーを削除
 onUnmounted(() => {
-  const gridContainer = document.querySelector('.overflow-auto');
+  const gridContainer = document.querySelector(
+    '.flex-1.overflow-auto.p-4.relative',
+  ) as HTMLElement;
   if (gridContainer) {
     gridContainer.removeEventListener('scroll', updateScrollPosition);
   }
