@@ -164,12 +164,28 @@ const isAutoDifficulty = ref(false);
 const scrollPosition = ref({ x: 0, y: 0 });
 
 const panelPosition = computed(() => {
-  // スクロール位置を考慮して右上に配置
+  // gridContainerの位置を取得
+  const gridContainer = document.querySelector(
+    '.flex-1.overflow-auto.p-4.relative',
+  ) as HTMLElement;
+
+  if (!gridContainer) {
+    return {
+      top: `${LAYOUT.MODAL.MIN_MARGIN}px`,
+      right: `${LAYOUT.MODAL.MIN_MARGIN}px`,
+    };
+  }
+
+  const containerRect = gridContainer.getBoundingClientRect();
+
+  // gridContainerの最上部 + スクロール位置 + マージン
   const top = Math.max(
-    scrollPosition.value.y + LAYOUT.MODAL.MIN_MARGIN,
-    LAYOUT.MODAL.MIN_MARGIN,
+    containerRect.top + scrollPosition.value.y + LAYOUT.MODAL.MIN_MARGIN,
+    containerRect.top + LAYOUT.MODAL.MIN_MARGIN,
   );
-  const right = LAYOUT.MODAL.MIN_MARGIN;
+  // 右端はgridContainerの右端からマージン分内側
+  const right =
+    window.innerWidth - containerRect.right + LAYOUT.MODAL.MIN_MARGIN;
 
   return {
     top: `${top}px`,

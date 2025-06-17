@@ -173,15 +173,30 @@ const errorMessage = ref('');
 const scrollPosition = ref({ x: 0, y: 0 });
 
 const modalPosition = computed(() => {
-  // スクロール位置を考慮して中央に配置
+  // gridContainerの位置を取得
+  const gridContainer = document.querySelector(
+    '.flex-1.overflow-auto.p-4.relative',
+  ) as HTMLElement;
+
+  if (!gridContainer) {
+    return {
+      top: `${LAYOUT.MODAL.MIN_MARGIN}px`,
+      left: `${LAYOUT.MODAL.MIN_MARGIN}px`,
+      transform: 'none',
+    };
+  }
+
+  const containerRect = gridContainer.getBoundingClientRect();
+
+  // gridContainerの最上部 + スクロール位置 + マージン
   const top = Math.max(
-    scrollPosition.value.y + LAYOUT.MODAL.MIN_MARGIN,
-    LAYOUT.MODAL.MIN_MARGIN,
-  ); // 最低マージン
+    containerRect.top + scrollPosition.value.y + LAYOUT.MODAL.MIN_MARGIN,
+    containerRect.top + LAYOUT.MODAL.MIN_MARGIN,
+  );
   const left = Math.max(
-    scrollPosition.value.x + LAYOUT.MODAL.MIN_MARGIN,
-    LAYOUT.MODAL.MIN_MARGIN,
-  ); // 最低マージン
+    containerRect.left + scrollPosition.value.x + LAYOUT.MODAL.MIN_MARGIN,
+    containerRect.left + LAYOUT.MODAL.MIN_MARGIN,
+  );
 
   return {
     top: `${top}px`,
