@@ -6,8 +6,7 @@
     @click="handleOverlayClick"
   >
     <div
-      class="bg-white rounded-lg shadow-xl w-full max-w-[70vw] absolute"
-      :style="modalPosition"
+      class="bg-white rounded-lg shadow-xl w-full max-w-[70vw] fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
     >
       <div class="border-b px-6 py-4">
         <h3 class="text-lg font-medium">タスク詳細</h3>
@@ -194,10 +193,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed, onMounted, onUnmounted } from 'vue';
+import { ref, watch } from 'vue';
 
 import { useTaskCategories } from '../../composables/useTaskCategories';
-import { LAYOUT } from '../../constants';
 import { useEditorUIStore } from '../../store/editor_ui_store';
 import { useCurrentTasks } from '../../store/task_store';
 
@@ -218,40 +216,6 @@ const dragStartedInDialog = ref(false);
 
 // エラーメッセージ表示用の状態
 const errorMessage = ref('');
-
-// スクロール位置を追跡
-const scrollTop = ref(0);
-
-// モーダルの位置（スクロールに追従）
-const modalPosition = computed(() => {
-  return {
-    top: `${scrollTop.value + LAYOUT.MODAL.MIN_MARGIN}px`,
-    left: `${LAYOUT.MODAL.MIN_MARGIN}px`,
-  };
-});
-
-// スクロール位置を更新
-const updateScrollPosition = () => {
-  const container = document.querySelector('.overflow-auto');
-  if (container) {
-    scrollTop.value = container.scrollTop;
-  }
-};
-
-onMounted(() => {
-  updateScrollPosition();
-  const container = document.querySelector('.overflow-auto');
-  if (container) {
-    container.addEventListener('scroll', updateScrollPosition);
-  }
-});
-
-onUnmounted(() => {
-  const container = document.querySelector('.overflow-auto');
-  if (container) {
-    container.removeEventListener('scroll', updateScrollPosition);
-  }
-});
 
 // 選択中のタスクが変更されたら入力フィールドを更新
 watch(
