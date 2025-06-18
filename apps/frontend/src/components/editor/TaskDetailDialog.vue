@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="uiStore.isDetailDialogVisible"
-    class="absolute inset-0 bg-black/50 z-50 pointer-events-auto"
+    class="fixed inset-0 bg-black/50 z-50 pointer-events-auto"
     @mousedown="handleOverlayMouseDown"
     @click="handleOverlayClick"
   >
