@@ -16,6 +16,7 @@
 
     <div v-if="!isMinimalHeader">
       <div class="flex items-center gap-4 mb-4">
+        <ProjectSelector />
         <Switcher
           :modelValue="currentPage"
           @update:modelValue="navigateToPage"
@@ -137,6 +138,7 @@ import EditorPage from './EditorPage.vue';
 import ViewerPage from './ViewerPage.vue';
 
 import JsonInput from '@/components/common/JsonInput.vue';
+import ProjectSelector from '@/components/common/ProjectSelector.vue';
 import Switcher from '@/components/common/Switcher.vue';
 
 const router = useRouter();
