@@ -2,7 +2,6 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
-import { STORAGE_KEYS, STORAGE_EXPIRY } from '../constants';
 import { EditorTask } from '../model/EditorTask'; // EditorTask をインポート
 import type { GridTask } from '../model/GridTask';
 import type { Taskgraph, Task } from '../model/Taskgraph';
@@ -71,7 +70,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     const newTask = new EditorTask();
     editorTasks.value.push(newTask);
     graphLayout.buildGraphData(editorTasks.value);
-    saveToLocalStorage(); // LocalStorageに保存
+    saveToFile(); // ファイルに保存
     return newTask;
   };
 
@@ -85,7 +84,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     newTask.task.layout = { x, y };
     editorTasks.value.push(newTask);
     graphLayout.buildGraphData(editorTasks.value);
-    saveToLocalStorage(); // LocalStorageに保存
+    saveToFile(); // ファイルに保存
     return newTask;
   };
 
@@ -111,7 +110,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
         uiStore.closeDetailDialog();
         uiStore.clearSelection();
       }
-      saveToLocalStorage(); // LocalStorageに保存
+      saveToFile(); // ファイルに保存
       return true;
     }
     return false;
@@ -189,53 +188,49 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     return true;
   };
 
-  // LocalStorageにデータを保存（期限付き）
-  const saveToLocalStorage = () => {
+  // ファイルにデータを保存
+  const saveToFile = async () => {
     try {
       if (editorTasks.value.length === 0) {
         return;
       }
       const jsonData = exportTaskgraphToJson();
-      const expiryTime = Date.now() + STORAGE_EXPIRY.TASKGRAPH_DATA_MS;
-      localStorage.setItem(STORAGE_KEYS.TASKGRAPH_DATA, jsonData);
-      localStorage.setItem(
-        STORAGE_KEYS.TASKGRAPH_DATA_EXPIRY,
-        expiryTime.toString(),
-      );
+      const response = await fetch('/api/save-taskgraph', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonData,
+      });
+      if (!response.ok) {
+        throw new Error('Failed to save taskgraph');
+      }
     } catch (error) {
-      console.error('LocalStorage保存エラー:', error);
+      console.error('ファイル保存エラー:', error);
     }
   };
 
-  // LocalStorageから期限をチェックしてデータを取得
-  const getFromLocalStorage = (): string | null => {
+  // ファイルからデータを取得
+  const getFromFile = async (): Promise<string | null> => {
     try {
-      const expiryTime = localStorage.getItem(
-        STORAGE_KEYS.TASKGRAPH_DATA_EXPIRY,
-      );
-      if (!expiryTime) return null;
-
-      const now = Date.now();
-      const expiry = parseInt(expiryTime, 10);
-
-      // 期限切れの場合は削除
-      if (now > expiry) {
-        localStorage.removeItem(STORAGE_KEYS.TASKGRAPH_DATA);
-        localStorage.removeItem(STORAGE_KEYS.TASKGRAPH_DATA_EXPIRY);
-        return null;
+      const response = await fetch('/api/load-taskgraph');
+      if (!response.ok) {
+        if (response.status === 404) {
+          return null; // ファイルが存在しない場合
+        }
+        throw new Error('Failed to load taskgraph');
       }
-
-      return localStorage.getItem(STORAGE_KEYS.TASKGRAPH_DATA);
+      return await response.text();
     } catch (error) {
-      console.error('LocalStorage読み込みエラー:', error);
+      console.error('ファイル読み込みエラー:', error);
       return null;
     }
   };
 
-  // LocalStorageからデータを読み込み
-  const loadFromLocalStorage = () => {
+  // ファイルからデータを読み込み
+  const loadFromFile = async () => {
     try {
-      const jsonData = getFromLocalStorage();
+      const jsonData = await getFromFile();
       if (jsonData) {
         isLoadingFromStorage = true;
         const result = parseJsonToTaskgraph(jsonData);
@@ -243,16 +238,16 @@ export const useCurrentTasks = defineStore('editorTask', () => {
         return result;
       }
     } catch (error) {
-      console.error('LocalStorage読み込みエラー:', error);
+      console.error('ファイル読み込みエラー:', error);
       isLoadingFromStorage = false;
     }
     return false;
   };
 
   // ストア初期化
-  const initializeStore = () => {
+  const initializeStore = async () => {
     if (!isInitialized.value) {
-      loadFromLocalStorage();
+      await loadFromFile();
       isInitialized.value = true;
     }
   };
@@ -282,7 +277,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     uiStore.clearSelection();
 
     if (!isLoadingFromStorage) {
-      saveToLocalStorage();
+      saveToFile();
     }
   };
 
@@ -367,8 +362,8 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     buildGraphData,
     autoLayoutTasks,
     selectTask, // UIストアに委譲
-    saveToLocalStorage,
-    loadFromLocalStorage,
+    saveToFile,
+    loadFromFile,
     initializeStore,
 
     // JSONProcessor State & Methods
@@ -386,7 +381,8 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   };
 
   // ストア初期化を実行（全ての関数定義後）
-  initializeStore();
+  // 非同期なので直接awaitはできないが、バックグラウンドで実行
+  initializeStore().catch(console.error);
 
   return storeResult;
 });
