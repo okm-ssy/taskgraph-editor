@@ -161,7 +161,7 @@ import {
 } from 'vue';
 import { GridLayout, GridItem } from 'vue3-grid-layout-next';
 
-import { useLocalStorageSync } from '../../composables/useLocalStorageSync';
+import { useFileStorageSync } from '../../composables/useFileStorageSync';
 import { useTaskActionsProvider } from '../../composables/useTaskActions';
 import { LAYOUT, TIMING } from '../../constants';
 import { GridTask } from '../../model/GridTask';
@@ -351,7 +351,7 @@ const toggleAddPanel = () => {
 };
 
 // LocalStorage同期機能
-const { exportToFile } = useLocalStorageSync();
+const { exportToFile } = useFileStorageSync();
 
 // エクスポート処理
 const handleExport = async () => {

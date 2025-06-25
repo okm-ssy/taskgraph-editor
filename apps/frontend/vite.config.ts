@@ -9,6 +9,12 @@ export default defineConfig({
   plugins: [vue(), tailwindcss()],
   server: {
     port: 5353,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3333',
+        changeOrigin: true,
+      },
+    },
   },
   resolve: {
     alias: {
