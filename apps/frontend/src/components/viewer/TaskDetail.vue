@@ -96,9 +96,20 @@
       </ul>
     </div>
 
-    <div v-if="task.task.issueNumber">
-      <label class="block text-xs font-medium text-gray-500">Issue 番号:</label>
-      <p class="text-gray-800 text-xs">#{{ task.task.issueNumber }}</p>
+    <div v-if="task.task.issueNumber" class="flex items-center gap-2">
+      <label class="block text-xs font-medium text-gray-500">Issue:</label>
+      <a
+        v-if="hasGitHubInfo"
+        :href="issueUrl"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-blue-600 hover:text-blue-800 text-xs font-medium underline"
+      >
+        #{{ task.task.issueNumber }}
+      </a>
+      <span v-else class="text-gray-800 text-xs"
+        >#{{ task.task.issueNumber }}</span
+      >
     </div>
   </div>
 </template>
@@ -138,6 +149,21 @@ const validRelations = computed(() => {
   return props.task.task.relations.filter(
     (relation) => relation && relation !== '',
   );
+});
+
+// GitHub Issue関連のcomputed properties
+const hasGitHubInfo = computed(() => {
+  return (
+    taskStore.info?.github?.organization &&
+    taskStore.info?.github?.repository &&
+    props.task?.task.issueNumber
+  );
+});
+
+const issueUrl = computed(() => {
+  if (!hasGitHubInfo.value) return '';
+  const { organization, repository } = taskStore.info.github!;
+  return `https://github.com/${organization}/${repository}/issues/${props.task.task.issueNumber}`;
 });
 </script>
 
