@@ -89,7 +89,7 @@
               props.compact ? 'text-[10px]' : 'text-xs',
             ]"
           >
-            Issue#{{ task.issueNumber }}
+            #{{ task.issueNumber }}
           </a>
           <div v-else />
 
