@@ -76,7 +76,24 @@
           {{ task.description }}
         </p>
 
-        <div class="mt-auto flex justify-end">
+        <div class="mt-auto flex justify-between items-center">
+          <!-- GitHub Issue リンク -->
+          <a
+            v-if="hasGitHubInfo"
+            :href="issueUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            @click.stop
+            :class="[
+              'text-blue-600 hover:text-blue-800 font-medium underline',
+              props.compact ? 'text-[10px]' : 'text-xs',
+            ]"
+          >
+            Issue#{{ task.issueNumber }}
+          </a>
+          <div v-else />
+
+          <!-- カテゴリ/難易度 -->
           <span
             :class="[
               'bg-white rounded-full px-2 py-1 text-gray-700',
@@ -229,6 +246,21 @@ const isDroppable = computed(() => {
 // ドラッグ中のソースかどうか
 const isDraggingSource = computed(() => {
   return dragDropStore.draggingSourceId === props.id;
+});
+
+// GitHub Issue関連のcomputed properties
+const hasGitHubInfo = computed(() => {
+  return (
+    taskStore.info?.github?.organization &&
+    taskStore.info?.github?.repository &&
+    props.task.issueNumber
+  );
+});
+
+const issueUrl = computed(() => {
+  if (!hasGitHubInfo.value) return '';
+  const { organization, repository } = taskStore.info.github!;
+  return `https://github.com/${organization}/${repository}/issues/${props.task.issueNumber}`;
 });
 </script>
 
