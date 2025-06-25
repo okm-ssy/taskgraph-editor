@@ -11,9 +11,8 @@ export class TaskgraphStorage {
   private dataPath: string;
 
   constructor() {
-    // ユーザーのホームディレクトリに.taskgraphフォルダを作成
-    const configDir = path.join(os.homedir(), '.taskgraph');
-    this.dataPath = path.join(configDir, 'taskgraph-data.json');
+    // プロジェクトルートにtaskgraph-data.jsonを保存
+    this.dataPath = path.join(process.cwd(), 'taskgraph-data.json');
   }
 
   async ensureDirectory(): Promise<void> {
