@@ -33,7 +33,7 @@ npm run build
 
 ### 3. データの連携
 
-MCPサーバーは `~/.taskgraph/taskgraph-data.json` ファイルを読み書きします。
+MCPサーバーは `${repository-root}/data/taskgraph-data.json` ファイルを読み書きします。
 
 フロントエンドアプリケーションで「Export」ボタンをクリックし、ダウンロードされたJSONファイルを上記の場所に配置してください。
 
@@ -91,7 +91,7 @@ npm run dev
 ### データが見つからない場合
 
 1. フロントエンドでデータをエクスポートしたか確認
-2. `~/.taskgraph/taskgraph-data.json` が存在するか確認
+2. `data/taskgraph-data.json` が存在するか確認
 3. ファイルの権限を確認
 
 ### MCPサーバーが認識されない場合

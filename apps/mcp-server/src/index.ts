@@ -7,10 +7,50 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
 import { TaskgraphStorage } from './storage.js';
-import { Task, TaskSchema } from './types.js';
+import { Task, TaskSchema, TaskInputSchema, TaskgraphSchema } from './types.js';
 
 // ストレージインスタンス
 const storage = new TaskgraphStorage();
+
+// エラーメッセージをシンプルにするヘルパー関数
+function formatError(error: unknown): string {
+  if (error instanceof z.ZodError) {
+    const issues = error.issues.map(issue => {
+      const path = issue.path.length > 0 ? ` at ${issue.path.join('.')}` : '';
+      return `${issue.message}${path}`;
+    }).join(', ');
+    
+    return `Validation error: ${issues}`;
+  }
+  
+  if (error instanceof Error) {
+    const message = error.message;
+    
+    if (message.includes('not found')) {
+      return `${message}. Use taskgraph_list_projects or taskgraph_get_taskgraph to check available resources`;
+    }
+    
+    if (message.includes('already exists')) {
+      return `${message}. Use taskgraph_update_task to modify it`;
+    }
+    
+    if (message.includes('Unknown tool')) {
+      return `${message}. Available: taskgraph_list_projects, taskgraph_get_taskgraph, taskgraph_get_task, taskgraph_create_task, taskgraph_update_task, taskgraph_delete_task`;
+    }
+    
+    return `Error: ${message}`;
+  }
+  
+  return 'Unknown error';
+}
+
+// タスクスキーマの説明を取得する関数
+function getTaskSchemaHelp(): string {
+  return `Task schema:
+Required: name (string), description (string)
+Optional: difficulty (number=0), baseDifficulty (number=0), depends (string[]), notes (string[]), relations (string[]), issueNumber (number), category (string="")
+Example: {"name": "task-1", "description": "My task", "difficulty": 2.5, "depends": ["task-0"]}`;
+}
 
 // MCPサーバーの作成
 const server = new Server(
@@ -26,22 +66,30 @@ const server = new Server(
 );
 
 // ツール入力スキーマの定義
+const ListProjectsSchema = z.object({});
+
+const GetTaskgraphSchema = z.object({
+  projectId: z.string(),
+});
+
 const CreateTaskSchema = z.object({
-  task: TaskSchema.omit({ name: true }).extend({
-    name: z.string(),
-  }),
+  projectId: z.string(),
+  task: TaskInputSchema,
 });
 
 const UpdateTaskSchema = z.object({
+  projectId: z.string(),
   name: z.string(),
-  task: TaskSchema.partial(),
+  task: TaskInputSchema.partial(),
 });
 
 const GetTaskSchema = z.object({
+  projectId: z.string(),
   name: z.string(),
 });
 
 const DeleteTaskSchema = z.object({
+  projectId: z.string(),
   name: z.string(),
 });
 
@@ -49,83 +97,106 @@ const DeleteTaskSchema = z.object({
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools: [
     {
-      name: 'taskgraph_list_tasks',
-      description: 'List all tasks in the taskgraph',
+      name: 'taskgraph_list_projects',
+      description: 'List all available projects',
       inputSchema: {
         type: 'object',
         properties: {},
       },
     },
     {
-      name: 'taskgraph_get_task',
-      description: 'Get a specific task by name',
+      name: 'taskgraph_get_taskgraph',
+      description: 'Get taskgraph for a specific project',
       inputSchema: {
         type: 'object',
         properties: {
+          projectId: { type: 'string', description: 'Project ID' },
+        },
+        required: ['projectId'],
+      },
+    },
+    {
+      name: 'taskgraph_get_task',
+      description: 'Get a specific task by name from a project',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          projectId: { type: 'string', description: 'Project ID' },
           name: { type: 'string', description: 'Task name' },
         },
-        required: ['name'],
+        required: ['projectId', 'name'],
       },
     },
     {
       name: 'taskgraph_create_task',
-      description: 'Create a new task',
+      description: 'Create a new task in a project',
       inputSchema: {
         type: 'object',
         properties: {
+          projectId: { type: 'string', description: 'Project ID' },
           task: {
             type: 'object',
             properties: {
               name: { type: 'string', description: 'Unique task name' },
-              description: { type: 'string' },
-              difficulty: { type: 'number' },
-              baseDifficulty: { type: 'number' },
-              depends: { type: 'array', items: { type: 'string' } },
-              notes: { type: 'array', items: { type: 'string' } },
-              relations: { type: 'array', items: { type: 'string' } },
-              issueNumber: { type: 'number' },
-              category: { type: 'string' },
+              description: { type: 'string', description: 'Task description' },
+              difficulty: { type: 'number', description: 'Task difficulty (optional, default: 0)' },
+              baseDifficulty: { type: 'number', description: 'Base difficulty (optional, default: 0)' },
+              depends: { type: 'array', items: { type: 'string' }, description: 'Dependencies (optional, default: [])' },
+              notes: { type: 'array', items: { type: 'string' }, description: 'Notes (optional, default: [])' },
+              relations: { type: 'array', items: { type: 'string' }, description: 'Related files (optional, default: [])' },
+              issueNumber: { type: 'number', description: 'Issue number (optional)' },
+              category: { type: 'string', description: 'Category (optional, default: "")' },
             },
             required: ['name', 'description'],
           },
         },
-        required: ['task'],
+        required: ['projectId', 'task'],
       },
     },
     {
       name: 'taskgraph_update_task',
-      description: 'Update an existing task',
+      description: 'Update an existing task in a project',
       inputSchema: {
         type: 'object',
         properties: {
+          projectId: { type: 'string', description: 'Project ID' },
           name: { type: 'string', description: 'Task name to update' },
           task: {
             type: 'object',
             properties: {
-              name: { type: 'string' },
-              description: { type: 'string' },
-              difficulty: { type: 'number' },
-              baseDifficulty: { type: 'number' },
-              depends: { type: 'array', items: { type: 'string' } },
-              notes: { type: 'array', items: { type: 'string' } },
-              relations: { type: 'array', items: { type: 'string' } },
-              issueNumber: { type: 'number' },
-              category: { type: 'string' },
+              name: { type: 'string', description: 'New task name (optional)' },
+              description: { type: 'string', description: 'New description (optional)' },
+              difficulty: { type: 'number', description: 'New difficulty (optional)' },
+              baseDifficulty: { type: 'number', description: 'New base difficulty (optional)' },
+              depends: { type: 'array', items: { type: 'string' }, description: 'New dependencies (optional)' },
+              notes: { type: 'array', items: { type: 'string' }, description: 'New notes (optional)' },
+              relations: { type: 'array', items: { type: 'string' }, description: 'New relations (optional)' },
+              issueNumber: { type: 'number', description: 'New issue number (optional)' },
+              category: { type: 'string', description: 'New category (optional)' },
             },
           },
         },
-        required: ['name', 'task'],
+        required: ['projectId', 'name', 'task'],
       },
     },
     {
       name: 'taskgraph_delete_task',
-      description: 'Delete a task',
+      description: 'Delete a task from a project',
       inputSchema: {
         type: 'object',
         properties: {
+          projectId: { type: 'string', description: 'Project ID' },
           name: { type: 'string', description: 'Task name to delete' },
         },
-        required: ['name'],
+        required: ['projectId', 'name'],
+      },
+    },
+    {
+      name: 'taskgraph_get_schema',
+      description: 'Get the task schema and usage help',
+      inputSchema: {
+        type: 'object',
+        properties: {},
       },
     },
   ],
@@ -137,8 +208,21 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
   try {
     switch (name) {
-      case 'taskgraph_list_tasks': {
-        const taskgraph = await storage.readTaskgraph();
+      case 'taskgraph_list_projects': {
+        const projects = await storage.listProjects();
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(projects, null, 2),
+            },
+          ],
+        };
+      }
+
+      case 'taskgraph_get_taskgraph': {
+        const { projectId } = GetTaskgraphSchema.parse(args);
+        const taskgraph = await storage.readTaskgraph(projectId);
         return {
           content: [
             {
@@ -150,12 +234,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case 'taskgraph_get_task': {
-        const { name: taskName } = GetTaskSchema.parse(args);
-        const taskgraph = await storage.readTaskgraph();
-        const task = taskgraph?.tasks.find(t => t.name === taskName);
+        const { projectId, name: taskName } = GetTaskSchema.parse(args);
+        const task = await storage.getTask(projectId, taskName);
 
         if (!task) {
-          throw new Error(`Task "${taskName}" not found`);
+          throw new Error(`Task "${taskName}" not found in project "${projectId}"`);
         }
 
         return {
@@ -169,119 +252,69 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case 'taskgraph_create_task': {
-        const { task: newTask } = CreateTaskSchema.parse(args);
+        const { projectId, task: inputTask } = CreateTaskSchema.parse(args);
 
-        const taskgraph = await storage.updateTaskgraph((current) => {
-          // 重複チェック
-          if (current.tasks.some(t => t.name === newTask.name)) {
-            throw new Error(`Task "${newTask.name}" already exists`);
-          }
-
-          // デフォルト値の設定
-          const taskWithDefaults: Task = {
-            ...newTask,
-            description: newTask.description || '',
-            difficulty: newTask.difficulty ?? 0,
-            baseDifficulty: newTask.baseDifficulty ?? 0,
-            depends: newTask.depends || [],
-            notes: newTask.notes || [],
-            relations: newTask.relations || [],
-            category: newTask.category || '',
-          };
-
-          return {
-            ...current,
-            tasks: [...current.tasks, taskWithDefaults],
-          };
+        // TaskSchemaを使ってデフォルト値を適用
+        const taskWithDefaults = TaskSchema.parse({
+          name: inputTask.name,
+          description: inputTask.description,
+          difficulty: inputTask.difficulty ?? 0,
+          baseDifficulty: inputTask.baseDifficulty ?? 0,
+          depends: inputTask.depends ?? [],
+          notes: inputTask.notes ?? [],
+          relations: inputTask.relations ?? [],
+          issueNumber: inputTask.issueNumber,
+          category: inputTask.category ?? '',
         });
+
+        await storage.createTask(projectId, taskWithDefaults);
 
         return {
           content: [
             {
               type: 'text',
-              text: `Task "${newTask.name}" created successfully`,
+              text: `Task "${inputTask.name}" created successfully in project "${projectId}"`,
             },
           ],
         };
       }
 
       case 'taskgraph_update_task': {
-        const { name: taskName, task: updates } = UpdateTaskSchema.parse(args);
+        const { projectId, name: taskName, task: updates } = UpdateTaskSchema.parse(args);
 
-        const taskgraph = await storage.updateTaskgraph((current) => {
-          const taskIndex = current.tasks.findIndex(t => t.name === taskName);
-
-          if (taskIndex === -1) {
-            throw new Error(`Task "${taskName}" not found`);
-          }
-
-          // タスク名を変更する場合の重複チェック
-          if (updates.name && updates.name !== taskName) {
-            if (current.tasks.some(t => t.name === updates.name)) {
-              throw new Error(`Task "${updates.name}" already exists`);
-            }
-          }
-
-          const updatedTasks = [...current.tasks];
-          updatedTasks[taskIndex] = {
-            ...updatedTasks[taskIndex],
-            ...updates,
-          };
-
-          // 依存関係の更新（タスク名が変更された場合）
-          if (updates.name && updates.name !== taskName) {
-            updatedTasks.forEach(task => {
-              task.depends = task.depends.map(dep =>
-                dep === taskName ? updates.name! : dep
-              );
-            });
-          }
-
-          return {
-            ...current,
-            tasks: updatedTasks,
-          };
-        });
+        await storage.updateTask(projectId, taskName, updates);
 
         return {
           content: [
             {
               type: 'text',
-              text: `Task "${taskName}" updated successfully`,
+              text: `Task "${taskName}" updated successfully in project "${projectId}"`,
             },
           ],
         };
       }
 
       case 'taskgraph_delete_task': {
-        const { name: taskName } = DeleteTaskSchema.parse(args);
+        const { projectId, name: taskName } = DeleteTaskSchema.parse(args);
 
-        const taskgraph = await storage.updateTaskgraph((current) => {
-          const taskIndex = current.tasks.findIndex(t => t.name === taskName);
-
-          if (taskIndex === -1) {
-            throw new Error(`Task "${taskName}" not found`);
-          }
-
-          // 依存関係からも削除
-          const updatedTasks = current.tasks
-            .filter(t => t.name !== taskName)
-            .map(task => ({
-              ...task,
-              depends: task.depends.filter(dep => dep !== taskName),
-            }));
-
-          return {
-            ...current,
-            tasks: updatedTasks,
-          };
-        });
+        await storage.deleteTask(projectId, taskName);
 
         return {
           content: [
             {
               type: 'text',
-              text: `Task "${taskName}" deleted successfully`,
+              text: `Task "${taskName}" deleted successfully from project "${projectId}"`,
+            },
+          ],
+        };
+      }
+
+      case 'taskgraph_get_schema': {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: getTaskSchemaHelp(),
             },
           ],
         };
@@ -291,11 +324,18 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         throw new Error(`Unknown tool: ${name}`);
     }
   } catch (error) {
+    const errorMessage = formatError(error);
+    
+    // Zodエラーの場合はスキーマヘルプも含める
+    const helpMessage = error instanceof z.ZodError 
+      ? `\n${getTaskSchemaHelp()}`
+      : '';
+    
     return {
       content: [
         {
           type: 'text',
-          text: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          text: `${errorMessage}${helpMessage}`,
         },
       ],
     };
@@ -307,15 +347,19 @@ async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
   
-  // デバッグ: 起動時にデータを読み込んで確認
+  // デバッグ: 起動時にプロジェクト一覧を確認
   try {
-    const taskgraph = await storage.readTaskgraph();
-    console.error(`Taskgraph MCP server started - Tasks loaded: ${taskgraph?.tasks?.length || 0}`);
-    if (taskgraph?.info) {
-      console.error(`Project info: ${JSON.stringify(taskgraph.info)}`);
+    const projects = await storage.listProjects();
+    console.error(`Taskgraph MCP server started - Projects found: ${projects.length}`);
+    console.error(`Available projects: ${projects.join(', ')}`);
+    
+    // 各プロジェクトのタスク数を表示
+    for (const projectId of projects) {
+      const taskgraph = await storage.readTaskgraph(projectId);
+      console.error(`${projectId}: ${taskgraph?.tasks?.length || 0} tasks`);
     }
   } catch (error) {
-    console.error('Error loading taskgraph on startup:', error);
+    console.error('Error loading projects on startup:', error);
   }
 }
 
