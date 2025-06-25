@@ -18,6 +18,15 @@ tg run
 
 # linter を実行する
 tg lint
+
+# 全ての動作確認テスト (API + MCP)
+tg test
+
+# API動作確認テストのみ
+tg test-api
+
+# MCPサーバー動作確認テストのみ
+tg test-mcp
 ```
 
 ## ディレクトリ構成

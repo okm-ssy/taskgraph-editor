@@ -36,6 +36,15 @@ taskgraph_editor() {
   mcp-build)
     script_name='mcp/build.sh'
     ;;
+  test)
+    script_name='test.sh'
+    ;;
+  test-api)
+    script_name='test-api.sh'
+    ;;
+  test-mcp)
+    script_name='test-mcp.sh'
+    ;;
   *)
     help && return
     ;;
@@ -53,6 +62,9 @@ help() {
   edit                          vs-code で開く
   run                           フロントを立ち上げる
   lint                          フロントとMCPサーバーのlintを実行
+  test                          全ての動作確認テストを実行（API + MCP）
+  test-api                      API動作確認テストを実行
+  test-mcp                      MCPサーバー動作確認テストを実行
   create-component              フロントの vue ファイルと stories ファイルを作る
   create-prompt-context         AI のプロンプト用にファイルを結合する
   mcp-run                       MCPサーバーを開発モードで起動
