@@ -12,10 +12,10 @@ export class TaskgraphStorage {
   private dataPath: string;
 
   constructor() {
-    // プロジェクトルートにtaskgraph-data.jsonを保存
+    // プロジェクトルートのdataフォルダにtaskgraph-data.jsonを保存
     // ESモジュールでの__dirnameの代替
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
-    this.dataPath = path.join(__dirname, '..', '..', '..', 'taskgraph-data.json');
+    this.dataPath = path.join(__dirname, '..', '..', '..', 'data', 'taskgraph-data.json');
     console.error(`TaskgraphStorage: Data path set to ${this.dataPath}`);
   }
 

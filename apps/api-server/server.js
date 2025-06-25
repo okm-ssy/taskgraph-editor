@@ -6,8 +6,8 @@ import path from 'path';
 const app = express();
 const PORT = 3333;
 
-// プロジェクトルートのtaskgraph-data.jsonのパス
-const TASKGRAPH_FILE = path.join(process.cwd(), '..', '..', 'taskgraph-data.json');
+// プロジェクトルートのdataフォルダ内のtaskgraph-data.jsonのパス
+const TASKGRAPH_FILE = path.join(process.cwd(), '..', '..', 'data', 'taskgraph-data.json');
 
 app.use(cors());
 app.use(express.json());
