@@ -30,8 +30,8 @@ taskgraph_editor() {
   create_prompt_context | create-prompt-context)
     script_name='front/create_prompt_context.sh'
     ;;
-  mcp-dev)
-    script_name='mcp/dev.sh'
+  mcp-run)
+    script_name='mcp/run.sh'
     ;;
   mcp-build)
     script_name='mcp/build.sh'
@@ -55,7 +55,7 @@ help() {
   lint                          フロントとMCPサーバーのlintを実行
   create-component              フロントの vue ファイルと stories ファイルを作る
   create-prompt-context         AI のプロンプト用にファイルを結合する
-  mcp-dev                       MCPサーバーを開発モードで起動
+  mcp-run                       MCPサーバーを開発モードで起動
   mcp-build                     MCPサーバーをビルド
   help                          ヘルプを表示する
 END
