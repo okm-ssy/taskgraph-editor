@@ -2,6 +2,7 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
+import { PROJECT_CONSTANTS } from '@/constants';
 import { EditorTask } from '../model/EditorTask'; // EditorTask をインポート
 import type { GridTask } from '../model/GridTask';
 import type { Taskgraph, Task } from '../model/Taskgraph';
@@ -188,6 +189,11 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     return true;
   };
 
+  // 現在のプロジェクトIDを取得
+  const getCurrentProjectId = (): string => {
+    return localStorage.getItem(PROJECT_CONSTANTS.STORAGE_KEY) || PROJECT_CONSTANTS.DEFAULT_PROJECT_ID;
+  };
+
   // ファイルにデータを保存（デバウンス付き）
   let saveTimeout: NodeJS.Timeout | null = null;
   const saveToFile = async () => {
@@ -195,15 +201,17 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     if (saveTimeout) {
       clearTimeout(saveTimeout);
     }
-    
+
     saveTimeout = setTimeout(async () => {
       try {
         if (editorTasks.value.length === 0) {
           return;
         }
         const jsonData = exportTaskgraphToJson();
-        
-        const response = await fetch('/api/save-taskgraph', {
+        const projectId = getCurrentProjectId();
+
+        const url = `/api/save-taskgraph?projectId=${encodeURIComponent(projectId)}`;
+        const response = await fetch(url, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -220,9 +228,12 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   };
 
   // ファイルからデータを取得
-  const getFromFile = async (): Promise<string | null> => {
+  const getFromFile = async (projectId?: string): Promise<string | null> => {
     try {
-      const response = await fetch('/api/load-taskgraph');
+      const url = projectId 
+        ? `/api/load-taskgraph?projectId=${encodeURIComponent(projectId)}`
+        : '/api/load-taskgraph';
+      const response = await fetch(url);
       if (!response.ok) {
         if (response.status === 404) {
           return null; // ファイルが存在しない場合
@@ -239,7 +250,8 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   // ファイルからデータを読み込み
   const loadFromFile = async () => {
     try {
-      const jsonData = await getFromFile();
+      const projectId = getCurrentProjectId();
+      const jsonData = await getFromFile(projectId);
       if (jsonData) {
         isLoadingFromStorage = true;
         const result = parseJsonToTaskgraph(jsonData);
