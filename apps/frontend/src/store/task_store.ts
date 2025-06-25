@@ -139,7 +139,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     if (task) {
       Object.assign(task.grid, gridTask);
       syncLayoutInfo(task, gridTask);
-      saveToLocalStorage();
+      saveToFile();
       return true;
     }
     return false;
@@ -184,30 +184,39 @@ export const useCurrentTasks = defineStore('editorTask', () => {
 
     Object.assign(task.task, taskData);
     graphLayout.buildGraphData(editorTasks.value);
-    saveToLocalStorage();
+    saveToFile();
     return true;
   };
 
-  // ファイルにデータを保存
+  // ファイルにデータを保存（デバウンス付き）
+  let saveTimeout: NodeJS.Timeout | null = null;
   const saveToFile = async () => {
-    try {
-      if (editorTasks.value.length === 0) {
-        return;
-      }
-      const jsonData = exportTaskgraphToJson();
-      const response = await fetch('/api/save-taskgraph', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonData,
-      });
-      if (!response.ok) {
-        throw new Error('Failed to save taskgraph');
-      }
-    } catch (error) {
-      console.error('ファイル保存エラー:', error);
+    // デバウンス: 1秒以内の連続呼び出しをまとめる
+    if (saveTimeout) {
+      clearTimeout(saveTimeout);
     }
+    
+    saveTimeout = setTimeout(async () => {
+      try {
+        if (editorTasks.value.length === 0) {
+          return;
+        }
+        const jsonData = exportTaskgraphToJson();
+        
+        const response = await fetch('/api/save-taskgraph', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: jsonData,
+        });
+        if (!response.ok) {
+          throw new Error('Failed to save taskgraph');
+        }
+      } catch (error) {
+        console.error('ファイル保存エラー:', error);
+      }
+    }, 1000); // 1秒のデバウンス
   };
 
   // ファイルからデータを取得

@@ -28,7 +28,8 @@ app.post('/api/save-taskgraph', async (req, res) => {
 app.get('/api/load-taskgraph', async (req, res) => {
   try {
     const data = await fs.readFile(TASKGRAPH_FILE, 'utf-8');
-    res.json(JSON.parse(data));
+    res.setHeader('Content-Type', 'application/json');
+    res.send(data); // JSONを直接送信
   } catch (error) {
     if (error.code === 'ENOENT') {
       // ファイルが存在しない場合は404を返す
