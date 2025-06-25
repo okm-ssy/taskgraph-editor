@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
+import { fileURLToPath } from 'url';
 import { Taskgraph, TaskgraphSchema } from './types.js';
 
 /**
@@ -12,7 +13,10 @@ export class TaskgraphStorage {
 
   constructor() {
     // プロジェクトルートにtaskgraph-data.jsonを保存
-    this.dataPath = path.join(process.cwd(), 'taskgraph-data.json');
+    // ESモジュールでの__dirnameの代替
+    const __dirname = path.dirname(fileURLToPath(import.meta.url));
+    this.dataPath = path.join(__dirname, '..', '..', '..', 'taskgraph-data.json');
+    console.error(`TaskgraphStorage: Data path set to ${this.dataPath}`);
   }
 
   async ensureDirectory(): Promise<void> {
@@ -27,11 +31,15 @@ export class TaskgraphStorage {
   async readTaskgraph(): Promise<Taskgraph | null> {
     try {
       await this.ensureDirectory();
+      console.error(`TaskgraphStorage: Reading from ${this.dataPath}`);
       const data = await fs.readFile(this.dataPath, 'utf-8');
       const parsed = JSON.parse(data);
-      return TaskgraphSchema.parse(parsed);
+      const result = TaskgraphSchema.parse(parsed);
+      console.error(`TaskgraphStorage: Successfully loaded ${result.tasks.length} tasks`);
+      return result;
     } catch (error) {
       // ファイルが存在しない場合は空のタスクグラフを返す
+      console.error(`TaskgraphStorage: Error reading file (${error}), returning empty taskgraph`);
       return {
         info: {},
         tasks: []

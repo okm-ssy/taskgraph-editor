@@ -306,7 +306,17 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error('Taskgraph MCP server started');
+  
+  // デバッグ: 起動時にデータを読み込んで確認
+  try {
+    const taskgraph = await storage.readTaskgraph();
+    console.error(`Taskgraph MCP server started - Tasks loaded: ${taskgraph?.tasks?.length || 0}`);
+    if (taskgraph?.info) {
+      console.error(`Project info: ${JSON.stringify(taskgraph.info)}`);
+    }
+  } catch (error) {
+    console.error('Error loading taskgraph on startup:', error);
+  }
 }
 
 main().catch((error) => {
