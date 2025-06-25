@@ -18,7 +18,7 @@ export const useFileStorageSync = () => {
 
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'taskgraph-data.json';
+      a.download = 'data/taskgraph-data.json';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
