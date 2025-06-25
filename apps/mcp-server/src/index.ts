@@ -153,7 +153,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const { name: taskName } = GetTaskSchema.parse(args);
         const taskgraph = await storage.readTaskgraph();
         const task = taskgraph?.tasks.find(t => t.name === taskName);
-        
+
         if (!task) {
           throw new Error(`Task "${taskName}" not found`);
         }
@@ -170,7 +170,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case 'taskgraph_create_task': {
         const { task: newTask } = CreateTaskSchema.parse(args);
-        
+
         const taskgraph = await storage.updateTaskgraph((current) => {
           // 重複チェック
           if (current.tasks.some(t => t.name === newTask.name)) {
@@ -179,14 +179,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
           // デフォルト値の設定
           const taskWithDefaults: Task = {
-            description: '',
-            difficulty: 0,
-            baseDifficulty: 0,
-            depends: [],
-            notes: [],
-            relations: [],
-            category: '',
             ...newTask,
+            description: newTask.description || '',
+            difficulty: newTask.difficulty ?? 0,
+            baseDifficulty: newTask.baseDifficulty ?? 0,
+            depends: newTask.depends || [],
+            notes: newTask.notes || [],
+            relations: newTask.relations || [],
+            category: newTask.category || '',
           };
 
           return {
@@ -207,10 +207,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case 'taskgraph_update_task': {
         const { name: taskName, task: updates } = UpdateTaskSchema.parse(args);
-        
+
         const taskgraph = await storage.updateTaskgraph((current) => {
           const taskIndex = current.tasks.findIndex(t => t.name === taskName);
-          
+
           if (taskIndex === -1) {
             throw new Error(`Task "${taskName}" not found`);
           }
@@ -231,7 +231,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           // 依存関係の更新（タスク名が変更された場合）
           if (updates.name && updates.name !== taskName) {
             updatedTasks.forEach(task => {
-              task.depends = task.depends.map(dep => 
+              task.depends = task.depends.map(dep =>
                 dep === taskName ? updates.name! : dep
               );
             });
@@ -255,10 +255,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case 'taskgraph_delete_task': {
         const { name: taskName } = DeleteTaskSchema.parse(args);
-        
+
         const taskgraph = await storage.updateTaskgraph((current) => {
           const taskIndex = current.tasks.findIndex(t => t.name === taskName);
-          
+
           if (taskIndex === -1) {
             throw new Error(`Task "${taskName}" not found`);
           }
