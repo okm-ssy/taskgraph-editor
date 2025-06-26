@@ -1,0 +1,78 @@
+{
+  "info": {},
+  "tasks": [
+    {
+      "depends": [],
+      "description": "ルートタスク",
+      "difficulty": 1.2,
+      "baseDifficulty": 1,
+      "name": "root-task",
+      "notes": [
+        "はじめにやるタスク"
+      ],
+      "relations": [],
+      "category": "",
+      "layout": {
+        "x": 1,
+        "y": 3
+      }
+    },
+    {
+      "depends": [
+        "root-task"
+      ],
+      "description": "サブタスク1",
+      "difficulty": 2.4,
+      "baseDifficulty": 2,
+      "name": "sub-task-1",
+      "notes": [
+        "次にやるタスク"
+      ],
+      "relations": [],
+      "category": "",
+      "layout": {
+        "x": 5,
+        "y": 1
+      }
+    },
+    {
+      "depends": [
+        "root-task"
+      ],
+      "description": "サブタスク2",
+      "difficulty": 3.6,
+      "baseDifficulty": 3,
+      "name": "sub-task-2",
+      "notes": [
+        "次にやるタスク"
+      ],
+      "relations": [],
+      "category": "",
+      "layout": {
+        "x": 5,
+        "y": 4
+      }
+    },
+    {
+      "depends": [
+        "sub-task-1",
+        "sub-task-2"
+      ],
+      "description": "リーフタスク",
+      "difficulty": 4.8,
+      "baseDifficulty": 4,
+      "name": "leaf-task",
+      "notes": [
+        "最後にやるタスク",
+        "サブタスク1 のあとにやる",
+        "サブタスク2 のあとにやる"
+      ],
+      "relations": [],
+      "category": "",
+      "layout": {
+        "x": 9,
+        "y": 3
+      }
+    }
+  ]
+}
