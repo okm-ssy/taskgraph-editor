@@ -2,7 +2,6 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
-import { PROJECT_CONSTANTS } from '@/constants';
 import { EditorTask } from '../model/EditorTask'; // EditorTask をインポート
 import type { GridTask } from '../model/GridTask';
 import type { Taskgraph, Task } from '../model/Taskgraph';
@@ -10,6 +9,8 @@ import type { Taskgraph, Task } from '../model/Taskgraph';
 import { useEditorUIStore } from './editor_ui_store';
 import { useGraphLayout } from './graph_layout_store';
 import { useJsonProcessor } from './json_processor';
+
+import { PROJECT_CONSTANTS } from '@/constants';
 
 export const useCurrentTasks = defineStore('editorTask', () => {
   // グラフレイアウト関連
@@ -191,7 +192,10 @@ export const useCurrentTasks = defineStore('editorTask', () => {
 
   // 現在のプロジェクトIDを取得
   const getCurrentProjectId = (): string => {
-    return localStorage.getItem(PROJECT_CONSTANTS.STORAGE_KEY) || PROJECT_CONSTANTS.DEFAULT_PROJECT_ID;
+    return (
+      localStorage.getItem(PROJECT_CONSTANTS.STORAGE_KEY) ||
+      PROJECT_CONSTANTS.DEFAULT_PROJECT_ID
+    );
   };
 
   // ファイルにデータを保存（デバウンス付き）
@@ -230,7 +234,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   // ファイルからデータを取得
   const getFromFile = async (projectId?: string): Promise<string | null> => {
     try {
-      const url = projectId 
+      const url = projectId
         ? `/api/load-taskgraph?projectId=${encodeURIComponent(projectId)}`
         : '/api/load-taskgraph';
       const response = await fetch(url);
