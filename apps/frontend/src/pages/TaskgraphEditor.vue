@@ -140,10 +140,14 @@ import ViewerPage from './ViewerPage.vue';
 import JsonInput from '@/components/common/JsonInput.vue';
 import ProjectSelector from '@/components/common/ProjectSelector.vue';
 import Switcher from '@/components/common/Switcher.vue';
+import { useAppTitle } from '@/composables/useTitle';
 
 const router = useRouter();
 const route = useRoute();
 const taskStore = useCurrentTasks();
+
+// タイトル管理を初期化
+useAppTitle();
 
 // URLに基づいて現在のページを設定
 const currentPage = computed<Page>(() => {
