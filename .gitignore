@@ -34,6 +34,7 @@ yarn-error.log*
 # Local data files
 **/taskgraph-local-data.json
 data/*.json
+!data/sample.taskgraph.json
 
 # Test coverage
 coverage/
