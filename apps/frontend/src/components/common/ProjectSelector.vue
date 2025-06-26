@@ -9,11 +9,7 @@
     >
       <option value="" disabled>プロジェクトを選択してください</option>
       <option v-if="isLoading" value="" disabled>読み込み中...</option>
-      <option
-        v-for="project in projects"
-        :key="project.id"
-        :value="project.id"
-      >
+      <option v-for="project in projects" :key="project.id" :value="project.id">
         {{ project.name }}
       </option>
     </select>
@@ -25,7 +21,8 @@ import { onMounted } from 'vue';
 
 import { useProject } from '@/composables/useProject';
 
-const { selectedProjectId, projects, isLoading, fetchProjects, selectProject } = useProject();
+const { selectedProjectId, projects, isLoading, fetchProjects, selectProject } =
+  useProject();
 
 const handleProjectChange = () => {
   if (selectedProjectId.value) {
