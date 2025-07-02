@@ -51,8 +51,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineEmits } from 'vue';
-
 defineProps<{
   isVisible: boolean;
   title?: string; // ダイアログのタイトルをオプションで受け取る
