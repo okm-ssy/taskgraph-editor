@@ -4,10 +4,10 @@
   >
     <div>
       <label class="block text-xs font-medium text-gray-500 mb-0.5"
-        >タスクID</label
+        >タスク名</label
       >
-      <p class="text-gray-600 text-xs font-mono break-all">
-        {{ task.id }}
+      <p class="text-gray-800 text-sm font-semibold break-words">
+        {{ task.task.name }}
       </p>
     </div>
 
