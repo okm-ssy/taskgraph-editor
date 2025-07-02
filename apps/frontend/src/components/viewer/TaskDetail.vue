@@ -3,6 +3,15 @@
     class="p-3 space-y-3 text-sm max-w-xs bg-white rounded shadow-lg border border-gray-200"
   >
     <div>
+      <label class="block text-xs font-medium text-gray-500 mb-0.5"
+        >タスクID</label
+      >
+      <p class="text-gray-600 text-xs font-mono break-all">
+        {{ task.id }}
+      </p>
+    </div>
+
+    <div>
       <label class="block text-xs font-medium text-gray-500 mb-0.5">説明</label>
       <p class="text-gray-800 text-sm break-words whitespace-pre-wrap">
         {{ task.task.description || '未設定' }}
