@@ -112,7 +112,7 @@
 
 <script setup lang="ts">
 // ComponentPublicInstance 型をインポート
-import { onMounted, defineProps, watch, ref, onBeforeUpdate } from 'vue';
+import { onMounted, watch, ref, onBeforeUpdate } from 'vue';
 
 import { TIMING } from '../../constants';
 import type { EditorTask } from '../../model/EditorTask';
