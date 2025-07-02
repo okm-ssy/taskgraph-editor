@@ -38,6 +38,15 @@ export PATH="$PATH:/path/to/taskgraph-editor/bin"
 source ~/.bashrc  # または source ~/.zshrc
 ```
 
+### 新規プロジェクトの作成
+
+現在、UIからの新規プロジェクト作成機能は実装されていません。以下の方法で作成できます：
+
+```bash
+# dataディレクトリに新しいファイルを作成
+echo '{"info":{},"tasks":[]}' > data/my-project.taskgraph.json
+```
+
 ## 起動方法
 
 ### 開発サーバーの起動
