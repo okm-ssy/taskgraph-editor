@@ -1,0 +1,7 @@
+{
+  "name": "taskgraph-editor",
+  "private": true,
+  "volta": {
+    "node": "24.1.0"
+  }
+}
