@@ -2,6 +2,9 @@
   "name": "taskgraph-api-server",
   "version": "1.0.0",
   "type": "module",
+  "volta": {
+    "node": "24.1.0"
+  },
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
