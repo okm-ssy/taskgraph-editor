@@ -46,6 +46,17 @@
 
 ## taskgraph-editorで管理すべき情報
 
+### 型定義
+
+```typescript
+interface DesignImage {
+  id: string;          // 画像の一意ID
+  title: string;       // 画像のタイトル・説明
+  filepath: string;    // 画像ファイルのパス
+  tags?: string[];     // 検索用タグ（画面名、機能名等）
+}
+```
+
 ### タスクレベルで追加したい項目
 
 ```typescript
@@ -69,18 +80,12 @@ interface TaskExtended {
       y: number;
     };
 
-    // 新規追加項目
-    specifications?: string[];      // 仕様書・要件定義へのリンク
-    designs?: string[];            // デザインファイル（Figma等）へのリンク
-    screenshots?: string[];        // 既存画面・完成イメージのパス
-    validation_rules?: ValidationRule[];  // バリデーション仕様
-    test_cases?: TestCase[];       // テストケース
-    acceptance_criteria?: string[];  // 受け入れ基準
-    api_specs?: ApiSpec[];         // API仕様（OpenAPI等）
-    database_changes?: DatabaseChange[];  // DB変更内容
-    environment_setup?: string[];   // 開発環境設定
-    security_requirements?: string[];  // セキュリティ要件
-    performance_requirements?: PerformanceRequirement[];  // パフォーマンス要件
+    // 新規追加項目（実装支援用）
+    implementation_notes?: string[];  // 実装時の注意点・参考情報
+    ui_requirements?: string;         // UI/画面要件の簡潔な説明
+    data_requirements?: string;       // データ処理・API要件の説明
+    acceptance_criteria?: string[];   // 受け入れ基準（必須）
+    design_images?: string[];         // 関連する画面設計画像のID（プロジェクトのdesign_imagesから参照）
   };
 }
 ```
@@ -104,13 +109,11 @@ interface ProjectExtended {
 
     // info内のaddition項目
     addition?: {
-      project_overview?: string;      // プロジェクト概要
-      architecture?: string[];       // システム構成図
-      coding_standards?: string[];   // コーディング規約
-      deployment_guide?: string[];   // デプロイ手順
-      environment_info?: EnvironmentInfo[];  // 開発・本番環境情報
-      external_dependencies?: ExternalDependency[];  // 外部システム依存
-      risk_assessment?: RiskItem[];   // リスク評価
+      project_overview?: string;      // プロジェクト概要・目的
+      tech_stack?: string[];         // 主要技術スタック
+      coding_guidelines?: string;     // コーディング規約・注意点
+      deployment_notes?: string;      // デプロイ・環境に関する注意事項
+      design_images?: DesignImage[];  // プロジェクト内の画面設計画像
     };
   };
   tasks: Task[];
