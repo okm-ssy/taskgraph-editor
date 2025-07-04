@@ -10,6 +10,7 @@ JSONでタスクを分解管理するアプリ。schema は apps/frontend/src/mo
 - 新規作成: `tg create-component <名前>` で自動生成
 - 型に any は使わない
 - **ハードコード禁止**: マジックナンバーや文字列は `apps/frontend/src/constants/` の定数を使用する
+- lint や test でエラーが出たときはテストを無効せず、原因を修正する
 
 ## よく使うコマンド
 
