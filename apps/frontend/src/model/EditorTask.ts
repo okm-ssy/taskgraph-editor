@@ -15,8 +15,8 @@ export class EditorTask {
       i: this.id,
       x: 0,
       y: 0,
-      w: 3,
-      h: 3,
+      w: 2,
+      h: 2,
     };
 
     this.task = {
