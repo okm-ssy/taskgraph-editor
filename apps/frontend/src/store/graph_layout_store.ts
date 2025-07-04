@@ -9,8 +9,8 @@ import { GRAPH_SETTINGS } from './types/graph_types';
 export const useGraphLayout = () => {
   // グラフレイアウト用の状態
   const graphNodes = ref<GraphNode[]>([]);
-  const canvasWidth = ref(LAYOUT.CANVAS.MIN_WIDTH);
-  const canvasHeight = ref(LAYOUT.CANVAS.INITIAL_HEIGHT);
+  const canvasWidth = ref<number>(LAYOUT.CANVAS.MIN_WIDTH);
+  const canvasHeight = ref<number>(LAYOUT.CANVAS.INITIAL_HEIGHT);
 
   // グラフのパスデータを取得（矢印描画用）
   const graphPaths = computed(() => {
