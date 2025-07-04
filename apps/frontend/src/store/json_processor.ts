@@ -33,13 +33,13 @@ export const useJsonProcessor = () => {
       if (!validationResult.success) {
         // Zodエラーの詳細を取得
         const zodError = validationResult.error;
-        const errorDetails = zodError.issues
-          .map((issue) => {
+        const errorDetails = zodError?.issues
+          ?.map((issue) => {
             const path =
               issue.path.length > 0 ? ` (${issue.path.join('.')})` : '';
             return `${issue.message}${path}`;
           })
-          .join(', ');
+          ?.join(', ') || '詳細不明';
 
         const errorMessage = `バリデーションエラー: ${errorDetails}`;
         taskLoadError.value = errorMessage;
@@ -49,7 +49,7 @@ export const useJsonProcessor = () => {
 
       // 循環依存のチェック
       if (validationResult.hasCycles) {
-        const cycleMessage = `循環依存が検出されました: ${validationResult.cycles.map((cycle) => cycle.join(' -> ')).join(', ')}`;
+        const cycleMessage = `循環依存が検出されました: ${validationResult.cycles?.map((cycle) => cycle.join(' -> ')).join(', ') || '詳細不明'}`;
         taskLoadError.value = cycleMessage;
         errorStore.addValidationError(cycleMessage, validationResult.cycles);
         return false;
@@ -60,12 +60,13 @@ export const useJsonProcessor = () => {
 
       // 新しいEditorTaskを作成
       const newEditorTasks: EditorTask[] = [];
-      taskgraph.tasks.forEach((task) => {
+      if (taskgraph && taskgraph.tasks) {
+        taskgraph.tasks.forEach((task) => {
         const editorTask = new EditorTask();
         editorTask.task = { ...task };
 
         // 既存データの場合、difficulty → baseDifficulty に移して、difficulty を1.2倍に変換
-        if (task.addition?.baseDifficulty === 0 && task.difficulty > 0) {
+        if (task.addition && task.addition.baseDifficulty === 0 && task.difficulty > 0) {
           if (!editorTask.task.addition) {
             editorTask.task.addition = {
               baseDifficulty: 0,
@@ -78,7 +79,7 @@ export const useJsonProcessor = () => {
             Math.round(task.difficulty * 1.2 * 10) / 10;
         }
         // baseDifficultyが設定済みの場合はそのまま使用
-        else if (task.addition?.baseDifficulty > 0) {
+        else if (task.addition && task.addition.baseDifficulty !== undefined && task.addition.baseDifficulty > 0) {
           if (!editorTask.task.addition) {
             editorTask.task.addition = {
               baseDifficulty: 0,
@@ -99,10 +100,11 @@ export const useJsonProcessor = () => {
         }
 
         newEditorTasks.push(editorTask);
-      });
+        });
+      }
 
       // 更新関数を呼び出し
-      updateTasks(newEditorTasks, taskgraph.info);
+      updateTasks(newEditorTasks, taskgraph ? taskgraph.info || {} : {});
 
       return true;
     } catch (error) {

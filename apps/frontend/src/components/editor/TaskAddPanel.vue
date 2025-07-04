@@ -307,10 +307,12 @@ const addNewTask = () => {
     name: nameInput.value || 'new-task',
     description: descriptionInput.value || '',
     notes: notesInput.value ? notesInput.value.split('\n') : [],
-    relations: relationsInput.value ? relationsInput.value.split('\n') : [],
-    baseDifficulty: parseFloat(difficultyInput.value.toString()),
-    category: categoryInput.value,
     depends: [],
+    addition: {
+      baseDifficulty: parseFloat(difficultyInput.value.toString()),
+      relations: relationsInput.value ? relationsInput.value.split('\n') : [],
+      category: categoryInput.value,
+    },
   });
 
   // 入力フィールドをリセット
