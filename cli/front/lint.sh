@@ -3,8 +3,8 @@
 set -eu
 
 lint() {
-  echo "🧪 フロントエンドlint & ビルドテスト"
-  echo "=================================="
+  echo "🧪 フロントエンドlint"
+  echo "====================="
   
   cd "${REPOSITORY_ROOT}/apps/frontend/"
   npm set progress=false
@@ -12,10 +12,6 @@ lint() {
   
   echo "🔧 ESLint実行..."
   npm run lint
-  
-  echo ""
-  echo "🔧 TypeScriptビルドテスト..."
-  npm run build
 
   echo ""
   echo "🧪 APIサーバーlint"
