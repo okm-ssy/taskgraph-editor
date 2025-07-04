@@ -56,9 +56,12 @@
     </div>
 
     <div ref="gridContainer" class="flex-1 overflow-auto p-4 relative">
-      <div class="min-w-max" style="width: 800dvw; min-width: 800dvw;">
+      <div class="min-w-max" style="width: 800dvw; min-width: 800dvw">
         <!-- 矢印SVGレイヤー（タスクカードより奥に配置） -->
-        <div class="absolute z-0" style="width: 800dvw; height: 100%; top: 0; left: 0;">
+        <div
+          class="absolute z-0"
+          style="width: 800dvw; height: 100%; top: 0; left: 0"
+        >
           <Curve
             :connections="connections"
             :force-update="curveUpdateTrigger"
@@ -72,7 +75,10 @@
         </div>
 
         <!-- 矢印クリック用の透明レイヤー（タスクより下） -->
-        <div class="absolute z-5 pointer-events-none" style="width: 800dvw; height: 100%; top: 0; left: 0;">
+        <div
+          class="absolute z-5 pointer-events-none"
+          style="width: 800dvw; height: 100%; top: 0; left: 0"
+        >
           <Curve
             :connections="connections"
             :force-update="curveUpdateTrigger"
@@ -138,9 +144,9 @@
             :x="task.grid.x"
             :y="task.grid.y"
             :w="task.grid.w || 2"
-            :h="task.grid.h || 2"
+            :h="task.grid.h || 3"
             :min-w="1"
-            :min-h="2"
+            :min-h="3"
             :max-x="200"
             :is-bounded="false"
             drag-ignore-from=".task-content, .dependency-handle, .task-action-button"

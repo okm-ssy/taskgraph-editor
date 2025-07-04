@@ -432,7 +432,7 @@ export const useGraphLayout = () => {
       rowHeight: LAYOUT.GRID.ROW_HEIGHT.NORMAL,
       margin: [LAYOUT.GRID.MARGIN.NORMAL, LAYOUT.GRID.MARGIN.NORMAL],
       gridItemWidth: 2, // デフォルトのグリッドアイテム幅
-      gridItemHeight: 2, // デフォルトのグリッドアイテム高さ
+      gridItemHeight: 3, // デフォルトのグリッドアイテム高さ
     };
 
     // ピクセル座標をグリッド座標に変換
@@ -486,7 +486,7 @@ export const useGraphLayout = () => {
     const GRID_SETTINGS_LOCAL = {
       colNum: 100,
       gridItemWidth: 2,
-      gridItemHeight: 2,
+      gridItemHeight: 3,
     };
 
     const occupiedPositions = new Set<string>();
