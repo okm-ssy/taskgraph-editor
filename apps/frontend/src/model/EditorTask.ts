@@ -1,5 +1,7 @@
 import { nanoid } from 'nanoid';
 
+import { LAYOUT } from '../constants';
+
 import type { GridTask } from './GridTask';
 import type { Task } from './Taskgraph';
 
@@ -15,8 +17,8 @@ export class EditorTask {
       i: this.id,
       x: 0,
       y: 0,
-      w: 2,
-      h: 3,
+      w: LAYOUT.GRID.ITEM_SIZE.WIDTH,
+      h: LAYOUT.GRID.ITEM_SIZE.HEIGHT,
     };
 
     this.task = {
