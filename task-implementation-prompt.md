@@ -54,20 +54,34 @@ interface TaskExtended {
   name: string;
   description: string;
   depends: string[];
-  // ... その他既存項目
+  difficulty: number;
+  notes: string[];
+  issueNumber?: number;
 
-  // 新規追加項目
-  specifications?: string[];      // 仕様書・要件定義へのリンク
-  designs?: string[];            // デザインファイル（Figma等）へのリンク
-  screenshots?: string[];        // 既存画面・完成イメージのパス
-  validation_rules?: ValidationRule[];  // バリデーション仕様
-  test_cases?: TestCase[];       // テストケース
-  acceptance_criteria?: string[];  // 受け入れ基準
-  api_specs?: ApiSpec[];         // API仕様（OpenAPI等）
-  database_changes?: DatabaseChange[];  // DB変更内容
-  environment_setup?: string[];   // 開発環境設定
-  security_requirements?: string[];  // セキュリティ要件
-  performance_requirements?: PerformanceRequirement[];  // パフォーマンス要件
+  // addition オブジェクト内の項目
+  addition?: {
+    // 既存のaddition項目
+    baseDifficulty: number;
+    relations: string[];
+    category: string;
+    layout?: {
+      x: number;
+      y: number;
+    };
+
+    // 新規追加項目
+    specifications?: string[];      // 仕様書・要件定義へのリンク
+    designs?: string[];            // デザインファイル（Figma等）へのリンク
+    screenshots?: string[];        // 既存画面・完成イメージのパス
+    validation_rules?: ValidationRule[];  // バリデーション仕様
+    test_cases?: TestCase[];       // テストケース
+    acceptance_criteria?: string[];  // 受け入れ基準
+    api_specs?: ApiSpec[];         // API仕様（OpenAPI等）
+    database_changes?: DatabaseChange[];  // DB変更内容
+    environment_setup?: string[];   // 開発環境設定
+    security_requirements?: string[];  // セキュリティ要件
+    performance_requirements?: PerformanceRequirement[];  // パフォーマンス要件
+  };
 }
 ```
 
