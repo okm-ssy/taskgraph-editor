@@ -90,17 +90,30 @@ interface TaskExtended {
 ```typescript
 interface ProjectExtended {
   // 既存項目
-  info: ProjectInfo;
-  tasks: Task[];
+  info: {
+    // 既存のinfo項目
+    github?: {
+      organization?: string;
+      projectNumber?: number;
+      repository?: string;
+      trackingIssueNumber?: number;
+    };
+    name?: string;
+    version?: string;
+    assignee?: string;
 
-  // 新規追加項目
-  project_overview?: string;      // プロジェクト概要
-  architecture?: string[];       // システム構成図
-  coding_standards?: string[];   // コーディング規約
-  deployment_guide?: string[];   // デプロイ手順
-  environment_info?: EnvironmentInfo[];  // 開発・本番環境情報
-  external_dependencies?: ExternalDependency[];  // 外部システム依存
-  risk_assessment?: RiskItem[];   // リスク評価
+    // info内のaddition項目
+    addition?: {
+      project_overview?: string;      // プロジェクト概要
+      architecture?: string[];       // システム構成図
+      coding_standards?: string[];   // コーディング規約
+      deployment_guide?: string[];   // デプロイ手順
+      environment_info?: EnvironmentInfo[];  // 開発・本番環境情報
+      external_dependencies?: ExternalDependency[];  // 外部システム依存
+      risk_assessment?: RiskItem[];   // リスク評価
+    };
+  };
+  tasks: Task[];
 }
 ```
 
