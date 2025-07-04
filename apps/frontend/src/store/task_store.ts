@@ -57,7 +57,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   // 各タスクのベース難易度合計（1.2倍する前）
   const baseTotalDifficulty = computed(() => {
     return tasks.value.reduce(
-      (sum, task) => sum + (task.addition.baseDifficulty || 0),
+      (sum, task) => sum + (task.addition?.baseDifficulty || 0),
       0,
     );
   });
@@ -83,6 +83,13 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     newTask.grid.x = x;
     newTask.grid.y = y;
     // レイアウト位置も設定
+    if (!newTask.task.addition) {
+      newTask.task.addition = {
+        baseDifficulty: 0,
+        relations: [],
+        category: '',
+      };
+    }
     newTask.task.addition.layout = { x, y };
     editorTasks.value.push(newTask);
     graphLayout.buildGraphData(editorTasks.value);
@@ -124,6 +131,9 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     gridTask: Partial<GridTask>,
   ): void => {
     if (gridTask.x !== undefined || gridTask.y !== undefined) {
+      if (!task.task.addition) {
+        task.task.addition = { baseDifficulty: 0, relations: [], category: '' };
+      }
       if (!task.task.addition.layout) {
         task.task.addition.layout = { x: 0, y: 0 };
       }
@@ -282,7 +292,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   const hasValidLayoutInfo = (tasks: EditorTask[]): boolean => {
     return tasks.some(
       (task) =>
-        task.task.addition.layout &&
+        task.task.addition?.layout &&
         (task.task.addition.layout.x !== 0 ||
           task.task.addition.layout.y !== 0),
     );
@@ -322,7 +332,9 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     const tasksWithLayout = editorTasks.value.map((editorTask) => ({
       ...editorTask.task,
       addition: {
-        ...editorTask.task.addition,
+        baseDifficulty: editorTask.task.addition?.baseDifficulty || 0,
+        relations: editorTask.task.addition?.relations || [],
+        category: editorTask.task.addition?.category || '',
         layout: {
           x: editorTask.grid.x,
           y: editorTask.grid.y,
