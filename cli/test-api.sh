@@ -9,7 +9,24 @@ cd "${REPOSITORY_ROOT}"
 echo "🧪 API動作確認テスト"
 echo "===================="
 
+# APIサーバー構文テスト
+echo "🔧 APIサーバー構文テスト..."
+cd "${REPOSITORY_ROOT}/apps/api-server/"
+npm set progress=false
+npm i
+
+echo "🔧 ESLint実行..."
+npm run lint
+
+echo ""
+echo "🔧 構文チェック..."
+npm run test
+echo "✅ APIサーバー構文テスト: 成功"
+
+cd "${REPOSITORY_ROOT}"
+
 # サーバーが起動しているかチェック
+echo ""
 echo "📡 サーバー接続確認..."
 if ! curl -s --connect-timeout 3 "$API_BASE" > /dev/null; then
     echo "❌ APIサーバーが起動していません (port 3333)"

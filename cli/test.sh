@@ -8,6 +8,17 @@ echo "=============================="
 cd "${REPOSITORY_ROOT}"
 
 echo ""
+echo "🔧 フロントエンドテスト実行中..."
+echo "------------------------------"
+if ./cli/test-frontend.sh; then
+    echo "✅ フロントエンドテスト: 成功"
+    FRONTEND_TEST_SUCCESS=true
+else
+    echo "❌ フロントエンドテスト: 失敗"
+    FRONTEND_TEST_SUCCESS=false
+fi
+
+echo ""
 echo "🔧 API動作確認テスト実行中..."
 echo "------------------------------"
 if ./cli/test-api.sh; then
@@ -32,11 +43,14 @@ fi
 echo ""
 echo "📊 テスト結果サマリー"
 echo "===================="
-if [ "$API_TEST_SUCCESS" = true ] && [ "$MCP_TEST_SUCCESS" = true ]; then
+if [ "$FRONTEND_TEST_SUCCESS" = true ] && [ "$API_TEST_SUCCESS" = true ] && [ "$MCP_TEST_SUCCESS" = true ]; then
     echo "🎉 全てのテストが成功しました！"
     exit 0
 else
     echo "⚠️  一部のテストが失敗しました："
+    if [ "$FRONTEND_TEST_SUCCESS" = false ]; then
+        echo "  - フロントエンドテスト: 失敗"
+    fi
     if [ "$API_TEST_SUCCESS" = false ]; then
         echo "  - APIテスト: 失敗"
     fi
