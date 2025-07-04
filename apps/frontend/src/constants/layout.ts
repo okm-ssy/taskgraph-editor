@@ -18,6 +18,10 @@ export const LAYOUT = {
   GRID: {
     CELL_WIDTH: 160,
     CELL_HEIGHT: 60,
+    COL_NUM: {
+      NORMAL: 24,
+      COMPACT: 32,
+    },
     ROW_HEIGHT: {
       NORMAL: 50,
       COMPACT: 35,
