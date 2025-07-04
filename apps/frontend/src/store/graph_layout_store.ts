@@ -428,9 +428,9 @@ export const useGraphLayout = () => {
 
     // グリッド設定
     const GRID_SETTINGS = {
-      colNum: 12,
-      rowHeight: 50,
-      margin: [10, 10],
+      colNum: LAYOUT.GRID.COL_NUM.NORMAL,
+      rowHeight: LAYOUT.GRID.ROW_HEIGHT.NORMAL,
+      margin: [LAYOUT.GRID.MARGIN.NORMAL, LAYOUT.GRID.MARGIN.NORMAL],
       gridItemWidth: 2, // デフォルトのグリッドアイテム幅
       gridItemHeight: 3, // デフォルトのグリッドアイテム高さ
     };
@@ -484,7 +484,7 @@ export const useGraphLayout = () => {
   // グリッド配置の最適化（重複回避）
   const optimizeGridLayout = (editorTasks: EditorTask[]) => {
     const GRID_SETTINGS_LOCAL = {
-      colNum: 12,
+      colNum: LAYOUT.GRID.COL_NUM.NORMAL,
       gridItemWidth: 2,
       gridItemHeight: 3,
     };

@@ -93,7 +93,11 @@
       <!-- グリッドレイアウト -->
       <GridLayout
         v-model:layout="layout"
-        :col-num="isCompactMode ? 16 : 12"
+        :col-num="
+          isCompactMode
+            ? LAYOUT.GRID.COL_NUM.COMPACT
+            : LAYOUT.GRID.COL_NUM.NORMAL
+        "
         :row-height="
           isCompactMode
             ? LAYOUT.GRID.ROW_HEIGHT.COMPACT
