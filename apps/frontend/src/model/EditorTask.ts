@@ -23,14 +23,16 @@ export class EditorTask {
       depends: [],
       description: 'タスクの説明',
       difficulty: 0,
-      baseDifficulty: 0,
       name: 'new-task',
       notes: [],
-      category: '',
-      relations: [],
-      layout: {
-        x: 0,
-        y: 0,
+      addition: {
+        baseDifficulty: 0,
+        category: '',
+        relations: [],
+        layout: {
+          x: 0,
+          y: 0,
+        },
       },
     };
   }

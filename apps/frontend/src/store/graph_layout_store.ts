@@ -53,7 +53,7 @@ export const useGraphLayout = () => {
         name: task.name,
         description: task.description,
         difficulty: task.difficulty,
-        category: task.category || '',
+        category: task.addition.category || '',
         level: 0,
         treeIndex: 0,
         children: [],

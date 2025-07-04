@@ -5,16 +5,18 @@ export const TaskSchema = z.object({
   name: z.string(),
   description: z.string(),
   difficulty: z.number().default(0),
-  baseDifficulty: z.number().default(0),
   depends: z.array(z.string()).default([]),
   notes: z.array(z.string()).default([]),
-  relations: z.array(z.string()).default([]),
   issueNumber: z.number().optional(),
-  category: z.string().default(''),
-  layout: z.object({
-    x: z.number(),
-    y: z.number(),
-  }).optional(),
+  addition: z.object({
+    baseDifficulty: z.number().default(0),
+    relations: z.array(z.string()).default([]),
+    category: z.string().default(''),
+    layout: z.object({
+      x: z.number(),
+      y: z.number(),
+    }).optional(),
+  }),
 });
 
 // MCP用の入力スキーマ（より柔軟）
@@ -22,12 +24,14 @@ export const TaskInputSchema = z.object({
   name: z.string(),
   description: z.string(),
   difficulty: z.number().optional(),
-  baseDifficulty: z.number().optional(),
   depends: z.array(z.string()).optional(),
   notes: z.array(z.string()).optional(),
-  relations: z.array(z.string()).optional(),
   issueNumber: z.number().optional(),
-  category: z.string().optional(),
+  addition: z.object({
+    baseDifficulty: z.number().optional(),
+    relations: z.array(z.string()).optional(),
+    category: z.string().optional(),
+  }).optional(),
 });
 
 export const TaskgraphSchema = z.object({

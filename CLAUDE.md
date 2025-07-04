@@ -4,6 +4,7 @@ JSONでタスクを分解管理するアプリ。schema は apps/frontend/src/mo
 
 ## 開発ルール
 
+- John Carmack, Robert C. Martin, Rob Pikeならどう設計するかを意識する
 - ロジック: Pinia (store/) または Composables (composables/) に実装
 - コンポーネント: ロジックを持たせない
 - 新規作成: `tg create-component <名前>` で自動生成

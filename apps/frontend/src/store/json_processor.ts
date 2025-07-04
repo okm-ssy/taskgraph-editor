@@ -65,22 +65,23 @@ export const useJsonProcessor = () => {
         editorTask.task = { ...task };
 
         // 既存データの場合、difficulty → baseDifficulty に移して、difficulty を1.2倍に変換
-        if (task.baseDifficulty === 0 && task.difficulty > 0) {
-          editorTask.task.baseDifficulty = task.difficulty;
+        if (task.addition?.baseDifficulty === 0 && task.difficulty > 0) {
+          editorTask.task.addition.baseDifficulty = task.difficulty;
           editorTask.task.difficulty =
             Math.round(task.difficulty * 1.2 * 10) / 10;
         }
         // baseDifficultyが設定済みの場合はそのまま使用
-        else if (task.baseDifficulty > 0) {
-          editorTask.task.baseDifficulty = task.baseDifficulty;
+        else if (task.addition?.baseDifficulty > 0) {
+          editorTask.task.addition.baseDifficulty =
+            task.addition.baseDifficulty;
           editorTask.task.difficulty =
-            Math.round(task.baseDifficulty * 1.2 * 10) / 10;
+            Math.round(task.addition.baseDifficulty * 1.2 * 10) / 10;
         }
 
         // layout情報があればグリッド座標に設定
-        if (task.layout) {
-          editorTask.grid.x = task.layout.x;
-          editorTask.grid.y = task.layout.y;
+        if (task.addition?.layout) {
+          editorTask.grid.x = task.addition.layout.x;
+          editorTask.grid.y = task.addition.layout.y;
         }
 
         newEditorTasks.push(editorTask);
