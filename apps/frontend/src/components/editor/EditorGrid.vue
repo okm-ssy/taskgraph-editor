@@ -121,6 +121,7 @@
           :transform-scale="1"
           :mirrored="false"
           :use-style-cursor="false"
+          :is-bounded="false"
           drag-handle=".drag-handle"
           @layout-updated="handleLayoutUpdated"
           @item-move="handleItemMove"
@@ -140,6 +141,7 @@
             :h="task.grid.h || 3"
             :min-w="3"
             :min-h="3"
+            :is-bounded="false"
             drag-ignore-from=".task-content, .dependency-handle, .task-action-button"
           >
             <TaskCard
