@@ -19,8 +19,8 @@ export const LAYOUT = {
     CELL_WIDTH: 160,
     CELL_HEIGHT: 60,
     COL_NUM: {
-      NORMAL: 24,
-      COMPACT: 32,
+      NORMAL: 100,
+      COMPACT: 100,
     },
     ROW_HEIGHT: {
       NORMAL: 50,

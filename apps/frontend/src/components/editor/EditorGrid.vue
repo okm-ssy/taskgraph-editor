@@ -56,98 +56,100 @@
     </div>
 
     <div ref="gridContainer" class="flex-1 overflow-auto p-4 relative">
-      <!-- 矢印SVGレイヤー（タスクカードより奥に配置） -->
-      <div class="absolute inset-0 z-0">
-        <Curve
-          :connections="connections"
-          :force-update="curveUpdateTrigger"
-          :continuous-update="false"
-          :is-dragging="isDraggingOrResizing"
-          :hovered-connection-key="hoveredConnectionKey"
-          :grid-bounds="gridBounds"
-          @connection-click="handleConnectionClick"
-          @connection-hover="handleConnectionHover"
-        />
-      </div>
+      <div class="min-w-max">
+        <!-- 矢印SVGレイヤー（タスクカードより奥に配置） -->
+        <div class="absolute inset-0 z-0">
+          <Curve
+            :connections="connections"
+            :force-update="curveUpdateTrigger"
+            :continuous-update="false"
+            :is-dragging="isDraggingOrResizing"
+            :hovered-connection-key="hoveredConnectionKey"
+            :grid-bounds="gridBounds"
+            @connection-click="handleConnectionClick"
+            @connection-hover="handleConnectionHover"
+          />
+        </div>
 
-      <!-- 矢印クリック用の透明レイヤー（タスクより下） -->
-      <div class="absolute inset-0 z-5 pointer-events-none">
-        <Curve
-          :connections="connections"
-          :force-update="curveUpdateTrigger"
-          :continuous-update="false"
-          :is-dragging="isDraggingOrResizing"
-          :click-layer-only="true"
-          :hovered-connection-key="hoveredConnectionKey"
-          :grid-bounds="gridBounds"
-          @connection-click="handleConnectionClick"
-          @connection-hover="handleConnectionHover"
+        <!-- 矢印クリック用の透明レイヤー（タスクより下） -->
+        <div class="absolute inset-0 z-5 pointer-events-none">
+          <Curve
+            :connections="connections"
+            :force-update="curveUpdateTrigger"
+            :continuous-update="false"
+            :is-dragging="isDraggingOrResizing"
+            :click-layer-only="true"
+            :hovered-connection-key="hoveredConnectionKey"
+            :grid-bounds="gridBounds"
+            @connection-click="handleConnectionClick"
+            @connection-hover="handleConnectionHover"
+          />
+        </div>
+        <!-- 新規タスク追加パネル -->
+        <TaskAddPanel
+          v-if="uiStore.showAddPanel"
+          @close="uiStore.toggleAddPanel"
         />
-      </div>
-      <!-- 新規タスク追加パネル -->
-      <TaskAddPanel
-        v-if="uiStore.showAddPanel"
-        @close="uiStore.toggleAddPanel"
-      />
 
-      <!-- グリッドレイアウト -->
-      <GridLayout
-        v-model:layout="layout"
-        :col-num="
-          isCompactMode
-            ? LAYOUT.GRID.COL_NUM.COMPACT
-            : LAYOUT.GRID.COL_NUM.NORMAL
-        "
-        :width="
-          isCompactMode
-            ? LAYOUT.GRID.COL_NUM.COMPACT * LAYOUT.GRID.CELL_WIDTH
-            : LAYOUT.GRID.COL_NUM.NORMAL * LAYOUT.GRID.CELL_WIDTH
-        "
-        :row-height="
-          isCompactMode
-            ? LAYOUT.GRID.ROW_HEIGHT.COMPACT
-            : LAYOUT.GRID.ROW_HEIGHT.NORMAL
-        "
-        :is-draggable="!disableGrid"
-        :is-resizable="!disableGrid"
-        :vertical-compact="false"
-        :use-css-transforms="true"
-        :margin="
-          isCompactMode
-            ? [LAYOUT.GRID.MARGIN.COMPACT, LAYOUT.GRID.MARGIN.COMPACT]
-            : [LAYOUT.GRID.MARGIN.NORMAL, LAYOUT.GRID.MARGIN.NORMAL]
-        "
-        :responsive="false"
-        :auto-size="false"
-        :prevent-collision="true"
-        :compact-type="null"
-        :transform-scale="1"
-        :mirrored="false"
-        :use-style-cursor="false"
-        drag-handle=".drag-handle"
-        @layout-updated="handleLayoutUpdated"
-        @item-move="handleItemMove"
-        @item-moved="handleItemMoved"
-        @item-resize="handleItemResize"
-        @item-resized="handleItemResized"
-        class="min-h-[600px]"
-        :class="{ 'grid-disabled': disableGrid }"
-      >
-        <GridItem
-          v-for="task in editorTasks"
-          :key="task.id"
-          :i="task.id"
-          :x="task.grid.x"
-          :y="task.grid.y"
-          :w="task.grid.w"
-          :h="task.grid.h"
-          :min-w="2"
-          :min-h="2"
-          drag-ignore-from=".task-content, .dependency-handle, .task-action-button"
+        <!-- グリッドレイアウト -->
+        <GridLayout
+          v-model:layout="layout"
+          :col-num="
+            isCompactMode
+              ? LAYOUT.GRID.COL_NUM.COMPACT
+              : LAYOUT.GRID.COL_NUM.NORMAL
+          "
+          width="800dvw"
+          :row-height="
+            isCompactMode
+              ? LAYOUT.GRID.ROW_HEIGHT.COMPACT
+              : LAYOUT.GRID.ROW_HEIGHT.NORMAL
+          "
+          :is-draggable="!disableGrid"
+          :is-resizable="!disableGrid"
+          :vertical-compact="false"
+          :use-css-transforms="true"
+          :margin="
+            isCompactMode
+              ? [LAYOUT.GRID.MARGIN.COMPACT, LAYOUT.GRID.MARGIN.COMPACT]
+              : [LAYOUT.GRID.MARGIN.NORMAL, LAYOUT.GRID.MARGIN.NORMAL]
+          "
+          :responsive="false"
+          :auto-size="false"
+          :prevent-collision="true"
+          :compact-type="null"
+          :transform-scale="1"
+          :mirrored="false"
+          :use-style-cursor="false"
+          drag-handle=".drag-handle"
+          @layout-updated="handleLayoutUpdated"
+          @item-move="handleItemMove"
+          @item-moved="handleItemMoved"
+          @item-resize="handleItemResize"
+          @item-resized="handleItemResized"
+          class="min-h-[600px]"
+          :class="{ 'grid-disabled': disableGrid }"
         >
-          <TaskCard :task="task.task" :id="task.id" :compact="isCompactMode" />
-        </GridItem>
-      </GridLayout>
+          <GridItem
+            v-for="task in editorTasks"
+            :key="task.id"
+            :i="task.id"
+            :x="task.grid.x"
+            :y="task.grid.y"
+            :w="task.grid.w || 3"
+            :h="task.grid.h || 3"
+            :min-w="3"
+            :min-h="3"
+            drag-ignore-from=".task-content, .dependency-handle, .task-action-button"
+          >
+            <TaskCard
+              :task="task.task"
+              :id="task.id"
+              :compact="isCompactMode"
+            />
+          </GridItem>
+        </GridLayout>
+      </div>
 
       <!-- タスク詳細ダイアログ -->
       <TaskDetailDialog />
