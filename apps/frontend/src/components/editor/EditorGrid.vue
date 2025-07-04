@@ -56,9 +56,9 @@
     </div>
 
     <div ref="gridContainer" class="flex-1 overflow-auto p-4 relative">
-      <div class="min-w-max">
+      <div class="min-w-max" style="width: 800dvw; min-width: 800dvw;">
         <!-- 矢印SVGレイヤー（タスクカードより奥に配置） -->
-        <div class="absolute inset-0 z-0">
+        <div class="absolute z-0" style="width: 800dvw; height: 100%; top: 0; left: 0;">
           <Curve
             :connections="connections"
             :force-update="curveUpdateTrigger"
@@ -72,7 +72,7 @@
         </div>
 
         <!-- 矢印クリック用の透明レイヤー（タスクより下） -->
-        <div class="absolute inset-0 z-5 pointer-events-none">
+        <div class="absolute z-5 pointer-events-none" style="width: 800dvw; height: 100%; top: 0; left: 0;">
           <Curve
             :connections="connections"
             :force-update="curveUpdateTrigger"
