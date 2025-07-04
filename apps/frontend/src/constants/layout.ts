@@ -22,6 +22,7 @@ export const LAYOUT = {
       NORMAL: 100,
       COMPACT: 100,
     },
+    TOTAL_WIDTH: '800dvw',
     ROW_HEIGHT: {
       NORMAL: 50,
       COMPACT: 35,

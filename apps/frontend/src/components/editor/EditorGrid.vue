@@ -56,11 +56,22 @@
     </div>
 
     <div ref="gridContainer" class="flex-1 overflow-auto p-4 relative">
-      <div class="min-w-max" style="width: 800dvw; min-width: 800dvw">
+      <div
+        class="min-w-max"
+        :style="{
+          width: LAYOUT.GRID.TOTAL_WIDTH,
+          minWidth: LAYOUT.GRID.TOTAL_WIDTH,
+        }"
+      >
         <!-- 矢印SVGレイヤー（タスクカードより奥に配置） -->
         <div
           class="absolute z-0"
-          style="width: 800dvw; height: 100%; top: 0; left: 0"
+          :style="{
+            width: LAYOUT.GRID.TOTAL_WIDTH,
+            height: '100%',
+            top: 0,
+            left: 0,
+          }"
         >
           <Curve
             :connections="connections"
@@ -77,7 +88,12 @@
         <!-- 矢印クリック用の透明レイヤー（タスクより下） -->
         <div
           class="absolute z-5 pointer-events-none"
-          style="width: 800dvw; height: 100%; top: 0; left: 0"
+          :style="{
+            width: LAYOUT.GRID.TOTAL_WIDTH,
+            height: '100%',
+            top: 0,
+            left: 0,
+          }"
         >
           <Curve
             :connections="connections"
@@ -105,7 +121,7 @@
               ? LAYOUT.GRID.COL_NUM.COMPACT
               : LAYOUT.GRID.COL_NUM.NORMAL
           "
-          width="800dvw"
+          :width="LAYOUT.GRID.TOTAL_WIDTH"
           :row-height="
             isCompactMode
               ? LAYOUT.GRID.ROW_HEIGHT.COMPACT
