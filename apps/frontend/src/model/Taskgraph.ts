@@ -42,17 +42,19 @@ export const taskZodSchema = zod
     name: taskNameSchema,
     notes: zod.array(zod.string()).default([]),
     issueNumber: zod.number().int().min(1).optional(),
-    addition: zod.object({
-      baseDifficulty: zod.number().min(0).default(0), // 入力・編集用（元の値）
-      relations: zod.array(zod.string()).default([]),
-      category: zod.string().default(''),
-      layout: zod
-        .object({
-          x: zod.number(),
-          y: zod.number(),
-        })
-        .optional(),
-    }),
+    addition: zod
+      .object({
+        baseDifficulty: zod.number().min(0).default(0), // 入力・編集用（元の値）
+        relations: zod.array(zod.string()).default([]),
+        category: zod.string().default(''),
+        layout: zod
+          .object({
+            x: zod.number(),
+            y: zod.number(),
+          })
+          .optional(),
+      })
+      .optional(),
   })
   .strict();
 

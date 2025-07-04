@@ -20,7 +20,7 @@
 
     <div class="flex items-center space-x-2">
       <label class="block text-xs font-medium text-gray-500">
-        {{ task.task.addition.category ? '分類:' : '難易度:' }}
+        {{ task.task.addition?.category ? '分類:' : '難易度:' }}
       </label>
       <span
         :class="[
@@ -28,9 +28,9 @@
           difficultyBackgroundClass(task.task.difficulty),
         ]"
       >
-        {{ task.task.addition.category || `難易度: ${task.task.difficulty}` }}
+        {{ task.task.addition?.category || `難易度: ${task.task.difficulty}` }}
         <span
-          v-if="task.task.addition.category"
+          v-if="task.task.addition?.category"
           class="text-gray-600 font-normal"
           >({{ task.task.difficulty }})</span
         >
@@ -145,7 +145,7 @@ const validNotes = computed(() => {
 });
 
 const validRelations = computed(() => {
-  if (!props.task?.task.addition.relations) return [];
+  if (!props.task?.task.addition?.relations) return [];
   return props.task.task.addition.relations.filter(
     (relation) => relation && relation !== '',
   );

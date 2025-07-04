@@ -225,9 +225,9 @@ watch(
       nameInput.value = newTask.task.name;
       descriptionInput.value = newTask.task.description;
       notesInput.value = newTask.task.notes.join('\n');
-      relationsInput.value = newTask.task.addition.relations?.join('\n') || '';
-      difficultyInput.value = newTask.task.addition.baseDifficulty;
-      categoryInput.value = newTask.task.addition.category || '';
+      relationsInput.value = newTask.task.addition?.relations?.join('\n') || '';
+      difficultyInput.value = newTask.task.addition?.baseDifficulty || 0;
+      categoryInput.value = newTask.task.addition?.category || '';
       // ダイアログが開かれたときはエラーメッセージをクリア
       errorMessage.value = '';
     }

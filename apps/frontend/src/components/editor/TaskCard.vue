@@ -100,8 +100,8 @@
               props.compact ? 'text-[10px]' : 'text-xs',
             ]"
           >
-            {{ task.addition.category || `難易度: ${task.difficulty}` }}
-            <span v-if="task.addition.category" class="text-gray-500"
+            {{ task.addition?.category || `難易度: ${task.difficulty}` }}
+            <span v-if="task.addition?.category" class="text-gray-500"
               >({{ task.difficulty }})</span
             >
           </span>

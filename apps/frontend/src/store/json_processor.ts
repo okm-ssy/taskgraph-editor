@@ -66,12 +66,26 @@ export const useJsonProcessor = () => {
 
         // 既存データの場合、difficulty → baseDifficulty に移して、difficulty を1.2倍に変換
         if (task.addition?.baseDifficulty === 0 && task.difficulty > 0) {
+          if (!editorTask.task.addition) {
+            editorTask.task.addition = {
+              baseDifficulty: 0,
+              relations: [],
+              category: '',
+            };
+          }
           editorTask.task.addition.baseDifficulty = task.difficulty;
           editorTask.task.difficulty =
             Math.round(task.difficulty * 1.2 * 10) / 10;
         }
         // baseDifficultyが設定済みの場合はそのまま使用
         else if (task.addition?.baseDifficulty > 0) {
+          if (!editorTask.task.addition) {
+            editorTask.task.addition = {
+              baseDifficulty: 0,
+              relations: [],
+              category: '',
+            };
+          }
           editorTask.task.addition.baseDifficulty =
             task.addition.baseDifficulty;
           editorTask.task.difficulty =
