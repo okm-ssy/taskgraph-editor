@@ -98,6 +98,11 @@
             ? LAYOUT.GRID.COL_NUM.COMPACT
             : LAYOUT.GRID.COL_NUM.NORMAL
         "
+        :width="
+          isCompactMode
+            ? LAYOUT.GRID.COL_NUM.COMPACT * LAYOUT.GRID.CELL_WIDTH
+            : LAYOUT.GRID.COL_NUM.NORMAL * LAYOUT.GRID.CELL_WIDTH
+        "
         :row-height="
           isCompactMode
             ? LAYOUT.GRID.ROW_HEIGHT.COMPACT
