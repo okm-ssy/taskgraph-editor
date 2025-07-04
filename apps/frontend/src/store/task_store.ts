@@ -57,7 +57,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   // 各タスクのベース難易度合計（1.2倍する前）
   const baseTotalDifficulty = computed(() => {
     return tasks.value.reduce(
-      (sum, task) => sum + (task.baseDifficulty || 0),
+      (sum, task) => sum + (task.addition.baseDifficulty || 0),
       0,
     );
   });
@@ -83,7 +83,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     newTask.grid.x = x;
     newTask.grid.y = y;
     // レイアウト位置も設定
-    newTask.task.layout = { x, y };
+    newTask.task.addition.layout = { x, y };
     editorTasks.value.push(newTask);
     graphLayout.buildGraphData(editorTasks.value);
     saveToFile(); // ファイルに保存
@@ -124,14 +124,14 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     gridTask: Partial<GridTask>,
   ): void => {
     if (gridTask.x !== undefined || gridTask.y !== undefined) {
-      if (!task.task.layout) {
-        task.task.layout = { x: 0, y: 0 };
+      if (!task.task.addition.layout) {
+        task.task.addition.layout = { x: 0, y: 0 };
       }
       if (gridTask.x !== undefined) {
-        task.task.layout.x = gridTask.x;
+        task.task.addition.layout.x = gridTask.x;
       }
       if (gridTask.y !== undefined) {
-        task.task.layout.y = gridTask.y;
+        task.task.addition.layout.y = gridTask.y;
       }
     }
   };
@@ -180,8 +180,9 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     }
 
     // baseDifficultyが更新された場合、difficultyを1.2倍で計算
-    if (taskData.baseDifficulty !== undefined) {
-      taskData.difficulty = Math.round(taskData.baseDifficulty * 1.2 * 10) / 10;
+    if (taskData.addition?.baseDifficulty !== undefined) {
+      taskData.difficulty =
+        Math.round(taskData.addition.baseDifficulty * 1.2 * 10) / 10;
     }
 
     Object.assign(task.task, taskData);
@@ -281,8 +282,9 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   const hasValidLayoutInfo = (tasks: EditorTask[]): boolean => {
     return tasks.some(
       (task) =>
-        task.task.layout &&
-        (task.task.layout.x !== 0 || task.task.layout.y !== 0),
+        task.task.addition.layout &&
+        (task.task.addition.layout.x !== 0 ||
+          task.task.addition.layout.y !== 0),
     );
   };
 
@@ -319,9 +321,12 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     // layout情報を含むタスクデータを作成
     const tasksWithLayout = editorTasks.value.map((editorTask) => ({
       ...editorTask.task,
-      layout: {
-        x: editorTask.grid.x,
-        y: editorTask.grid.y,
+      addition: {
+        ...editorTask.task.addition,
+        layout: {
+          x: editorTask.grid.x,
+          y: editorTask.grid.y,
+        },
       },
     }));
 

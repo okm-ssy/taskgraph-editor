@@ -1,0 +1,51 @@
+{
+  "info": {},
+  "tasks": [
+    {
+      "depends": [
+        "setup-database"
+      ],
+      "description": "テストタスクです",
+      "difficulty": 0,
+      "baseDifficulty": 0,
+      "name": "test-task",
+      "notes": [],
+      "relations": [],
+      "category": "",
+      "layout": {
+        "x": 2,
+        "y": 3
+      }
+    },
+    {
+      "depends": [
+        "test-task"
+      ],
+      "description": "A simple test task",
+      "difficulty": 0,
+      "baseDifficulty": 0,
+      "name": "simple-task",
+      "notes": [],
+      "relations": [],
+      "category": "",
+      "layout": {
+        "x": 5,
+        "y": 6
+      }
+    },
+    {
+      "depends": [],
+      "description": "データベースの初期設定を行います",
+      "difficulty": 2.4,
+      "baseDifficulty": 2,
+      "name": "setup-database",
+      "notes": [],
+      "relations": [],
+      "category": "インフラ",
+      "layout": {
+        "x": 0,
+        "y": 0
+      }
+    }
+  ]
+}
