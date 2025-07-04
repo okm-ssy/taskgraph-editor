@@ -428,11 +428,11 @@ export const useGraphLayout = () => {
 
     // グリッド設定
     const GRID_SETTINGS = {
-      colNum: 100,
+      colNum: LAYOUT.GRID.COL_NUM.NORMAL,
       rowHeight: LAYOUT.GRID.ROW_HEIGHT.NORMAL,
       margin: [LAYOUT.GRID.MARGIN.NORMAL, LAYOUT.GRID.MARGIN.NORMAL],
-      gridItemWidth: 2, // デフォルトのグリッドアイテム幅
-      gridItemHeight: 3, // デフォルトのグリッドアイテム高さ
+      gridItemWidth: LAYOUT.GRID.ITEM_SIZE.WIDTH,
+      gridItemHeight: LAYOUT.GRID.ITEM_SIZE.HEIGHT,
     };
 
     // ピクセル座標をグリッド座標に変換
@@ -484,9 +484,9 @@ export const useGraphLayout = () => {
   // グリッド配置の最適化（重複回避）
   const optimizeGridLayout = (editorTasks: EditorTask[]) => {
     const GRID_SETTINGS_LOCAL = {
-      colNum: 100,
-      gridItemWidth: 2,
-      gridItemHeight: 3,
+      colNum: LAYOUT.GRID.COL_NUM.NORMAL,
+      gridItemWidth: LAYOUT.GRID.ITEM_SIZE.WIDTH,
+      gridItemHeight: LAYOUT.GRID.ITEM_SIZE.HEIGHT,
     };
 
     const occupiedPositions = new Set<string>();
