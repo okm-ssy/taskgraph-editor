@@ -48,8 +48,17 @@ function formatError(error: unknown): string {
 function getTaskSchemaHelp(): string {
   return `Task schema:
 Required: name (string), description (string)
-Optional: difficulty (number=0), baseDifficulty (number=0), depends (string[]), notes (string[]), relations (string[]), issueNumber (number), category (string="")
-Example: {"name": "task-1", "description": "My task", "difficulty": 2.5, "depends": ["task-0"]}`;
+Optional: difficulty (number=0), depends (string[]), notes (string[]), issueNumber (number)
+Addition object (optional):
+  - baseDifficulty (number=0): Base difficulty
+  - relations (string[]): Related files
+  - category (string=""): Task category
+  - acceptance_criteria (string[]): Acceptance criteria
+  - ui_requirements (string): UI requirements
+  - data_requirements (string): Data requirements
+  - implementation_notes (string[]): Implementation notes
+  - design_images (string[]): Design images
+Example: {"name": "task-1", "description": "My task", "difficulty": 2.5, "depends": ["task-0"], "addition": {"acceptance_criteria": ["User can login", "Error messages display"], "ui_requirements": "Responsive design"}}`;
 }
 
 // MCPサーバーの作成
@@ -149,6 +158,11 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
                   baseDifficulty: { type: 'number', description: 'Base difficulty (optional, default: 0)' },
                   relations: { type: 'array', items: { type: 'string' }, description: 'Related files (optional, default: [])' },
                   category: { type: 'string', description: 'Category (optional, default: "")' },
+                  acceptance_criteria: { type: 'array', items: { type: 'string' }, description: 'Acceptance criteria (optional)' },
+                  ui_requirements: { type: 'string', description: 'UI requirements (optional)' },
+                  data_requirements: { type: 'string', description: 'Data requirements (optional)' },
+                  implementation_notes: { type: 'array', items: { type: 'string' }, description: 'Implementation notes (optional)' },
+                  design_images: { type: 'array', items: { type: 'string' }, description: 'Design images (optional)' },
                 },
               },
             },
@@ -181,6 +195,11 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
                   baseDifficulty: { type: 'number', description: 'New base difficulty (optional)' },
                   relations: { type: 'array', items: { type: 'string' }, description: 'New relations (optional)' },
                   category: { type: 'string', description: 'New category (optional)' },
+                  acceptance_criteria: { type: 'array', items: { type: 'string' }, description: 'New acceptance criteria (optional)' },
+                  ui_requirements: { type: 'string', description: 'New UI requirements (optional)' },
+                  data_requirements: { type: 'string', description: 'New data requirements (optional)' },
+                  implementation_notes: { type: 'array', items: { type: 'string' }, description: 'New implementation notes (optional)' },
+                  design_images: { type: 'array', items: { type: 'string' }, description: 'New design images (optional)' },
                 },
               },
             },
@@ -276,6 +295,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             baseDifficulty: inputTask.addition?.baseDifficulty ?? 0,
             relations: inputTask.addition?.relations ?? [],
             category: inputTask.addition?.category ?? '',
+            acceptance_criteria: inputTask.addition?.acceptance_criteria,
+            ui_requirements: inputTask.addition?.ui_requirements,
+            data_requirements: inputTask.addition?.data_requirements,
+            implementation_notes: inputTask.addition?.implementation_notes,
+            design_images: inputTask.addition?.design_images,
           },
         });
 

@@ -16,6 +16,11 @@ export const TaskSchema = z.object({
       x: z.number(),
       y: z.number(),
     }).optional(),
+    acceptance_criteria: z.array(z.string()).optional(),
+    ui_requirements: z.string().optional(),
+    data_requirements: z.string().optional(),
+    implementation_notes: z.array(z.string()).optional(),
+    design_images: z.array(z.string()).optional(),
   }),
 });
 
@@ -31,6 +36,11 @@ export const TaskInputSchema = z.object({
     baseDifficulty: z.number().optional(),
     relations: z.array(z.string()).optional(),
     category: z.string().optional(),
+    acceptance_criteria: z.array(z.string()).optional(),
+    ui_requirements: z.string().optional(),
+    data_requirements: z.string().optional(),
+    implementation_notes: z.array(z.string()).optional(),
+    design_images: z.array(z.string()).optional(),
   }).optional(),
 });
 

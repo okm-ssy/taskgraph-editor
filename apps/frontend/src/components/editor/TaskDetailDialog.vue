@@ -6,13 +6,13 @@
     @click="handleOverlayClick"
   >
     <div
-      class="bg-white rounded-lg shadow-xl w-full max-w-[70vw] fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+      class="bg-white rounded-lg shadow-xl w-full max-w-[70vw] max-h-[80vh] fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col"
     >
       <div class="border-b px-6 py-4">
         <h3 class="text-lg font-medium">タスク詳細</h3>
       </div>
 
-      <form @submit.prevent="handleSubmit" class="p-6">
+      <form @submit.prevent="handleSubmit" class="flex-1 overflow-y-auto p-6">
         <div class="mb-4">
           <label for="name" class="block text-sm font-medium text-gray-700 mb-1"
             >タスク名</label
@@ -51,23 +51,8 @@
             id="notes"
             v-model="notesInput"
             class="w-full px-3 py-2 border border-gray-300 rounded-md"
-            rows="5"
+            rows="6"
             placeholder="詳細な説明やメモを入力してください"
-          />
-        </div>
-
-        <div class="mb-4">
-          <label
-            for="relations"
-            class="block text-sm font-medium text-gray-700 mb-1"
-            >関連ファイル</label
-          >
-          <textarea
-            id="relations"
-            v-model="relationsInput"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md"
-            rows="3"
-            placeholder="関連するファイルパスを1行ずつ入力してください"
           />
         </div>
 
@@ -173,6 +158,98 @@
           </div>
         </div>
 
+        <!-- 実装支援情報セクション -->
+        <div class="mb-6 border-t pt-4">
+          <h3
+            class="text-lg font-semibold text-gray-800 mb-4 flex items-center"
+          >
+            <span class="text-blue-600 mr-2">🛠️</span>
+            実装支援情報
+          </h3>
+
+          <div class="space-y-4">
+            <!-- 受け入れ基準 (最重要) -->
+            <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+              <label
+                for="detail-acceptance-criteria"
+                class="block text-sm font-semibold text-blue-800 mb-2"
+                >✅ 受け入れ基準 (必須)</label
+              >
+              <textarea
+                id="detail-acceptance-criteria"
+                v-model="acceptanceCriteriaInput"
+                rows="6"
+                class="w-full px-3 py-2 border border-blue-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="このタスクが完了したと判断できる基準を記載してください（各行に1つずつ）&#10;例：&#10;- ユーザーがログインできる&#10;- エラーメッセージが適切に表示される&#10;- レスポンシブデザインに対応している"
+              />
+            </div>
+
+            <!-- UI要件 -->
+            <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+              <label
+                for="detail-ui-requirements"
+                class="block text-sm font-semibold text-green-800 mb-2"
+                >🎨 UI・画面要件</label
+              >
+              <textarea
+                id="detail-ui-requirements"
+                v-model="uiRequirementsInput"
+                rows="5"
+                class="w-full px-3 py-2 border border-green-300 rounded-md text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                placeholder="UI/画面に関する要件を記載してください&#10;例：レスポンシブデザイン、アクセシビリティ対応、特定のデザインシステム準拠など"
+              />
+            </div>
+
+            <!-- データ要件 -->
+            <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+              <label
+                for="detail-data-requirements"
+                class="block text-sm font-semibold text-purple-800 mb-2"
+                >💾 データ・API要件</label
+              >
+              <textarea
+                id="detail-data-requirements"
+                v-model="dataRequirementsInput"
+                rows="5"
+                class="w-full px-3 py-2 border border-purple-300 rounded-md text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                placeholder="データ処理・API・バックエンドに関する要件を記載してください&#10;例：特定のAPIエンドポイント、データベーススキーマ、バリデーションルールなど"
+              />
+            </div>
+
+            <!-- 実装メモ -->
+            <div class="bg-orange-50 p-4 rounded-lg border border-orange-200">
+              <label
+                for="detail-implementation-notes"
+                class="block text-sm font-semibold text-orange-800 mb-2"
+                >📝 実装時の注意点・参考情報</label
+              >
+              <textarea
+                id="detail-implementation-notes"
+                v-model="implementationNotesInput"
+                rows="6"
+                class="w-full px-3 py-2 border border-orange-300 rounded-md text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                placeholder="実装時に注意すべき点や参考になる情報を記載してください（各行に1つずつ）&#10;例：&#10;- 既存のXXコンポーネントを参考にする&#10;- パフォーマンスに注意（大量データ対応）&#10;- セキュリティ要件：XSS対策必須"
+              />
+            </div>
+
+            <!-- 関連画面設計 -->
+            <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
+              <label
+                for="detail-design-images"
+                class="block text-sm font-semibold text-indigo-800 mb-2"
+                >🖼️ 関連画面設計・モックアップ</label
+              >
+              <textarea
+                id="detail-design-images"
+                v-model="designImagesInput"
+                rows="2"
+                class="w-full px-3 py-2 border border-indigo-300 rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="関連する画面設計やモックアップのID・ファイル名を記載してください（各行に1つずつ）&#10;例：login-screen-v2.png、user-dashboard-mockup.figma"
+              />
+            </div>
+          </div>
+        </div>
+
         <!-- エラーメッセージ表示 -->
         <div
           v-if="errorMessage"
@@ -181,7 +258,9 @@
           {{ errorMessage }}
         </div>
 
-        <div class="flex justify-end gap-2 mt-6">
+        <div
+          class="flex justify-end gap-2 mt-6 pt-4 border-t bg-white sticky bottom-0"
+        >
           <button
             type="button"
             @click="handleCancel"
@@ -216,7 +295,13 @@ const { allCategories, getDifficultyByCategory, isLoaded, loadError } =
 const nameInput = ref('');
 const descriptionInput = ref('');
 const notesInput = ref('');
-const relationsInput = ref('');
+
+// 実装支援情報の状態
+const uiRequirementsInput = ref('');
+const dataRequirementsInput = ref('');
+const implementationNotesInput = ref('');
+const acceptanceCriteriaInput = ref('');
+const designImagesInput = ref('');
 const difficultyInput = ref(0);
 const categoryInput = ref('');
 
@@ -235,9 +320,19 @@ watch(
       nameInput.value = newTask.task.name;
       descriptionInput.value = newTask.task.description;
       notesInput.value = newTask.task.notes.join('\n');
-      relationsInput.value = newTask.task.addition?.relations?.join('\n') || '';
       difficultyInput.value = newTask.task.addition?.baseDifficulty || 0;
       categoryInput.value = newTask.task.addition?.category || '';
+
+      // 実装支援情報の更新
+      uiRequirementsInput.value = newTask.task.addition?.ui_requirements || '';
+      dataRequirementsInput.value =
+        newTask.task.addition?.data_requirements || '';
+      implementationNotesInput.value =
+        newTask.task.addition?.implementation_notes?.join('\n') || '';
+      acceptanceCriteriaInput.value =
+        newTask.task.addition?.acceptance_criteria?.join('\n') || '';
+      designImagesInput.value =
+        newTask.task.addition?.design_images?.join('\n') || '';
       // ダイアログが開かれたときはエラーメッセージをクリア
       errorMessage.value = '';
     }
@@ -247,14 +342,7 @@ watch(
 
 // 入力値が変更されたらエラーメッセージをクリア
 watch(
-  [
-    nameInput,
-    descriptionInput,
-    notesInput,
-    relationsInput,
-    difficultyInput,
-    categoryInput,
-  ],
+  [nameInput, descriptionInput, notesInput, difficultyInput, categoryInput],
   () => {
     if (errorMessage.value) {
       errorMessage.value = '';
@@ -308,11 +396,30 @@ const handleSubmit = () => {
   const updateSuccess = taskStore.updateTask(taskStore.selectedTask.id, {
     name: nameInput.value,
     description: descriptionInput.value,
-    notes: notesInput.value.split('\n'),
+    notes: notesInput.value.split('\n').filter((n) => n.trim()),
     addition: {
-      relations: relationsInput.value.split('\n'),
+      relations: taskStore.selectedTask?.task.addition?.relations || [],
       baseDifficulty: difficultyInput.value,
       category: categoryInput.value,
+      layout: taskStore.selectedTask?.task.addition?.layout,
+      // 実装支援情報（全フィールド）
+      acceptance_criteria:
+        acceptanceCriteriaInput.value
+          .split('\n')
+          .map((c) => c.trim())
+          .filter((c) => c) || undefined,
+      ui_requirements: uiRequirementsInput.value || undefined,
+      data_requirements: dataRequirementsInput.value || undefined,
+      implementation_notes:
+        implementationNotesInput.value
+          .split('\n')
+          .map((n) => n.trim())
+          .filter((n) => n) || undefined,
+      design_images:
+        designImagesInput.value
+          .split('\n')
+          .map((i) => i.trim())
+          .filter((i) => i) || undefined,
     },
   });
 
