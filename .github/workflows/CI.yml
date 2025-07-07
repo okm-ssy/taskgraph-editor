@@ -28,15 +28,6 @@ jobs:
       run: ./bin/tg lint
       timeout-minutes: 5
 
-    - name: Start API server
-      run: |
-        cd apps/api-server
-        npm install
-        nohup npm start &
-        echo $! > api-server.pid
-        sleep 5
-        curl --retry 5 --retry-delay 2 --connect-timeout 5 http://localhost:3333 || exit 1
-
     - name: Run frontend tests
       run: ./bin/tg test-frontend
       timeout-minutes: 5
@@ -44,14 +35,6 @@ jobs:
     - name: Run API tests
       run: ./bin/tg test-api
       timeout-minutes: 5
-
-    - name: Stop API server
-      if: always()
-      run: |
-        if [ -f api-server.pid ]; then
-          kill $(cat api-server.pid) || true
-          rm -f api-server.pid
-        fi
 
     - name: Test MCP server build
       run: ./bin/tg mcp-build
