@@ -36,6 +36,10 @@ jobs:
         sleep 5
         curl --retry 5 --retry-delay 2 --connect-timeout 5 http://localhost:3333 || exit 1
 
-    - name: Run all tests
-      run: ./bin/tg test
-      timeout-minutes: 10
+    - name: Run frontend tests
+      run: ./bin/tg test-frontend
+      timeout-minutes: 5
+
+    - name: Run API tests
+      run: ./bin/tg test-api
+      timeout-minutes: 5
