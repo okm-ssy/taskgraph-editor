@@ -269,12 +269,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           name: inputTask.name,
           description: inputTask.description,
           difficulty: inputTask.difficulty ?? 0,
-          baseDifficulty: inputTask.baseDifficulty ?? 0,
           depends: inputTask.depends ?? [],
           notes: inputTask.notes ?? [],
-          relations: inputTask.relations ?? [],
           issueNumber: inputTask.issueNumber,
-          category: inputTask.category ?? '',
+          addition: {
+            baseDifficulty: inputTask.addition?.baseDifficulty ?? 0,
+            relations: inputTask.addition?.relations ?? [],
+            category: inputTask.addition?.category ?? '',
+          },
         });
 
         await storage.createTask(projectId, taskWithDefaults);

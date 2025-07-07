@@ -9,14 +9,13 @@ echo "=============================="
 
 MCP_SERVER_PATH="./apps/mcp-server/dist/index.js"
 
-# ビルド確認
-echo "🔧 ビルド状況確認..."
-if [ ! -f "$MCP_SERVER_PATH" ]; then
-    echo "❌ MCPサーバーがビルドされていません"
-    echo "💡 'tg mcp-build' を実行してください"
+# ビルド実行
+echo "🔧 MCPサーバービルド実行..."
+if ! ./bin/tg mcp-build; then
+    echo "❌ MCPサーバービルドに失敗しました"
     exit 1
 fi
-echo "✅ MCPサーバービルド済み"
+echo "✅ MCPサーバービルド完了"
 
 # データディレクトリ確認
 echo ""
