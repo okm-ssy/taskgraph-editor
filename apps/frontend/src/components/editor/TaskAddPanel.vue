@@ -62,11 +62,20 @@
           class="block text-sm font-medium text-gray-700 mb-1"
           >タスク分類</label
         >
+        <!-- カテゴリ読み込みエラー表示 -->
+        <div
+          v-if="loadError || !isLoaded"
+          class="mb-2 px-3 py-2 bg-red-50 border border-red-200 rounded text-sm text-red-700"
+        >
+          <span v-if="loadError">{{ loadError }}</span>
+          <span v-else>カテゴリ情報を読み込み中...</span>
+        </div>
         <select
           id="task-category"
           v-model="categoryInput"
           class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
           @change="handleCategoryChange"
+          :disabled="!isLoaded || !!loadError"
         >
           <option value="">分類を選択してください</option>
           <option
@@ -196,7 +205,7 @@ const emit = defineEmits<{
 }>();
 
 const taskStore = useCurrentTasks();
-const { getDifficultyByCategory, allCategories } = useTaskCategories();
+const { getDifficultyByCategory, allCategories, isLoaded, loadError } = useTaskCategories();
 
 const nameInput = ref('');
 const descriptionInput = ref('');
