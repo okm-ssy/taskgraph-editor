@@ -43,3 +43,7 @@ jobs:
     - name: Run API tests
       run: ./bin/tg test-api
       timeout-minutes: 5
+
+    - name: Test MCP server build
+      run: ./bin/tg mcp-build
+      timeout-minutes: 5
