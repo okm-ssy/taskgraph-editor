@@ -10,39 +10,16 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [20.x]
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Setup Node.js ${{ matrix.node-version }}
+    - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 24
         cache: 'npm'
-
-    - name: Install frontend dependencies
-      run: |
-        cd apps/frontend
-        npm install
-
-    - name: Install API server dependencies
-      run: |
-        cd apps/api-server
-        npm install
-
-    - name: Install MCP server dependencies
-      run: |
-        cd apps/mcp-server
-        npm install
-
-    - name: Install create_component dependencies
-      run: |
-        cd apps/create_component
-        npm install
 
     - name: Make tg command executable
       run: chmod +x cli/taskgraph-editor.sh bin/tg

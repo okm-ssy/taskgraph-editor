@@ -210,7 +210,8 @@ import { useCurrentTasks } from '../../store/task_store';
 
 const taskStore = useCurrentTasks();
 const uiStore = useEditorUIStore();
-const { allCategories, getDifficultyByCategory, isLoaded, loadError } = useTaskCategories();
+const { allCategories, getDifficultyByCategory, isLoaded, loadError } =
+  useTaskCategories();
 
 const nameInput = ref('');
 const descriptionInput = ref('');

@@ -205,7 +205,8 @@ const emit = defineEmits<{
 }>();
 
 const taskStore = useCurrentTasks();
-const { getDifficultyByCategory, allCategories, isLoaded, loadError } = useTaskCategories();
+const { getDifficultyByCategory, allCategories, isLoaded, loadError } =
+  useTaskCategories();
 
 const nameInput = ref('');
 const descriptionInput = ref('');
