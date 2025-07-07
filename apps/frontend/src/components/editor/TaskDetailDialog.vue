@@ -326,11 +326,26 @@ const handleSubmit = () => {
   const updateSuccess = taskStore.updateTask(taskStore.selectedTask.id, {
     name: nameInput.value,
     description: descriptionInput.value,
-    notes: notesInput.value.split('\n'),
+    notes: notesInput.value.split('\n').filter((n) => n.trim()),
     addition: {
-      relations: relationsInput.value.split('\n'),
+      relations: relationsInput.value.split('\n').filter((r) => r.trim()),
       baseDifficulty: difficultyInput.value,
       category: categoryInput.value,
+      // 実装支援情報
+      ui_requirements: uiRequirementsInput.value || undefined,
+      data_requirements: dataRequirementsInput.value || undefined,
+      implementation_notes: implementationNotesInput.value
+        .split('\n')
+        .map((n) => n.trim())
+        .filter((n) => n) || undefined,
+      acceptance_criteria: acceptanceCriteriaInput.value
+        .split('\n')
+        .map((c) => c.trim())
+        .filter((c) => c) || undefined,
+      design_images: designImagesInput.value
+        .split('\n')
+        .map((i) => i.trim())
+        .filter((i) => i) || undefined,
     },
   });
 

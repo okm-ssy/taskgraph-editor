@@ -92,6 +92,74 @@
       <p v-else class="text-gray-400 italic text-xs">なし</p>
     </div>
 
+    <!-- 受け入れ基準 -->
+    <div v-if="validAcceptanceCriteria.length > 0">
+      <label class="block text-xs font-medium text-blue-600 mb-0.5"
+        >受け入れ基準</label
+      >
+      <ul class="list-disc list-inside ml-3 space-y-0.5">
+        <li
+          v-for="(criteria, index) in validAcceptanceCriteria"
+          :key="index"
+          class="text-blue-700 text-xs break-words"
+        >
+          {{ criteria }}
+        </li>
+      </ul>
+    </div>
+
+    <!-- UI要件 -->
+    <div v-if="task.task.addition?.ui_requirements">
+      <label class="block text-xs font-medium text-green-600 mb-0.5"
+        >UI要件</label
+      >
+      <p class="text-green-700 text-xs break-words whitespace-pre-wrap">
+        {{ task.task.addition.ui_requirements }}
+      </p>
+    </div>
+
+    <!-- データ要件 -->
+    <div v-if="task.task.addition?.data_requirements">
+      <label class="block text-xs font-medium text-purple-600 mb-0.5"
+        >データ要件</label
+      >
+      <p class="text-purple-700 text-xs break-words whitespace-pre-wrap">
+        {{ task.task.addition.data_requirements }}
+      </p>
+    </div>
+
+    <!-- 実装メモ -->
+    <div v-if="validImplementationNotes.length > 0">
+      <label class="block text-xs font-medium text-orange-600 mb-0.5"
+        >実装メモ</label
+      >
+      <ul class="list-disc list-inside ml-3 space-y-0.5">
+        <li
+          v-for="(note, index) in validImplementationNotes"
+          :key="index"
+          class="text-orange-700 text-xs break-words"
+        >
+          {{ note }}
+        </li>
+      </ul>
+    </div>
+
+    <!-- 関連画面設計 -->
+    <div v-if="validDesignImages.length > 0">
+      <label class="block text-xs font-medium text-indigo-600 mb-0.5"
+        >関連画面設計</label
+      >
+      <ul class="list-disc list-inside ml-3 space-y-0.5">
+        <li
+          v-for="(imageId, index) in validDesignImages"
+          :key="index"
+          class="text-indigo-700 text-xs break-words font-mono"
+        >
+          {{ imageId }}
+        </li>
+      </ul>
+    </div>
+
     <div v-if="validRelations.length > 0">
       <label class="block text-xs font-medium text-gray-500 mb-0.5"
         >関連ファイル</label
@@ -148,6 +216,28 @@ const validRelations = computed(() => {
   if (!props.task?.task.addition?.relations) return [];
   return props.task.task.addition.relations.filter(
     (relation) => relation && relation !== '',
+  );
+});
+
+// 実装支援情報の計算されたプロパティ
+const validAcceptanceCriteria = computed(() => {
+  if (!props.task?.task.addition?.acceptance_criteria) return [];
+  return props.task.task.addition.acceptance_criteria.filter(
+    (criteria) => criteria && criteria !== '',
+  );
+});
+
+const validImplementationNotes = computed(() => {
+  if (!props.task?.task.addition?.implementation_notes) return [];
+  return props.task.task.addition.implementation_notes.filter(
+    (note) => note && note !== '',
+  );
+});
+
+const validDesignImages = computed(() => {
+  if (!props.task?.task.addition?.design_images) return [];
+  return props.task.task.addition.design_images.filter(
+    (imageId) => imageId && imageId !== '',
   );
 });
 </script>

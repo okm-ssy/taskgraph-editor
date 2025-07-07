@@ -320,8 +320,14 @@ const addNewTask = () => {
     depends: [],
     addition: {
       baseDifficulty: parseFloat(difficultyInput.value.toString()),
-      relations: relationsInput.value ? relationsInput.value.split('\n') : [],
+      relations: relationsInput.value ? relationsInput.value.split('\n').filter((r) => r.trim()) : [],
       category: categoryInput.value,
+      // 実装支援情報
+      acceptance_criteria: acceptanceCriteriaInput.value
+        .split('\n')
+        .map((c) => c.trim())
+        .filter((c) => c) || undefined,
+      ui_requirements: uiRequirementsInput.value || undefined,
     },
   });
 
