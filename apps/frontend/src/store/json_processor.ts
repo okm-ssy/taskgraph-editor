@@ -33,13 +33,14 @@ export const useJsonProcessor = () => {
       if (!validationResult.success) {
         // Zodエラーの詳細を取得
         const zodError = validationResult.error;
-        const errorDetails = zodError?.issues
-          ?.map((issue) => {
-            const path =
-              issue.path.length > 0 ? ` (${issue.path.join('.')})` : '';
-            return `${issue.message}${path}`;
-          })
-          ?.join(', ') || '詳細不明';
+        const errorDetails =
+          zodError?.issues
+            ?.map((issue) => {
+              const path =
+                issue.path.length > 0 ? ` (${issue.path.join('.')})` : '';
+              return `${issue.message}${path}`;
+            })
+            ?.join(', ') || '詳細不明';
 
         const errorMessage = `バリデーションエラー: ${errorDetails}`;
         taskLoadError.value = errorMessage;
@@ -62,44 +63,52 @@ export const useJsonProcessor = () => {
       const newEditorTasks: EditorTask[] = [];
       if (taskgraph && taskgraph.tasks) {
         taskgraph.tasks.forEach((task) => {
-        const editorTask = new EditorTask();
-        editorTask.task = { ...task };
+          const editorTask = new EditorTask();
+          editorTask.task = { ...task };
 
-        // 既存データの場合、difficulty → baseDifficulty に移して、difficulty を1.2倍に変換
-        if (task.addition && task.addition.baseDifficulty === 0 && task.difficulty > 0) {
-          if (!editorTask.task.addition) {
-            editorTask.task.addition = {
-              baseDifficulty: 0,
-              relations: [],
-              category: '',
-            };
+          // 既存データの場合、difficulty → baseDifficulty に移して、difficulty を1.2倍に変換
+          if (
+            task.addition &&
+            task.addition.baseDifficulty === 0 &&
+            task.difficulty > 0
+          ) {
+            if (!editorTask.task.addition) {
+              editorTask.task.addition = {
+                baseDifficulty: 0,
+                relations: [],
+                category: '',
+              };
+            }
+            editorTask.task.addition.baseDifficulty = task.difficulty;
+            editorTask.task.difficulty =
+              Math.round(task.difficulty * 1.2 * 10) / 10;
           }
-          editorTask.task.addition.baseDifficulty = task.difficulty;
-          editorTask.task.difficulty =
-            Math.round(task.difficulty * 1.2 * 10) / 10;
-        }
-        // baseDifficultyが設定済みの場合はそのまま使用
-        else if (task.addition && task.addition.baseDifficulty !== undefined && task.addition.baseDifficulty > 0) {
-          if (!editorTask.task.addition) {
-            editorTask.task.addition = {
-              baseDifficulty: 0,
-              relations: [],
-              category: '',
-            };
+          // baseDifficultyが設定済みの場合はそのまま使用
+          else if (
+            task.addition &&
+            task.addition.baseDifficulty !== undefined &&
+            task.addition.baseDifficulty > 0
+          ) {
+            if (!editorTask.task.addition) {
+              editorTask.task.addition = {
+                baseDifficulty: 0,
+                relations: [],
+                category: '',
+              };
+            }
+            editorTask.task.addition.baseDifficulty =
+              task.addition.baseDifficulty;
+            editorTask.task.difficulty =
+              Math.round(task.addition.baseDifficulty * 1.2 * 10) / 10;
           }
-          editorTask.task.addition.baseDifficulty =
-            task.addition.baseDifficulty;
-          editorTask.task.difficulty =
-            Math.round(task.addition.baseDifficulty * 1.2 * 10) / 10;
-        }
 
-        // layout情報があればグリッド座標に設定
-        if (task.addition?.layout) {
-          editorTask.grid.x = task.addition.layout.x;
-          editorTask.grid.y = task.addition.layout.y;
-        }
+          // layout情報があればグリッド座標に設定
+          if (task.addition?.layout) {
+            editorTask.grid.x = task.addition.layout.x;
+            editorTask.grid.y = task.addition.layout.y;
+          }
 
-        newEditorTasks.push(editorTask);
+          newEditorTasks.push(editorTask);
         });
       }
 
