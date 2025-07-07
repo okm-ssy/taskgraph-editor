@@ -5,11 +5,11 @@ set -eu
 lint() {
   echo "🧪 フロントエンドlint"
   echo "====================="
-  
+
   cd "${REPOSITORY_ROOT}/apps/frontend/"
   npm set progress=false
   npm i
-  
+
   echo "🔧 ESLint実行..."
   npm run lint
 
@@ -19,10 +19,10 @@ lint() {
   cd "${REPOSITORY_ROOT}/apps/api-server/"
   npm set progress=false
   npm i
-  
+
   echo "🔧 ESLint実行..."
   npm run lint
-  
+
   echo ""
   echo "🔧 構文チェック..."
   npm run test
