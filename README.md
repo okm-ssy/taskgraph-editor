@@ -1,5 +1,7 @@
 # Taskgraph Editor
 
+[![CI](https://github.com/okm-ssy/taskgraph-editor/actions/workflows/CI.yml/badge.svg)](https://github.com/okm-ssy/taskgraph-editor/actions/workflows/CI.yml)
+
 タスクをJSON形式で階層的に管理し、依存関係を視覚的に表現できるWebアプリケーションです。
 
 ## 特徴
