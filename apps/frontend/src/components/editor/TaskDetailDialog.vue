@@ -217,6 +217,13 @@ const nameInput = ref('');
 const descriptionInput = ref('');
 const notesInput = ref('');
 const relationsInput = ref('');
+
+// 実装支援情報の状態
+const uiRequirementsInput = ref('');
+const dataRequirementsInput = ref('');
+const implementationNotesInput = ref('');
+const acceptanceCriteriaInput = ref('');
+const designImagesInput = ref('');
 const difficultyInput = ref(0);
 const categoryInput = ref('');
 
@@ -238,6 +245,17 @@ watch(
       relationsInput.value = newTask.task.addition?.relations?.join('\n') || '';
       difficultyInput.value = newTask.task.addition?.baseDifficulty || 0;
       categoryInput.value = newTask.task.addition?.category || '';
+
+      // 実装支援情報の更新
+      uiRequirementsInput.value = newTask.task.addition?.ui_requirements || '';
+      dataRequirementsInput.value =
+        newTask.task.addition?.data_requirements || '';
+      implementationNotesInput.value =
+        newTask.task.addition?.implementation_notes?.join('\n') || '';
+      acceptanceCriteriaInput.value =
+        newTask.task.addition?.acceptance_criteria?.join('\n') || '';
+      designImagesInput.value =
+        newTask.task.addition?.design_images?.join('\n') || '';
       // ダイアログが開かれたときはエラーメッセージをクリア
       errorMessage.value = '';
     }
