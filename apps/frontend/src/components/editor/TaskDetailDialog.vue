@@ -6,13 +6,13 @@
     @click="handleOverlayClick"
   >
     <div
-      class="bg-white rounded-lg shadow-xl w-full max-w-[70vw] fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+      class="bg-white rounded-lg shadow-xl w-full max-w-[70vw] max-h-[80vh] fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col"
     >
       <div class="border-b px-6 py-4">
         <h3 class="text-lg font-medium">タスク詳細</h3>
       </div>
 
-      <form @submit.prevent="handleSubmit" class="p-6">
+      <form @submit.prevent="handleSubmit" class="flex-1 overflow-y-auto p-6">
         <div class="mb-4">
           <label for="name" class="block text-sm font-medium text-gray-700 mb-1"
             >タスク名</label
@@ -43,6 +43,108 @@
 
         <div class="mb-4">
           <label
+            for="category"
+            class="block text-sm font-medium text-gray-700 mb-1"
+            >カテゴリ</label
+          >
+          <!-- カテゴリ読み込みエラー表示 -->
+          <div
+            v-if="loadError || !isLoaded"
+            class="mb-2 px-3 py-2 bg-red-50 border border-red-200 rounded text-sm text-red-700"
+          >
+            <span v-if="loadError">{{ loadError }}</span>
+            <span v-else>カテゴリ情報を読み込み中...</span>
+          </div>
+          <select
+            id="category"
+            v-model="categoryInput"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md"
+            @change="onCategoryChange"
+            :disabled="!isLoaded || !!loadError"
+          >
+            <option value="">カテゴリを選択してください</option>
+            <option
+              v-for="category in allCategories"
+              :key="category"
+              :value="category"
+            >
+              {{ category }}
+            </option>
+          </select>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >難易度</label
+          >
+          <div class="grid grid-cols-3 gap-3 items-center">
+            <!-- 左側：入力用 -->
+            <div>
+              <label for="difficulty" class="block text-xs text-gray-600 mb-1"
+                >入力値 (0.5刻み)</label
+              >
+              <div class="flex items-center gap-1">
+                <button
+                  type="button"
+                  @click="decreaseDifficulty"
+                  class="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm font-semibold transition-colors"
+                  :disabled="difficultyInput <= 0"
+                >
+                  −
+                </button>
+                <input
+                  id="difficulty"
+                  v-model="difficultyInput"
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  class="min-w-0 flex-1 px-2 py-1 border border-gray-300 rounded text-center text-sm"
+                  :class="getInputColorClass()"
+                />
+                <button
+                  type="button"
+                  @click="increaseDifficulty"
+                  class="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm font-semibold transition-colors"
+                >
+                  ＋
+                </button>
+              </div>
+            </div>
+            <!-- 中央：推奨難易度 -->
+            <div>
+              <label class="block text-xs text-gray-600 mb-1">推奨難易度</label>
+              <div
+                class="px-3 py-2 bg-blue-50 border border-blue-200 rounded text-center text-sm font-medium text-blue-700"
+                v-if="
+                  categoryInput &&
+                  getDifficultyByCategory(categoryInput) !== null
+                "
+              >
+                {{ getDifficultyByCategory(categoryInput) }}
+              </div>
+              <div
+                v-else
+                class="px-3 py-2 bg-gray-50 border border-gray-200 rounded text-center text-sm text-gray-400"
+              >
+                −
+              </div>
+            </div>
+            <!-- 右側：動作確認込み -->
+            <div>
+              <label class="block text-xs text-gray-600 mb-1"
+                >動作確認込み (×1.2)</label
+              >
+              <div
+                class="px-3 py-2 bg-gray-50 border border-gray-200 rounded text-center text-sm font-medium"
+              >
+                {{ Math.round(difficultyInput * 1.2 * 10) / 10 }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label
             for="notes"
             class="block text-sm font-medium text-gray-700 mb-1"
             >説明</label
@@ -51,23 +153,8 @@
             id="notes"
             v-model="notesInput"
             class="w-full px-3 py-2 border border-gray-300 rounded-md"
-            rows="5"
-            placeholder="詳細な説明やメモを入力してください"
-          />
-        </div>
-
-        <div class="mb-4">
-          <label
-            for="relations"
-            class="block text-sm font-medium text-gray-700 mb-1"
-            >関連ファイル</label
-          >
-          <textarea
-            id="relations"
-            v-model="relationsInput"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md"
             rows="3"
-            placeholder="関連するファイルパスを1行ずつ入力してください"
+            placeholder="詳細な説明やメモを入力してください"
           />
         </div>
 
@@ -80,7 +167,7 @@
             実装支援情報
           </h3>
 
-          <div class="space-y-6">
+          <div class="space-y-4">
             <!-- 受け入れ基準 (最重要) -->
             <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
               <label
@@ -91,7 +178,7 @@
               <textarea
                 id="detail-acceptance-criteria"
                 v-model="acceptanceCriteriaInput"
-                rows="4"
+                rows="3"
                 class="w-full px-3 py-2 border border-blue-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="このタスクが完了したと判断できる基準を記載してください（各行に1つずつ）&#10;例：&#10;- ユーザーがログインできる&#10;- エラーメッセージが適切に表示される&#10;- レスポンシブデザインに対応している"
               />
@@ -107,7 +194,7 @@
               <textarea
                 id="detail-ui-requirements"
                 v-model="uiRequirementsInput"
-                rows="3"
+                rows="2"
                 class="w-full px-3 py-2 border border-green-300 rounded-md text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 placeholder="UI/画面に関する要件を記載してください&#10;例：レスポンシブデザイン、アクセシビリティ対応、特定のデザインシステム準拠など"
               />
@@ -123,7 +210,7 @@
               <textarea
                 id="detail-data-requirements"
                 v-model="dataRequirementsInput"
-                rows="3"
+                rows="2"
                 class="w-full px-3 py-2 border border-purple-300 rounded-md text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                 placeholder="データ処理・API・バックエンドに関する要件を記載してください&#10;例：特定のAPIエンドポイント、データベーススキーマ、バリデーションルールなど"
               />
@@ -139,7 +226,7 @@
               <textarea
                 id="detail-implementation-notes"
                 v-model="implementationNotesInput"
-                rows="4"
+                rows="3"
                 class="w-full px-3 py-2 border border-orange-300 rounded-md text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                 placeholder="実装時に注意すべき点や参考になる情報を記載してください（各行に1つずつ）&#10;例：&#10;- 既存のXXコンポーネントを参考にする&#10;- パフォーマンスに注意（大量データ対応）&#10;- セキュリティ要件：XSS対策必須"
               />
@@ -273,7 +360,9 @@
           {{ errorMessage }}
         </div>
 
-        <div class="flex justify-end gap-2 mt-6">
+        <div
+          class="flex justify-end gap-2 mt-6 pt-4 border-t bg-white sticky bottom-0"
+        >
           <button
             type="button"
             @click="handleCancel"
@@ -308,7 +397,6 @@ const { allCategories, getDifficultyByCategory, isLoaded, loadError } =
 const nameInput = ref('');
 const descriptionInput = ref('');
 const notesInput = ref('');
-const relationsInput = ref('');
 
 // 実装支援情報の状態
 const uiRequirementsInput = ref('');
@@ -334,7 +422,6 @@ watch(
       nameInput.value = newTask.task.name;
       descriptionInput.value = newTask.task.description;
       notesInput.value = newTask.task.notes.join('\n');
-      relationsInput.value = newTask.task.addition?.relations?.join('\n') || '';
       difficultyInput.value = newTask.task.addition?.baseDifficulty || 0;
       categoryInput.value = newTask.task.addition?.category || '';
 
@@ -357,14 +444,7 @@ watch(
 
 // 入力値が変更されたらエラーメッセージをクリア
 watch(
-  [
-    nameInput,
-    descriptionInput,
-    notesInput,
-    relationsInput,
-    difficultyInput,
-    categoryInput,
-  ],
+  [nameInput, descriptionInput, notesInput, difficultyInput, categoryInput],
   () => {
     if (errorMessage.value) {
       errorMessage.value = '';
@@ -420,7 +500,7 @@ const handleSubmit = () => {
     description: descriptionInput.value,
     notes: notesInput.value.split('\n').filter((n) => n.trim()),
     addition: {
-      relations: relationsInput.value.split('\n').filter((r) => r.trim()),
+      relations: taskStore.selectedTask?.task.addition?.relations || [],
       baseDifficulty: difficultyInput.value,
       category: categoryInput.value,
       layout: taskStore.selectedTask?.task.addition?.layout,
