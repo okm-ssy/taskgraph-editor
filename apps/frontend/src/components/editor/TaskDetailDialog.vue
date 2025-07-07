@@ -423,7 +423,7 @@ const handleSubmit = () => {
       relations: relationsInput.value.split('\n').filter((r) => r.trim()),
       baseDifficulty: difficultyInput.value,
       category: categoryInput.value,
-      layout: selectedTask.task.addition?.layout,
+      layout: taskStore.selectedTask?.task.addition?.layout,
       // 実装支援情報（全フィールド）
       acceptance_criteria:
         acceptanceCriteriaInput.value

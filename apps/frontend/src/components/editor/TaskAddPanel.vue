@@ -171,7 +171,97 @@
         />
       </div>
 
-      <div class="flex justify-end gap-2 mt-4">
+      <!-- 実装支援情報セクション -->
+      <div class="col-span-2 border-t pt-4">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+          <span class="text-blue-600 mr-2">🛠️</span>
+          実装支援情報
+        </h3>
+
+        <div class="space-y-4">
+          <!-- 受け入れ基準 (最重要) -->
+          <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+            <label
+              for="acceptance-criteria"
+              class="block text-sm font-semibold text-blue-800 mb-2"
+              >✅ 受け入れ基準 (必須)</label
+            >
+            <textarea
+              id="acceptance-criteria"
+              v-model="acceptanceCriteriaInput"
+              rows="4"
+              class="w-full px-3 py-2 border border-blue-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="このタスクが完了したと判断できる基準を記載してください（各行に1つずつ）&#10;例：&#10;- ユーザーがログインできる&#10;- エラーメッセージが適切に表示される&#10;- レスポンシブデザインに対応している"
+            />
+          </div>
+
+          <!-- UI要件 -->
+          <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+            <label
+              for="ui-requirements"
+              class="block text-sm font-semibold text-green-800 mb-2"
+              >🎨 UI・画面要件</label
+            >
+            <textarea
+              id="ui-requirements"
+              v-model="uiRequirementsInput"
+              rows="3"
+              class="w-full px-3 py-2 border border-green-300 rounded-md text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              placeholder="UI/画面に関する要件を記載してください&#10;例：レスポンシブデザイン、アクセシビリティ対応、特定のデザインシステム準拠など"
+            />
+          </div>
+
+          <!-- データ要件 -->
+          <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+            <label
+              for="data-requirements"
+              class="block text-sm font-semibold text-purple-800 mb-2"
+              >💾 データ・API要件</label
+            >
+            <textarea
+              id="data-requirements"
+              v-model="dataRequirementsInput"
+              rows="3"
+              class="w-full px-3 py-2 border border-purple-300 rounded-md text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+              placeholder="データ処理・API・バックエンドに関する要件を記載してください&#10;例：特定のAPIエンドポイント、データベーススキーマ、バリデーションルールなど"
+            />
+          </div>
+
+          <!-- 実装メモ -->
+          <div class="bg-orange-50 p-4 rounded-lg border border-orange-200">
+            <label
+              for="implementation-notes"
+              class="block text-sm font-semibold text-orange-800 mb-2"
+              >📝 実装時の注意点・参考情報</label
+            >
+            <textarea
+              id="implementation-notes"
+              v-model="implementationNotesInput"
+              rows="4"
+              class="w-full px-3 py-2 border border-orange-300 rounded-md text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              placeholder="実装時に注意すべき点や参考になる情報を記載してください（各行に1つずつ）&#10;例：&#10;- 既存のXXコンポーネントを参考にする&#10;- パフォーマンスに注意（大量データ対応）&#10;- セキュリティ要件：XSS対策必須"
+            />
+          </div>
+
+          <!-- 関連画面設計 -->
+          <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
+            <label
+              for="design-images"
+              class="block text-sm font-semibold text-indigo-800 mb-2"
+              >🖼️ 関連画面設計・モックアップ</label
+            >
+            <textarea
+              id="design-images"
+              v-model="designImagesInput"
+              rows="2"
+              class="w-full px-3 py-2 border border-indigo-300 rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="関連する画面設計やモックアップのID・ファイル名を記載してください（各行に1つずつ）&#10;例：login-screen-v2.png、user-dashboard-mockup.figma"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="col-span-2 flex justify-end gap-2 mt-6">
         <button
           type="button"
           @click="handleCancel"
@@ -215,6 +305,13 @@ const relationsInput = ref('');
 const categoryInput = ref('');
 const difficultyInput = ref(0);
 const isAutoDifficulty = ref(false);
+
+// 実装支援情報の状態（全フィールド）
+const acceptanceCriteriaInput = ref('');
+const uiRequirementsInput = ref('');
+const dataRequirementsInput = ref('');
+const implementationNotesInput = ref('');
+const designImagesInput = ref('');
 
 // スクロール位置を追跡
 const scrollTop = ref(0);
@@ -353,6 +450,12 @@ const addNewTask = () => {
   categoryInput.value = '';
   difficultyInput.value = 0;
   isAutoDifficulty.value = false;
+  // 実装支援情報のリセット（全フィールド）
+  acceptanceCriteriaInput.value = '';
+  uiRequirementsInput.value = '';
+  dataRequirementsInput.value = '';
+  implementationNotesInput.value = '';
+  designImagesInput.value = '';
 
   // パネルを閉じる
   emit('close');
