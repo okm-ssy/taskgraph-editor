@@ -407,6 +407,25 @@ const handleAutoLayout = () => {
   triggerCurveUpdate();
 };
 
+// 最左端のタスクを表示するためのスクロール調整
+const scrollToLeftmostTask = () => {
+  if (!gridContainer.value || editorTasks.value.length === 0) return;
+
+  // 最小のx座標を見つける
+  const minX = Math.min(...editorTasks.value.map((task) => task.grid.x));
+
+  // グリッドの設定値を取得
+  const colNum = isCompactMode.value
+    ? LAYOUT.GRID.COL_NUM.COMPACT
+    : LAYOUT.GRID.COL_NUM.NORMAL;
+  const gridWidth = gridContainer.value.clientWidth;
+  const cellWidth = gridWidth / colNum;
+
+  // 最左端のタスクが見えるように水平スクロール
+  const scrollLeft = Math.max(0, minX * cellWidth - gridWidth * 0.1); // 10%マージン
+  gridContainer.value.scrollLeft = scrollLeft;
+};
+
 // 依存関係エッジから矢印ペアを生成
 const updateArrows = () => {
   const newArrows: Arrow[] = [];
@@ -468,6 +487,10 @@ watch(
   () => {
     nextTick(() => {
       layout.value = [...taskStore.gridTasks];
+      // タスクが更新されたら最左端のタスクを表示
+      setTimeout(() => {
+        scrollToLeftmostTask();
+      }, TIMING.ANIMATION.SHORT_MS);
     });
   },
   { deep: true, immediate: true },

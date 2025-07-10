@@ -48,6 +48,11 @@ export const useGraphLayout = () => {
       // 空文字列の依存関係を除外する
       const cleanedParents = task.depends.filter((dep) => dep !== '');
 
+      // 既存のレイアウト情報があれば使用、なければ0
+      const existingLayout = task.addition?.layout;
+      const initialX = existingLayout ? existingLayout.x * 80 : 0; // グリッド座標をピクセル座標に変換
+      const initialY = existingLayout ? existingLayout.y * 60 : 0; // グリッド座標をピクセル座標に変換
+
       nodesMap.set(task.name, {
         id: editorTask.id,
         name: task.name,
@@ -58,8 +63,8 @@ export const useGraphLayout = () => {
         treeIndex: 0,
         children: [],
         parents: cleanedParents, // 空文字列をフィルタリング
-        x: 0,
-        y: 0,
+        x: initialX,
+        y: initialY,
       });
     });
 
@@ -368,11 +373,15 @@ export const useGraphLayout = () => {
             2;
 
         levelNodes.forEach((node, index) => {
-          // X座標：レベルに応じて水平方向に配置
+          // 既存のレイアウト情報がある場合はスキップ
+          if (node.x !== 0 || node.y !== 0) {
+            return; // 既存の座標を保持
+          }
+
+          // X座標：レベルに応じて水平方向に配置（最左端を0に設定）
           node.x =
             level *
-              (GRAPH_SETTINGS.nodeWidth + GRAPH_SETTINGS.horizontalSpacing) +
-            50;
+            (GRAPH_SETTINGS.nodeWidth + GRAPH_SETTINGS.horizontalSpacing);
 
           // Y座標：縦方向のスペースを調整して配置
           node.y =
@@ -437,20 +446,13 @@ export const useGraphLayout = () => {
 
     // ピクセル座標をグリッド座標に変換
     const pixelToGrid = (pixelX: number, pixelY: number) => {
-      // グリッドの実際のセル幅を計算（マージンを考慮）
-      const effectiveGridWidth =
-        (canvasWidth.value -
-          (GRID_SETTINGS.colNum + 1) * GRID_SETTINGS.margin[0]) /
-        GRID_SETTINGS.colNum;
-      const effectiveGridHeight = GRID_SETTINGS.rowHeight;
+      // より合理的な変換係数を使用（レイアウトの意図を保持）
+      const pixelPerGridX = 80; // 1グリッド列あたり80ピクセル
+      const pixelPerGridY = 60; // 1グリッド行あたり60ピクセル
 
       // ピクセル座標をグリッド座標に変換
-      const gridX = Math.round(
-        pixelX / (effectiveGridWidth + GRID_SETTINGS.margin[0]),
-      );
-      const gridY = Math.round(
-        pixelY / (effectiveGridHeight + GRID_SETTINGS.margin[1]),
-      );
+      const gridX = Math.round(pixelX / pixelPerGridX);
+      const gridY = Math.round(pixelY / pixelPerGridY);
 
       // グリッドの境界内に収める
       const clampedX = Math.max(
