@@ -15,7 +15,7 @@ export interface GraphNode {
 export const GRAPH_SETTINGS = {
   nodeWidth: 180,
   nodeHeight: 100,
-  horizontalSpacing: 200, // 同じ木内のノード間水平間隔
+  horizontalSpacing: 100, // 同じ木内のノード間水平間隔（より密に配置）
   verticalSpacing: 150, // 同じレベルのノード間垂直間隔
   treeSpacing: 200, // 異なる木の間の垂直間隔
 };
