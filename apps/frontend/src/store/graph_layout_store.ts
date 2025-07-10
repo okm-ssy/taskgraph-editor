@@ -28,11 +28,17 @@ export const useGraphLayout = () => {
     return result;
   });
 
-  // ノードの配置計算メインメソッド
-  const buildGraphData = (editorTasks: EditorTask[]) => {
-    const nodesMap = new Map<string, GraphNode>();
+  // ヘルパー関数：既存レイアウトからピクセル座標を取得
+  const getPixelCoordinatesFromLayout = (layout?: { x: number; y: number }) => {
+    if (!layout) return { x: 0, y: 0 };
+    return {
+      x: layout.x * LAYOUT.CONVERSION.GRID_TO_PIXEL_X,
+      y: layout.y * LAYOUT.CONVERSION.GRID_TO_PIXEL_Y,
+    };
+  };
 
-    // タスク名の重複チェックを追加
+  // ヘルパー関数：タスク名の重複チェック
+  const checkDuplicateTaskNames = (editorTasks: EditorTask[]) => {
     const taskNames = new Set<string>();
     editorTasks.forEach((task) => {
       if (taskNames.has(task.task.name)) {
@@ -40,32 +46,62 @@ export const useGraphLayout = () => {
       }
       taskNames.add(task.task.name);
     });
+  };
+
+  // ヘルパー関数：GraphNodeを作成
+  const createGraphNode = (editorTask: EditorTask): GraphNode => {
+    const task = editorTask.task;
+    const cleanedParents = task.depends.filter((dep) => dep !== '');
+    const { x, y } = getPixelCoordinatesFromLayout(task.addition?.layout);
+
+    return {
+      id: editorTask.id,
+      name: task.name,
+      description: task.description,
+      difficulty: task.difficulty,
+      category: task.addition?.category || '',
+      level: 0,
+      treeIndex: 0,
+      children: [],
+      parents: cleanedParents,
+      x,
+      y,
+    };
+  };
+
+  // ヘルパー関数：ノードが既存の位置を持っているかチェック
+  const hasExistingPosition = (node: GraphNode): boolean => {
+    return node.x !== 0 || node.y !== 0;
+  };
+
+  // ヘルパー関数：ノードの位置を計算
+  const calculateNodePosition = (
+    level: number,
+    index: number,
+    levelStartY: number,
+    adjustedVerticalSpacing: number,
+    _treeIndex: number,
+  ) => {
+    const x =
+      level * (GRAPH_SETTINGS.nodeWidth + GRAPH_SETTINGS.horizontalSpacing);
+    const y =
+      levelStartY +
+      index * (GRAPH_SETTINGS.nodeHeight + adjustedVerticalSpacing);
+
+    return { x, y };
+  };
+
+  // ノードの配置計算メインメソッド
+  const buildGraphData = (editorTasks: EditorTask[]) => {
+    const nodesMap = new Map<string, GraphNode>();
+
+    // タスク名の重複チェック
+    checkDuplicateTaskNames(editorTasks);
 
     // 各タスクのノード情報を作成
     editorTasks.forEach((editorTask) => {
-      const task = editorTask.task;
-
-      // 空文字列の依存関係を除外する
-      const cleanedParents = task.depends.filter((dep) => dep !== '');
-
-      // 既存のレイアウト情報があれば使用、なければ0
-      const existingLayout = task.addition?.layout;
-      const initialX = existingLayout ? existingLayout.x * 80 : 0; // グリッド座標をピクセル座標に変換
-      const initialY = existingLayout ? existingLayout.y * 60 : 0; // グリッド座標をピクセル座標に変換
-
-      nodesMap.set(task.name, {
-        id: editorTask.id,
-        name: task.name,
-        description: task.description,
-        difficulty: task.difficulty,
-        category: task.addition?.category || '',
-        level: 0,
-        treeIndex: 0,
-        children: [],
-        parents: cleanedParents, // 空文字列をフィルタリング
-        x: initialX,
-        y: initialY,
-      });
+      const node = createGraphNode(editorTask);
+      nodesMap.set(node.name, node);
     });
 
     // 子ノードの関係を構築
@@ -374,19 +410,20 @@ export const useGraphLayout = () => {
 
         levelNodes.forEach((node, index) => {
           // 既存のレイアウト情報がある場合はスキップ
-          if (node.x !== 0 || node.y !== 0) {
-            return; // 既存の座標を保持
+          if (hasExistingPosition(node)) {
+            return;
           }
 
-          // X座標：レベルに応じて水平方向に配置（最左端を0に設定）
-          node.x =
-            level *
-            (GRAPH_SETTINGS.nodeWidth + GRAPH_SETTINGS.horizontalSpacing);
-
-          // Y座標：縦方向のスペースを調整して配置
-          node.y =
-            levelStartY +
-            index * (GRAPH_SETTINGS.nodeHeight + adjustedVerticalSpacing);
+          // 新しい位置を計算して設定
+          const position = calculateNodePosition(
+            level,
+            index,
+            levelStartY,
+            adjustedVerticalSpacing,
+            _treeIndex,
+          );
+          node.x = position.x;
+          node.y = position.y;
         });
       });
 
@@ -444,24 +481,21 @@ export const useGraphLayout = () => {
       gridItemHeight: LAYOUT.GRID.ITEM_SIZE.HEIGHT,
     };
 
-    // ピクセル座標をグリッド座標に変換
-    const pixelToGrid = (pixelX: number, pixelY: number) => {
-      // より合理的な変換係数を使用（レイアウトの意図を保持）
-      const pixelPerGridX = 80; // 1グリッド列あたり80ピクセル
-      const pixelPerGridY = 60; // 1グリッド行あたり60ピクセル
-
-      // ピクセル座標をグリッド座標に変換
-      const gridX = Math.round(pixelX / pixelPerGridX);
-      const gridY = Math.round(pixelY / pixelPerGridY);
-
-      // グリッドの境界内に収める
+    // ヘルパー関数：座標をグリッドの境界内に収める
+    const clampToGridBounds = (gridX: number, gridY: number) => {
       const clampedX = Math.max(
         0,
         Math.min(gridX, GRID_SETTINGS.colNum - GRID_SETTINGS.gridItemWidth),
       );
       const clampedY = Math.max(0, gridY);
-
       return { x: clampedX, y: clampedY };
+    };
+
+    // ピクセル座標をグリッド座標に変換
+    const pixelToGrid = (pixelX: number, pixelY: number) => {
+      const gridX = Math.round(pixelX / LAYOUT.CONVERSION.PIXEL_PER_GRID_X);
+      const gridY = Math.round(pixelY / LAYOUT.CONVERSION.PIXEL_PER_GRID_Y);
+      return clampToGridBounds(gridX, gridY);
     };
 
     // 各EditorTaskのグリッド座標を更新
