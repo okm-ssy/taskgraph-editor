@@ -421,8 +421,14 @@ const scrollToLeftmostTask = () => {
   const gridWidth = gridContainer.value.clientWidth;
   const cellWidth = gridWidth / colNum;
 
+  // 表示マージン設定
+  const SCROLL_MARGIN_RATIO = 0.1; // 10%マージン
+
   // 最左端のタスクが見えるように水平スクロール
-  const scrollLeft = Math.max(0, minX * cellWidth - gridWidth * 0.1); // 10%マージン
+  const scrollLeft = Math.max(
+    0,
+    minX * cellWidth - gridWidth * SCROLL_MARGIN_RATIO,
+  );
   gridContainer.value.scrollLeft = scrollLeft;
 };
 

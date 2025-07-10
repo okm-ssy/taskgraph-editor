@@ -42,4 +42,10 @@ export const LAYOUT = {
   MODAL: {
     MIN_MARGIN: 50,
   },
+  CONVERSION: {
+    PIXEL_PER_GRID_X: 80, // 1グリッド列あたりのピクセル数
+    PIXEL_PER_GRID_Y: 60, // 1グリッド行あたりのピクセル数
+    GRID_TO_PIXEL_X: 80, // グリッド座標をピクセル座標に変換する係数
+    GRID_TO_PIXEL_Y: 60, // グリッド座標をピクセル座標に変換する係数
+  },
 } as const;
