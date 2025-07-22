@@ -346,75 +346,63 @@ const triggerCurveUpdate = () => {
 const handleLayoutUpdated = (newLayout: GridTask[]) => {
   if (disableGrid.value) return;
 
-  // バルク移動の処理
+  // バルク移動の処理：選択された項目が複数ある場合
   if (uiStore.selectedTaskIds.size > 1) {
-    const updatesApplied = new Set<string>();
+    // 移動したアイテムを検出
+    const movedItem = newLayout.find((newItem) => {
+      const oldItem = layout.value.find((old) => old.i === newItem.i);
+      return (
+        oldItem &&
+        uiStore.selectedTaskIds.has(newItem.i) &&
+        (newItem.x !== oldItem.x || newItem.y !== oldItem.y)
+      );
+    });
 
-    newLayout.forEach((item) => {
-      if (updatesApplied.has(item.i)) return;
+    if (movedItem) {
+      const oldItem = layout.value.find((old) => old.i === movedItem.i);
+      if (oldItem) {
+        // 移動量を計算
+        const deltaX = movedItem.x - oldItem.x;
+        const deltaY = movedItem.y - oldItem.y;
 
-      const oldItem = layout.value.find((old) => old.i === item.i);
-      if (!oldItem) return;
-
-      // 移動量を計算
-      const deltaX = item.x - oldItem.x;
-      const deltaY = item.y - oldItem.y;
-
-      // この項目が選択されていて、実際に移動した場合
-      if (
-        uiStore.selectedTaskIds.has(item.i) &&
-        (deltaX !== 0 || deltaY !== 0)
-      ) {
-        // 選択されている全てのタスクを同じ距離だけ移動
+        // 選択されたすべてのタスクを同じ距離だけ移動
         uiStore.selectedTaskIds.forEach((taskId) => {
-          const currentItem = layout.value.find((l) => l.i === taskId);
-          if (currentItem && !updatesApplied.has(taskId)) {
-            const newX = currentItem.x + deltaX;
-            const newY = currentItem.y + deltaY;
+          if (taskId !== movedItem.i) {
+            // 既に移動済みのアイテムは除く
+            const oldPos = layout.value.find((item) => item.i === taskId);
+            if (oldPos) {
+              const newX = oldPos.x + deltaX;
+              const newY = oldPos.y + deltaY;
 
-            // 境界チェック
-            if (
-              newX >= 0 &&
-              newY >= 0 &&
-              newX + currentItem.w <= LAYOUT.GRID.MAX_COL &&
-              newY + currentItem.h <= LAYOUT.GRID.MAX_ROW
-            ) {
-              taskStore.updateGridTask(taskId, {
-                x: newX,
-                y: newY,
-                w: currentItem.w,
-                h: currentItem.h,
-              });
-              updatesApplied.add(taskId);
+              // 境界チェック
+              if (newX >= 0 && newY >= 0) {
+                taskStore.updateGridTask(taskId, {
+                  x: newX,
+                  y: newY,
+                  w: oldPos.w,
+                  h: oldPos.h,
+                });
+              }
             }
           }
         });
-        return; // バルク移動処理完了
       }
-    });
+    }
+  }
 
-    // 個別更新が必要な項目のみ処理
-    newLayout.forEach((item) => {
-      if (!updatesApplied.has(item.i)) {
-        taskStore.updateGridTask(item.i, {
-          x: item.x,
-          y: item.y,
-          w: item.w,
-          h: item.h,
-        });
-      }
-    });
-  } else {
-    // 通常の単一移動処理
-    newLayout.forEach((item) => {
+  // 通常の更新処理（リサイズなど）
+  newLayout.forEach((item) => {
+    const oldItem = layout.value.find((old) => old.i === item.i);
+    if (oldItem && (item.w !== oldItem.w || item.h !== oldItem.h)) {
+      // サイズ変更のみ適用
       taskStore.updateGridTask(item.i, {
         x: item.x,
         y: item.y,
         w: item.w,
         h: item.h,
       });
-    });
-  }
+    }
+  });
 
   triggerCurveUpdate();
 };
