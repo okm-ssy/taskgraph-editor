@@ -51,6 +51,13 @@
         >
           パネルで追加
         </button>
+        <button
+          class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded-md text-sm transition-colors"
+          @click="handleReload"
+          title="ファイルから最新データをリロード"
+        >
+          リロード
+        </button>
         <TaskAddButton @click="handleAddTask" />
       </div>
     </div>
@@ -472,6 +479,15 @@ const handleAddTask = () => {
 // タスク追加パネルの切り替え
 const toggleAddPanel = () => {
   uiStore.toggleAddPanel();
+};
+
+// 手動リロード処理
+const handleReload = async () => {
+  await taskStore.loadFromFile();
+  // レイアウトを更新
+  layout.value = taskStore.gridTasks;
+  // Curve更新をトリガー
+  triggerCurveUpdate();
 };
 
 // LocalStorage同期機能
