@@ -274,18 +274,19 @@ const selectionRectStyle = computed(() => {
 
   const rect = uiStore.dragSelectionRect;
 
-  // スクロール位置を引いてビューポート内の位置に調整
+  // コンテンツ座標からビューポート座標に変換
   const scrollLeft = gridContainer.value.scrollLeft;
   const scrollTop = gridContainer.value.scrollTop;
 
-  const left = Math.min(rect.startX, rect.endX) - scrollLeft;
-  const top = Math.min(rect.startY, rect.endY) - scrollTop;
+  // コンテンツ内の絶対座標からビューポート座標に変換
+  const viewportLeft = Math.min(rect.startX, rect.endX) - scrollLeft;
+  const viewportTop = Math.min(rect.startY, rect.endY) - scrollTop;
   const width = Math.abs(rect.endX - rect.startX);
   const height = Math.abs(rect.endY - rect.startY);
 
   return {
-    left: `${left}px`,
-    top: `${top}px`,
+    left: `${viewportLeft}px`,
+    top: `${viewportTop}px`,
     width: `${width}px`,
     height: `${height}px`,
   };
@@ -654,12 +655,16 @@ const handleGridMouseDown = (event: MouseEvent) => {
   const rect = gridContainer.value?.getBoundingClientRect();
   if (!rect) return;
 
-  // スクロール位置を考慮した座標計算
-  const x = event.clientX - rect.left + gridContainer.value.scrollLeft;
-  const y = event.clientY - rect.top + gridContainer.value.scrollTop;
+  // ビューポート内での座標（スクロール位置は含まない）
+  const viewportX = event.clientX - rect.left;
+  const viewportY = event.clientY - rect.top;
 
-  dragStartPoint.value = { x, y };
-  uiStore.startDragSelection(x, y);
+  // コンテンツ内での絶対座標（スクロール位置を加算）
+  const contentX = viewportX + gridContainer.value.scrollLeft;
+  const contentY = viewportY + gridContainer.value.scrollTop;
+
+  dragStartPoint.value = { x: contentX, y: contentY };
+  uiStore.startDragSelection(contentX, contentY);
   event.preventDefault();
 };
 
@@ -669,11 +674,15 @@ const handleGridMouseMove = (event: MouseEvent) => {
   const rect = gridContainer.value?.getBoundingClientRect();
   if (!rect) return;
 
-  // スクロール位置を考慮した座標計算
-  const x = event.clientX - rect.left + gridContainer.value.scrollLeft;
-  const y = event.clientY - rect.top + gridContainer.value.scrollTop;
+  // ビューポート内での座標（スクロール位置は含まない）
+  const viewportX = event.clientX - rect.left;
+  const viewportY = event.clientY - rect.top;
 
-  uiStore.updateDragSelection(x, y);
+  // コンテンツ内での絶対座標（スクロール位置を加算）
+  const contentX = viewportX + gridContainer.value.scrollLeft;
+  const contentY = viewportY + gridContainer.value.scrollTop;
+
+  uiStore.updateDragSelection(contentX, contentY);
 
   // 選択範囲内のタスクを検出
   detectTasksInSelection();
