@@ -1,32 +1,10 @@
 <template>
   <div class="h-full flex flex-col">
-    <div
-      :class="[
-        'flex justify-between items-center border-b bg-gray-50 transition-all duration-200',
-        isMinimalHeader ? 'p-1' : 'p-3',
-      ]"
-    >
+    <div class="flex justify-between items-center border-b bg-gray-50 p-3">
       <div class="flex items-center gap-4">
-        <h3
-          :class="[
-            'font-semibold transition-all duration-200',
-            isMinimalHeader ? 'text-sm' : '',
-          ]"
-        >
-          タスクグリッドエディター
-        </h3>
-        <div
-          v-if="editorTasks.length > 0 && !isMinimalHeader"
-          class="text-sm text-gray-600"
-        >
+        <h3 class="font-semibold">タスクグリッドエディター</h3>
+        <div v-if="editorTasks.length > 0" class="text-sm text-gray-600">
           <span class="font-medium">総工数: {{ totalDifficulty }}</span>
-        </div>
-        <!-- 最小化モード時の簡潔な情報表示 -->
-        <div
-          v-if="editorTasks.length > 0 && isMinimalHeader"
-          class="text-xs text-gray-600"
-        >
-          工数:{{ Math.round(totalDifficulty * 10) / 10 }}
         </div>
       </div>
       <div class="flex gap-2">
@@ -236,12 +214,10 @@ import TaskDetailDialog from './TaskDetailDialog.vue';
 const props = defineProps<{
   selecting?: boolean;
   compactMode?: boolean;
-  minimalHeader?: boolean;
 }>();
 
 const emit = defineEmits<{
   (e: 'update:selecting', value: boolean): void;
-  (e: 'update:minimal-header', value: boolean): void;
 }>();
 
 const taskStore = useCurrentTasks();
@@ -252,7 +228,6 @@ const gridContainer = ref<HTMLDivElement | null>(null);
 
 // 表示モード管理（propsから取得）
 const isCompactMode = computed(() => props.compactMode ?? false);
-const isMinimalHeader = computed(() => props.minimalHeader ?? false);
 
 // provide/injectでコンポーネント通信を改善
 const taskActions = useTaskActionsProvider();
