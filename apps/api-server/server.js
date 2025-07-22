@@ -76,6 +76,59 @@ app.get('/api/projects', async (req, res) => {
   }
 });
 
+// 新規プロジェクト作成
+app.post('/api/projects', async (req, res) => {
+  try {
+    const { name } = req.body;
+    
+    // プロジェクト名のバリデーション
+    if (!name) {
+      return res.status(400).json({ error: 'プロジェクト名を指定してください' });
+    }
+    
+    // 特殊文字のチェック
+    if (!/^[a-zA-Z0-9_-]+$/.test(name)) {
+      return res.status(400).json({ error: 'プロジェクト名に使用できるのは英数字、ハイフン、アンダースコアのみです' });
+    }
+    
+    // dataディレクトリの確認と作成
+    try {
+      await fs.access(DATA_DIR);
+    } catch {
+      await fs.mkdir(DATA_DIR, { recursive: true });
+    }
+    
+    // ファイルパスの設定
+    const filePath = getTaskgraphFilePath(name);
+    
+    // 既存ファイルのチェック
+    try {
+      await fs.access(filePath);
+      return res.status(409).json({ error: `プロジェクト '${name}' は既に存在します` });
+    } catch {
+      // ファイルが存在しない場合は正常
+    }
+    
+    // プロジェクトファイルの作成
+    const projectData = {
+      info: {
+        name: name
+      },
+      tasks: []
+    };
+    
+    await fs.writeFile(filePath, JSON.stringify(projectData, null, 2), 'utf-8');
+    
+    res.json({ 
+      success: true, 
+      project: { id: name, name: name }
+    });
+  } catch (error) {
+    console.error('Failed to create project:', error);
+    res.status(500).json({ error: 'プロジェクトの作成に失敗しました' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`API server running on http://localhost:${PORT}`);
   console.log(`Data directory: ${DATA_DIR}`);
