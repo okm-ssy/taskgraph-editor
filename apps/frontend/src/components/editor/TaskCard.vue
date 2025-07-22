@@ -144,15 +144,18 @@ const dragDropStore = useDragDropStore();
 const uiStore = useEditorUIStore();
 const taskStore = useCurrentTasks();
 
-// ドロップダウンオプション
-const dropdownOptions = {
-  triggers: ['hover', 'focus'],
+// ドロップダウンオプション（ドラッグ中は無効化）
+const dropdownOptions = computed(() => ({
+  triggers:
+    dragDropStore.isDragging || uiStore.isDragSelecting
+      ? []
+      : ['hover', 'focus'],
   delay: {
     show: TIMING.TOOLTIP.SHOW_DELAY_MS,
     hide: TIMING.TOOLTIP.HIDE_DELAY_MS,
   },
   placement: 'auto',
-};
+}));
 
 // EditorTaskを取得する関数
 const getEditorTaskById = (id: string) => {
