@@ -59,6 +59,34 @@ app.get('/api/load-taskgraph', async (req, res) => {
   }
 });
 
+// ファイルの最終更新時刻を取得
+app.get('/api/taskgraph-mtime', async (req, res) => {
+  try {
+    const { projectId = 'default' } = req.query;
+    const taskgraphFile = getTaskgraphFilePath(projectId);
+    
+    try {
+      const stats = await fs.stat(taskgraphFile);
+      res.json({ 
+        mtime: stats.mtime.toISOString(),
+        exists: true 
+      });
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        res.json({ 
+          mtime: null,
+          exists: false 
+        });
+      } else {
+        throw error;
+      }
+    }
+  } catch (error) {
+    console.error('Failed to get file mtime:', error);
+    res.status(500).json({ error: 'Failed to get file modification time' });
+  }
+});
+
 // プロジェクト一覧取得
 app.get('/api/projects', async (req, res) => {
   try {

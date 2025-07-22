@@ -29,6 +29,10 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   // ストア初期化フラグ
   const isInitialized = ref(false);
 
+  // ファイル変更検知用
+  const lastMtime = ref<string | null>(null);
+  const pollingInterval = ref<number | null>(null);
+
   // Session Storage管理
   let isLoadingFromStorage = false;
 
@@ -242,6 +246,24 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     }, 1000); // 1秒のデバウンス
   };
 
+  // ファイルの最終更新時刻を取得
+  const checkFileMtime = async (projectId?: string): Promise<string | null> => {
+    try {
+      const url = projectId
+        ? `/api/taskgraph-mtime?projectId=${encodeURIComponent(projectId)}`
+        : '/api/taskgraph-mtime';
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error('Failed to check file mtime');
+      }
+      const data = await response.json();
+      return data.exists ? data.mtime : null;
+    } catch (error) {
+      console.error('ファイル更新時刻チェックエラー:', error);
+      return null;
+    }
+  };
+
   // ファイルからデータを取得
   const getFromFile = async (projectId?: string): Promise<string | null> => {
     try {
@@ -271,6 +293,13 @@ export const useCurrentTasks = defineStore('editorTask', () => {
         isLoadingFromStorage = true;
         const result = parseJsonToTaskgraph(jsonData);
         isLoadingFromStorage = false;
+
+        // 最終更新時刻を更新
+        const mtime = await checkFileMtime(projectId);
+        if (mtime) {
+          lastMtime.value = mtime;
+        }
+
         return result;
       }
     } catch (error) {
@@ -285,6 +314,36 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     if (!isInitialized.value) {
       await loadFromFile();
       isInitialized.value = true;
+      startPolling(); // ポーリング開始
+    }
+  };
+
+  // ファイル変更のポーリング開始
+  const startPolling = () => {
+    // 既存のポーリングを停止
+    stopPolling();
+
+    // 2秒ごとに変更をチェック
+    pollingInterval.value = window.setInterval(async () => {
+      const projectId = getCurrentProjectId();
+      const currentMtime = await checkFileMtime(projectId);
+
+      if (currentMtime && lastMtime.value && currentMtime !== lastMtime.value) {
+        console.log('ファイルが外部で変更されました。リロードします...');
+        await loadFromFile();
+      }
+
+      if (currentMtime) {
+        lastMtime.value = currentMtime;
+      }
+    }, 2000);
+  };
+
+  // ポーリング停止
+  const stopPolling = () => {
+    if (pollingInterval.value) {
+      clearInterval(pollingInterval.value);
+      pollingInterval.value = null;
     }
   };
 
@@ -407,6 +466,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     saveToFile,
     loadFromFile,
     initializeStore,
+    stopPolling,
 
     // JSONProcessor State & Methods
     taskLoadError: jsonProcessor.taskLoadError,

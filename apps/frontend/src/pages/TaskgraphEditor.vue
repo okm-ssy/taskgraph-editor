@@ -127,7 +127,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 
 import { STORAGE_KEYS } from '../constants';
@@ -176,6 +176,11 @@ const navigateToPage = (page: Page) => {
 // ストア初期化確認
 onMounted(() => {
   taskStore.initializeStore();
+});
+
+// クリーンアップ
+onUnmounted(() => {
+  taskStore.stopPolling();
 });
 
 const handleParseSuccess = (jsonString: string) => {
