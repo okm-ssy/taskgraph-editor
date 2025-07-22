@@ -3,7 +3,6 @@
     :lazy="true"
     v-bind="dropdownOptions"
     :aria-id="`tooltip-for-${id}`"
-    :disabled="dragDropStore.isDragging || uiStore.isDragSelecting"
     class="h-full w-full"
   >
     <div
