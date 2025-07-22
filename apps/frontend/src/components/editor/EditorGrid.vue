@@ -55,7 +55,14 @@
       </div>
     </div>
 
-    <div ref="gridContainer" class="flex-1 overflow-auto p-4 relative">
+    <div
+      ref="gridContainer"
+      class="flex-1 overflow-auto p-4 relative"
+      @mousedown="handleGridMouseDown"
+      @mousemove="handleGridMouseMove"
+      @mouseup="handleGridMouseUp"
+      @click="handleGridClick"
+    >
       <div
         class="min-w-max"
         :style="{
@@ -84,6 +91,13 @@
             @connection-hover="handleConnectionHover"
           />
         </div>
+
+        <!-- ドラッグ選択矩形 -->
+        <div
+          v-if="uiStore.isDragSelecting && uiStore.dragSelectionRect"
+          class="absolute pointer-events-none z-30 border-2 border-blue-500 bg-blue-500/20 rounded"
+          :style="selectionRectStyle"
+        />
 
         <!-- 矢印クリック用の透明レイヤー（タスクより下） -->
         <div
@@ -251,6 +265,27 @@ const isDraggingOrResizing = ref(false);
 const disableGrid = ref(false);
 const hoveredConnectionKey = ref<string | null>(null);
 
+// ドラッグ選択用の状態
+const dragStartPoint = ref<{ x: number; y: number } | null>(null);
+
+// 選択矩形のスタイル計算
+const selectionRectStyle = computed(() => {
+  if (!uiStore.dragSelectionRect) return {};
+
+  const rect = uiStore.dragSelectionRect;
+  const left = Math.min(rect.startX, rect.endX);
+  const top = Math.min(rect.startY, rect.endY);
+  const width = Math.abs(rect.endX - rect.startX);
+  const height = Math.abs(rect.endY - rect.startY);
+
+  return {
+    left: `${left}px`,
+    top: `${top}px`,
+    width: `${width}px`,
+    height: `${height}px`,
+  };
+});
+
 // グリッド全体のサイズを計算
 const gridBounds = computed(() => {
   if (layout.value.length === 0) {
@@ -308,14 +343,76 @@ const triggerCurveUpdate = () => {
 const handleLayoutUpdated = (newLayout: GridTask[]) => {
   if (disableGrid.value) return;
 
-  newLayout.forEach((item) => {
-    taskStore.updateGridTask(item.i, {
-      x: item.x,
-      y: item.y,
-      w: item.w,
-      h: item.h,
+  // バルク移動の処理
+  if (uiStore.selectedTaskIds.size > 1) {
+    const updatesApplied = new Set<string>();
+
+    newLayout.forEach((item) => {
+      if (updatesApplied.has(item.i)) return;
+
+      const oldItem = layout.value.find((old) => old.i === item.i);
+      if (!oldItem) return;
+
+      // 移動量を計算
+      const deltaX = item.x - oldItem.x;
+      const deltaY = item.y - oldItem.y;
+
+      // この項目が選択されていて、実際に移動した場合
+      if (
+        uiStore.selectedTaskIds.has(item.i) &&
+        (deltaX !== 0 || deltaY !== 0)
+      ) {
+        // 選択されている全てのタスクを同じ距離だけ移動
+        uiStore.selectedTaskIds.forEach((taskId) => {
+          const currentItem = layout.value.find((l) => l.i === taskId);
+          if (currentItem && !updatesApplied.has(taskId)) {
+            const newX = currentItem.x + deltaX;
+            const newY = currentItem.y + deltaY;
+
+            // 境界チェック
+            if (
+              newX >= 0 &&
+              newY >= 0 &&
+              newX + currentItem.w <= LAYOUT.GRID.MAX_COL &&
+              newY + currentItem.h <= LAYOUT.GRID.MAX_ROW
+            ) {
+              taskStore.updateGridTask(taskId, {
+                x: newX,
+                y: newY,
+                w: currentItem.w,
+                h: currentItem.h,
+              });
+              updatesApplied.add(taskId);
+            }
+          }
+        });
+        return; // バルク移動処理完了
+      }
     });
-  });
+
+    // 個別更新が必要な項目のみ処理
+    newLayout.forEach((item) => {
+      if (!updatesApplied.has(item.i)) {
+        taskStore.updateGridTask(item.i, {
+          x: item.x,
+          y: item.y,
+          w: item.w,
+          h: item.h,
+        });
+      }
+    });
+  } else {
+    // 通常の単一移動処理
+    newLayout.forEach((item) => {
+      taskStore.updateGridTask(item.i, {
+        x: item.x,
+        y: item.y,
+        w: item.w,
+        h: item.h,
+      });
+    });
+  }
+
   triggerCurveUpdate();
 };
 
@@ -542,6 +639,85 @@ const handleConnectionClick = (connection: Connection) => {
 // 依存関係ホバー時の処理
 const handleConnectionHover = (connectionKey: string | null) => {
   hoveredConnectionKey.value = connectionKey;
+};
+
+// ドラッグ選択のイベントハンドラ
+const handleGridMouseDown = (event: MouseEvent) => {
+  // タスクカード上でのクリックは無視
+  if ((event.target as HTMLElement).closest('.vue-grid-item')) return;
+
+  const rect = gridContainer.value?.getBoundingClientRect();
+  if (!rect) return;
+
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+
+  dragStartPoint.value = { x, y };
+  uiStore.startDragSelection(x, y);
+  event.preventDefault();
+};
+
+const handleGridMouseMove = (event: MouseEvent) => {
+  if (!uiStore.isDragSelecting || !dragStartPoint.value) return;
+
+  const rect = gridContainer.value?.getBoundingClientRect();
+  if (!rect) return;
+
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+
+  uiStore.updateDragSelection(x, y);
+
+  // 選択範囲内のタスクを検出
+  detectTasksInSelection();
+  event.preventDefault();
+};
+
+const handleGridMouseUp = () => {
+  if (uiStore.isDragSelecting) {
+    uiStore.endDragSelection();
+    dragStartPoint.value = null;
+  }
+};
+
+const handleGridClick = (event: MouseEvent) => {
+  // タスクカード以外をクリックしたら選択解除
+  if (!(event.target as HTMLElement).closest('.vue-grid-item')) {
+    uiStore.clearBulkSelection();
+    uiStore.clearSelection();
+  }
+};
+
+// 選択範囲内のタスクを検出する関数
+const detectTasksInSelection = () => {
+  if (!uiStore.dragSelectionRect) return;
+
+  const rect = uiStore.dragSelectionRect;
+  const selectionLeft = Math.min(rect.startX, rect.endX);
+  const selectionTop = Math.min(rect.startY, rect.endY);
+  const selectionRight = Math.max(rect.startX, rect.endX);
+  const selectionBottom = Math.max(rect.startY, rect.endY);
+
+  const selectedIds: string[] = [];
+
+  layout.value.forEach((item) => {
+    const taskLeft = item.x * LAYOUT.GRID.COL_WIDTH;
+    const taskTop = item.y * LAYOUT.GRID.ROW_HEIGHT.NORMAL;
+    const taskRight = taskLeft + item.w * LAYOUT.GRID.COL_WIDTH;
+    const taskBottom = taskTop + item.h * LAYOUT.GRID.ROW_HEIGHT.NORMAL;
+
+    // 矩形の重なり判定
+    if (
+      taskLeft < selectionRight &&
+      taskRight > selectionLeft &&
+      taskTop < selectionBottom &&
+      taskBottom > selectionTop
+    ) {
+      selectedIds.push(item.i);
+    }
+  });
+
+  uiStore.selectMultipleTasks(selectedIds);
 };
 
 // 選択状態の監視（選択されたらselecting=trueに設定）
