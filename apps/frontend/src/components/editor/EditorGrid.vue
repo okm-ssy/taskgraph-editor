@@ -45,9 +45,6 @@
     <div
       ref="gridContainer"
       class="flex-1 overflow-auto p-4 relative"
-      @mousedown="handleGridMouseDown"
-      @mousemove="handleGridMouseMove"
-      @mouseup="handleGridMouseUp"
       @click="handleGridClick"
     >
       <div
@@ -78,13 +75,6 @@
             @connection-hover="handleConnectionHover"
           />
         </div>
-
-        <!-- ドラッグ選択矩形（スクロールコンテナに対してfixed） -->
-        <div
-          v-if="uiStore.isDragSelecting && uiStore.dragSelectionRect"
-          class="fixed pointer-events-none z-30 border-2 border-blue-500 bg-blue-500/20 rounded"
-          :style="selectionRectStyle"
-        />
 
         <!-- 矢印クリック用の透明レイヤー（タスクより下） -->
         <div
@@ -248,30 +238,6 @@ const curveUpdateTrigger = ref(0);
 const isDraggingOrResizing = ref(false);
 const disableGrid = ref(false);
 const hoveredConnectionKey = ref<string | null>(null);
-
-// ドラッグ選択用の状態
-const dragStartPoint = ref<{ x: number; y: number } | null>(null);
-
-// 選択矩形のスタイル計算（ビューポート座標をページ座標に変換）
-const selectionRectStyle = computed(() => {
-  if (!uiStore.dragSelectionRect || !gridContainer.value) return {};
-
-  const rect = uiStore.dragSelectionRect;
-  const containerRect = gridContainer.value.getBoundingClientRect();
-
-  // ビューポート座標をページ座標に変換
-  const left = Math.min(rect.startX, rect.endX) + containerRect.left;
-  const top = Math.min(rect.startY, rect.endY) + containerRect.top;
-  const width = Math.abs(rect.endX - rect.startX);
-  const height = Math.abs(rect.endY - rect.startY);
-
-  return {
-    left: `${left}px`,
-    top: `${top}px`,
-    width: `${width}px`,
-    height: `${height}px`,
-  };
-});
 
 // グリッド全体のサイズを計算
 const gridBounds = computed(() => {
@@ -625,47 +591,6 @@ const handleConnectionHover = (connectionKey: string | null) => {
   hoveredConnectionKey.value = connectionKey;
 };
 
-// ドラッグ選択のイベントハンドラ
-const handleGridMouseDown = (event: MouseEvent) => {
-  // タスクカード上でのクリックは無視
-  if ((event.target as HTMLElement).closest('.vue-grid-item')) return;
-
-  const rect = gridContainer.value?.getBoundingClientRect();
-  if (!rect) return;
-
-  // ビューポート座標のみを使用
-  const viewportX = event.clientX - rect.left;
-  const viewportY = event.clientY - rect.top;
-
-  dragStartPoint.value = { x: viewportX, y: viewportY };
-  uiStore.startDragSelection(viewportX, viewportY);
-  event.preventDefault();
-};
-
-const handleGridMouseMove = (event: MouseEvent) => {
-  if (!uiStore.isDragSelecting || !dragStartPoint.value) return;
-
-  const rect = gridContainer.value?.getBoundingClientRect();
-  if (!rect) return;
-
-  // ビューポート座標のみを使用
-  const viewportX = event.clientX - rect.left;
-  const viewportY = event.clientY - rect.top;
-
-  uiStore.updateDragSelection(viewportX, viewportY);
-
-  // 選択範囲内のタスクを検出
-  detectTasksInSelection();
-  event.preventDefault();
-};
-
-const handleGridMouseUp = () => {
-  if (uiStore.isDragSelecting) {
-    uiStore.endDragSelection();
-    dragStartPoint.value = null;
-  }
-};
-
 const handleGridClick = (event: MouseEvent) => {
   // タスクカード以外をクリックしたら選択解除（ただし詳細ダイアログ内は除く）
   const clickedElement = event.target as HTMLElement;
@@ -676,42 +601,6 @@ const handleGridClick = (event: MouseEvent) => {
     uiStore.clearBulkSelection();
     uiStore.clearSelection();
   }
-};
-
-// 選択範囲内のタスクを検出する関数
-const detectTasksInSelection = () => {
-  if (!uiStore.dragSelectionRect || !gridContainer.value) return;
-
-  const rect = uiStore.dragSelectionRect;
-  const containerRect = gridContainer.value.getBoundingClientRect();
-
-  // ビューポート座標をページ座標に変換
-  const selectionLeft = Math.min(rect.startX, rect.endX) + containerRect.left;
-  const selectionTop = Math.min(rect.startY, rect.endY) + containerRect.top;
-  const selectionRight = Math.max(rect.startX, rect.endX) + containerRect.left;
-  const selectionBottom = Math.max(rect.startY, rect.endY) + containerRect.top;
-
-  const selectedIds: string[] = [];
-
-  // GridItemは通常data-i属性を使用する
-  layout.value.forEach((item) => {
-    const gridItem = document.querySelector(`[data-i="${item.i}"]`);
-    if (gridItem) {
-      const itemRect = gridItem.getBoundingClientRect();
-
-      // 矩形の重なり判定
-      if (
-        itemRect.left < selectionRight &&
-        itemRect.right > selectionLeft &&
-        itemRect.top < selectionBottom &&
-        itemRect.bottom > selectionTop
-      ) {
-        selectedIds.push(item.i);
-      }
-    }
-  });
-
-  uiStore.selectMultipleTasks(selectedIds);
 };
 
 // 選択状態の監視（選択されたらselecting=trueに設定）
