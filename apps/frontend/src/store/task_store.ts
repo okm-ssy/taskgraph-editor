@@ -35,6 +35,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
 
   // Session Storage管理
   let isLoadingFromStorage = false;
+  let isSaving = false; // 保存中フラグ
 
   // Getters
   const tasks = computed(() => editorTasks.value.map((et) => et.task));
@@ -226,6 +227,8 @@ export const useCurrentTasks = defineStore('editorTask', () => {
         if (editorTasks.value.length === 0) {
           return;
         }
+
+        isSaving = true; // 保存開始
         const jsonData = exportTaskgraphToJson();
         const projectId = getCurrentProjectId();
 
@@ -240,8 +243,16 @@ export const useCurrentTasks = defineStore('editorTask', () => {
         if (!response.ok) {
           throw new Error('Failed to save taskgraph');
         }
+
+        // 保存成功後にmtimeを更新
+        const newMtime = await checkFileMtime(projectId);
+        if (newMtime) {
+          lastMtime.value = newMtime;
+        }
       } catch (error) {
         console.error('ファイル保存エラー:', error);
+      } finally {
+        isSaving = false; // 保存終了
       }
     }, 1000); // 1秒のデバウンス
   };
@@ -325,6 +336,11 @@ export const useCurrentTasks = defineStore('editorTask', () => {
 
     // 2秒ごとに変更をチェック
     pollingInterval.value = window.setInterval(async () => {
+      // 保存中は外部変更チェックをスキップ
+      if (isSaving) {
+        return;
+      }
+
       const projectId = getCurrentProjectId();
       const currentMtime = await checkFileMtime(projectId);
 
