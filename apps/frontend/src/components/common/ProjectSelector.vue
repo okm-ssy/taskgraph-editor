@@ -43,7 +43,7 @@
     <!-- 新規プロジェクト作成フォーム -->
     <div
       v-if="showCreateForm"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50"
     >
       <div class="bg-white rounded-lg p-6 w-96 max-w-full">
         <h3 class="text-lg font-semibold mb-4">新規プロジェクト作成</h3>
