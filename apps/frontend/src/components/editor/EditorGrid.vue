@@ -270,11 +270,16 @@ const dragStartPoint = ref<{ x: number; y: number } | null>(null);
 
 // 選択矩形のスタイル計算
 const selectionRectStyle = computed(() => {
-  if (!uiStore.dragSelectionRect) return {};
+  if (!uiStore.dragSelectionRect || !gridContainer.value) return {};
 
   const rect = uiStore.dragSelectionRect;
-  const left = Math.min(rect.startX, rect.endX);
-  const top = Math.min(rect.startY, rect.endY);
+
+  // スクロール位置を引いてビューポート内の位置に調整
+  const scrollLeft = gridContainer.value.scrollLeft;
+  const scrollTop = gridContainer.value.scrollTop;
+
+  const left = Math.min(rect.startX, rect.endX) - scrollLeft;
+  const top = Math.min(rect.startY, rect.endY) - scrollTop;
   const width = Math.abs(rect.endX - rect.startX);
   const height = Math.abs(rect.endY - rect.startY);
 
@@ -649,8 +654,9 @@ const handleGridMouseDown = (event: MouseEvent) => {
   const rect = gridContainer.value?.getBoundingClientRect();
   if (!rect) return;
 
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
+  // スクロール位置を考慮した座標計算
+  const x = event.clientX - rect.left + gridContainer.value.scrollLeft;
+  const y = event.clientY - rect.top + gridContainer.value.scrollTop;
 
   dragStartPoint.value = { x, y };
   uiStore.startDragSelection(x, y);
@@ -663,8 +669,9 @@ const handleGridMouseMove = (event: MouseEvent) => {
   const rect = gridContainer.value?.getBoundingClientRect();
   if (!rect) return;
 
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
+  // スクロール位置を考慮した座標計算
+  const x = event.clientX - rect.left + gridContainer.value.scrollLeft;
+  const y = event.clientY - rect.top + gridContainer.value.scrollTop;
 
   uiStore.updateDragSelection(x, y);
 
