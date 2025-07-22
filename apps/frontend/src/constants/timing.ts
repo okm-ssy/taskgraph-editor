@@ -1,7 +1,7 @@
 export const TIMING = {
   ERROR_AUTO_DISMISS_MS: 10000,
   TOOLTIP: {
-    SHOW_DELAY_MS: 200,
+    SHOW_DELAY_MS: 800,
     HIDE_DELAY_MS: 100,
   },
   DEBOUNCE: {
