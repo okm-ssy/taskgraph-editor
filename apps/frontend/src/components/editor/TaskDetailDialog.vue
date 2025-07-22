@@ -336,6 +336,16 @@ const handleCancel = () => {
 
 // オーバーレイでのマウスダウン検出
 const handleOverlayMouseDown = (event: MouseEvent) => {
+  // フォーム要素（input, textarea, button, select）での操作は無視
+  const target = event.target as HTMLElement;
+  const isFormElement =
+    target.matches('input, textarea, button, select') ||
+    target.closest('input, textarea, button, select');
+
+  if (isFormElement) {
+    return; // フォーム要素の場合は何もしない
+  }
+
   // ダイアログ内容部分でマウスダウンされた場合はダイアログ内フラグを立てる
   const dialogContent = (event.currentTarget as Element).querySelector(
     '.bg-white',
