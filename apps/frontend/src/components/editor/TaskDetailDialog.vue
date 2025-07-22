@@ -299,13 +299,19 @@ const getInputColorClass = () => {
 
 // フォーム送信時の処理
 const handleSubmit = () => {
-  if (!taskStore.selectedTask) return;
+  console.log('handleSubmit called');
+  if (!taskStore.selectedTask) {
+    console.log('No selected task');
+    return;
+  }
+
+  console.log('Selected task:', taskStore.selectedTask);
 
   // エラーメッセージをクリア
   errorMessage.value = '';
 
   // タスク更新（依存関係は変更しない）
-  const updateSuccess = taskStore.updateTask(taskStore.selectedTask.id, {
+  const updateData = {
     name: nameInput.value,
     description: descriptionInput.value,
     notes: notesInput.value.split('\n'),
@@ -314,15 +320,25 @@ const handleSubmit = () => {
       baseDifficulty: difficultyInput.value,
       category: categoryInput.value,
     },
-  });
+  };
+
+  console.log('Update data:', updateData);
+
+  const updateSuccess = taskStore.updateTask(
+    taskStore.selectedTask.id,
+    updateData,
+  );
+  console.log('Update success:', updateSuccess);
 
   if (!updateSuccess) {
     // 更新失敗時（タスク名重複など）はエラーメッセージを表示
     errorMessage.value =
       'タスク名が重複しています。別の名前を入力してください。';
+    console.log('Update failed: duplicate name');
     return;
   }
 
+  console.log('Closing dialog');
   // ダイアログを閉じる
   uiStore.closeDetailDialog();
 };
