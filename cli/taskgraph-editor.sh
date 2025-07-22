@@ -33,6 +33,9 @@ taskgraph_editor() {
   create_prompt_context | create-prompt-context)
     script_name='front/create_prompt_context.sh'
     ;;
+  create_project | create-project)
+    script_name='create-project.sh'
+    ;;
   mcp-run)
     script_name='mcp/run.sh'
     ;;
@@ -72,6 +75,7 @@ help() {
   test-mcp                      MCPサーバー動作確認テストを実行
   create-component              フロントの vue ファイルと stories ファイルを作る
   create-prompt-context         AI のプロンプト用にファイルを結合する
+  create-project                新しいプロジェクトファイルを作成する
   mcp-run                       MCPサーバーを開発モードで起動
   mcp-build                     MCPサーバーをビルド
   help                          ヘルプを表示する
