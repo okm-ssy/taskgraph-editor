@@ -73,7 +73,6 @@ import TaskgraphViewer from './TaskgraphViewer.vue';
 
 const props = defineProps<{
   compactMode?: boolean;
-  minimalHeader?: boolean;
 }>();
 
 const taskStore = useCurrentTasks();
