@@ -326,6 +326,22 @@ export const useCurrentTasks = defineStore('editorTask', () => {
       await loadFromFile();
       isInitialized.value = true;
       startPolling(); // ポーリング開始
+
+      // ウィンドウフォーカス時にもチェック
+      window.addEventListener('focus', async () => {
+        if (!isSaving) {
+          const projectId = getCurrentProjectId();
+          const currentMtime = await checkFileMtime(projectId);
+          if (
+            currentMtime &&
+            lastMtime.value &&
+            currentMtime !== lastMtime.value
+          ) {
+            console.log('ウィンドウフォーカス時にファイル変更を検知しました');
+            await loadFromFile();
+          }
+        }
+      });
     }
   };
 
@@ -358,7 +374,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
       if (currentMtime) {
         lastMtime.value = currentMtime;
       }
-    }, 2000);
+    }, 1000); // 1秒に短縮
   };
 
   // ポーリング停止
