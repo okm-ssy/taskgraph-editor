@@ -665,8 +665,12 @@ const handleGridMouseUp = () => {
 };
 
 const handleGridClick = (event: MouseEvent) => {
-  // タスクカード以外をクリックしたら選択解除
-  if (!(event.target as HTMLElement).closest('.vue-grid-item')) {
+  // タスクカード以外をクリックしたら選択解除（ただし詳細ダイアログ内は除く）
+  const clickedElement = event.target as HTMLElement;
+  const isTaskCard = clickedElement.closest('.vue-grid-item');
+  const isDetailDialog = clickedElement.closest('#task-detail-dialog-overlay');
+
+  if (!isTaskCard && !isDetailDialog) {
     uiStore.clearBulkSelection();
     uiStore.clearSelection();
   }

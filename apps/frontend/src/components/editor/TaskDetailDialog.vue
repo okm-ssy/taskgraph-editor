@@ -2,6 +2,7 @@
   <div
     v-if="uiStore.isDetailDialogVisible"
     class="fixed inset-0 bg-black/50 z-50 pointer-events-auto"
+    id="task-detail-dialog-overlay"
     @mousedown="handleOverlayMouseDown"
     @click="handleOverlayClick"
   >
@@ -303,7 +304,7 @@ const handleSubmit = () => {
   console.log('uiStore.selectedTaskId:', uiStore.selectedTaskId);
   console.log('taskStore.selectedTask:', taskStore.selectedTask);
   console.log('taskStore.editorTasks:', taskStore.editorTasks);
-  
+
   if (!taskStore.selectedTask) {
     console.log('No selected task');
     return;
