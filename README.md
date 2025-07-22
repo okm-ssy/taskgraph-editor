@@ -63,16 +63,40 @@ tg run
 ## よく使うコマンド
 
 ```bash
+# VS Codeで開く
+tg edit
+
 # 開発サーバーを起動
 tg run
 
-# コードの品質チェック
+# APIサーバーを停止
+tg stop
+
+# Storybookを起動
+tg storybook
+
+# コードの品質チェック（フロントとMCPサーバー）
 tg lint
 
-# 動作確認テスト（API + MCP）
+# 全ての動作確認テスト（API + MCP）
 tg test
 
-# MCP サーバー設定
+# API動作確認テストのみ
+tg test-api
+
+# MCPサーバー動作確認テストのみ
+tg test-mcp
+
+# Vueコンポーネントとストーリーファイルを作成
+tg create-component <コンポーネント名>
+
+# AIプロンプト用にファイルを結合
+tg create-prompt-context
+
+# MCPサーバーを開発モードで起動
+tg mcp-run
+
+# MCPサーバーをビルド
 tg mcp-build
 ```
 

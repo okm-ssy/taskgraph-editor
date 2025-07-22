@@ -65,6 +65,7 @@ help() {
   edit                          vs-code で開く
   run                           フロントを立ち上げる
   stop                          APIサーバーを停止する
+  storybook                     Storybookを起動する
   lint                          フロントとMCPサーバーのlintを実行
   test                          全ての動作確認テストを実行（API + MCP）
   test-api                      API動作確認テストを実行
