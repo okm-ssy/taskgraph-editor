@@ -350,6 +350,52 @@ export const useCurrentTasks = defineStore('editorTask', () => {
           }
         }
       });
+
+      // ページ表示状態変更時にもチェック（タブ切り替え等）
+      document.addEventListener('visibilitychange', async () => {
+        if (!document.hidden && !isSaving) {
+          const projectId = getCurrentProjectId();
+          const currentMtime = await checkFileMtime(projectId);
+          if (
+            currentMtime &&
+            lastMtime.value &&
+            currentMtime !== lastMtime.value
+          ) {
+            console.log('タブ復帰時にファイル変更を検知しました');
+            await loadFromFile();
+          }
+        }
+      });
+
+      // クリップボード操作後の遅延チェック（貼り付け後のファイル変更検知）
+      let pasteCheckTimeout: NodeJS.Timeout | null = null;
+      const handlePasteCheck = async () => {
+        if (pasteCheckTimeout) clearTimeout(pasteCheckTimeout);
+        pasteCheckTimeout = setTimeout(async () => {
+          if (!isSaving) {
+            const projectId = getCurrentProjectId();
+            const currentMtime = await checkFileMtime(projectId);
+            if (
+              currentMtime &&
+              lastMtime.value &&
+              currentMtime !== lastMtime.value
+            ) {
+              console.log('貼り付け操作後にファイル変更を検知しました');
+              await loadFromFile();
+            }
+          }
+        }, 500); // 貼り付け後0.5秒で確認
+      };
+
+      // キーボード操作での貼り付け検知
+      document.addEventListener('keydown', (event) => {
+        if ((event.ctrlKey || event.metaKey) && event.key === 'v') {
+          handlePasteCheck();
+        }
+      });
+
+      // コンテキストメニューでの貼り付け検知（難しいので focus イベントで代用）
+      window.addEventListener('focus', handlePasteCheck);
     }
   };
 
