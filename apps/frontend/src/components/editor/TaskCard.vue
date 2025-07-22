@@ -12,6 +12,7 @@
         isDroppable ? 'ring-4 ring-blue-400 scale-105' : '',
         isDraggingSource ? 'opacity-50' : '',
         props.compact ? 'compact-mode' : 'normal-mode',
+        isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : '',
       ]"
       style="z-index: 1; overflow: visible"
       @dragover="handleDragOver"
@@ -128,6 +129,7 @@ import { computed } from 'vue';
 import { TIMING } from '../../constants';
 import type { Task } from '../../model/Taskgraph';
 import { useDragDropStore } from '../../store/drag_drop_store';
+import { useEditorUIStore } from '../../store/editor_ui_store';
 import { useCurrentTasks } from '../../store/task_store';
 import { difficultyBackgroundClass } from '../../utilities/task';
 import TaskDetail from '../viewer/TaskDetail.vue';
@@ -139,6 +141,7 @@ const props = defineProps<{
 }>();
 
 const dragDropStore = useDragDropStore();
+const uiStore = useEditorUIStore();
 const taskStore = useCurrentTasks();
 
 // ドロップダウンオプション
@@ -246,6 +249,11 @@ const isDroppable = computed(() => {
 // ドラッグ中のソースかどうか
 const isDraggingSource = computed(() => {
   return dragDropStore.draggingSourceId === props.id;
+});
+
+// 選択状態の判定
+const isSelected = computed(() => {
+  return uiStore.selectedTaskIds.has(props.id);
 });
 
 // GitHub Issue関連のcomputed properties
