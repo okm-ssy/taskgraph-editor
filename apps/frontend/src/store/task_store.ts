@@ -374,7 +374,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
       if (currentMtime) {
         lastMtime.value = currentMtime;
       }
-    }, 1000); // 1秒に短縮
+    }, 5000); // 5秒に変更
   };
 
   // ポーリング停止
