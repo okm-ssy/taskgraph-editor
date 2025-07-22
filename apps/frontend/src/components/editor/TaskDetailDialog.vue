@@ -300,6 +300,10 @@ const getInputColorClass = () => {
 // フォーム送信時の処理
 const handleSubmit = () => {
   console.log('handleSubmit called');
+  console.log('uiStore.selectedTaskId:', uiStore.selectedTaskId);
+  console.log('taskStore.selectedTask:', taskStore.selectedTask);
+  console.log('taskStore.editorTasks:', taskStore.editorTasks);
+  
   if (!taskStore.selectedTask) {
     console.log('No selected task');
     return;
