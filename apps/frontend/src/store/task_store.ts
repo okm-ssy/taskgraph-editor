@@ -330,6 +330,12 @@ export const useCurrentTasks = defineStore('editorTask', () => {
 
       if (currentMtime && lastMtime.value && currentMtime !== lastMtime.value) {
         console.log('ファイルが外部で変更されました。リロードします...');
+        // 保留中の自動保存をキャンセルしてレースコンディションを防ぐ
+        if (saveTimeout) {
+          clearTimeout(saveTimeout);
+          saveTimeout = null;
+          console.log('保留中の自動保存をキャンセルしました');
+        }
         await loadFromFile();
       }
 
