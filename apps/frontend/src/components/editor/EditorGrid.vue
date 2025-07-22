@@ -698,32 +698,31 @@ const detectTasksInSelection = () => {
   if (!uiStore.dragSelectionRect || !gridContainer.value) return;
 
   const rect = uiStore.dragSelectionRect;
+  const containerRect = gridContainer.value.getBoundingClientRect();
 
-  // ビューポート座標をコンテンツ座標に変換
-  const scrollLeft = gridContainer.value.scrollLeft;
-  const scrollTop = gridContainer.value.scrollTop;
-
-  const selectionLeft = Math.min(rect.startX, rect.endX) + scrollLeft;
-  const selectionTop = Math.min(rect.startY, rect.endY) + scrollTop;
-  const selectionRight = Math.max(rect.startX, rect.endX) + scrollLeft;
-  const selectionBottom = Math.max(rect.startY, rect.endY) + scrollTop;
+  // ビューポート座標をページ座標に変換
+  const selectionLeft = Math.min(rect.startX, rect.endX) + containerRect.left;
+  const selectionTop = Math.min(rect.startY, rect.endY) + containerRect.top;
+  const selectionRight = Math.max(rect.startX, rect.endX) + containerRect.left;
+  const selectionBottom = Math.max(rect.startY, rect.endY) + containerRect.top;
 
   const selectedIds: string[] = [];
 
+  // GridItemは通常data-i属性を使用する
   layout.value.forEach((item) => {
-    const taskLeft = item.x * LAYOUT.GRID.COL_WIDTH;
-    const taskTop = item.y * LAYOUT.GRID.ROW_HEIGHT.NORMAL;
-    const taskRight = taskLeft + item.w * LAYOUT.GRID.COL_WIDTH;
-    const taskBottom = taskTop + item.h * LAYOUT.GRID.ROW_HEIGHT.NORMAL;
+    const gridItem = document.querySelector(`[data-i="${item.i}"]`);
+    if (gridItem) {
+      const itemRect = gridItem.getBoundingClientRect();
 
-    // 矩形の重なり判定
-    if (
-      taskLeft < selectionRight &&
-      taskRight > selectionLeft &&
-      taskTop < selectionBottom &&
-      taskBottom > selectionTop
-    ) {
-      selectedIds.push(item.i);
+      // 矩形の重なり判定
+      if (
+        itemRect.left < selectionRight &&
+        itemRect.right > selectionLeft &&
+        itemRect.top < selectionBottom &&
+        itemRect.bottom > selectionTop
+      ) {
+        selectedIds.push(item.i);
+      }
     }
   });
 
