@@ -3,6 +3,7 @@
     :lazy="true"
     v-bind="dropdownOptions"
     :aria-id="`tooltip-for-${id}`"
+    :disabled="dragDropStore.isDragging || uiStore.isDragSelecting"
     class="h-full w-full"
   >
     <div
@@ -144,18 +145,15 @@ const dragDropStore = useDragDropStore();
 const uiStore = useEditorUIStore();
 const taskStore = useCurrentTasks();
 
-// ドロップダウンオプション（ドラッグ中は無効化）
-const dropdownOptions = computed(() => ({
-  triggers:
-    dragDropStore.isDragging || uiStore.isDragSelecting
-      ? []
-      : ['hover', 'focus'],
+// ドロップダウンオプション
+const dropdownOptions = {
+  triggers: ['hover', 'focus'],
   delay: {
     show: TIMING.TOOLTIP.SHOW_DELAY_MS,
     hide: TIMING.TOOLTIP.HIDE_DELAY_MS,
   },
   placement: 'auto',
-}));
+};
 
 // EditorTaskを取得する関数
 const getEditorTaskById = (id: string) => {
