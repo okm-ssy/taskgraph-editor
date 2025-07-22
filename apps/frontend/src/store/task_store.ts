@@ -324,6 +324,14 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   const initializeStore = async () => {
     if (!isInitialized.value) {
       await loadFromFile();
+
+      // 初期化時に最終更新時刻を設定
+      const projectId = getCurrentProjectId();
+      const mtime = await checkFileMtime(projectId);
+      if (mtime) {
+        lastMtime.value = mtime;
+      }
+
       isInitialized.value = true;
       startPolling(); // ポーリング開始
 
@@ -361,7 +369,9 @@ export const useCurrentTasks = defineStore('editorTask', () => {
       const currentMtime = await checkFileMtime(projectId);
 
       if (currentMtime && lastMtime.value && currentMtime !== lastMtime.value) {
-        console.log('ファイルが外部で変更されました。リロードします...');
+        console.log(
+          `ファイルが外部で変更されました。リロードします... (${lastMtime.value} -> ${currentMtime})`,
+        );
         // 保留中の自動保存をキャンセルしてレースコンディションを防ぐ
         if (saveTimeout) {
           clearTimeout(saveTimeout);
@@ -374,7 +384,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
       if (currentMtime) {
         lastMtime.value = currentMtime;
       }
-    }, 5000); // 5秒に変更
+    }, 1000); // 1秒に変更
   };
 
   // ポーリング停止
