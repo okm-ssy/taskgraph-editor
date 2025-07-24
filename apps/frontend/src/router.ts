@@ -5,7 +5,7 @@ import TaskgraphEditor from '@/pages/TaskgraphEditor.vue';
 const routes = [
   {
     path: '/',
-    redirect: '/view',
+    redirect: '/edit',
   },
   {
     path: '/edit',
