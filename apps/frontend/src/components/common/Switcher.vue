@@ -33,8 +33,8 @@ const emit = defineEmits<{
 
 // 切り替え先のページオプション
 const pages: Page[] = [
-  { name: 'ビューア', id: 'viewer' },
   { name: 'エディタ', id: 'editor' },
+  { name: 'ビューア', id: 'viewer' },
 ];
 
 // 現在選択されているページ
