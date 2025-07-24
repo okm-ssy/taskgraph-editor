@@ -26,17 +26,17 @@
           自動配置
         </button>
         <button
-          class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-md text-sm transition-colors"
-          @click="toggleAddPanel"
-        >
-          パネルで追加
-        </button>
-        <button
           class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded-md text-sm transition-colors"
           @click="handleReload"
           title="ファイルから最新データをリロード"
         >
           リロード
+        </button>
+        <button
+          class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-md text-sm transition-colors"
+          @click="toggleAddPanel"
+        >
+          パネルで追加
         </button>
         <TaskAddButton @click="handleAddTask" />
       </div>
