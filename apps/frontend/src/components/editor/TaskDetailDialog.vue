@@ -212,7 +212,7 @@
             <label
               for="acceptance_criteria"
               class="block text-sm font-medium text-blue-700 mb-1"
-              >要件(テストケース)</label
+              >要件・テストケース</label
             >
             <textarea
               id="acceptance_criteria"
