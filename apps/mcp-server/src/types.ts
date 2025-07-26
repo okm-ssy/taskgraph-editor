@@ -26,7 +26,7 @@ export const TaskSchema = z.object({
     }).optional(),
     // 実装支援用の新規フィールド
     implementation_notes: z.array(z.string()).optional(),
-    data_requirements: z.string().optional(),
+    data_requirements: z.string().optional(), // API仕様・エンドポイント情報
     acceptance_criteria: z.array(z.string()).optional(),
     design_images: z.array(z.string()).optional(),
   }),
@@ -45,7 +45,7 @@ export const TaskInputSchema = z.object({
     relations: z.array(z.string()).optional(),
     category: z.string().optional(),
     implementation_notes: z.array(z.string()).optional(),
-    data_requirements: z.string().optional(),
+    data_requirements: z.string().optional(), // API仕様・エンドポイント情報
     acceptance_criteria: z.array(z.string()).optional(),
     design_images: z.array(z.string()).optional(),
   }).optional(),
