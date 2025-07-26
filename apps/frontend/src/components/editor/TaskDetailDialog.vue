@@ -119,7 +119,7 @@
               v-model="implementationNotesInput"
               class="w-full px-3 py-2 border border-gray-300 rounded-md"
               rows="3"
-              placeholder="例：ライブラリ指定、パフォーマンス要件、セキュリティ制約、既存コードとの統合方法など（1行ずつ）"
+              placeholder="ライブラリ指定、パフォーマンス要件、セキュリティ制約、既存コードとの統合方法など（1行ずつ）"
             />
           </div>
 
