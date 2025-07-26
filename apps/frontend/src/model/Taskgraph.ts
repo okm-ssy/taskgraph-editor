@@ -72,7 +72,6 @@ export const taskZodSchema = zod
           .optional(),
         // 実装支援用の新規フィールド
         implementation_notes: zod.array(zod.string()).optional(), // 実装時の注意点・参考情報
-        ui_requirements: zod.string().optional(), // UI/画面要件の簡潔な説明
         data_requirements: zod.string().optional(), // データ処理・API要件の説明
         acceptance_criteria: zod.array(zod.string()).optional(), // 受け入れ基準（必須）
         design_images: zod.array(zod.string()).optional(), // 関連する画面設計画像のID
