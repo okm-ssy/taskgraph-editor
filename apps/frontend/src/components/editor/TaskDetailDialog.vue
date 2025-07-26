@@ -57,193 +57,200 @@
           />
         </div>
 
-        <div class="mb-4">
-          <label
-            for="relations"
-            class="block text-sm font-medium text-gray-700 mb-1"
-            >関連ファイル</label
-          >
-          <textarea
-            id="relations"
-            v-model="relationsInput"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md"
-            rows="3"
-            placeholder="関連するファイルパスを1行ずつ入力してください"
-          />
-        </div>
+        <!-- Additional Fields Section -->
+        <div class="mb-6 pb-6 border-b border-gray-200">
+          <h4 class="text-sm font-semibold text-blue-600 mb-4">追加情報</h4>
 
-        <div class="mb-4">
-          <label
-            for="category"
-            class="block text-sm font-medium text-gray-700 mb-1"
-            >カテゴリ</label
-          >
-          <!-- カテゴリ読み込みエラー表示 -->
-          <div
-            v-if="loadError || !isLoaded"
-            class="mb-2 px-3 py-2 bg-red-50 border border-red-200 rounded text-sm text-red-700"
-          >
-            <span v-if="loadError">{{ loadError }}</span>
-            <span v-else>カテゴリ情報を読み込み中...</span>
-          </div>
-          <select
-            id="category"
-            v-model="categoryInput"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md"
-            @change="onCategoryChange"
-            :disabled="!isLoaded || !!loadError"
-          >
-            <option value="">カテゴリを選択してください</option>
-            <option
-              v-for="category in allCategories"
-              :key="category"
-              :value="category"
+          <div class="mb-4">
+            <label
+              for="relations"
+              class="block text-sm font-medium text-blue-700 mb-1"
+              >関連ファイル</label
             >
-              {{ category }}
-            </option>
-          </select>
-        </div>
+            <textarea
+              id="relations"
+              v-model="relationsInput"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md"
+              rows="3"
+              placeholder="関連するファイルパスを1行ずつ入力してください"
+            />
+          </div>
 
-        <div class="mb-4">
-          <label
-            for="implementation_notes"
-            class="block text-sm font-medium text-gray-700 mb-1"
-            >実装時の注意点</label
-          >
-          <textarea
-            id="implementation_notes"
-            v-model="implementationNotesInput"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md"
-            rows="3"
-            placeholder="実装時の注意点・参考情報を1行ずつ入力してください"
-          />
-        </div>
-
-        <div class="mb-4">
-          <label
-            for="ui_requirements"
-            class="block text-sm font-medium text-gray-700 mb-1"
-            >UI要件</label
-          >
-          <textarea
-            id="ui_requirements"
-            v-model="uiRequirementsInput"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md"
-            rows="2"
-            placeholder="UI/画面要件の簡潔な説明を入力してください"
-          />
-        </div>
-
-        <div class="mb-4">
-          <label
-            for="data_requirements"
-            class="block text-sm font-medium text-gray-700 mb-1"
-            >データ要件</label
-          >
-          <textarea
-            id="data_requirements"
-            v-model="dataRequirementsInput"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md"
-            rows="2"
-            placeholder="データ処理・API要件の説明を入力してください"
-          />
-        </div>
-
-        <div class="mb-4">
-          <label
-            for="acceptance_criteria"
-            class="block text-sm font-medium text-gray-700 mb-1"
-            >受け入れ基準</label
-          >
-          <textarea
-            id="acceptance_criteria"
-            v-model="acceptanceCriteriaInput"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md"
-            rows="3"
-            placeholder="受け入れ基準を1行ずつ入力してください"
-          />
-        </div>
-
-        <div class="mb-4">
-          <label
-            for="design_images"
-            class="block text-sm font-medium text-gray-700 mb-1"
-            >画面設計画像ID</label
-          >
-          <textarea
-            id="design_images"
-            v-model="designImagesInput"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md"
-            rows="2"
-            placeholder="関連する画面設計画像のIDを1行ずつ入力してください"
-          />
-        </div>
-
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1"
-            >難易度</label
-          >
-          <div class="grid grid-cols-3 gap-3 items-center">
-            <!-- 左側：入力用 -->
-            <div>
-              <label for="difficulty" class="block text-xs text-gray-600 mb-1"
-                >入力値 (0.5刻み)</label
+          <div class="mb-4">
+            <label
+              for="category"
+              class="block text-sm font-medium text-blue-700 mb-1"
+              >カテゴリ</label
+            >
+            <!-- カテゴリ読み込みエラー表示 -->
+            <div
+              v-if="loadError || !isLoaded"
+              class="mb-2 px-3 py-2 bg-red-50 border border-red-200 rounded text-sm text-red-700"
+            >
+              <span v-if="loadError">{{ loadError }}</span>
+              <span v-else>カテゴリ情報を読み込み中...</span>
+            </div>
+            <select
+              id="category"
+              v-model="categoryInput"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md"
+              @change="onCategoryChange"
+              :disabled="!isLoaded || !!loadError"
+            >
+              <option value="">カテゴリを選択してください</option>
+              <option
+                v-for="category in allCategories"
+                :key="category"
+                :value="category"
               >
-              <div class="flex items-center gap-1">
-                <button
-                  type="button"
-                  @click="decreaseDifficulty"
-                  class="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm font-semibold transition-colors"
-                  :disabled="difficultyInput <= 0"
+                {{ category }}
+              </option>
+            </select>
+          </div>
+
+          <div class="mb-4">
+            <label
+              for="implementation_notes"
+              class="block text-sm font-medium text-blue-700 mb-1"
+              >実装時の注意点</label
+            >
+            <textarea
+              id="implementation_notes"
+              v-model="implementationNotesInput"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md"
+              rows="3"
+              placeholder="実装時の注意点・参考情報を1行ずつ入力してください"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label
+              for="ui_requirements"
+              class="block text-sm font-medium text-blue-700 mb-1"
+              >UI要件</label
+            >
+            <textarea
+              id="ui_requirements"
+              v-model="uiRequirementsInput"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md"
+              rows="2"
+              placeholder="UI/画面要件の簡潔な説明を入力してください"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label
+              for="data_requirements"
+              class="block text-sm font-medium text-blue-700 mb-1"
+              >データ要件</label
+            >
+            <textarea
+              id="data_requirements"
+              v-model="dataRequirementsInput"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md"
+              rows="2"
+              placeholder="データ処理・API要件の説明を入力してください"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label
+              for="acceptance_criteria"
+              class="block text-sm font-medium text-blue-700 mb-1"
+              >受け入れ基準</label
+            >
+            <textarea
+              id="acceptance_criteria"
+              v-model="acceptanceCriteriaInput"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md"
+              rows="3"
+              placeholder="受け入れ基準を1行ずつ入力してください"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label
+              for="design_images"
+              class="block text-sm font-medium text-blue-700 mb-1"
+              >画面設計画像ID</label
+            >
+            <textarea
+              id="design_images"
+              v-model="designImagesInput"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md"
+              rows="2"
+              placeholder="関連する画面設計画像のIDを1行ずつ入力してください"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-blue-700 mb-1"
+              >難易度</label
+            >
+            <div class="grid grid-cols-3 gap-3 items-center">
+              <!-- 左側：入力用 -->
+              <div>
+                <label for="difficulty" class="block text-xs text-gray-600 mb-1"
+                  >入力値 (0.5刻み)</label
+                >
+                <div class="flex items-center gap-1">
+                  <button
+                    type="button"
+                    @click="decreaseDifficulty"
+                    class="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm font-semibold transition-colors"
+                    :disabled="difficultyInput <= 0"
+                  >
+                    −
+                  </button>
+                  <input
+                    id="difficulty"
+                    v-model="difficultyInput"
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    class="min-w-0 flex-1 px-2 py-1 border border-gray-300 rounded text-center text-sm"
+                    :class="getInputColorClass()"
+                  />
+                  <button
+                    type="button"
+                    @click="increaseDifficulty"
+                    class="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm font-semibold transition-colors"
+                  >
+                    ＋
+                  </button>
+                </div>
+              </div>
+              <!-- 中央：推奨難易度 -->
+              <div>
+                <label class="block text-xs text-gray-600 mb-1"
+                  >推奨難易度</label
+                >
+                <div
+                  class="px-3 py-2 bg-blue-50 border border-blue-200 rounded text-center text-sm font-medium text-blue-700"
+                  v-if="
+                    categoryInput &&
+                    getDifficultyByCategory(categoryInput) !== null
+                  "
+                >
+                  {{ getDifficultyByCategory(categoryInput) }}
+                </div>
+                <div
+                  v-else
+                  class="px-3 py-2 bg-gray-50 border border-gray-200 rounded text-center text-sm text-gray-400"
                 >
                   −
-                </button>
-                <input
-                  id="difficulty"
-                  v-model="difficultyInput"
-                  type="number"
-                  min="0"
-                  step="0.1"
-                  class="min-w-0 flex-1 px-2 py-1 border border-gray-300 rounded text-center text-sm"
-                  :class="getInputColorClass()"
-                />
-                <button
-                  type="button"
-                  @click="increaseDifficulty"
-                  class="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm font-semibold transition-colors"
+                </div>
+              </div>
+              <!-- 右側：動作確認込み -->
+              <div>
+                <label class="block text-xs text-gray-600 mb-1"
+                  >動作確認込み (×1.2)</label
                 >
-                  ＋
-                </button>
-              </div>
-            </div>
-            <!-- 中央：推奨難易度 -->
-            <div>
-              <label class="block text-xs text-gray-600 mb-1">推奨難易度</label>
-              <div
-                class="px-3 py-2 bg-blue-50 border border-blue-200 rounded text-center text-sm font-medium text-blue-700"
-                v-if="
-                  categoryInput &&
-                  getDifficultyByCategory(categoryInput) !== null
-                "
-              >
-                {{ getDifficultyByCategory(categoryInput) }}
-              </div>
-              <div
-                v-else
-                class="px-3 py-2 bg-gray-50 border border-gray-200 rounded text-center text-sm text-gray-400"
-              >
-                −
-              </div>
-            </div>
-            <!-- 右側：動作確認込み -->
-            <div>
-              <label class="block text-xs text-gray-600 mb-1"
-                >動作確認込み (×1.2)</label
-              >
-              <div
-                class="px-3 py-2 bg-gray-50 border border-gray-200 rounded text-center text-sm font-medium"
-              >
-                {{ Math.round(difficultyInput * 1.2 * 10) / 10 }}
+                <div
+                  class="px-3 py-2 bg-gray-50 border border-gray-200 rounded text-center text-sm font-medium"
+                >
+                  {{ Math.round(difficultyInput * 1.2 * 10) / 10 }}
+                </div>
               </div>
             </div>
           </div>
