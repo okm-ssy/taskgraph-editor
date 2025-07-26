@@ -125,21 +125,6 @@
 
           <div class="mb-4">
             <label
-              for="ui_requirements"
-              class="block text-sm font-medium text-blue-700 mb-1"
-              >UI要件</label
-            >
-            <textarea
-              id="ui_requirements"
-              v-model="uiRequirementsInput"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md"
-              rows="2"
-              placeholder="UI/画面要件の簡潔な説明を入力してください"
-            />
-          </div>
-
-          <div class="mb-4">
-            <label
               for="data_requirements"
               class="block text-sm font-medium text-blue-700 mb-1"
               >データ要件</label
@@ -303,7 +288,6 @@ const relationsInput = ref('');
 const difficultyInput = ref(0);
 const categoryInput = ref('');
 const implementationNotesInput = ref('');
-const uiRequirementsInput = ref('');
 const dataRequirementsInput = ref('');
 const acceptanceCriteriaInput = ref('');
 const designImagesInput = ref('');
@@ -348,7 +332,6 @@ watch(
       categoryInput.value = newTask.task.addition?.category || '';
       implementationNotesInput.value =
         newTask.task.addition?.implementation_notes?.join('\n') || '';
-      uiRequirementsInput.value = newTask.task.addition?.ui_requirements || '';
       dataRequirementsInput.value =
         newTask.task.addition?.data_requirements || '';
       acceptanceCriteriaInput.value =
@@ -372,7 +355,6 @@ watch(
     difficultyInput,
     categoryInput,
     implementationNotesInput,
-    uiRequirementsInput,
     dataRequirementsInput,
     acceptanceCriteriaInput,
     designImagesInput,
@@ -438,7 +420,6 @@ const handleSubmit = () => {
       implementation_notes: implementationNotesInput.value
         ? implementationNotesInput.value.split('\n')
         : undefined,
-      ui_requirements: uiRequirementsInput.value || undefined,
       data_requirements: dataRequirementsInput.value || undefined,
       acceptance_criteria: acceptanceCriteriaInput.value
         ? acceptanceCriteriaInput.value.split('\n')
