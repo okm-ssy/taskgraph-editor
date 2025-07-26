@@ -212,14 +212,14 @@
             <label
               for="acceptance_criteria"
               class="block text-sm font-medium text-blue-700 mb-1"
-              >受け入れ基準</label
+              >要件(テストケース)</label
             >
             <textarea
               id="acceptance_criteria"
               v-model="acceptanceCriteriaInput"
               class="w-full px-3 py-2 border border-gray-300 rounded-md"
               rows="3"
-              placeholder="受け入れ基準を1行ずつ入力してください"
+              placeholder="満たすべき要件やテストケースを1行ずつ入力してください"
             />
           </div>
 
