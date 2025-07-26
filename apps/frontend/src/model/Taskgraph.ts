@@ -1,5 +1,13 @@
 import * as zod from 'zod';
 
+// 画面設計画像の型定義
+export const designImageZodSchema = zod.object({
+  id: zod.string(), // 画像の一意ID
+  title: zod.string(), // 画像のタイトル・説明
+  filepath: zod.string(), // 画像ファイルのパス
+  tags: zod.array(zod.string()).optional(), // 検索用タグ（画面名、機能名等）
+});
+
 // タスク名のバリデーション: 空文字列を禁止し、空白文字以外を許可
 const taskNameSchema = zod
   .string()
@@ -31,6 +39,15 @@ export const infoZodSchema = zod
     name: zod.string().optional(),
     version: zod.string().optional(),
     assignee: zod.string().optional(),
+    addition: zod
+      .object({
+        project_overview: zod.string().optional(), // プロジェクト概要・目的
+        tech_stack: zod.array(zod.string()).optional(), // 主要技術スタック
+        coding_guidelines: zod.string().optional(), // コーディング規約・注意点
+        deployment_notes: zod.string().optional(), // デプロイ・環境に関する注意事項
+        design_images: zod.array(designImageZodSchema).optional(), // プロジェクト内の画面設計画像
+      })
+      .optional(),
   })
   .strict();
 
@@ -53,6 +70,12 @@ export const taskZodSchema = zod
             y: zod.number(),
           })
           .optional(),
+        // 実装支援用の新規フィールド
+        implementation_notes: zod.array(zod.string()).optional(), // 実装時の注意点・参考情報
+        ui_requirements: zod.string().optional(), // UI/画面要件の簡潔な説明
+        data_requirements: zod.string().optional(), // データ処理・API要件の説明
+        acceptance_criteria: zod.array(zod.string()).optional(), // 受け入れ基準（必須）
+        design_images: zod.array(zod.string()).optional(), // 関連する画面設計画像のID
       })
       .optional(),
   })
@@ -141,5 +164,6 @@ export const taskgraphZodSchema = zod
     },
   );
 
+export type DesignImage = zod.infer<typeof designImageZodSchema>;
 export type Task = zod.infer<typeof taskZodSchema>;
 export type Taskgraph = zod.infer<typeof taskgraphZodSchema>;

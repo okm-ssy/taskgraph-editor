@@ -105,6 +105,81 @@
         </div>
 
         <div class="mb-4">
+          <label
+            for="implementation_notes"
+            class="block text-sm font-medium text-gray-700 mb-1"
+            >実装時の注意点</label
+          >
+          <textarea
+            id="implementation_notes"
+            v-model="implementationNotesInput"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md"
+            rows="3"
+            placeholder="実装時の注意点・参考情報を1行ずつ入力してください"
+          />
+        </div>
+
+        <div class="mb-4">
+          <label
+            for="ui_requirements"
+            class="block text-sm font-medium text-gray-700 mb-1"
+            >UI要件</label
+          >
+          <textarea
+            id="ui_requirements"
+            v-model="uiRequirementsInput"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md"
+            rows="2"
+            placeholder="UI/画面要件の簡潔な説明を入力してください"
+          />
+        </div>
+
+        <div class="mb-4">
+          <label
+            for="data_requirements"
+            class="block text-sm font-medium text-gray-700 mb-1"
+            >データ要件</label
+          >
+          <textarea
+            id="data_requirements"
+            v-model="dataRequirementsInput"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md"
+            rows="2"
+            placeholder="データ処理・API要件の説明を入力してください"
+          />
+        </div>
+
+        <div class="mb-4">
+          <label
+            for="acceptance_criteria"
+            class="block text-sm font-medium text-gray-700 mb-1"
+            >受け入れ基準</label
+          >
+          <textarea
+            id="acceptance_criteria"
+            v-model="acceptanceCriteriaInput"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md"
+            rows="3"
+            placeholder="受け入れ基準を1行ずつ入力してください"
+          />
+        </div>
+
+        <div class="mb-4">
+          <label
+            for="design_images"
+            class="block text-sm font-medium text-gray-700 mb-1"
+            >画面設計画像ID</label
+          >
+          <textarea
+            id="design_images"
+            v-model="designImagesInput"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md"
+            rows="2"
+            placeholder="関連する画面設計画像のIDを1行ずつ入力してください"
+          />
+        </div>
+
+        <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700 mb-1"
             >難易度</label
           >
@@ -220,6 +295,11 @@ const notesInput = ref('');
 const relationsInput = ref('');
 const difficultyInput = ref(0);
 const categoryInput = ref('');
+const implementationNotesInput = ref('');
+const uiRequirementsInput = ref('');
+const dataRequirementsInput = ref('');
+const acceptanceCriteriaInput = ref('');
+const designImagesInput = ref('');
 
 // ドラッグ検出用の状態
 const isDragging = ref(false);
@@ -239,6 +319,15 @@ watch(
       relationsInput.value = newTask.task.addition?.relations?.join('\n') || '';
       difficultyInput.value = newTask.task.addition?.baseDifficulty || 0;
       categoryInput.value = newTask.task.addition?.category || '';
+      implementationNotesInput.value =
+        newTask.task.addition?.implementation_notes?.join('\n') || '';
+      uiRequirementsInput.value = newTask.task.addition?.ui_requirements || '';
+      dataRequirementsInput.value =
+        newTask.task.addition?.data_requirements || '';
+      acceptanceCriteriaInput.value =
+        newTask.task.addition?.acceptance_criteria?.join('\n') || '';
+      designImagesInput.value =
+        newTask.task.addition?.design_images?.join('\n') || '';
       // ダイアログが開かれたときはエラーメッセージをクリア
       errorMessage.value = '';
     }
@@ -255,6 +344,11 @@ watch(
     relationsInput,
     difficultyInput,
     categoryInput,
+    implementationNotesInput,
+    uiRequirementsInput,
+    dataRequirementsInput,
+    acceptanceCriteriaInput,
+    designImagesInput,
   ],
   () => {
     if (errorMessage.value) {
@@ -314,6 +408,17 @@ const handleSubmit = () => {
       relations: relationsInput.value.split('\n'),
       baseDifficulty: difficultyInput.value,
       category: categoryInput.value,
+      implementation_notes: implementationNotesInput.value
+        ? implementationNotesInput.value.split('\n')
+        : undefined,
+      ui_requirements: uiRequirementsInput.value || undefined,
+      data_requirements: dataRequirementsInput.value || undefined,
+      acceptance_criteria: acceptanceCriteriaInput.value
+        ? acceptanceCriteriaInput.value.split('\n')
+        : undefined,
+      design_images: designImagesInput.value
+        ? designImagesInput.value.split('\n')
+        : undefined,
     },
   });
 

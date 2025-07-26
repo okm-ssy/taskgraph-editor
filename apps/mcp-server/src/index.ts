@@ -48,8 +48,8 @@ function formatError(error: unknown): string {
 function getTaskSchemaHelp(): string {
   return `Task schema:
 Required: name (string), description (string)
-Optional: difficulty (number=0), baseDifficulty (number=0), depends (string[]), notes (string[]), relations (string[]), issueNumber (number), category (string="")
-Example: {"name": "task-1", "description": "My task", "difficulty": 2.5, "depends": ["task-0"]}`;
+Optional: difficulty (number=0), baseDifficulty (number=0), depends (string[]), notes (string[]), relations (string[]), issueNumber (number), category (string=""), implementation_notes (string[]), ui_requirements (string), data_requirements (string), acceptance_criteria (string[]), design_images (string[])
+Example: {"name": "task-1", "description": "My task", "difficulty": 2.5, "depends": ["task-0"], "addition": {"acceptance_criteria": ["Feature works as expected", "Tests pass"]}}`;
 }
 
 // MCPサーバーの作成
@@ -149,6 +149,11 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
                   baseDifficulty: { type: 'number', description: 'Base difficulty (optional, default: 0)' },
                   relations: { type: 'array', items: { type: 'string' }, description: 'Related files (optional, default: [])' },
                   category: { type: 'string', description: 'Category (optional, default: "")' },
+                  implementation_notes: { type: 'array', items: { type: 'string' }, description: 'Implementation notes (optional)' },
+                  ui_requirements: { type: 'string', description: 'UI requirements (optional)' },
+                  data_requirements: { type: 'string', description: 'Data requirements (optional)' },
+                  acceptance_criteria: { type: 'array', items: { type: 'string' }, description: 'Acceptance criteria (optional)' },
+                  design_images: { type: 'array', items: { type: 'string' }, description: 'Design image IDs (optional)' },
                 },
               },
             },
@@ -181,6 +186,11 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
                   baseDifficulty: { type: 'number', description: 'New base difficulty (optional)' },
                   relations: { type: 'array', items: { type: 'string' }, description: 'New relations (optional)' },
                   category: { type: 'string', description: 'New category (optional)' },
+                  implementation_notes: { type: 'array', items: { type: 'string' }, description: 'New implementation notes (optional)' },
+                  ui_requirements: { type: 'string', description: 'New UI requirements (optional)' },
+                  data_requirements: { type: 'string', description: 'New data requirements (optional)' },
+                  acceptance_criteria: { type: 'array', items: { type: 'string' }, description: 'New acceptance criteria (optional)' },
+                  design_images: { type: 'array', items: { type: 'string' }, description: 'New design image IDs (optional)' },
                 },
               },
             },
