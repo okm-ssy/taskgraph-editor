@@ -7,13 +7,13 @@
     @click="handleOverlayClick"
   >
     <div
-      class="bg-white rounded-lg shadow-xl w-full max-w-[70vw] fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+      class="bg-white rounded-lg shadow-xl w-full max-w-[70vw] max-h-[90dvh] flex flex-col fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
     >
-      <div class="border-b px-6 py-4">
+      <div class="border-b px-6 py-4 flex-shrink-0">
         <h3 class="text-lg font-medium">タスク詳細</h3>
       </div>
 
-      <form @submit.prevent="handleSubmit" class="p-6">
+      <form @submit.prevent="handleSubmit" class="p-6 overflow-y-auto flex-1">
         <div class="mb-4">
           <label for="name" class="block text-sm font-medium text-gray-700 mb-1"
             >タスク名</label
