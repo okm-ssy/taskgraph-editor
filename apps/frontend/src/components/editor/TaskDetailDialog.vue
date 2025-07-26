@@ -57,6 +57,76 @@
           />
         </div>
 
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >難易度</label
+          >
+          <div class="grid grid-cols-3 gap-3 items-center">
+            <!-- 左側：入力用 -->
+            <div>
+              <label for="difficulty" class="block text-xs text-gray-600 mb-1"
+                >入力値 (0.5刻み)</label
+              >
+              <div class="flex items-center gap-1">
+                <button
+                  type="button"
+                  @click="decreaseDifficulty"
+                  class="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm font-semibold transition-colors"
+                  :disabled="difficultyInput <= 0"
+                >
+                  −
+                </button>
+                <input
+                  id="difficulty"
+                  v-model="difficultyInput"
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  class="min-w-0 flex-1 px-2 py-1 border border-gray-300 rounded text-center text-sm"
+                  :class="getInputColorClass()"
+                />
+                <button
+                  type="button"
+                  @click="increaseDifficulty"
+                  class="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm font-semibold transition-colors"
+                >
+                  ＋
+                </button>
+              </div>
+            </div>
+            <!-- 中央：推奨難易度 -->
+            <div>
+              <label class="block text-xs text-gray-600 mb-1">推奨難易度</label>
+              <div
+                class="px-3 py-2 bg-blue-50 border border-blue-200 rounded text-center text-sm font-medium text-blue-700"
+                v-if="
+                  categoryInput &&
+                  getDifficultyByCategory(categoryInput) !== null
+                "
+              >
+                {{ getDifficultyByCategory(categoryInput) }}
+              </div>
+              <div
+                v-else
+                class="px-3 py-2 bg-gray-50 border border-gray-200 rounded text-center text-sm text-gray-400"
+              >
+                −
+              </div>
+            </div>
+            <!-- 右側：動作確認済み -->
+            <div>
+              <label class="block text-xs text-gray-600 mb-1"
+                >動作確認済み (×1.2)</label
+              >
+              <div
+                class="px-3 py-2 bg-gray-50 border border-gray-200 rounded text-center text-sm font-medium"
+              >
+                {{ Math.round(difficultyInput * 1.2 * 10) / 10 }}
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Additional Fields Section -->
         <div class="mb-6 pb-6 border-b border-gray-200">
           <h4 class="text-sm font-semibold text-blue-600 mb-4">追加情報</h4>
@@ -166,78 +236,6 @@
               rows="2"
               placeholder="関連する画面設計画像のIDを1行ずつ入力してください"
             />
-          </div>
-
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-blue-700 mb-1"
-              >難易度</label
-            >
-            <div class="grid grid-cols-3 gap-3 items-center">
-              <!-- 左側：入力用 -->
-              <div>
-                <label for="difficulty" class="block text-xs text-gray-600 mb-1"
-                  >入力値 (0.5刻み)</label
-                >
-                <div class="flex items-center gap-1">
-                  <button
-                    type="button"
-                    @click="decreaseDifficulty"
-                    class="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm font-semibold transition-colors"
-                    :disabled="difficultyInput <= 0"
-                  >
-                    −
-                  </button>
-                  <input
-                    id="difficulty"
-                    v-model="difficultyInput"
-                    type="number"
-                    min="0"
-                    step="0.1"
-                    class="min-w-0 flex-1 px-2 py-1 border border-gray-300 rounded text-center text-sm"
-                    :class="getInputColorClass()"
-                  />
-                  <button
-                    type="button"
-                    @click="increaseDifficulty"
-                    class="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm font-semibold transition-colors"
-                  >
-                    ＋
-                  </button>
-                </div>
-              </div>
-              <!-- 中央：推奨難易度 -->
-              <div>
-                <label class="block text-xs text-gray-600 mb-1"
-                  >推奨難易度</label
-                >
-                <div
-                  class="px-3 py-2 bg-blue-50 border border-blue-200 rounded text-center text-sm font-medium text-blue-700"
-                  v-if="
-                    categoryInput &&
-                    getDifficultyByCategory(categoryInput) !== null
-                  "
-                >
-                  {{ getDifficultyByCategory(categoryInput) }}
-                </div>
-                <div
-                  v-else
-                  class="px-3 py-2 bg-gray-50 border border-gray-200 rounded text-center text-sm text-gray-400"
-                >
-                  −
-                </div>
-              </div>
-              <!-- 右側：動作確認込み -->
-              <div>
-                <label class="block text-xs text-gray-600 mb-1"
-                  >動作確認込み (×1.2)</label
-                >
-                <div
-                  class="px-3 py-2 bg-gray-50 border border-gray-200 rounded text-center text-sm font-medium"
-                >
-                  {{ Math.round(difficultyInput * 1.2 * 10) / 10 }}
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 
