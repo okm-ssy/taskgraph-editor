@@ -197,14 +197,14 @@
             <label
               for="data_requirements"
               class="block text-sm font-medium text-blue-700 mb-1"
-              >データ要件</label
+              >API仕様・エンドポイント</label
             >
             <textarea
               id="data_requirements"
               v-model="dataRequirementsInput"
               class="w-full px-3 py-2 border border-gray-300 rounded-md"
               rows="2"
-              placeholder="データ処理・API要件の説明を入力してください"
+              placeholder="使用するエンドポイントやOpenAPI定義への参照を1行ずつ入力してください"
             />
           </div>
 
