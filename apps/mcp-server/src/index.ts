@@ -49,7 +49,15 @@ function getTaskSchemaHelp(): string {
   return `Task schema:
 Required: name (string), description (string)
 Optional: difficulty (number=0), baseDifficulty (number=0), depends (string[]), notes (string[]), relations (string[]), issueNumber (number), category (string=""), implementation_notes (string[]), data_requirements (string), acceptance_criteria (string[]), design_images (string[])
-Example: {"name": "task-1", "description": "My task", "difficulty": 2.5, "depends": ["task-0"], "addition": {"acceptance_criteria": ["Feature works as expected", "Tests pass"]}}`;
+
+Field descriptions:
+- implementation_notes: Implementation guidelines, library requirements, performance constraints, security considerations
+- data_requirements: API specifications, OpenAPI definitions, endpoint references
+- acceptance_criteria: Requirements and test cases that must be satisfied
+- design_images: IDs of related UI design images
+- relations: Related file paths
+
+Example: {"name": "task-1", "description": "My task", "difficulty": 2.5, "depends": ["task-0"], "addition": {"implementation_notes": ["Use React hooks", "Performance: < 100ms"], "data_requirements": "GET /api/users/{id}", "acceptance_criteria": ["Feature works as expected", "Tests pass"]}}`;
 }
 
 // MCPサーバーの作成
@@ -149,9 +157,9 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
                   baseDifficulty: { type: 'number', description: 'Base difficulty (optional, default: 0)' },
                   relations: { type: 'array', items: { type: 'string' }, description: 'Related files (optional, default: [])' },
                   category: { type: 'string', description: 'Category (optional, default: "")' },
-                  implementation_notes: { type: 'array', items: { type: 'string' }, description: 'Implementation notes (optional)' },
+                  implementation_notes: { type: 'array', items: { type: 'string' }, description: 'Implementation guidelines and technical constraints (optional)' },
                   data_requirements: { type: 'string', description: 'API specifications and endpoints (optional)' },
-                  acceptance_criteria: { type: 'array', items: { type: 'string' }, description: 'Acceptance criteria (optional)' },
+                  acceptance_criteria: { type: 'array', items: { type: 'string' }, description: 'Requirements and test cases (optional)' },
                   design_images: { type: 'array', items: { type: 'string' }, description: 'Design image IDs (optional)' },
                 },
               },
@@ -185,9 +193,9 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
                   baseDifficulty: { type: 'number', description: 'New base difficulty (optional)' },
                   relations: { type: 'array', items: { type: 'string' }, description: 'New relations (optional)' },
                   category: { type: 'string', description: 'New category (optional)' },
-                  implementation_notes: { type: 'array', items: { type: 'string' }, description: 'New implementation notes (optional)' },
+                  implementation_notes: { type: 'array', items: { type: 'string' }, description: 'New implementation guidelines and technical constraints (optional)' },
                   data_requirements: { type: 'string', description: 'New API specifications and endpoints (optional)' },
-                  acceptance_criteria: { type: 'array', items: { type: 'string' }, description: 'New acceptance criteria (optional)' },
+                  acceptance_criteria: { type: 'array', items: { type: 'string' }, description: 'New requirements and test cases (optional)' },
                   design_images: { type: 'array', items: { type: 'string' }, description: 'New design image IDs (optional)' },
                 },
               },
