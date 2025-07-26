@@ -285,7 +285,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, onUnmounted } from 'vue';
 
 import { useTaskCategories } from '../../composables/useTaskCategories';
 import { useEditorUIStore } from '../../store/editor_ui_store';
@@ -314,6 +314,26 @@ const dragStartedInDialog = ref(false);
 
 // エラーメッセージ表示用の状態
 const errorMessage = ref('');
+
+// ダイアログが開いている間、背景のスクロールを防ぐ
+watch(
+  () => uiStore.isDetailDialogVisible,
+  (isVisible) => {
+    if (isVisible) {
+      // ダイアログが開いたときに背景のスクロールを無効化
+      document.body.style.overflow = 'hidden';
+    } else {
+      // ダイアログが閉じたときに背景のスクロールを有効化
+      document.body.style.overflow = '';
+    }
+  },
+  { immediate: true },
+);
+
+// コンポーネントがアンマウントされるときにも確実にスクロールを復元
+onUnmounted(() => {
+  document.body.style.overflow = '';
+});
 
 // 選択中のタスクが変更されたら入力フィールドを更新
 watch(
