@@ -10,6 +10,7 @@
       "name": "test-task",
       "notes": [],
       "addition": {
+        "field": "front",
         "baseDifficulty": 0,
         "relations": [],
         "category": "",
@@ -28,6 +29,7 @@
       "name": "simple-task",
       "notes": [],
       "addition": {
+        "field": "back",
         "baseDifficulty": 0,
         "relations": [],
         "category": "",
@@ -44,6 +46,7 @@
       "name": "setup-database",
       "notes": [],
       "addition": {
+        "field": "back",
         "baseDifficulty": 2,
         "relations": [],
         "category": "インフラ",
