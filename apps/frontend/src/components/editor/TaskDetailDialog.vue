@@ -460,9 +460,34 @@ const handleSubmit = () => {
   uiStore.closeDetailDialog();
 };
 
+// 入力フィールドをリセットする関数
+const resetInputs = () => {
+  if (taskStore.selectedTask) {
+    nameInput.value = taskStore.selectedTask.task.name;
+    descriptionInput.value = taskStore.selectedTask.task.description;
+    notesInput.value = taskStore.selectedTask.task.notes.join('\n');
+    difficultyInput.value =
+      taskStore.selectedTask.task.addition?.baseDifficulty || 0;
+    categoryInput.value = taskStore.selectedTask.task.addition?.category || '';
+    fieldInput.value = taskStore.selectedTask.task.addition?.field || '';
+    implementationNotesInput.value =
+      taskStore.selectedTask.task.addition?.implementation_notes?.join('\n') ||
+      '';
+    dataRequirementsInput.value =
+      taskStore.selectedTask.task.addition?.data_requirements || '';
+    acceptanceCriteriaInput.value =
+      taskStore.selectedTask.task.addition?.acceptance_criteria?.join('\n') ||
+      '';
+    designImagesInput.value =
+      taskStore.selectedTask.task.addition?.design_images?.join('\n') || '';
+  }
+};
+
 const handleCancel = () => {
   // エラーメッセージをクリア
   errorMessage.value = '';
+  // 入力フィールドを元の値にリセット
+  resetInputs();
   uiStore.closeDetailDialog();
 };
 
@@ -521,6 +546,20 @@ const handleOverlayClick = (event: MouseEvent) => {
     handleCancel();
   }
 };
+
+// ダイアログが閉じられた時の処理
+watch(
+  () => uiStore.isDetailDialogVisible,
+  (isVisible, wasVisible) => {
+    // ダイアログが閉じられた時（wasVisible: true → isVisible: false）
+    if (wasVisible && !isVisible) {
+      // 入力フィールドを元の値にリセット
+      resetInputs();
+      // エラーメッセージをクリア
+      errorMessage.value = '';
+    }
+  },
+);
 </script>
 
 <style scoped></style>
