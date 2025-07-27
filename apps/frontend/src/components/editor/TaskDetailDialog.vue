@@ -131,36 +131,60 @@
         <div class="mb-6 pb-6 border-b border-gray-200">
           <h4 class="text-sm font-semibold text-blue-600 mb-4">追加情報</h4>
 
-          <div class="mb-4">
-            <label
-              for="category"
-              class="block text-sm font-medium text-blue-700 mb-1"
-              >カテゴリ</label
-            >
-            <!-- カテゴリ読み込みエラー表示 -->
-            <div
-              v-if="loadError || !isLoaded"
-              class="mb-2 px-3 py-2 bg-red-50 border border-red-200 rounded text-sm text-red-700"
-            >
-              <span v-if="loadError">{{ loadError }}</span>
-              <span v-else>カテゴリ情報を読み込み中...</span>
-            </div>
-            <select
-              id="category"
-              v-model="categoryInput"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md"
-              @change="onCategoryChange"
-              :disabled="!isLoaded || !!loadError"
-            >
-              <option value="">カテゴリを選択してください</option>
-              <option
-                v-for="category in allCategories"
-                :key="category"
-                :value="category"
+          <div class="mb-4 grid grid-cols-2 gap-4">
+            <div>
+              <label
+                for="category"
+                class="block text-sm font-medium text-blue-700 mb-1"
+                >カテゴリ</label
               >
-                {{ category }}
-              </option>
-            </select>
+              <!-- カテゴリ読み込みエラー表示 -->
+              <div
+                v-if="loadError || !isLoaded"
+                class="mb-2 px-3 py-2 bg-red-50 border border-red-200 rounded text-sm text-red-700"
+              >
+                <span v-if="loadError">{{ loadError }}</span>
+                <span v-else>カテゴリ情報を読み込み中...</span>
+              </div>
+              <select
+                id="category"
+                v-model="categoryInput"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                @change="onCategoryChange"
+                :disabled="!isLoaded || !!loadError"
+              >
+                <option value="">カテゴリを選択してください</option>
+                <option
+                  v-for="category in allCategories"
+                  :key="category"
+                  :value="category"
+                >
+                  {{ category }}
+                </option>
+              </select>
+            </div>
+
+            <div>
+              <label
+                for="field"
+                class="block text-sm font-medium text-blue-700 mb-1"
+                >分野</label
+              >
+              <select
+                id="field"
+                v-model="fieldInput"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md"
+              >
+                <option value="">分野を選択してください</option>
+                <option
+                  v-for="field in fieldOptions"
+                  :key="field"
+                  :value="field"
+                >
+                  {{ field }}
+                </option>
+              </select>
+            </div>
           </div>
 
           <div class="mb-4">
@@ -261,8 +285,14 @@ import { useCurrentTasks } from '../../store/task_store';
 
 const taskStore = useCurrentTasks();
 const uiStore = useEditorUIStore();
-const { allCategories, getDifficultyByCategory, isLoaded, loadError } =
-  useTaskCategories();
+const {
+  allCategories,
+  getDifficultyByCategory,
+  getFieldByCategory,
+  fieldOptions,
+  isLoaded,
+  loadError,
+} = useTaskCategories();
 
 const nameInput = ref('');
 const descriptionInput = ref('');
@@ -273,6 +303,7 @@ const implementationNotesInput = ref('');
 const dataRequirementsInput = ref('');
 const acceptanceCriteriaInput = ref('');
 const designImagesInput = ref('');
+const fieldInput = ref('');
 
 // ドラッグ検出用の状態
 const isDragging = ref(false);
@@ -311,6 +342,7 @@ watch(
       notesInput.value = newTask.task.notes.join('\n');
       difficultyInput.value = newTask.task.addition?.baseDifficulty || 0;
       categoryInput.value = newTask.task.addition?.category || '';
+      fieldInput.value = newTask.task.addition?.field || '';
       implementationNotesInput.value =
         newTask.task.addition?.implementation_notes?.join('\n') || '';
       dataRequirementsInput.value =
@@ -334,6 +366,7 @@ watch(
     notesInput,
     difficultyInput,
     categoryInput,
+    fieldInput,
     implementationNotesInput,
     dataRequirementsInput,
     acceptanceCriteriaInput,
@@ -352,6 +385,12 @@ const onCategoryChange = () => {
     const suggestedDifficulty = getDifficultyByCategory(categoryInput.value);
     if (suggestedDifficulty !== null) {
       difficultyInput.value = suggestedDifficulty;
+    }
+
+    // カテゴリに応じた分野を自動設定
+    const suggestedField = getFieldByCategory(categoryInput.value);
+    if (suggestedField) {
+      fieldInput.value = suggestedField;
     }
   }
 };
@@ -396,6 +435,7 @@ const handleSubmit = () => {
     addition: {
       baseDifficulty: difficultyInput.value,
       category: categoryInput.value,
+      field: fieldInput.value,
       implementation_notes: implementationNotesInput.value
         ? implementationNotesInput.value.split('\n')
         : undefined,

@@ -1,16 +1,19 @@
-Vue - Story作成	2
-Vue - Component作成	3
-React - Component作成	3
-TypeScript - 型定義	1
-TypeScript - 型修正	2
-API - エンドポイント実装	4
-API - データ取得	2
-テスト - Unit Test	2
-テスト - Integration Test	3
-UI - デザイン実装	3
-UI - レスポンシブ対応	2
-バグ修正 - 軽微	1
-バグ修正 - 重要	4
-リファクタリング	2
-ドキュメント作成	1
-設定変更	1
+親タスク	0.00	親
+Vue - Story作成	2	フロント
+Vue - Component作成	3	フロント
+React - Component作成	3	フロント
+TypeScript - 型定義	1	フロント
+TypeScript - 型修正	2	フロント
+API - エンドポイント実装	4	バック
+API - データ取得	2	バック
+テスト - Unit Test	2	バック
+テスト - Integration Test	3	フロント
+UI - デザイン実装	3	フロント
+UI - レスポンシブ対応	2	フロント
+バグ修正 - 軽微	1	フロント
+バグ修正 - 重要	4	フロント
+CDK-更新	2.00	インフラ
+CDK-追加	4.00	インフラ
+リファクタリング	2	その他
+ドキュメント作成	1	その他
+設定変更	1	その他
