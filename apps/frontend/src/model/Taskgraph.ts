@@ -63,7 +63,7 @@ export const taskZodSchema = zod
       .object({
         baseDifficulty: zod.number().min(0).default(0), // 入力・編集用（元の値）
         category: zod.string().default(''),
-        field: zod.enum(['front', 'back', 'infra', 'other', 'parent']),
+        field: zod.enum(['front', 'back', 'infra', 'other', 'parent', '']),
         layout: zod
           .object({
             x: zod.number(),

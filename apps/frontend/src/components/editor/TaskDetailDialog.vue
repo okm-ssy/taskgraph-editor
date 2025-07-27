@@ -343,7 +343,7 @@ watch(
       notesInput.value = newTask.task.notes.join('\n');
       difficultyInput.value = newTask.task.addition?.baseDifficulty || 0;
       categoryInput.value = newTask.task.addition?.category || '';
-      fieldInput.value = newTask.task.addition?.field || 'other';
+      fieldInput.value = newTask.task.addition?.field || '';
       implementationNotesInput.value =
         newTask.task.addition?.implementation_notes?.join('\n') || '';
       dataRequirementsInput.value =

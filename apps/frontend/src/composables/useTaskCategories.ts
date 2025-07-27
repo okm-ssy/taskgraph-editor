@@ -107,10 +107,11 @@ export const useTaskCategories = () => {
   };
 
   // 固定の分野選択肢 (enum値)
-  const fieldOptions = ref(['front', 'back', 'infra', 'other', 'parent']);
+  const fieldOptions = ref(['', 'front', 'back', 'infra', 'other', 'parent']);
 
   // 分野の表示名マッピング
   const fieldDisplayNames = {
+    '': '未設定',
     front: 'フロント',
     back: 'バック',
     infra: 'インフラ',
