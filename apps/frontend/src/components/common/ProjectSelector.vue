@@ -85,20 +85,22 @@
 import { onMounted, ref } from 'vue';
 
 import { useProject } from '@/composables/useProject';
+import { useCurrentTasks } from '@/store/task_store';
 
 const { selectedProjectId, projects, isLoading, fetchProjects, selectProject } =
   useProject();
+const taskStore = useCurrentTasks();
 
 const showCreateForm = ref(false);
 const newProjectName = ref('');
 const createError = ref('');
 const isCreating = ref(false);
 
-const handleProjectChange = () => {
+const handleProjectChange = async () => {
   if (selectedProjectId.value) {
     selectProject(selectedProjectId.value);
-    // プロジェクト変更時にページをリロードしてデータを更新
-    window.location.reload();
+    // プロジェクト変更時にタスクストアを再読み込み
+    await taskStore.loadFromFile();
   }
 };
 
@@ -136,8 +138,8 @@ const createProject = async () => {
     selectProject(data.project.id);
     showCreateForm.value = false;
     newProjectName.value = '';
-    // ページをリロードして新しいプロジェクトを読み込む
-    window.location.reload();
+    // 新しいプロジェクトのデータを読み込む
+    await taskStore.loadFromFile();
   } catch (error) {
     createError.value = 'プロジェクトの作成中にエラーが発生しました';
     console.error('Failed to create project:', error);

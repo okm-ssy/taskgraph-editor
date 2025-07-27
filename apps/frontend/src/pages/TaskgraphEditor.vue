@@ -45,7 +45,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 
-import { STORAGE_KEYS } from '../constants';
+import { STORAGE_KEYS, PROJECT_CONSTANTS } from '../constants';
 import { useCurrentTasks } from '../store/task_store';
 import { Page, viewerPage, editorPage } from '../store/types/page';
 
@@ -55,11 +55,13 @@ import ViewerPage from './ViewerPage.vue';
 import JsonInput from '@/components/common/JsonInput.vue';
 import ProjectSelector from '@/components/common/ProjectSelector.vue';
 import Switcher from '@/components/common/Switcher.vue';
+import { useProject } from '@/composables/useProject';
 import { useAppTitle } from '@/composables/useTitle';
 
 const router = useRouter();
 const route = useRoute();
 const taskStore = useCurrentTasks();
+const { selectedProjectId } = useProject();
 
 // タイトル管理を初期化
 useAppTitle();
@@ -86,8 +88,15 @@ const navigateToPage = (page: Page) => {
 };
 
 // ストア初期化確認
-onMounted(() => {
-  taskStore.initializeStore();
+onMounted(async () => {
+  // プロジェクトIDが設定されているか、もしくはdefaultを使う場合のみ初期化
+  // useProjectで既にlocalStorageから読み込まれているはず
+  if (
+    selectedProjectId.value ||
+    !localStorage.getItem(PROJECT_CONSTANTS.STORAGE_KEY)
+  ) {
+    await taskStore.initializeStore();
+  }
 });
 
 // クリーンアップ

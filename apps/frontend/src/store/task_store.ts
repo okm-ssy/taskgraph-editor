@@ -32,6 +32,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   // ファイル変更検知用
   const lastMtime = ref<string | null>(null);
   const pollingInterval = ref<number | null>(null);
+  const lastLoadedProjectId = ref<string | null>(null);
 
   // Session Storage管理
   let isLoadingFromStorage = false;
@@ -321,7 +322,15 @@ export const useCurrentTasks = defineStore('editorTask', () => {
 
   // ストア初期化
   const initializeStore = async () => {
-    if (!isInitialized.value) {
+    // 既に初期化済みでもプロジェクトIDが変わっている可能性があるので
+    // 毎回プロジェクトIDを確認する
+    const currentProjectId = getCurrentProjectId();
+
+    if (
+      !isInitialized.value ||
+      currentProjectId !== lastLoadedProjectId.value
+    ) {
+      lastLoadedProjectId.value = currentProjectId;
       await loadFromFile();
 
       // 初期化時に最終更新時刻を設定
@@ -331,46 +340,12 @@ export const useCurrentTasks = defineStore('editorTask', () => {
         lastMtime.value = mtime;
       }
 
-      isInitialized.value = true;
-      startPolling(); // ポーリング開始
+      if (!isInitialized.value) {
+        isInitialized.value = true;
+        startPolling(); // ポーリング開始
 
-      // ウィンドウフォーカス時にもチェック
-      window.addEventListener('focus', async () => {
-        if (!isSaving) {
-          const projectId = getCurrentProjectId();
-          const currentMtime = await checkFileMtime(projectId);
-          if (
-            currentMtime &&
-            lastMtime.value &&
-            currentMtime !== lastMtime.value
-          ) {
-            console.log('ウィンドウフォーカス時にファイル変更を検知しました');
-            await loadFromFile();
-          }
-        }
-      });
-
-      // ページ表示状態変更時にもチェック（タブ切り替え等）
-      document.addEventListener('visibilitychange', async () => {
-        if (!document.hidden && !isSaving) {
-          const projectId = getCurrentProjectId();
-          const currentMtime = await checkFileMtime(projectId);
-          if (
-            currentMtime &&
-            lastMtime.value &&
-            currentMtime !== lastMtime.value
-          ) {
-            console.log('タブ復帰時にファイル変更を検知しました');
-            await loadFromFile();
-          }
-        }
-      });
-
-      // クリップボード操作後の遅延チェック（貼り付け後のファイル変更検知）
-      let pasteCheckTimeout: NodeJS.Timeout | null = null;
-      const handlePasteCheck = async () => {
-        if (pasteCheckTimeout) clearTimeout(pasteCheckTimeout);
-        pasteCheckTimeout = setTimeout(async () => {
+        // ウィンドウフォーカス時にもチェック
+        window.addEventListener('focus', async () => {
           if (!isSaving) {
             const projectId = getCurrentProjectId();
             const currentMtime = await checkFileMtime(projectId);
@@ -379,22 +354,58 @@ export const useCurrentTasks = defineStore('editorTask', () => {
               lastMtime.value &&
               currentMtime !== lastMtime.value
             ) {
-              console.log('貼り付け操作後にファイル変更を検知しました');
+              console.log('ウィンドウフォーカス時にファイル変更を検知しました');
               await loadFromFile();
             }
           }
-        }, 500); // 貼り付け後0.5秒で確認
-      };
+        });
 
-      // キーボード操作での貼り付け検知
-      document.addEventListener('keydown', (event) => {
-        if ((event.ctrlKey || event.metaKey) && event.key === 'v') {
-          handlePasteCheck();
-        }
-      });
+        // ページ表示状態変更時にもチェック（タブ切り替え等）
+        document.addEventListener('visibilitychange', async () => {
+          if (!document.hidden && !isSaving) {
+            const projectId = getCurrentProjectId();
+            const currentMtime = await checkFileMtime(projectId);
+            if (
+              currentMtime &&
+              lastMtime.value &&
+              currentMtime !== lastMtime.value
+            ) {
+              console.log('タブ復帰時にファイル変更を検知しました');
+              await loadFromFile();
+            }
+          }
+        });
 
-      // コンテキストメニューでの貼り付け検知（難しいので focus イベントで代用）
-      window.addEventListener('focus', handlePasteCheck);
+        // クリップボード操作後の遅延チェック（貼り付け後のファイル変更検知）
+        let pasteCheckTimeout: NodeJS.Timeout | null = null;
+        const handlePasteCheck = async () => {
+          if (pasteCheckTimeout) clearTimeout(pasteCheckTimeout);
+          pasteCheckTimeout = setTimeout(async () => {
+            if (!isSaving) {
+              const projectId = getCurrentProjectId();
+              const currentMtime = await checkFileMtime(projectId);
+              if (
+                currentMtime &&
+                lastMtime.value &&
+                currentMtime !== lastMtime.value
+              ) {
+                console.log('貼り付け操作後にファイル変更を検知しました');
+                await loadFromFile();
+              }
+            }
+          }, 500); // 貼り付け後0.5秒で確認
+        };
+
+        // キーボード操作での貼り付け検知
+        document.addEventListener('keydown', (event) => {
+          if ((event.ctrlKey || event.metaKey) && event.key === 'v') {
+            handlePasteCheck();
+          }
+        });
+
+        // コンテキストメニューでの貼り付け検知（難しいので focus イベントで代用）
+        window.addEventListener('focus', handlePasteCheck);
+      }
     }
   };
 
@@ -583,7 +594,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
 
   // ストア初期化を実行（全ての関数定義後）
   // 非同期なので直接awaitはできないが、バックグラウンドで実行
-  initializeStore().catch(console.error);
+  // initializeStore().catch(console.error); // 自動初期化を無効化
 
   return storeResult;
 });
