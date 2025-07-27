@@ -156,15 +156,49 @@ const loadProjectImages = async () => {
   loading.value = true;
   try {
     const projectId = taskStore.getCurrentProjectId();
-    const response = await fetch(`/api/project-images/${projectId}`);
-    if (response.ok) {
-      const data = await response.json();
-      // 登録済み画像（IDを持つもの）のみをフィルタリング
-      images.value = data.images.filter(
-        (image: { id: string | null }) => image.id !== null,
-      );
+
+    // プロジェクト情報から登録された画像を直接取得
+    const taskgraphResponse = await fetch(
+      `/api/load-taskgraph?projectId=${projectId}`,
+    );
+    if (taskgraphResponse.ok) {
+      const taskgraphData = await taskgraphResponse.text();
+      const taskgraph = JSON.parse(taskgraphData);
+      const designImages = taskgraph.info?.addition?.design_images || [];
+
+      // 登録済み画像を画像リストに変換
+      images.value = designImages
+        .map((img: unknown) => {
+          if (
+            typeof img === 'object' &&
+            img !== null &&
+            'id' in img &&
+            'path' in img
+          ) {
+            const objImg = img as { id: string; path: string };
+            // 新形式: {id, path}
+            return {
+              id: objImg.id,
+              filename: objImg.path.split('/').pop() || objImg.path,
+              path: objImg.path,
+              size: 0, // ファイルサイズは不明
+              modified: '', // 更新日時は不明
+            };
+          } else if (typeof img === 'string') {
+            // 旧形式: 文字列パス（フルパス対応）
+            return {
+              id: img, // パス自体をIDとして使用
+              filename: img.split('/').pop() || img,
+              path: img,
+              size: 0,
+              modified: '',
+            };
+          }
+          return null;
+        })
+        .filter((img): img is NonNullable<typeof img> => img !== null);
     } else {
-      console.error('Failed to load project images');
+      console.error('Failed to load project taskgraph');
       images.value = [];
     }
   } catch (error) {
@@ -176,6 +210,10 @@ const loadProjectImages = async () => {
 };
 
 const getImageUrl = (path: string): string => {
+  // 絶対パスの場合は特別なエンドポイントを使用
+  if (path.startsWith('/')) {
+    return `/api/images/absolute${path}`;
+  }
   return `/api/images/${path}`;
 };
 
