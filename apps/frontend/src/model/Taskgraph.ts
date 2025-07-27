@@ -1,6 +1,12 @@
 import * as zod from 'zod';
 
-// 画面設計画像の型定義
+// プロジェクト内画像の型定義（簡易版）
+export const projectImageZodSchema = zod.object({
+  id: zod.string(), // 画像の一意ID (nanoid)
+  path: zod.string(), // 画像ファイルのパス
+});
+
+// 画面設計画像の型定義（詳細版・将来拡張用）
 export const designImageZodSchema = zod.object({
   id: zod.string(), // 画像の一意ID
   title: zod.string(), // 画像のタイトル・説明
@@ -45,7 +51,7 @@ export const infoZodSchema = zod
         tech_stack: zod.array(zod.string()).optional(), // 主要技術スタック
         coding_guidelines: zod.string().optional(), // コーディング規約・注意点
         deployment_notes: zod.string().optional(), // デプロイ・環境に関する注意事項
-        design_images: zod.array(zod.string()).optional(), // プロジェクト内の画面設計画像のパス
+        design_images: zod.array(projectImageZodSchema).optional(), // プロジェクト内の画面設計画像
       })
       .optional(),
   })
@@ -172,6 +178,7 @@ export const taskgraphZodSchema = zod
     },
   );
 
+export type ProjectImage = zod.infer<typeof projectImageZodSchema>;
 export type DesignImage = zod.infer<typeof designImageZodSchema>;
 export type Task = zod.infer<typeof taskZodSchema>;
 export type Taskgraph = zod.infer<typeof taskgraphZodSchema>;

@@ -555,7 +555,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   // info更新のアクション
   const updateInfo = (newInfo: Taskgraph['info']) => {
     info.value = { ...newInfo };
-    saveDataToSessionStorage();
+    saveToFile();
   };
 
   const storeResult = {
