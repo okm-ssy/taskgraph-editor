@@ -24,3 +24,20 @@ export const difficultyBackgroundClass = (difficulty: number) => {
     return 'bg-red-100 border-red-500';
   return 'bg-purple-100 border-purple-500';
 };
+
+export const fieldBackgroundClass = (field: string) => {
+  switch (field) {
+    case 'バック':
+      return 'bg-blue-100 border-blue-400';
+    case 'フロント':
+      return 'bg-green-100 border-green-400';
+    case 'インフラ':
+      return 'bg-yellow-100 border-yellow-400';
+    case 'その他':
+      return 'bg-gray-200 border-gray-400';
+    case '親':
+      return 'bg-red-100 border-red-400';
+    default:
+      return 'bg-gray-200 border-gray-400';
+  }
+};
