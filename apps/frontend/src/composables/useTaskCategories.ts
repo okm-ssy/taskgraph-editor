@@ -107,7 +107,7 @@ export const useTaskCategories = () => {
   };
 
   // 固定の分野選択肢
-  const fieldOptions = ['フロント', 'バック', 'インフラ', 'その他', '親'];
+  const fieldOptions = ref(['フロント', 'バック', 'インフラ', 'その他', '親']);
 
   // 初期化
   if (!isLoaded.value && !loadError.value) {
@@ -117,7 +117,7 @@ export const useTaskCategories = () => {
   return {
     categoryMappings: computed(() => categoryMappings.value),
     allCategories,
-    fieldOptions,
+    fieldOptions: computed(() => fieldOptions.value),
     isLoaded: computed(() => isLoaded.value),
     loadError: computed(() => loadError.value),
     loadCategories,
