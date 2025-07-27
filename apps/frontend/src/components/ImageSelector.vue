@@ -55,10 +55,10 @@
             {{ image.filename }}
             <span v-if="!image.id" class="text-xs text-red-400">(未登録)</span>
           </label>
-          <p class="text-xs text-gray-500">
+          <p v-if="image.size !== null" class="text-xs text-gray-500">
             {{ formatFileSize(image.size) }}
           </p>
-          <p class="text-xs text-gray-400">
+          <p v-if="image.modified !== null" class="text-xs text-gray-400">
             {{ formatDate(image.modified) }}
           </p>
         </div>
@@ -116,8 +116,8 @@ const images = ref<
     id: string | null;
     filename: string;
     path: string;
-    size: number;
-    modified: string;
+    size: number | null;
+    modified: string | null;
   }>
 >([]);
 const loading = ref(false);
@@ -181,8 +181,8 @@ const loadProjectImages = async () => {
               id: objImg.id,
               filename: objImg.path.split('/').pop() || objImg.path,
               path: objImg.path,
-              size: 0, // ファイルサイズは不明
-              modified: '', // 更新日時は不明
+              size: null, // ファイルサイズは不明
+              modified: null, // 更新日時は不明
             };
           } else if (typeof img === 'string') {
             // 旧形式: 文字列パス（フルパス対応）
@@ -190,8 +190,8 @@ const loadProjectImages = async () => {
               id: img, // パス自体をIDとして使用
               filename: img.split('/').pop() || img,
               path: img,
-              size: 0,
-              modified: '',
+              size: null,
+              modified: null,
             };
           }
           return null;
