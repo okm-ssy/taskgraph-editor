@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import fs from 'fs/promises';
 import path from 'path';
+import multer from 'multer';
 
 const app = express();
 const PORT = 3333;
@@ -154,6 +155,76 @@ app.post('/api/projects', async (req, res) => {
   } catch (error) {
     console.error('Failed to create project:', error);
     res.status(500).json({ error: 'プロジェクトの作成に失敗しました' });
+  }
+});
+
+// 画像アップロード用のmulter設定
+const storage = multer.diskStorage({
+  destination: async (req, file, cb) => {
+    const projectId = req.body.projectId || 'default';
+    const uploadDir = path.join(DATA_DIR, projectId);
+    
+    // プロジェクトディレクトリが存在しない場合は作成
+    try {
+      await fs.access(uploadDir);
+    } catch {
+      await fs.mkdir(uploadDir, { recursive: true });
+    }
+    
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    // ファイル名にタイムスタンプを追加してユニークにする
+    const timestamp = Date.now();
+    const ext = path.extname(file.originalname);
+    const basename = path.basename(file.originalname, ext);
+    cb(null, `${basename}_${timestamp}${ext}`);
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  fileFilter: (req, file, cb) => {
+    // 画像ファイルのみ許可
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('画像ファイルのみアップロード可能です'), false);
+    }
+  },
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB制限
+  }
+});
+
+// 画像アップロードエンドポイント
+app.post('/api/upload-image', upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'ファイルが選択されていません' });
+    }
+
+    const projectId = req.body.projectId || 'default';
+    const relativePath = path.join('data', projectId, req.file.filename);
+    const fullPath = req.file.path;
+
+    console.log('Image uploaded:', {
+      originalName: req.file.originalname,
+      filename: req.file.filename,
+      size: req.file.size,
+      path: fullPath,
+      relativePath: relativePath
+    });
+
+    res.json({
+      success: true,
+      filepath: relativePath,
+      originalName: req.file.originalname,
+      size: req.file.size
+    });
+  } catch (error) {
+    console.error('Failed to upload image:', error);
+    res.status(500).json({ error: '画像のアップロードに失敗しました' });
   }
 });
 

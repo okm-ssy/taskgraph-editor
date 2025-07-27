@@ -109,6 +109,69 @@
           />
         </div>
 
+        <!-- 画像設計セクション -->
+        <div class="mb-6 pb-6 border-b border-gray-200">
+          <h4 class="text-sm font-semibold text-green-600 mb-4">
+            画面設計画像
+          </h4>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-green-700 mb-2">
+              画像パス一覧
+            </label>
+
+            <!-- 既存の画像パスリスト -->
+            <div class="space-y-2 mb-3">
+              <div
+                v-for="(imagePath, index) in designImagesInput"
+                :key="index"
+                class="flex items-center gap-2"
+              >
+                <input
+                  v-model="designImagesInput[index]"
+                  type="text"
+                  class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  placeholder="画像パスを入力"
+                />
+                <button
+                  type="button"
+                  @click="removeImagePath(index)"
+                  class="px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md text-sm transition-colors"
+                >
+                  削除
+                </button>
+              </div>
+            </div>
+
+            <!-- パス追加ボタン -->
+            <button
+              type="button"
+              @click="addImagePath"
+              class="px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm transition-colors"
+            >
+              パスを追加
+            </button>
+          </div>
+
+          <!-- 画像アップロード -->
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-green-700 mb-2">
+              画像をアップロード
+            </label>
+            <input
+              type="file"
+              ref="fileInput"
+              @change="handleFileSelect"
+              accept="image/*"
+              multiple
+              class="block w-full text-sm text-gray-900 border border-gray-300 rounded-md cursor-pointer bg-gray-50 focus:outline-none"
+            />
+            <p class="mt-1 text-xs text-gray-500">
+              画像は data/{{ getCurrentProjectId() }}/ に保存されます
+            </p>
+          </div>
+        </div>
+
         <div class="flex justify-end gap-2 mt-6">
           <button
             type="button"
@@ -135,6 +198,8 @@ import { ref, watch, onUnmounted } from 'vue';
 import { useEditorUIStore } from '../../store/editor_ui_store';
 import { useCurrentTasks } from '../../store/task_store';
 
+import { PROJECT_CONSTANTS } from '@/constants';
+
 const taskStore = useCurrentTasks();
 const uiStore = useEditorUIStore();
 
@@ -144,6 +209,10 @@ const githubRepositoryInput = ref('');
 const githubProjectNumberInput = ref<number | null>(null);
 const versionInput = ref('');
 const assigneeInput = ref('');
+const designImagesInput = ref<string[]>([]);
+
+// ファイル入力参照
+const fileInput = ref<HTMLInputElement | null>(null);
 
 // ドラッグ検出用の状態
 const isDragging = ref(false);
@@ -178,6 +247,7 @@ watch(
       githubProjectNumberInput.value = newInfo.github?.projectNumber || null;
       versionInput.value = newInfo.version || '';
       assigneeInput.value = newInfo.assignee || '';
+      designImagesInput.value = newInfo.addition?.design_images || [];
     }
   },
   { immediate: true },
@@ -185,7 +255,19 @@ watch(
 
 // フォーム送信時の処理
 const handleSubmit = () => {
-  const updatedInfo = {
+  const updatedInfo: {
+    name?: string;
+    version?: string;
+    assignee?: string;
+    github: {
+      organization?: string;
+      repository?: string;
+      projectNumber?: number;
+    };
+    addition?: {
+      design_images: string[];
+    };
+  } = {
     name: nameInput.value || undefined,
     version: versionInput.value || undefined,
     assignee: assigneeInput.value || undefined,
@@ -195,6 +277,13 @@ const handleSubmit = () => {
       projectNumber: githubProjectNumberInput.value || undefined,
     },
   };
+
+  // design_imagesがある場合はadditionに追加
+  if (designImagesInput.value.length > 0) {
+    updatedInfo.addition = {
+      design_images: designImagesInput.value,
+    };
+  }
 
   // 空のgithubオブジェクトは削除
   if (
@@ -212,6 +301,62 @@ const handleSubmit = () => {
 
 const handleCancel = () => {
   uiStore.closeInfoDialog();
+};
+
+// 現在のプロジェクトIDを取得
+const getCurrentProjectId = (): string => {
+  return (
+    localStorage.getItem(PROJECT_CONSTANTS.STORAGE_KEY) ||
+    PROJECT_CONSTANTS.DEFAULT_PROJECT_ID
+  );
+};
+
+// 画像パスを追加
+const addImagePath = () => {
+  designImagesInput.value.push('');
+};
+
+// 画像パスを削除
+const removeImagePath = (index: number) => {
+  designImagesInput.value.splice(index, 1);
+};
+
+// ファイル選択時の処理
+const handleFileSelect = async (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const files = target.files;
+  if (!files || files.length === 0) return;
+
+  const projectId = getCurrentProjectId();
+
+  // 各ファイルをアップロード
+  for (const file of files) {
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('projectId', projectId);
+
+      const response = await fetch('/api/upload-image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // アップロード成功したらパスを追加
+        designImagesInput.value.push(data.filepath);
+      } else {
+        console.error('Failed to upload image:', file.name);
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    }
+  }
+
+  // ファイル入力をリセット
+  if (fileInput.value) {
+    fileInput.value.value = '';
+  }
 };
 
 // オーバーレイでのマウスダウン検出

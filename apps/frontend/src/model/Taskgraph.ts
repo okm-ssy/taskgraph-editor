@@ -45,7 +45,7 @@ export const infoZodSchema = zod
         tech_stack: zod.array(zod.string()).optional(), // 主要技術スタック
         coding_guidelines: zod.string().optional(), // コーディング規約・注意点
         deployment_notes: zod.string().optional(), // デプロイ・環境に関する注意事項
-        design_images: zod.array(designImageZodSchema).optional(), // プロジェクト内の画面設計画像
+        design_images: zod.array(zod.string()).optional(), // プロジェクト内の画面設計画像のパス
       })
       .optional(),
   })
