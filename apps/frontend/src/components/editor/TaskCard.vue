@@ -8,7 +8,7 @@
     <div
       :class="[
         'h-full w-full flex flex-col border-2 rounded-lg transition-all relative',
-        difficultyColorClass,
+        fieldColorClass,
         isDroppable ? 'ring-4 ring-blue-400 scale-105' : '',
         isDraggingSource ? 'opacity-50' : '',
         props.compact ? 'compact-mode' : 'normal-mode',
@@ -41,7 +41,7 @@
       <!-- ドラッグハンドル部分 (カードの上部) -->
       <div
         class="drag-handle py-2 px-3 flex justify-between items-center border-b border-opacity-30 cursor-move relative"
-        :class="difficultyColorClass.replace('bg-', 'bg-opacity-70 bg-')"
+        :class="fieldColorClass.replace('bg-', 'bg-opacity-70 bg-')"
       >
         <div class="flex items-center justify-start overflow-x-hidden">
           <div class="font-bold text-gray-800 truncate text-sm">
@@ -97,14 +97,19 @@
           <!-- カテゴリ/難易度 -->
           <span
             :class="[
-              'bg-white rounded-full px-2 py-1 text-gray-700',
+              'bg-white rounded-full px-2 py-1',
               props.compact ? 'text-[10px]' : 'text-xs',
             ]"
           >
-            {{ task.addition?.category || `難易度: ${task.difficulty}` }}
-            <span v-if="task.addition?.category" class="text-gray-500"
-              >({{ task.difficulty }})</span
-            >
+            <span v-if="task.addition?.category">
+              {{ task.addition.category }}
+              <span :class="['ml-1', difficultyTextColorClass]"
+                >({{ task.difficulty }})</span
+              >
+            </span>
+            <span v-else :class="difficultyTextColorClass">
+              難易度: {{ task.difficulty }}
+            </span>
           </span>
         </div>
       </div>
@@ -131,7 +136,10 @@ import type { Task } from '../../model/Taskgraph';
 import { useDragDropStore } from '../../store/drag_drop_store';
 import { useEditorUIStore } from '../../store/editor_ui_store';
 import { useCurrentTasks } from '../../store/task_store';
-import { difficultyBackgroundClass } from '../../utilities/task';
+import {
+  fieldBackgroundClass,
+  difficultyColorClass,
+} from '../../utilities/task';
 import TaskDetail from '../viewer/TaskDetail.vue';
 
 const props = defineProps<{
@@ -159,9 +167,14 @@ const getEditorTaskById = (id: string) => {
   return taskStore.getTaskById(id);
 };
 
-// 難易度に基づいて背景色を計算
-const difficultyColorClass = computed(() => {
-  return difficultyBackgroundClass(props.task.difficulty);
+// 分野に基づいて背景色を計算
+const fieldColorClass = computed(() => {
+  return fieldBackgroundClass(props.task.addition?.field || '');
+});
+
+// 難易度に基づいて文字色を計算
+const difficultyTextColorClass = computed(() => {
+  return difficultyColorClass(props.task.difficulty);
 });
 
 // タスク削除ハンドラ
