@@ -93,7 +93,7 @@ export const useTaskCategories = () => {
     const exactMatch = categoryMappings.value.find(
       (mapping) => mapping.category.toLowerCase() === category.toLowerCase(),
     );
-    if (exactMatch) return exactMatch.field;
+    if (exactMatch) return mapJapaneseFieldToEnum(exactMatch.field);
 
     // 部分一致を検索
     const partialMatch = categoryMappings.value.find(
@@ -101,13 +101,48 @@ export const useTaskCategories = () => {
         mapping.category.toLowerCase().includes(category.toLowerCase()) ||
         category.toLowerCase().includes(mapping.category.toLowerCase()),
     );
-    if (partialMatch) return partialMatch.field;
+    if (partialMatch) return mapJapaneseFieldToEnum(partialMatch.field);
 
     return null;
   };
 
-  // 固定の分野選択肢
-  const fieldOptions = ref(['フロント', 'バック', 'インフラ', 'その他', '親']);
+  // 固定の分野選択肢 (enum値)
+  const fieldOptions = ref(['front', 'back', 'infra', 'other', 'parent']);
+
+  // 分野の表示名マッピング
+  const fieldDisplayNames = {
+    front: 'フロント',
+    back: 'バック',
+    infra: 'インフラ',
+    other: 'その他',
+    parent: '親',
+  } as const;
+
+  // enum値から表示名を取得
+  const getFieldDisplayName = (fieldValue: string): string => {
+    return (
+      fieldDisplayNames[fieldValue as keyof typeof fieldDisplayNames] ||
+      fieldValue
+    );
+  };
+
+  // 日本語の分野名をenum値にマッピング
+  const mapJapaneseFieldToEnum = (japaneseField: string): string => {
+    switch (japaneseField) {
+      case 'フロント':
+        return 'front';
+      case 'バック':
+        return 'back';
+      case 'インフラ':
+        return 'infra';
+      case 'その他':
+        return 'other';
+      case '親':
+        return 'parent';
+      default:
+        return 'other';
+    }
+  };
 
   // 初期化
   if (!isLoaded.value && !loadError.value) {
@@ -123,6 +158,7 @@ export const useTaskCategories = () => {
     loadCategories,
     getDifficultyByCategory,
     getFieldByCategory,
+    getFieldDisplayName,
     getCategorySuggestions,
   };
 };

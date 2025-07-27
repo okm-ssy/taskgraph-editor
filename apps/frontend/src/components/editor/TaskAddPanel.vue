@@ -102,7 +102,7 @@
           >
             <option value="">分野を選択してください</option>
             <option v-for="field in fieldOptions" :key="field" :value="field">
-              {{ field }}
+              {{ getFieldDisplayName(field) }}
             </option>
           </select>
         </div>
@@ -212,6 +212,7 @@ const taskStore = useCurrentTasks();
 const {
   getDifficultyByCategory,
   getFieldByCategory,
+  getFieldDisplayName,
   allCategories,
   fieldOptions,
   isLoaded,

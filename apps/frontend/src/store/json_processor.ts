@@ -76,7 +76,7 @@ export const useJsonProcessor = () => {
               editorTask.task.addition = {
                 baseDifficulty: 0,
                 category: '',
-                field: '',
+                field: 'other',
               };
             }
             editorTask.task.addition.baseDifficulty = task.difficulty;
@@ -93,7 +93,7 @@ export const useJsonProcessor = () => {
               editorTask.task.addition = {
                 baseDifficulty: 0,
                 category: '',
-                field: '',
+                field: 'other',
               };
             }
             editorTask.task.addition.baseDifficulty =
