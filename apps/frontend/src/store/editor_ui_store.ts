@@ -15,6 +15,9 @@ export const useEditorUIStore = defineStore('editorUI', () => {
   // タスク詳細ダイアログの表示状態
   const isDetailDialogVisible = ref(false);
 
+  // プロジェクト情報ダイアログの表示状態
+  const isInfoDialogVisible = ref(false);
+
   // タスク追加パネルの表示状態
   const showAddPanel = ref(false);
 
@@ -49,6 +52,16 @@ export const useEditorUIStore = defineStore('editorUI', () => {
   // タスク詳細ダイアログを閉じる
   const closeDetailDialog = () => {
     isDetailDialogVisible.value = false;
+  };
+
+  // プロジェクト情報ダイアログを開く
+  const openInfoDialog = () => {
+    isInfoDialogVisible.value = true;
+  };
+
+  // プロジェクト情報ダイアログを閉じる
+  const closeInfoDialog = () => {
+    isInfoDialogVisible.value = false;
   };
 
   // タスク追加パネルの表示を切り替え
@@ -101,6 +114,7 @@ export const useEditorUIStore = defineStore('editorUI', () => {
     // State
     selectedTaskId,
     isDetailDialogVisible,
+    isInfoDialogVisible,
     showAddPanel,
     isSelecting,
     isDragSelecting,
@@ -113,6 +127,8 @@ export const useEditorUIStore = defineStore('editorUI', () => {
     clearSelection,
     openDetailDialog,
     closeDetailDialog,
+    openInfoDialog,
+    closeInfoDialog,
     toggleAddPanel,
     startDragSelection,
     updateDragSelection,

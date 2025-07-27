@@ -169,6 +169,9 @@
 
       <!-- タスク詳細ダイアログ -->
       <TaskDetailDialog />
+
+      <!-- プロジェクト情報ダイアログ -->
+      <InfoEditDialog />
     </div>
 
     <!-- エラー表示 -->
@@ -198,6 +201,7 @@ import { useCurrentTasks } from '../../store/task_store';
 import ErrorDisplay from '../common/ErrorDisplay.vue';
 
 import Curve, { type Connection } from './Curve.vue';
+import InfoEditDialog from './InfoEditDialog.vue';
 import TaskAddButton from './TaskAddButton.vue';
 import TaskAddPanel from './TaskAddPanel.vue';
 import TaskCard from './TaskCard.vue';

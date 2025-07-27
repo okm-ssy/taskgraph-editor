@@ -527,6 +527,12 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     uiStore.openDetailDialog();
   };
 
+  // info更新のアクション
+  const updateInfo = (newInfo: Taskgraph['info']) => {
+    info.value = { ...newInfo };
+    saveDataToSessionStorage();
+  };
+
   const storeResult = {
     // Store State
     editorTasks,
@@ -554,7 +560,8 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     loadSampleData,
     buildGraphData,
     autoLayoutTasks,
-    selectTask, // UIストアに委譲
+    selectTask,
+    updateInfo, // UIストアに委譲
     saveToFile,
     loadFromFile,
     initializeStore,
