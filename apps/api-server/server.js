@@ -243,7 +243,7 @@ app.get('/api/project-images/:projectId', async (req, res) => {
       const taskgraphData = await fs.readFile(taskgraphFile, 'utf-8');
       const taskgraph = JSON.parse(taskgraphData);
       registeredImages = taskgraph.info?.addition?.design_images || [];
-    } catch (error) {
+    } catch {
       // ファイルが存在しない、または読み込みエラーの場合は空配列
       registeredImages = [];
     }
@@ -275,10 +275,15 @@ app.get('/api/project-images/:projectId', async (req, res) => {
         const stats = await fs.stat(fullPath);
         
         // 登録済み画像からIDを検索（パスベース）
-        const registeredImage = registeredImages.find(img => 
-          (typeof img === 'object' && img.path === relativePath) ||
-          (typeof img === 'string' && img === relativePath)
-        );
+        const registeredImage = registeredImages.find(img => {
+          if (typeof img === 'object' && img.path) {
+            return img.path === relativePath;
+          }
+          if (typeof img === 'string') {
+            return img === relativePath;
+          }
+          return false;
+        });
         
         return {
           id: registeredImage?.id || null, // 登録済みの場合はID、そうでなければnull
@@ -287,7 +292,7 @@ app.get('/api/project-images/:projectId', async (req, res) => {
           size: stats.size,
           modified: stats.mtime.toISOString()
         };
-      } catch (error) {
+      } catch {
         // ファイル情報取得に失敗した場合はスキップ
         return null;
       }

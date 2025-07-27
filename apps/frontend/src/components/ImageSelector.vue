@@ -159,7 +159,10 @@ const loadProjectImages = async () => {
     const response = await fetch(`/api/project-images/${projectId}`);
     if (response.ok) {
       const data = await response.json();
-      images.value = data.images;
+      // 登録済み画像（IDを持つもの）のみをフィルタリング
+      images.value = data.images.filter(
+        (image: { id: string | null }) => image.id !== null,
+      );
     } else {
       console.error('Failed to load project images');
       images.value = [];
