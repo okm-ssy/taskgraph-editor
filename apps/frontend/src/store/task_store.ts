@@ -591,6 +591,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     loadFromFile,
     initializeStore,
     stopPolling,
+    getCurrentProjectId,
 
     // JSONProcessor State & Methods
     taskLoadError: jsonProcessor.taskLoadError,

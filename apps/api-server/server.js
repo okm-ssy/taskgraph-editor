@@ -158,27 +158,15 @@ app.post('/api/projects', async (req, res) => {
   }
 });
 
-// 画像アップロード用のmulter設定
+// 画像アップロード用のmulter設定（一時ディレクトリに保存）
 const storage = multer.diskStorage({
-  destination: async (req, file, cb) => {
-    const projectId = req.body.projectId || 'default';
-    const uploadDir = path.join(DATA_DIR, projectId);
-    
-    // プロジェクトディレクトリが存在しない場合は作成
-    try {
-      await fs.access(uploadDir);
-    } catch {
-      await fs.mkdir(uploadDir, { recursive: true });
-    }
-    
-    cb(null, uploadDir);
+  destination: (req, file, cb) => {
+    // 一時的にDATAディレクトリに保存
+    cb(null, DATA_DIR);
   },
   filename: (req, file, cb) => {
-    // ファイル名にタイムスタンプを追加してユニークにする
-    const timestamp = Date.now();
-    const ext = path.extname(file.originalname);
-    const basename = path.basename(file.originalname, ext);
-    cb(null, `${basename}_${timestamp}${ext}`);
+    // 元のファイル名をそのまま使用（temp_プレフィックスのみ追加）
+    cb(null, `temp_${file.originalname}`);
   }
 });
 
@@ -205,16 +193,22 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
     }
 
     const projectId = req.body.projectId || 'default';
-    const relativePath = path.join('data', projectId, req.file.filename);
-    const fullPath = req.file.path;
+    const projectDir = path.join(DATA_DIR, projectId);
+    
+    // プロジェクトディレクトリが存在しない場合は作成
+    try {
+      await fs.access(projectDir);
+    } catch {
+      await fs.mkdir(projectDir, { recursive: true });
+    }
 
-    console.log('Image uploaded:', {
-      originalName: req.file.originalname,
-      filename: req.file.filename,
-      size: req.file.size,
-      path: fullPath,
-      relativePath: relativePath
-    });
+    // 最終的なファイル名を生成（temp_プレフィックスを削除して元のファイル名に戻す）
+    const finalFilename = req.file.originalname;
+    const finalPath = path.join(projectDir, finalFilename);
+    const relativePath = path.join('data', projectId, finalFilename);
+
+    // ファイルを正しい場所に移動
+    await fs.rename(req.file.path, finalPath);
 
     res.json({
       success: true,
@@ -224,7 +218,70 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
     });
   } catch (error) {
     console.error('Failed to upload image:', error);
+    // 一時ファイルがあれば削除
+    if (req.file?.path) {
+      try {
+        await fs.unlink(req.file.path);
+      } catch (unlinkError) {
+        console.error('Failed to cleanup temp file:', unlinkError);
+      }
+    }
     res.status(500).json({ error: '画像のアップロードに失敗しました' });
+  }
+});
+
+// 画像配信エンドポイント
+app.get('/api/images/*', async (req, res) => {
+  try {
+    const imagePath = req.params[0]; // data/projectId/filename.ext or absolute/path/to/file
+    
+    let fullPath;
+    
+    // 絶対パスの場合
+    if (imagePath.startsWith('absolute/')) {
+      const absolutePath = imagePath.replace('absolute', '');
+      fullPath = absolutePath;
+    } else {
+      // 相対パス（プロジェクト内）の場合
+      fullPath = path.join(process.cwd(), '..', '..', imagePath);
+      
+      // セキュリティチェック: dataディレクトリ以外へのアクセスを防ぐ
+      const resolvedPath = path.resolve(fullPath);
+      const dataPath = path.resolve(DATA_DIR);
+      if (!resolvedPath.startsWith(dataPath)) {
+        return res.status(403).json({ error: 'アクセスが拒否されました' });
+      }
+    }
+
+    // ファイルの存在確認
+    await fs.access(fullPath);
+    
+    // 画像のMIMEタイプを設定
+    const ext = path.extname(fullPath).toLowerCase();
+    const mimeTypes = {
+      '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.png': 'image/png',
+      '.gif': 'image/gif',
+      '.webp': 'image/webp',
+      '.bmp': 'image/bmp',
+      '.svg': 'image/svg+xml'
+    };
+    
+    const mimeType = mimeTypes[ext] || 'application/octet-stream';
+    res.setHeader('Content-Type', mimeType);
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    
+    // ファイルをストリームで送信
+    const fileStream = await fs.readFile(fullPath);
+    res.send(fileStream);
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      res.status(404).json({ error: '画像が見つかりません' });
+    } else {
+      console.error('Failed to serve image:', error);
+      res.status(500).json({ error: '画像の配信に失敗しました' });
+    }
   }
 });
 
