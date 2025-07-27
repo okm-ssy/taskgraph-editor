@@ -90,9 +90,9 @@ watch(
 );
 
 // 初期データロード
-onMounted(() => {
+onMounted(async () => {
   if (taskStore.editorTasks.length === 0) {
-    taskStore.loadSampleData();
+    await taskStore.loadSampleData();
   }
 });
 </script>

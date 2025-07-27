@@ -1,5 +1,7 @@
 import { DIFFICULTY } from '../constants';
 
+import { Field } from '@/model/Taskgraph';
+
 export const difficultyColorClass = (difficulty: number) => {
   if (difficulty < DIFFICULTY.COLOR_THRESHOLDS[0]) return 'text-gray-400';
   if (difficulty <= DIFFICULTY.COLOR_THRESHOLDS[1]) return 'text-blue-500';
@@ -39,5 +41,22 @@ export const fieldBackgroundClass = (field: string) => {
       return 'bg-red-100 border-red-400';
     default:
       return 'bg-gray-200 border-gray-400';
+  }
+};
+
+export const stringToField = (field: string): Field => {
+  switch (field) {
+    case 'front':
+      return 'front';
+    case 'back':
+      return 'back';
+    case 'infra':
+      return 'infra';
+    case 'other':
+      return 'other';
+    case 'parent':
+      return 'parent';
+    default:
+      return '';
   }
 };

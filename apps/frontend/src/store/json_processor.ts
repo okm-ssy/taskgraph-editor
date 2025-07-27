@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 
-import sampleTaskgraphData from '../assets/sample.taskgraph.json';
+// import sampleTaskgraphData from '../assets/sample.taskgraph.json';
 import { EditorTask } from '../model/EditorTask';
 import { validateTaskgraph, type Taskgraph } from '../model/Taskgraph';
 
@@ -147,12 +147,17 @@ export const useJsonProcessor = () => {
   };
 
   // サンプルデータをロード
-  const loadSampleData = (
+  const loadSampleData = async (
     updateTasks: (tasks: EditorTask[], info: Taskgraph['info']) => void,
   ) => {
     try {
-      // importしたJSONファイルを直接使用
-      return parseJsonString(JSON.stringify(sampleTaskgraphData), updateTasks);
+      // data/sample.taskgraph.json からサンプルデータを取得
+      const response = await fetch('/api/load-taskgraph?projectId=sample');
+      if (!response.ok) {
+        throw new Error('Failed to load sample data');
+      }
+      const sampleData = await response.text();
+      return parseJsonString(sampleData, updateTasks);
     } catch (error) {
       const errorMessage = `サンプルデータ読み込みエラー: ${(error as Error).message}`;
       taskLoadError.value = errorMessage;

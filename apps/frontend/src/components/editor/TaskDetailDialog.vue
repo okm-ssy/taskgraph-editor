@@ -283,6 +283,8 @@ import { useTaskCategories } from '../../composables/useTaskCategories';
 import { useEditorUIStore } from '../../store/editor_ui_store';
 import { useCurrentTasks } from '../../store/task_store';
 
+import { stringToField } from '@/utilities/task';
+
 const taskStore = useCurrentTasks();
 const uiStore = useEditorUIStore();
 const {
@@ -436,7 +438,7 @@ const handleSubmit = () => {
     addition: {
       baseDifficulty: difficultyInput.value,
       category: categoryInput.value,
-      field: fieldInput.value,
+      field: stringToField(fieldInput.value),
       implementation_notes: implementationNotesInput.value
         ? implementationNotesInput.value.split('\n')
         : undefined,
