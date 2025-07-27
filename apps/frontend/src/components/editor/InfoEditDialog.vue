@@ -166,20 +166,20 @@
           <!-- 既存の画像パスリスト -->
           <div class="space-y-2 mb-3">
             <div
-              v-for="(imagePath, index) in designImagesInput"
-              :key="index"
+              v-for="(imageObj, index) in designImagesInput"
+              :key="imageObj.id"
               class="flex items-center gap-2"
             >
               <!-- 画像プレビュー -->
               <div
                 class="relative w-12 h-12 flex-shrink-0"
-                @mouseenter="showPreview(imagePath, $event)"
+                @mouseenter="showPreview(imageObj.path, $event)"
                 @mouseleave="hidePreview"
               >
                 <img
-                  v-if="imagePath && isValidImagePath(imagePath)"
-                  :src="getImageUrl(imagePath)"
-                  :alt="imagePath"
+                  v-if="imageObj.path && isValidImagePath(imageObj.path)"
+                  :src="getImageUrl(imageObj.path)"
+                  :alt="imageObj.path"
                   class="w-full h-full object-cover rounded border border-gray-300 cursor-pointer"
                   @error="handleImageError"
                 />
@@ -192,7 +192,7 @@
               </div>
 
               <input
-                v-model="designImagesInput[index]"
+                v-model="designImagesInput[index].path"
                 type="text"
                 class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
                 placeholder="画像パスを入力"
@@ -227,8 +227,10 @@
 </template>
 
 <script setup lang="ts">
+import { nanoid } from 'nanoid';
 import { ref, watch, onUnmounted, computed } from 'vue';
 
+import type { ProjectImage } from '../../model/Taskgraph';
 import { useEditorUIStore } from '../../store/editor_ui_store';
 import { useCurrentTasks } from '../../store/task_store';
 
@@ -239,7 +241,7 @@ const nameInput = ref('');
 const githubOrganizationInput = ref('');
 const githubRepositoryInput = ref('');
 const githubProjectNumberInput = ref<number | null>(null);
-const designImagesInput = ref<string[]>([]);
+const designImagesInput = ref<ProjectImage[]>([]);
 const bulkPathInput = ref('');
 
 // ファイル入力参照
@@ -281,7 +283,18 @@ watch(
       githubOrganizationInput.value = newInfo.github?.organization || '';
       githubRepositoryInput.value = newInfo.github?.repository || '';
       githubProjectNumberInput.value = newInfo.github?.projectNumber || null;
-      designImagesInput.value = newInfo.addition?.design_images || [];
+      // 既存データとの互換性を保つため、文字列配列の場合はオブジェクト配列に変換
+      const designImages = newInfo.addition?.design_images || [];
+      if (designImages.length > 0 && typeof designImages[0] === 'string') {
+        // 文字列配列の場合はオブジェクト配列に変換
+        designImagesInput.value = (designImages as string[]).map((path) => ({
+          id: nanoid(),
+          path: path,
+        }));
+      } else {
+        // すでにオブジェクト配列の場合はそのまま使用
+        designImagesInput.value = designImages as ProjectImage[];
+      }
     }
   },
   { immediate: true },
@@ -341,7 +354,10 @@ const getCurrentProjectId = (): string => {
 
 // 画像パスを追加
 const addImagePath = () => {
-  designImagesInput.value.push('');
+  designImagesInput.value.push({
+    id: nanoid(),
+    path: '',
+  });
 };
 
 // 画像パスを削除
@@ -361,8 +377,12 @@ const addBulkPaths = () => {
 
   // 既存のパスリストに追加（重複チェック）
   paths.forEach((path) => {
-    if (!designImagesInput.value.includes(path)) {
-      designImagesInput.value.push(path);
+    const exists = designImagesInput.value.some((img) => img.path === path);
+    if (!exists) {
+      designImagesInput.value.push({
+        id: nanoid(),
+        path: path,
+      });
     }
   });
 
@@ -392,8 +412,11 @@ const handleFileSelect = async (event: Event) => {
 
       if (response.ok) {
         const data = await response.json();
-        // アップロード成功したらパスを追加
-        designImagesInput.value.push(data.filepath);
+        // アップロード成功したらオブジェクトとして追加
+        designImagesInput.value.push({
+          id: nanoid(),
+          path: data.filepath,
+        });
       } else {
         console.error('Failed to upload image:', file.name);
       }

@@ -230,6 +230,79 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
   }
 });
 
+// プロジェクトの画像一覧取得エンドポイント
+app.get('/api/project-images/:projectId', async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const projectDir = path.join(DATA_DIR, projectId);
+    const taskgraphFile = getTaskgraphFilePath(projectId);
+    
+    // プロジェクト情報から登録済み画像のID情報を取得
+    let registeredImages = [];
+    try {
+      const taskgraphData = await fs.readFile(taskgraphFile, 'utf-8');
+      const taskgraph = JSON.parse(taskgraphData);
+      registeredImages = taskgraph.info?.addition?.design_images || [];
+    } catch (error) {
+      // ファイルが存在しない、または読み込みエラーの場合は空配列
+      registeredImages = [];
+    }
+    
+    // プロジェクトディレクトリの存在確認
+    try {
+      await fs.access(projectDir);
+    } catch {
+      // ディレクトリが存在しない場合は登録済み画像のみ返す
+      return res.json({ images: registeredImages });
+    }
+    
+    // ディレクトリ内のファイル一覧を取得
+    const files = await fs.readdir(projectDir);
+    
+    // 画像ファイルのみをフィルタリング
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg'];
+    const imageFiles = files.filter(file => {
+      const ext = path.extname(file).toLowerCase();
+      return imageExtensions.includes(ext);
+    });
+    
+    // ファイル情報を取得してレスポンス用のデータを作成
+    const diskImages = await Promise.all(imageFiles.map(async (filename) => {
+      const fullPath = path.join(projectDir, filename);
+      const relativePath = path.join('data', projectId, filename);
+      
+      try {
+        const stats = await fs.stat(fullPath);
+        
+        // 登録済み画像からIDを検索（パスベース）
+        const registeredImage = registeredImages.find(img => 
+          (typeof img === 'object' && img.path === relativePath) ||
+          (typeof img === 'string' && img === relativePath)
+        );
+        
+        return {
+          id: registeredImage?.id || null, // 登録済みの場合はID、そうでなければnull
+          filename,
+          path: relativePath,
+          size: stats.size,
+          modified: stats.mtime.toISOString()
+        };
+      } catch (error) {
+        // ファイル情報取得に失敗した場合はスキップ
+        return null;
+      }
+    }));
+    
+    // nullを除外
+    const validImages = diskImages.filter(img => img !== null);
+    
+    res.json({ images: validImages });
+  } catch (error) {
+    console.error('Failed to list project images:', error);
+    res.status(500).json({ error: 'プロジェクト画像一覧の取得に失敗しました' });
+  }
+});
+
 // 画像配信エンドポイント
 app.get('/api/images/*', async (req, res) => {
   try {

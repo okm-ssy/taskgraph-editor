@@ -56,8 +56,8 @@ export const useJsonProcessor = () => {
         return false;
       }
 
-      // バリデーション成功時、データを返す
-      const taskgraph = validationResult.data;
+      // バリデーション成功時のデータを使用
+      const taskgraph = parsedData;
 
       // 新しいEditorTaskを作成
       const newEditorTasks: EditorTask[] = [];

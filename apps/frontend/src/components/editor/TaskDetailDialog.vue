@@ -9,11 +9,33 @@
     <div
       class="bg-white rounded-lg shadow-xl w-full max-w-[70vw] max-h-[90dvh] flex flex-col fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
     >
-      <div class="border-b px-6 py-4 flex-shrink-0">
+      <div
+        class="border-b px-6 py-4 flex-shrink-0 flex justify-between items-center"
+      >
         <h3 class="text-lg font-medium">タスク詳細</h3>
+        <div class="flex gap-2">
+          <button
+            type="button"
+            @click="handleCancel"
+            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md transition-colors"
+          >
+            キャンセル
+          </button>
+          <button
+            type="submit"
+            form="task-detail-form"
+            class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors"
+          >
+            保存
+          </button>
+        </div>
       </div>
 
-      <form @submit.prevent="handleSubmit" class="p-6 overflow-y-auto flex-1">
+      <form
+        @submit.prevent="handleSubmit"
+        class="p-6 overflow-y-auto flex-1"
+        id="task-detail-form"
+      >
         <div class="mb-4">
           <label for="name" class="block text-sm font-medium text-gray-700 mb-1"
             >タスク名</label
@@ -233,18 +255,7 @@
           </div>
 
           <div class="mb-4">
-            <label
-              for="design_images"
-              class="block text-sm font-medium text-blue-700 mb-1"
-              >画面設計画像ID</label
-            >
-            <textarea
-              id="design_images"
-              v-model="designImagesInput"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md"
-              rows="2"
-              placeholder="関連する画面設計画像のIDを1行ずつ入力してください"
-            />
+            <ImageSelector v-model="designImagesInput" />
           </div>
         </div>
 
@@ -254,22 +265,6 @@
           class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded"
         >
           {{ errorMessage }}
-        </div>
-
-        <div class="flex justify-end gap-2 mt-6">
-          <button
-            type="button"
-            @click="handleCancel"
-            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md transition-colors"
-          >
-            キャンセル
-          </button>
-          <button
-            type="submit"
-            class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors"
-          >
-            保存
-          </button>
         </div>
       </form>
     </div>
@@ -282,6 +277,7 @@ import { ref, watch, onUnmounted } from 'vue';
 import { useTaskCategories } from '../../composables/useTaskCategories';
 import { useEditorUIStore } from '../../store/editor_ui_store';
 import { useCurrentTasks } from '../../store/task_store';
+import ImageSelector from '../ImageSelector.vue';
 
 import { stringToField } from '@/utilities/task';
 
@@ -305,7 +301,7 @@ const categoryInput = ref('');
 const implementationNotesInput = ref('');
 const dataRequirementsInput = ref('');
 const acceptanceCriteriaInput = ref('');
-const designImagesInput = ref('');
+const designImagesInput = ref<string[]>([]);
 const fieldInput = ref('');
 
 // ドラッグ検出用の状態
@@ -352,8 +348,7 @@ watch(
         newTask.task.addition?.data_requirements || '';
       acceptanceCriteriaInput.value =
         newTask.task.addition?.acceptance_criteria?.join('\n') || '';
-      designImagesInput.value =
-        newTask.task.addition?.design_images?.join('\n') || '';
+      designImagesInput.value = newTask.task.addition?.design_images || [];
       // ダイアログが開かれたときはエラーメッセージをクリア
       errorMessage.value = '';
     }
@@ -446,9 +441,10 @@ const handleSubmit = () => {
       acceptance_criteria: acceptanceCriteriaInput.value
         ? acceptanceCriteriaInput.value.split('\n')
         : undefined,
-      design_images: designImagesInput.value
-        ? designImagesInput.value.split('\n')
-        : undefined,
+      design_images:
+        designImagesInput.value.length > 0
+          ? designImagesInput.value
+          : undefined,
     },
   });
 
@@ -482,7 +478,7 @@ const resetInputs = () => {
       taskStore.selectedTask.task.addition?.acceptance_criteria?.join('\n') ||
       '';
     designImagesInput.value =
-      taskStore.selectedTask.task.addition?.design_images?.join('\n') || '';
+      taskStore.selectedTask.task.addition?.design_images || [];
   }
 };
 
