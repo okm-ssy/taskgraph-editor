@@ -200,7 +200,19 @@ export const useCurrentTasks = defineStore('editorTask', () => {
         Math.round(taskData.addition.baseDifficulty * 1.2 * 10) / 10;
     }
 
-    Object.assign(task.task, taskData);
+    // additionフィールドを適切にマージ
+    if (taskData.addition) {
+      task.task.addition = {
+        ...task.task.addition,
+        ...taskData.addition,
+      };
+      // taskDataからadditionを削除して、二重適用を防ぐ
+      const { addition: _addition, ...restTaskData } = taskData;
+      Object.assign(task.task, restTaskData);
+    } else {
+      Object.assign(task.task, taskData);
+    }
+
     graphLayout.buildGraphData(editorTasks.value);
     saveToFile();
     return true;
@@ -495,8 +507,10 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     const tasksWithLayout = editorTasks.value.map((editorTask) => ({
       ...editorTask.task,
       addition: {
+        ...editorTask.task.addition,
         baseDifficulty: editorTask.task.addition?.baseDifficulty || 0,
         category: editorTask.task.addition?.category || '',
+        field: editorTask.task.addition?.field || '',
         layout: {
           x: editorTask.grid.x,
           y: editorTask.grid.y,
