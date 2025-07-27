@@ -19,58 +19,67 @@
       <div
         v-for="image in images"
         :key="image.path"
-        class="flex flex-col items-center p-2 hover:bg-gray-50 rounded border border-gray-100"
+        class="flex flex-col items-center p-2 hover:bg-gray-50 rounded border cursor-pointer relative"
+        :class="
+          selectedIds.includes(image.id || '')
+            ? 'border-blue-500 bg-blue-50'
+            : 'border-gray-100'
+        "
+        @click="toggleSelection(image.id || '')"
+        @mouseenter="showPreview(image.path, $event)"
+        @mouseleave="hidePreview"
       >
-        <!-- チェックボックス -->
-        <input
-          :id="`image-${image.id || image.path}`"
-          v-model="selectedIds"
-          :value="image.id"
-          :disabled="!image.id"
-          type="checkbox"
-          class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mb-2"
-        />
+        <!-- 選択インジケーター -->
+        <div
+          v-if="selectedIds.includes(image.id || '')"
+          class="absolute top-1 right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center"
+        >
+          <svg
+            class="w-3 h-3 text-white"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
+        </div>
 
         <!-- 画像プレビュー -->
-        <div
-          class="relative w-16 h-16 mb-2"
-          @mouseenter="showPreview(image.path, $event)"
-          @mouseleave="hidePreview"
-        >
+        <div class="relative w-16 h-16 mb-2">
           <img
             :src="getImageUrl(image.path)"
             :alt="image.filename"
-            class="w-full h-full object-cover rounded border border-gray-300 cursor-pointer"
+            class="w-full h-full object-cover rounded border border-gray-300"
             @error="handleImageError"
           />
         </div>
 
         <!-- ファイル名 -->
         <div class="text-center w-full">
-          <label
-            :for="`image-${image.id || image.path}`"
-            class="block text-xs font-medium cursor-pointer truncate"
+          <div
+            class="block text-xs font-medium truncate"
             :class="image.id ? 'text-gray-900' : 'text-gray-400'"
           >
             {{ image.filename }}
             <span v-if="!image.id" class="text-xs text-red-400">(未登録)</span>
-          </label>
+          </div>
+        </div>
+
+        <!-- 画像プレビュー（真下に表示） -->
+        <div
+          v-if="previewImage && currentPreviewPath === image.path"
+          class="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-50 bg-white border border-gray-300 rounded-lg shadow-xl p-2"
+        >
+          <img
+            :src="previewImage"
+            alt="プレビュー"
+            class="max-w-xs max-h-48 object-contain"
+          />
         </div>
       </div>
-    </div>
-
-    <!-- ホバー時の拡大画像表示 -->
-    <div
-      v-if="previewImage"
-      ref="previewTooltip"
-      class="fixed z-[70] pointer-events-none bg-white border border-gray-300 rounded-lg shadow-xl p-2"
-      :style="tooltipStyle"
-    >
-      <img
-        :src="previewImage"
-        alt="プレビュー"
-        class="max-w-xs max-h-48 object-contain"
-      />
     </div>
 
     <!-- 選択された画像の表示 -->
@@ -88,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 
 import { useCurrentTasks } from '../store/task_store';
 
@@ -117,14 +126,7 @@ const selectedIds = ref<string[]>([]);
 
 // プレビュー用の状態
 const previewImage = ref<string | null>(null);
-const previewTooltip = ref<HTMLElement | null>(null);
-const tooltipPosition = ref({ x: 0, y: 0 });
-
-// Computed
-const tooltipStyle = computed(() => ({
-  left: `${tooltipPosition.value.x}px`,
-  top: `${tooltipPosition.value.y}px`,
-}));
+const currentPreviewPath = ref<string | null>(null);
 
 // Watch
 watch(
@@ -210,18 +212,25 @@ const getFilenameFromId = (id: string): string => {
   return image ? image.filename : id;
 };
 
-const showPreview = (imagePath: string, event: MouseEvent) => {
+const showPreview = (imagePath: string, _event: MouseEvent) => {
   previewImage.value = getImageUrl(imagePath);
-
-  const rect = (event.target as HTMLElement).getBoundingClientRect();
-  tooltipPosition.value = {
-    x: rect.right + 10,
-    y: rect.top,
-  };
+  currentPreviewPath.value = imagePath;
 };
 
 const hidePreview = () => {
   previewImage.value = null;
+  currentPreviewPath.value = null;
+};
+
+const toggleSelection = (imageId: string) => {
+  if (!imageId) return;
+
+  const index = selectedIds.value.indexOf(imageId);
+  if (index > -1) {
+    selectedIds.value.splice(index, 1);
+  } else {
+    selectedIds.value.push(imageId);
+  }
 };
 
 const handleImageError = (_event: Event) => {
