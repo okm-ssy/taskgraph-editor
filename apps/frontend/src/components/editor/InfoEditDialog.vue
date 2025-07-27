@@ -79,36 +79,6 @@
           </div>
         </div>
 
-        <div class="mb-4">
-          <label
-            for="version"
-            class="block text-sm font-medium text-gray-700 mb-1"
-            >バージョン</label
-          >
-          <input
-            id="version"
-            v-model="versionInput"
-            type="text"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md"
-            placeholder="1.0.0"
-          />
-        </div>
-
-        <div class="mb-4">
-          <label
-            for="assignee"
-            class="block text-sm font-medium text-gray-700 mb-1"
-            >アサイニー</label
-          >
-          <input
-            id="assignee"
-            v-model="assigneeInput"
-            type="text"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md"
-            placeholder="担当者名"
-          />
-        </div>
-
         <!-- 画像設計セクション -->
         <div class="mb-6 pb-6 border-b border-gray-200">
           <h4 class="text-sm font-semibold text-green-600 mb-4">
@@ -207,8 +177,6 @@ const nameInput = ref('');
 const githubOrganizationInput = ref('');
 const githubRepositoryInput = ref('');
 const githubProjectNumberInput = ref<number | null>(null);
-const versionInput = ref('');
-const assigneeInput = ref('');
 const designImagesInput = ref<string[]>([]);
 
 // ファイル入力参照
@@ -245,8 +213,6 @@ watch(
       githubOrganizationInput.value = newInfo.github?.organization || '';
       githubRepositoryInput.value = newInfo.github?.repository || '';
       githubProjectNumberInput.value = newInfo.github?.projectNumber || null;
-      versionInput.value = newInfo.version || '';
-      assigneeInput.value = newInfo.assignee || '';
       designImagesInput.value = newInfo.addition?.design_images || [];
     }
   },
@@ -257,8 +223,6 @@ watch(
 const handleSubmit = () => {
   const updatedInfo: {
     name?: string;
-    version?: string;
-    assignee?: string;
     github: {
       organization?: string;
       repository?: string;
@@ -269,8 +233,6 @@ const handleSubmit = () => {
     };
   } = {
     name: nameInput.value || undefined,
-    version: versionInput.value || undefined,
-    assignee: assigneeInput.value || undefined,
     github: {
       organization: githubOrganizationInput.value || undefined,
       repository: githubRepositoryInput.value || undefined,
