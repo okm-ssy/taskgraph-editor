@@ -2,14 +2,24 @@
   <div class="json-input-container">
     <!-- JSON入力パネル切り替えボタン -->
     <div class="flex justify-between items-center mb-4">
-      <button
-        @click="taskStore.toggleJsonInputVisibility"
-        class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-      >
-        {{
-          taskStore.jsonInputVisible ? 'JSONパネルを閉じる' : 'JSONパネルを開く'
-        }}
-      </button>
+      <div class="flex gap-2">
+        <button
+          @click="taskStore.toggleJsonInputVisibility"
+          class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+        >
+          {{
+            taskStore.jsonInputVisible
+              ? 'JSONパネルを閉じる'
+              : 'JSONパネルを開く'
+          }}
+        </button>
+        <button
+          @click="uiStore.openInfoDialog"
+          class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition"
+        >
+          プロジェクト情報
+        </button>
+      </div>
     </div>
 
     <!-- JSON入力パネル -->
@@ -38,10 +48,12 @@
 import { ref, watch, onMounted } from 'vue';
 
 import { TIMING } from '../../constants/timing';
+import { useEditorUIStore } from '../../store/editor_ui_store';
 import { useCurrentTasks } from '../../store/task_store';
 
 // ストアからデータと関数を取得
 const taskStore = useCurrentTasks();
+const uiStore = useEditorUIStore();
 const jsonInput = ref('');
 let ignoreNextChange = false;
 let isParsingJson = false;
