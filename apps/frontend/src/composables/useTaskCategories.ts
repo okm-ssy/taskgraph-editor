@@ -3,6 +3,7 @@ import { ref, computed } from 'vue';
 interface CategoryMapping {
   category: string;
   difficulty: number;
+  field: string;
 }
 
 const categoryMappings = ref<CategoryMapping[]>([]);
@@ -24,13 +25,14 @@ export const useTaskCategories = () => {
       const mappings: CategoryMapping[] = [];
       for (const line of lines) {
         if (line.trim()) {
-          const [category, difficultyStr] = line.split('\t');
+          const [category, difficultyStr, field] = line.split('\t');
           const difficulty = parseFloat(difficultyStr?.trim() || '0');
 
           if (category?.trim() && !isNaN(difficulty) && difficulty >= 0) {
             mappings.push({
               category: category.trim(),
               difficulty,
+              field: field?.trim() || '',
             });
           }
         }
@@ -83,6 +85,30 @@ export const useTaskCategories = () => {
     categoryMappings.value.map((mapping) => mapping.category),
   );
 
+  // 分類名から分野を取得
+  const getFieldByCategory = (category: string): string | null => {
+    if (!category.trim()) return null;
+
+    // 完全一致を優先
+    const exactMatch = categoryMappings.value.find(
+      (mapping) => mapping.category.toLowerCase() === category.toLowerCase(),
+    );
+    if (exactMatch) return exactMatch.field;
+
+    // 部分一致を検索
+    const partialMatch = categoryMappings.value.find(
+      (mapping) =>
+        mapping.category.toLowerCase().includes(category.toLowerCase()) ||
+        category.toLowerCase().includes(mapping.category.toLowerCase()),
+    );
+    if (partialMatch) return partialMatch.field;
+
+    return null;
+  };
+
+  // 固定の分野選択肢
+  const fieldOptions = ['フロント', 'バック', 'インフラ', 'その他', '親'];
+
   // 初期化
   if (!isLoaded.value && !loadError.value) {
     loadCategories();
@@ -91,10 +117,12 @@ export const useTaskCategories = () => {
   return {
     categoryMappings: computed(() => categoryMappings.value),
     allCategories,
+    fieldOptions,
     isLoaded: computed(() => isLoaded.value),
     loadError: computed(() => loadError.value),
     loadCategories,
     getDifficultyByCategory,
+    getFieldByCategory,
     getCategorySuggestions,
   };
 };
