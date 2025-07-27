@@ -62,6 +62,7 @@ export const taskZodSchema = zod
     addition: zod
       .object({
         baseDifficulty: zod.number().min(0).default(0), // 入力・編集用（元の値）
+        relations: zod.array(zod.string()).default([]),
         category: zod.string().default(''),
         layout: zod
           .object({
@@ -70,6 +71,7 @@ export const taskZodSchema = zod
           })
           .optional(),
         // 実装支援用の新規フィールド
+        implementation_notes: zod.array(zod.string()).optional(), // 実装時の注意点・参考情報
         data_requirements: zod.string().optional(), // API仕様・エンドポイント情報
         acceptance_criteria: zod.array(zod.string()).optional(), // 受け入れ基準（必須）
         design_images: zod.array(zod.string()).optional(), // 関連する画面設計画像のID

@@ -18,12 +18,14 @@ export const TaskSchema = z.object({
   issueNumber: z.number().optional(),
   addition: z.object({
     baseDifficulty: z.number().default(0),
+    relations: z.array(z.string()).default([]),
     category: z.string().default(''),
     layout: z.object({
       x: z.number(),
       y: z.number(),
     }).optional(),
     // 実装支援用の新規フィールド
+    implementation_notes: z.array(z.string()).optional(),
     data_requirements: z.string().optional(), // API仕様・エンドポイント情報
     acceptance_criteria: z.array(z.string()).optional(),
     design_images: z.array(z.string()).optional(),
@@ -40,7 +42,9 @@ export const TaskInputSchema = z.object({
   issueNumber: z.number().optional(),
   addition: z.object({
     baseDifficulty: z.number().optional(),
+    relations: z.array(z.string()).optional(),
     category: z.string().optional(),
+    implementation_notes: z.array(z.string()).optional(),
     data_requirements: z.string().optional(), // API仕様・エンドポイント情報
     acceptance_criteria: z.array(z.string()).optional(),
     design_images: z.array(z.string()).optional(),
