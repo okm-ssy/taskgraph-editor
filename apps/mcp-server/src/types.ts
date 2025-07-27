@@ -18,7 +18,6 @@ export const TaskSchema = z.object({
   issueNumber: z.number().optional(),
   addition: z.object({
     baseDifficulty: z.number().default(0),
-    relations: z.array(z.string()).default([]),
     category: z.string().default(''),
     layout: z.object({
       x: z.number(),
