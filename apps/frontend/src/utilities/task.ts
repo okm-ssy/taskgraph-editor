@@ -27,15 +27,15 @@ export const difficultyBackgroundClass = (difficulty: number) => {
 
 export const fieldBackgroundClass = (field: string) => {
   switch (field) {
-    case 'バック':
+    case 'back':
       return 'bg-blue-100 border-blue-400';
-    case 'フロント':
+    case 'front':
       return 'bg-green-100 border-green-400';
-    case 'インフラ':
+    case 'infra':
       return 'bg-yellow-100 border-yellow-400';
-    case 'その他':
+    case 'other':
       return 'bg-gray-200 border-gray-400';
-    case '親':
+    case 'parent':
       return 'bg-red-100 border-red-400';
     default:
       return 'bg-gray-200 border-gray-400';

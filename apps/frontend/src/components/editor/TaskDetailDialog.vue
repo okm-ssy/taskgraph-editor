@@ -181,7 +181,7 @@
                   :key="field"
                   :value="field"
                 >
-                  {{ field }}
+                  {{ getFieldDisplayName(field) }}
                 </option>
               </select>
             </div>
@@ -289,6 +289,7 @@ const {
   allCategories,
   getDifficultyByCategory,
   getFieldByCategory,
+  getFieldDisplayName,
   fieldOptions,
   isLoaded,
   loadError,
@@ -342,7 +343,7 @@ watch(
       notesInput.value = newTask.task.notes.join('\n');
       difficultyInput.value = newTask.task.addition?.baseDifficulty || 0;
       categoryInput.value = newTask.task.addition?.category || '';
-      fieldInput.value = newTask.task.addition?.field || '';
+      fieldInput.value = newTask.task.addition?.field || 'other';
       implementationNotesInput.value =
         newTask.task.addition?.implementation_notes?.join('\n') || '';
       dataRequirementsInput.value =
@@ -469,7 +470,7 @@ const resetInputs = () => {
     difficultyInput.value =
       taskStore.selectedTask.task.addition?.baseDifficulty || 0;
     categoryInput.value = taskStore.selectedTask.task.addition?.category || '';
-    fieldInput.value = taskStore.selectedTask.task.addition?.field || '';
+    fieldInput.value = taskStore.selectedTask.task.addition?.field || 'other';
     implementationNotesInput.value =
       taskStore.selectedTask.task.addition?.implementation_notes?.join('\n') ||
       '';

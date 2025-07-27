@@ -30,7 +30,7 @@ export class EditorTask {
       addition: {
         baseDifficulty: 0,
         category: '',
-        field: '',
+        field: 'other',
         layout: {
           x: 0,
           y: 0,
