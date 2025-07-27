@@ -120,6 +120,7 @@
               >
               <div
                 class="px-3 py-2 bg-gray-50 border border-gray-200 rounded text-center text-sm font-medium"
+                :class="getInputColorClass()"
               >
                 {{ Math.round(difficultyInput * 1.2 * 10) / 10 }}
               </div>
@@ -283,7 +284,7 @@ import { useTaskCategories } from '../../composables/useTaskCategories';
 import { useEditorUIStore } from '../../store/editor_ui_store';
 import { useCurrentTasks } from '../../store/task_store';
 
-import { stringToField } from '@/utilities/task';
+import { stringToField, difficultyColorClass } from '@/utilities/task';
 
 const taskStore = useCurrentTasks();
 const uiStore = useEditorUIStore();
@@ -409,18 +410,11 @@ const decreaseDifficulty = () => {
   difficultyInput.value = Math.round(newValue * 10) / 10; // 小数点誤差対策
 };
 
-// 入力値の文字色を推奨難易度との比較で決定
+// 入力値の文字色を難易度に応じて決定
 const getInputColorClass = () => {
-  if (!categoryInput.value) return 'text-black';
-
-  const recommended = getDifficultyByCategory(categoryInput.value);
-  if (recommended === null) return 'text-black';
-
-  const input = difficultyInput.value;
-  if (input === recommended) return 'text-black';
-  if (input < recommended) return 'text-blue-600';
-  if (input > recommended) return 'text-red-600';
-  return 'text-black';
+  // 難易度×1.2の値で色を決定（実際の表示値と同じ）
+  const displayDifficulty = Math.round(difficultyInput.value * 1.2 * 10) / 10;
+  return difficultyColorClass(displayDifficulty);
 };
 
 // フォーム送信時の処理
