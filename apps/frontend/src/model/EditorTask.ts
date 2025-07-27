@@ -29,6 +29,7 @@ export class EditorTask {
       notes: [],
       addition: {
         baseDifficulty: 0,
+        relations: [],
         category: '',
         layout: {
           x: 0,

@@ -75,6 +75,7 @@ export const useJsonProcessor = () => {
             if (!editorTask.task.addition) {
               editorTask.task.addition = {
                 baseDifficulty: 0,
+                relations: [],
                 category: '',
               };
             }
@@ -91,6 +92,7 @@ export const useJsonProcessor = () => {
             if (!editorTask.task.addition) {
               editorTask.task.addition = {
                 baseDifficulty: 0,
+                relations: [],
                 category: '',
               };
             }
