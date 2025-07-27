@@ -9,11 +9,33 @@
     <div
       class="bg-white rounded-lg shadow-xl w-full max-w-[60vw] max-h-[80dvh] flex flex-col fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
     >
-      <div class="border-b px-6 py-4 flex-shrink-0">
+      <div
+        class="border-b px-6 py-4 flex-shrink-0 flex justify-between items-center"
+      >
         <h3 class="text-lg font-medium">プロジェクト情報編集</h3>
+        <div class="flex gap-2">
+          <button
+            type="button"
+            @click="handleCancel"
+            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md transition-colors"
+          >
+            キャンセル
+          </button>
+          <button
+            type="submit"
+            form="info-edit-form"
+            class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors"
+          >
+            保存
+          </button>
+        </div>
       </div>
 
-      <form @submit.prevent="handleSubmit" class="p-6 overflow-y-auto flex-1">
+      <form
+        @submit.prevent="handleSubmit"
+        class="p-6 overflow-y-auto flex-1"
+        id="info-edit-form"
+      >
         <div class="mb-4">
           <label
             for="project-name"
@@ -140,22 +162,6 @@
               画像は data/{{ getCurrentProjectId() }}/ に保存されます
             </p>
           </div>
-        </div>
-
-        <div class="flex justify-end gap-2 mt-6">
-          <button
-            type="button"
-            @click="handleCancel"
-            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md transition-colors"
-          >
-            キャンセル
-          </button>
-          <button
-            type="submit"
-            class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors"
-          >
-            保存
-          </button>
         </div>
       </form>
     </div>
