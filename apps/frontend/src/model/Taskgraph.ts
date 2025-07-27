@@ -51,6 +51,15 @@ export const infoZodSchema = zod
   })
   .strict();
 
+const fieldZodSchema = zod.enum([
+  'front',
+  'back',
+  'infra',
+  'other',
+  'parent',
+  '',
+]);
+
 export const taskZodSchema = zod
   .object({
     depends: dependsSchema,
@@ -63,7 +72,7 @@ export const taskZodSchema = zod
       .object({
         baseDifficulty: zod.number().min(0).default(0), // 入力・編集用（元の値）
         category: zod.string().default(''),
-        field: zod.enum(['front', 'back', 'infra', 'other', 'parent', '']),
+        field: fieldZodSchema.optional(),
         layout: zod
           .object({
             x: zod.number(),
@@ -166,3 +175,4 @@ export const taskgraphZodSchema = zod
 export type DesignImage = zod.infer<typeof designImageZodSchema>;
 export type Task = zod.infer<typeof taskZodSchema>;
 export type Taskgraph = zod.infer<typeof taskgraphZodSchema>;
+export type Field = zod.infer<typeof fieldZodSchema>;
