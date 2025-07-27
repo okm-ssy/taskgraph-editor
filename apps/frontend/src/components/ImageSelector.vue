@@ -45,22 +45,16 @@
           />
         </div>
 
-        <!-- ファイル名とサイズ -->
+        <!-- ファイル名 -->
         <div class="text-center w-full">
           <label
             :for="`image-${image.id || image.path}`"
-            class="block text-xs font-medium cursor-pointer truncate mb-1"
+            class="block text-xs font-medium cursor-pointer truncate"
             :class="image.id ? 'text-gray-900' : 'text-gray-400'"
           >
             {{ image.filename }}
             <span v-if="!image.id" class="text-xs text-red-400">(未登録)</span>
           </label>
-          <p v-if="image.size !== null" class="text-xs text-gray-500">
-            {{ formatFileSize(image.size) }}
-          </p>
-          <p v-if="image.modified !== null" class="text-xs text-gray-400">
-            {{ formatDate(image.modified) }}
-          </p>
         </div>
       </div>
     </div>
@@ -116,8 +110,6 @@ const images = ref<
     id: string | null;
     filename: string;
     path: string;
-    size: number | null;
-    modified: string | null;
   }>
 >([]);
 const loading = ref(false);
@@ -181,8 +173,6 @@ const loadProjectImages = async () => {
               id: objImg.id,
               filename: objImg.path.split('/').pop() || objImg.path,
               path: objImg.path,
-              size: null, // ファイルサイズは不明
-              modified: null, // 更新日時は不明
             };
           } else if (typeof img === 'string') {
             // 旧形式: 文字列パス（フルパス対応）
@@ -190,8 +180,6 @@ const loadProjectImages = async () => {
               id: img, // パス自体をIDとして使用
               filename: img.split('/').pop() || img,
               path: img,
-              size: null,
-              modified: null,
             };
           }
           return null;
@@ -215,24 +203,6 @@ const getImageUrl = (path: string): string => {
     return `/api/images/absolute${path}`;
   }
   return `/api/images/${path}`;
-};
-
-const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 B';
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-};
-
-const formatDate = (dateString: string): string => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('ja-JP', {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
 };
 
 const getFilenameFromId = (id: string): string => {
