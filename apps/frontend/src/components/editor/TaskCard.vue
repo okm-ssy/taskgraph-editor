@@ -131,7 +131,7 @@ import type { Task } from '../../model/Taskgraph';
 import { useDragDropStore } from '../../store/drag_drop_store';
 import { useEditorUIStore } from '../../store/editor_ui_store';
 import { useCurrentTasks } from '../../store/task_store';
-import { difficultyBackgroundClass } from '../../utilities/task';
+import { fieldBackgroundClass } from '../../utilities/task';
 import TaskDetail from '../viewer/TaskDetail.vue';
 
 const props = defineProps<{
@@ -159,9 +159,9 @@ const getEditorTaskById = (id: string) => {
   return taskStore.getTaskById(id);
 };
 
-// 難易度に基づいて背景色を計算
+// 分野に基づいて背景色を計算
 const difficultyColorClass = computed(() => {
-  return difficultyBackgroundClass(props.task.difficulty);
+  return fieldBackgroundClass(props.task.addition?.field || '');
 });
 
 // タスク削除ハンドラ
