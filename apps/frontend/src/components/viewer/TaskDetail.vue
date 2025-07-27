@@ -92,21 +92,6 @@
       <p v-else class="text-gray-400 italic text-xs">なし</p>
     </div>
 
-    <div v-if="validRelations.length > 0">
-      <label class="block text-xs font-medium text-gray-500 mb-0.5"
-        >関連ファイル</label
-      >
-      <ul class="list-disc list-inside ml-3 space-y-0.5">
-        <li
-          v-for="(relation, index) in validRelations"
-          :key="index"
-          class="text-gray-700 text-xs break-words font-mono"
-        >
-          {{ relation }}
-        </li>
-      </ul>
-    </div>
-
     <div v-if="task.task.issueNumber">
       <label class="block text-xs font-medium text-gray-500">Issue 番号:</label>
       <p class="text-gray-800 text-xs">#{{ task.task.issueNumber }}</p>
@@ -142,13 +127,6 @@ const dependingOnTaskNames = computed(() => {
 const validNotes = computed(() => {
   if (!props.task?.task.notes) return [];
   return props.task.task.notes.filter((note) => note && note !== '');
-});
-
-const validRelations = computed(() => {
-  if (!props.task?.task.addition?.relations) return [];
-  return props.task.task.addition.relations.filter(
-    (relation) => relation && relation !== '',
-  );
 });
 </script>
 

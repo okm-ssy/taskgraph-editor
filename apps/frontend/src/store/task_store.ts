@@ -91,7 +91,6 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     if (!newTask.task.addition) {
       newTask.task.addition = {
         baseDifficulty: 0,
-        relations: [],
         category: '',
       };
     }
@@ -137,7 +136,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   ): void => {
     if (gridTask.x !== undefined || gridTask.y !== undefined) {
       if (!task.task.addition) {
-        task.task.addition = { baseDifficulty: 0, relations: [], category: '' };
+        task.task.addition = { baseDifficulty: 0, category: '' };
       }
       if (!task.task.addition.layout) {
         task.task.addition.layout = { x: 0, y: 0 };
@@ -486,7 +485,6 @@ export const useCurrentTasks = defineStore('editorTask', () => {
       ...editorTask.task,
       addition: {
         baseDifficulty: editorTask.task.addition?.baseDifficulty || 0,
-        relations: editorTask.task.addition?.relations || [],
         category: editorTask.task.addition?.category || '',
         layout: {
           x: editorTask.grid.x,
