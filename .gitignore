@@ -36,6 +36,10 @@ yarn-error.log*
 data/*.json
 !data/sample.taskgraph.json
 
+# Uploaded images
+data/*/
+!data/*/.gitkeep
+
 # Test coverage
 coverage/
 .nyc_output/

@@ -112,25 +112,23 @@
               画像パス一覧
             </label>
 
-            <!-- 既存の画像パスリスト -->
-            <div class="space-y-2 mb-3">
-              <div
-                v-for="(imagePath, index) in designImagesInput"
-                :key="index"
-                class="flex items-center gap-2"
-              >
-                <input
-                  v-model="designImagesInput[index]"
-                  type="text"
-                  class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
-                  placeholder="画像パスを入力"
+            <!-- 複数パス一括追加 -->
+            <div class="mb-3">
+              <label class="block text-sm font-medium text-green-700 mb-2">
+                複数パスを一括追加（カンマ・改行区切り）
+              </label>
+              <div class="flex gap-2">
+                <textarea
+                  v-model="bulkPathInput"
+                  class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm resize-y min-h-[80px]"
+                  placeholder="/path/to/image1.png&#10;/path/to/image2.jpg&#10;data/project/image3.png"
                 />
                 <button
                   type="button"
-                  @click="removeImagePath(index)"
-                  class="px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md text-sm transition-colors"
+                  @click="addBulkPaths"
+                  class="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm transition-colors self-start"
                 >
-                  削除
+                  一括追加
                 </button>
               </div>
             </div>
@@ -147,20 +145,80 @@
 
           <!-- 画像アップロード -->
           <div class="mb-4">
-            <label class="block text-sm font-medium text-green-700 mb-2">
-              画像をアップロード
-            </label>
-            <input
-              type="file"
-              ref="fileInput"
-              @change="handleFileSelect"
-              accept="image/*"
-              multiple
-              class="block w-full text-sm text-gray-900 border border-gray-300 rounded-md cursor-pointer bg-gray-50 focus:outline-none"
-            />
-            <p class="mt-1 text-xs text-gray-500">
+            <div class="flex items-center gap-3 mb-2">
+              <label class="text-sm font-medium text-green-700">
+                画像をアップロード
+              </label>
+              <input
+                type="file"
+                ref="fileInput"
+                @change="handleFileSelect"
+                accept="image/*"
+                multiple
+                class="text-sm text-gray-900 border border-gray-300 rounded-md cursor-pointer bg-gray-50 focus:outline-none"
+              />
+            </div>
+            <p class="text-xs text-gray-500">
               画像は data/{{ getCurrentProjectId() }}/ に保存されます
             </p>
+          </div>
+
+          <!-- 既存の画像パスリスト -->
+          <div class="space-y-2 mb-3">
+            <div
+              v-for="(imagePath, index) in designImagesInput"
+              :key="index"
+              class="flex items-center gap-2"
+            >
+              <!-- 画像プレビュー -->
+              <div
+                class="relative w-12 h-12 flex-shrink-0"
+                @mouseenter="showPreview(imagePath, $event)"
+                @mouseleave="hidePreview"
+              >
+                <img
+                  v-if="imagePath && isValidImagePath(imagePath)"
+                  :src="getImageUrl(imagePath)"
+                  :alt="imagePath"
+                  class="w-full h-full object-cover rounded border border-gray-300 cursor-pointer"
+                  @error="handleImageError"
+                />
+                <div
+                  v-else
+                  class="w-full h-full bg-gray-100 border border-gray-300 rounded flex items-center justify-center text-gray-400 text-xs"
+                >
+                  No Image
+                </div>
+              </div>
+
+              <input
+                v-model="designImagesInput[index]"
+                type="text"
+                class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
+                placeholder="画像パスを入力"
+              />
+              <button
+                type="button"
+                @click="removeImagePath(index)"
+                class="px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md text-sm transition-colors"
+              >
+                削除
+              </button>
+            </div>
+          </div>
+
+          <!-- ホバー時の拡大画像表示 -->
+          <div
+            v-if="previewImage"
+            ref="previewTooltip"
+            class="fixed z-[60] pointer-events-none bg-white border border-gray-300 rounded-lg shadow-xl p-2"
+            :style="tooltipStyle"
+          >
+            <img
+              :src="previewImage"
+              alt="プレビュー"
+              class="max-w-xs max-h-48 object-contain"
+            />
           </div>
         </div>
       </form>
@@ -169,12 +227,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onUnmounted } from 'vue';
+import { ref, watch, onUnmounted, computed } from 'vue';
 
 import { useEditorUIStore } from '../../store/editor_ui_store';
 import { useCurrentTasks } from '../../store/task_store';
-
-import { PROJECT_CONSTANTS } from '@/constants';
 
 const taskStore = useCurrentTasks();
 const uiStore = useEditorUIStore();
@@ -184,9 +240,15 @@ const githubOrganizationInput = ref('');
 const githubRepositoryInput = ref('');
 const githubProjectNumberInput = ref<number | null>(null);
 const designImagesInput = ref<string[]>([]);
+const bulkPathInput = ref('');
 
 // ファイル入力参照
 const fileInput = ref<HTMLInputElement | null>(null);
+
+// 画像プレビュー用の状態
+const previewImage = ref<string | null>(null);
+const previewTooltip = ref<HTMLElement | null>(null);
+const tooltipPosition = ref({ x: 0, y: 0 });
 
 // ドラッグ検出用の状態
 const isDragging = ref(false);
@@ -273,10 +335,8 @@ const handleCancel = () => {
 
 // 現在のプロジェクトIDを取得
 const getCurrentProjectId = (): string => {
-  return (
-    localStorage.getItem(PROJECT_CONSTANTS.STORAGE_KEY) ||
-    PROJECT_CONSTANTS.DEFAULT_PROJECT_ID
-  );
+  // taskStoreから直接取得
+  return taskStore.getCurrentProjectId();
 };
 
 // 画像パスを追加
@@ -287,6 +347,27 @@ const addImagePath = () => {
 // 画像パスを削除
 const removeImagePath = (index: number) => {
   designImagesInput.value.splice(index, 1);
+};
+
+// 複数パスを一括追加
+const addBulkPaths = () => {
+  if (!bulkPathInput.value.trim()) return;
+
+  // 改行とカンマの両方で分割して各パスをトリム
+  const paths = bulkPathInput.value
+    .split(/[,\n]/) // カンマまたは改行で分割
+    .map((path) => path.trim())
+    .filter((path) => path.length > 0);
+
+  // 既存のパスリストに追加（重複チェック）
+  paths.forEach((path) => {
+    if (!designImagesInput.value.includes(path)) {
+      designImagesInput.value.push(path);
+    }
+  });
+
+  // 入力フィールドをクリア
+  bulkPathInput.value = '';
 };
 
 // ファイル選択時の処理
@@ -374,6 +455,63 @@ const handleOverlayClick = (event: MouseEvent) => {
   if (event.target === event.currentTarget) {
     handleCancel();
   }
+};
+
+// ツールチップスタイルの計算
+const tooltipStyle = computed(() => ({
+  left: `${tooltipPosition.value.x}px`,
+  top: `${tooltipPosition.value.y}px`,
+}));
+
+// 画像パスの妥当性チェック
+const isValidImagePath = (path: string): boolean => {
+  if (!path) return false;
+  const imageExtensions = [
+    '.jpg',
+    '.jpeg',
+    '.png',
+    '.gif',
+    '.webp',
+    '.bmp',
+    '.svg',
+  ];
+  return imageExtensions.some((ext) => path.toLowerCase().endsWith(ext));
+};
+
+// 画像URLの取得
+const getImageUrl = (path: string): string => {
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    return path;
+  }
+  // 絶対パス（/から始まる）の場合は直接そのパスを使用
+  if (path.startsWith('/')) {
+    return `/api/images/absolute${path}`;
+  }
+  return `/api/images/${path}`;
+};
+
+// プレビュー表示
+const showPreview = (imagePath: string, event: MouseEvent) => {
+  if (!isValidImagePath(imagePath)) return;
+
+  previewImage.value = getImageUrl(imagePath);
+
+  // マウス位置を基にツールチップの位置を計算
+  const rect = (event.target as HTMLElement).getBoundingClientRect();
+  tooltipPosition.value = {
+    x: rect.right + 10,
+    y: rect.top,
+  };
+};
+
+// プレビュー非表示
+const hidePreview = () => {
+  previewImage.value = null;
+};
+
+// 画像エラーハンドリング
+const handleImageError = (_event: Event) => {
+  // 画像読み込みエラーは静かに処理
 };
 </script>
 
