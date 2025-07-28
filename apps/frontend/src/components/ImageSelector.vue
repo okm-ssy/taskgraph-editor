@@ -185,20 +185,21 @@ const loadProjectImages = async () => {
       expectedImageCount.value = designImages.length;
 
       // 登録済み画像を画像リストに変換
-      images.value = designImages
-        .map((img: unknown) => {
+      type DesignImageItem = { id: string; path: string } | string;
+
+      images.value = (designImages as DesignImageItem[])
+        .map((img) => {
           if (
             typeof img === 'object' &&
             img !== null &&
             'id' in img &&
             'path' in img
           ) {
-            const objImg = img as { id: string; path: string };
             // 新形式: {id, path}
             return {
-              id: objImg.id,
-              filename: objImg.path.split('/').pop() || objImg.path,
-              path: objImg.path,
+              id: img.id,
+              filename: img.path.split('/').pop() || img.path,
+              path: img.path,
             };
           } else if (typeof img === 'string') {
             // 旧形式: 文字列パス（フルパス対応）
