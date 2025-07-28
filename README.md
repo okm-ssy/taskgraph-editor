@@ -131,7 +131,7 @@ tg mcp-build
 タスクカテゴリーと難易度の対応は `apps/frontend/public/task-categories.tsv` で管理されています。
 このファイルはタブ区切り形式で、各行に「カテゴリー名」と「基準難易度」を記載します。
 
-```
+```tsv
 親タスク	0.00
 ruby - API 追加	3.00
 vue - UI 変更	1.00
