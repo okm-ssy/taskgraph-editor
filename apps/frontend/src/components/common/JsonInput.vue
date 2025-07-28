@@ -76,7 +76,7 @@ watch(jsonInput, () => {
 
 // ストアの状態が変更されたらtextareaの内容を更新する
 watch(
-  () => taskStore.editorTasks,
+  [() => taskStore.editorTasks, () => taskStore.info],
   () => {
     // JSONパース中は自動エクスポートを無効にする
     if (isParsingJson) {
