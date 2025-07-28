@@ -74,7 +74,7 @@
             id="notes"
             v-model="notesInput"
             class="w-full px-3 py-2 border border-gray-300 rounded-md"
-            rows="5"
+:rows="notesRows"
             placeholder="詳細な説明やメモを入力してください"
           />
         </div>
@@ -151,8 +151,7 @@
 
         <!-- Additional Fields Section -->
         <div class="mb-6 pb-6 border-b border-gray-200">
-          <h4 class="text-sm font-semibold text-blue-600 mb-4">追加情報</h4>
-
+          <hr /></hr>
           <div class="mb-4 grid grid-cols-2 gap-4">
             <div>
               <label
@@ -219,7 +218,7 @@
               id="implementation_notes"
               v-model="implementationNotesInput"
               class="w-full px-3 py-2 border border-gray-300 rounded-md"
-              rows="3"
+              :rows="implementationNotesRows"
               placeholder="○○を参考にする、ファイルを分割する、Pinia を利用する"
             />
           </div>
@@ -234,7 +233,7 @@
               id="api_schemas"
               v-model="apiSchemasInput"
               class="w-full px-3 py-2 border border-gray-300 rounded-md"
-              rows="2"
+:rows="apiSchemasRows"
               placeholder="使用するエンドポイントやOpenAPI定義への参照を1行ずつ入力してください"
             />
           </div>
@@ -249,7 +248,7 @@
               id="requirements"
               v-model="requirementsInput"
               class="w-full px-3 py-2 border border-gray-300 rounded-md"
-              rows="3"
+:rows="requirementsRows"
               placeholder="満たすべき要件やテストケースを1行ずつ入力してください"
             />
           </div>
@@ -272,7 +271,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onUnmounted } from 'vue';
+import { ref, watch, onUnmounted, computed } from 'vue';
 
 import { useTaskCategories } from '../../composables/useTaskCategories';
 import { useEditorUIStore } from '../../store/editor_ui_store';
@@ -311,6 +310,35 @@ const mouseDownOnOverlay = ref(false);
 
 // エラーメッセージ表示用の状態
 const errorMessage = ref('');
+
+// textareaの行数を動的に計算
+const notesRows = computed(() => {
+  const content = notesInput.value;
+  if (!content) return 5; // デフォルト行数
+  const lineCount = content.split('\n').length;
+  return Math.max(5, lineCount); // 最低5行、内容に応じて増加
+});
+
+const implementationNotesRows = computed(() => {
+  const content = implementationNotesInput.value;
+  if (!content) return 3; // デフォルト行数
+  const lineCount = content.split('\n').length;
+  return Math.max(3, lineCount); // 最低3行、内容に応じて増加
+});
+
+const apiSchemasRows = computed(() => {
+  const content = apiSchemasInput.value;
+  if (!content) return 2; // デフォルト行数
+  const lineCount = content.split('\n').length;
+  return Math.max(2, lineCount); // 最低2行、内容に応じて増加
+});
+
+const requirementsRows = computed(() => {
+  const content = requirementsInput.value;
+  if (!content) return 3; // デフォルト行数
+  const lineCount = content.split('\n').length;
+  return Math.max(3, lineCount); // 最低3行、内容に応じて増加
+});
 
 // ダイアログが開いている間、背景のスクロールを防ぐ
 watch(

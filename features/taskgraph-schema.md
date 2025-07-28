@@ -95,7 +95,7 @@ info: {
   version?: string,
   assignee?: string,
   github?: {...},
-  
+
   // プロジェクトレベルの実装支援フィールド
   addition?: {
     project_overview?: string,      // プロジェクト概要・目的
