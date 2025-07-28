@@ -21,7 +21,7 @@
 
     <div
       v-else
-      class="grid grid-cols-3 gap-3 overflow-y-auto border border-gray-300 rounded-md p-3"
+      class="grid grid-cols-3 gap-3 overflow-y-auto overflow-x-visible border border-gray-300 rounded-md p-3 relative"
       :class="getGridHeightClass()"
     >
       <div
@@ -34,7 +34,7 @@
             : 'border-gray-100'
         "
         @click="toggleSelection(image.id || '')"
-        @mouseenter="showPreview(image.path, $event)"
+        @mouseenter="(e) => showPreview(image.path, e)"
         @mouseleave="hidePreview"
       >
         <!-- 選択インジケーター -->
@@ -81,7 +81,8 @@
         <!-- 画像プレビュー（真下に表示） -->
         <div
           v-if="previewImage && currentPreviewPath === image.path"
-          class="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-50 bg-white border border-gray-300 rounded-lg shadow-xl p-2"
+          class="fixed z-[9999] bg-white border border-gray-300 rounded-lg shadow-xl p-2"
+          :style="getPreviewStyle()"
         >
           <img
             :src="previewImage"
@@ -138,6 +139,7 @@ const expectedImageCount = ref(4); // デフォルトで2行分（4つ）の高�
 // プレビュー用の状態
 const previewImage = ref<string | null>(null);
 const currentPreviewPath = ref<string | null>(null);
+const previewPosition = ref({ x: 0, y: 0 });
 
 // Watch
 watch(
@@ -231,9 +233,17 @@ const getFilenameFromId = (id: string): string => {
   return image ? image.filename : id;
 };
 
-const showPreview = (imagePath: string, _event: MouseEvent) => {
+const showPreview = (imagePath: string, event: MouseEvent) => {
   previewImage.value = getImageUrl(imagePath);
   currentPreviewPath.value = imagePath;
+
+  // マウス位置を取得
+  const target = event.currentTarget as HTMLElement;
+  const rect = target.getBoundingClientRect();
+  previewPosition.value = {
+    x: rect.left + rect.width / 2,
+    y: rect.top - 10,
+  };
 };
 
 const hidePreview = () => {
@@ -270,6 +280,15 @@ const getGridHeightClassForCount = (count: number): string => {
     // 2行分の高さ（約252px）
     return 'h-[252px]';
   }
+};
+
+// プレビューのスタイルを計算
+const getPreviewStyle = () => {
+  return {
+    left: `${previewPosition.value.x}px`,
+    top: `${previewPosition.value.y}px`,
+    transform: 'translate(-50%, -100%)',
+  };
 };
 
 // Lifecycle
