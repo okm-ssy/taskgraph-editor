@@ -35,7 +35,7 @@ function formatError(error: unknown): string {
     }
     
     if (message.includes('Unknown tool')) {
-      return `${message}. Available: taskgraph_list_projects, taskgraph_get_taskgraph, taskgraph_get_task, taskgraph_create_task, taskgraph_update_task, taskgraph_delete_task, taskgraph_update_notes, taskgraph_update_implementation_notes, taskgraph_update_data_requirements, taskgraph_update_acceptance_criteria, taskgraph_get_schema`;
+      return `${message}. Available: taskgraph_list_projects, taskgraph_get_taskgraph, taskgraph_get_task, taskgraph_create_task, taskgraph_update_task, taskgraph_delete_task, taskgraph_update_notes, taskgraph_update_implementation_notes, taskgraph_update_api_schema, taskgraph_update_requirements, taskgraph_get_schema`;
     }
     
     return `Error: ${message}`;
@@ -48,15 +48,15 @@ function formatError(error: unknown): string {
 function getTaskSchemaHelp(): string {
   return `Task schema:
 Required: name (string), description (string)
-Optional: difficulty (number=0), baseDifficulty (number=0), depends (string[]), notes (string[]), issueNumber (number), category (string=""), implementation_notes (string[]), data_requirements (string), acceptance_criteria (string[]), design_images (string[])
+Optional: difficulty (number=0), baseDifficulty (number=0), depends (string[]), notes (string[]), issueNumber (number), category (string=""), implementation_notes (string[]), api_schema (string), requirements (string[]), design_images (string[])
 
 Field descriptions:
 - implementation_notes: Implementation guidelines, library requirements, performance constraints, security considerations
-- data_requirements: API specifications, OpenAPI definitions, endpoint references
-- acceptance_criteria: Requirements and test cases that must be satisfied
+- api_schema: API specifications, OpenAPI definitions, endpoint references
+- requirements: Requirements and test cases that must be satisfied
 - design_images: IDs of related UI design images
 
-Example: {"name": "task-1", "description": "My task", "difficulty": 2.5, "depends": ["task-0"], "addition": {"implementation_notes": ["Use React hooks", "Performance: < 100ms"], "data_requirements": "GET /api/users/{id}", "acceptance_criteria": ["Feature works as expected", "Tests pass"]}}`;
+Example: {"name": "task-1", "description": "My task", "difficulty": 2.5, "depends": ["task-0"], "addition": {"implementation_notes": ["Use React hooks", "Performance: < 100ms"], "api_schema": "GET /api/users/{id}", "requirements": ["Feature works as expected", "Tests pass"]}}`;
 }
 
 // MCPサーバーの作成
@@ -113,16 +113,16 @@ const UpdateImplementationNotesSchema = z.object({
   implementation_notes: z.array(z.string()),
 });
 
-const UpdateDataRequirementsSchema = z.object({
+const UpdateApiSchemaSchema = z.object({
   projectId: z.string(),
   name: z.string(),
-  data_requirements: z.string(),
+  api_schema: z.string(),
 });
 
-const UpdateAcceptanceCriteriaSchema = z.object({
+const UpdateRequirementsSchema = z.object({
   projectId: z.string(),
   name: z.string(),
-  acceptance_criteria: z.array(z.string()),
+  requirements: z.array(z.string()),
 });
 
 // ツール一覧の定義
@@ -182,8 +182,8 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
                   category: { type: 'string', description: 'Category (optional, default: "")' },
                   field: { type: 'string', enum: ['front', 'back', 'infra', 'other', 'parent', ''], description: 'Field (optional)' },
                   implementation_notes: { type: 'array', items: { type: 'string' }, description: 'Implementation guidelines and technical constraints (optional)' },
-                  data_requirements: { type: 'string', description: 'API specifications and endpoints (optional)' },
-                  acceptance_criteria: { type: 'array', items: { type: 'string' }, description: 'Requirements and test cases (optional)' },
+                  api_schema: { type: 'string', description: 'API specifications and endpoints (optional)' },
+                  requirements: { type: 'array', items: { type: 'string' }, description: 'Requirements and test cases (optional)' },
                   design_images: { type: 'array', items: { type: 'string' }, description: 'Design image IDs (optional)' },
                 },
               },
@@ -218,8 +218,8 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
                   category: { type: 'string', description: 'New category (optional)' },
                   field: { type: 'string', enum: ['front', 'back', 'infra', 'other', 'parent', ''], description: 'New field (optional)' },
                   implementation_notes: { type: 'array', items: { type: 'string' }, description: 'New implementation guidelines and technical constraints (optional)' },
-                  data_requirements: { type: 'string', description: 'New API specifications and endpoints (optional)' },
-                  acceptance_criteria: { type: 'array', items: { type: 'string' }, description: 'New requirements and test cases (optional)' },
+                  api_schema: { type: 'string', description: 'New API specifications and endpoints (optional)' },
+                  requirements: { type: 'array', items: { type: 'string' }, description: 'New requirements and test cases (optional)' },
                   design_images: { type: 'array', items: { type: 'string' }, description: 'New design image IDs (optional)' },
                 },
               },
@@ -268,29 +268,29 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
       },
     },
     {
-      name: 'taskgraph_update_data_requirements',
-      description: 'Update task data requirements (API specifications)',
+      name: 'taskgraph_update_api_schema',
+      description: 'Update task API schema (API specifications)',
       inputSchema: {
         type: 'object',
         properties: {
           projectId: { type: 'string', description: 'Project ID' },
           name: { type: 'string', description: 'Task name' },
-          data_requirements: { type: 'string', description: 'New data requirements' },
+          api_schema: { type: 'string', description: 'New API schema' },
         },
-        required: ['projectId', 'name', 'data_requirements'],
+        required: ['projectId', 'name', 'api_schema'],
       },
     },
     {
-      name: 'taskgraph_update_acceptance_criteria',
-      description: 'Update task acceptance criteria',
+      name: 'taskgraph_update_requirements',
+      description: 'Update task requirements',
       inputSchema: {
         type: 'object',
         properties: {
           projectId: { type: 'string', description: 'Project ID' },
           name: { type: 'string', description: 'Task name' },
-          acceptance_criteria: { type: 'array', items: { type: 'string' }, description: 'New acceptance criteria array' },
+          requirements: { type: 'array', items: { type: 'string' }, description: 'New requirements array' },
         },
-        required: ['projectId', 'name', 'acceptance_criteria'],
+        required: ['projectId', 'name', 'requirements'],
       },
     },
     {
@@ -440,31 +440,31 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       }
 
-      case 'taskgraph_update_data_requirements': {
-        const { projectId, name: taskName, data_requirements } = UpdateDataRequirementsSchema.parse(args);
+      case 'taskgraph_update_api_schema': {
+        const { projectId, name: taskName, api_schema } = UpdateApiSchemaSchema.parse(args);
         await storage.updateTask(projectId, taskName, { 
-          addition: { data_requirements } 
+          addition: { api_schema } 
         });
         return {
           content: [
             {
               type: 'text',
-              text: `Data requirements updated for task "${taskName}" in project "${projectId}"`,
+              text: `API schema updated for task "${taskName}" in project "${projectId}"`,
             },
           ],
         };
       }
 
-      case 'taskgraph_update_acceptance_criteria': {
-        const { projectId, name: taskName, acceptance_criteria } = UpdateAcceptanceCriteriaSchema.parse(args);
+      case 'taskgraph_update_requirements': {
+        const { projectId, name: taskName, requirements } = UpdateRequirementsSchema.parse(args);
         await storage.updateTask(projectId, taskName, { 
-          addition: { acceptance_criteria } 
+          addition: { requirements } 
         });
         return {
           content: [
             {
               type: 'text',
-              text: `Acceptance criteria updated for task "${taskName}" in project "${projectId}"`,
+              text: `Requirements updated for task "${taskName}" in project "${projectId}"`,
             },
           ],
         };

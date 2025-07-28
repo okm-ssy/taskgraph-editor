@@ -226,13 +226,13 @@
 
           <div class="mb-4">
             <label
-              for="data_requirements"
+              for="api_schema"
               class="block text-sm font-medium text-blue-700 mb-1"
               >API仕様・エンドポイント</label
             >
             <textarea
-              id="data_requirements"
-              v-model="dataRequirementsInput"
+              id="api_schema"
+              v-model="apiSchemaInput"
               class="w-full px-3 py-2 border border-gray-300 rounded-md"
               rows="2"
               placeholder="使用するエンドポイントやOpenAPI定義への参照を1行ずつ入力してください"
@@ -241,13 +241,13 @@
 
           <div class="mb-4">
             <label
-              for="acceptance_criteria"
+              for="requirements"
               class="block text-sm font-medium text-blue-700 mb-1"
               >要件・テストケース</label
             >
             <textarea
-              id="acceptance_criteria"
-              v-model="acceptanceCriteriaInput"
+              id="requirements"
+              v-model="requirementsInput"
               class="w-full px-3 py-2 border border-gray-300 rounded-md"
               rows="3"
               placeholder="満たすべき要件やテストケースを1行ずつ入力してください"
@@ -299,8 +299,8 @@ const notesInput = ref('');
 const difficultyInput = ref(0);
 const categoryInput = ref('');
 const implementationNotesInput = ref('');
-const dataRequirementsInput = ref('');
-const acceptanceCriteriaInput = ref('');
+const apiSchemaInput = ref('');
+const requirementsInput = ref('');
 const designImagesInput = ref<string[]>([]);
 const fieldInput = ref('');
 
@@ -345,10 +345,9 @@ watch(
       fieldInput.value = newTask.task.addition?.field || '';
       implementationNotesInput.value =
         newTask.task.addition?.implementation_notes?.join('\n') || '';
-      dataRequirementsInput.value =
-        newTask.task.addition?.data_requirements || '';
-      acceptanceCriteriaInput.value =
-        newTask.task.addition?.acceptance_criteria?.join('\n') || '';
+      apiSchemaInput.value = newTask.task.addition?.api_schema || '';
+      requirementsInput.value =
+        newTask.task.addition?.requirements?.join('\n') || '';
       designImagesInput.value = newTask.task.addition?.design_images || [];
       // ダイアログが開かれたときはエラーメッセージをクリア
       errorMessage.value = '';
@@ -367,8 +366,8 @@ watch(
     categoryInput,
     fieldInput,
     implementationNotesInput,
-    dataRequirementsInput,
-    acceptanceCriteriaInput,
+    apiSchemaInput,
+    requirementsInput,
     designImagesInput,
   ],
   () => {
@@ -439,9 +438,9 @@ const handleSubmit = () => {
       implementation_notes: implementationNotesInput.value
         ? implementationNotesInput.value.split('\n')
         : undefined,
-      data_requirements: dataRequirementsInput.value || undefined,
-      acceptance_criteria: acceptanceCriteriaInput.value
-        ? acceptanceCriteriaInput.value.split('\n')
+      api_schema: apiSchemaInput.value || undefined,
+      requirements: requirementsInput.value
+        ? requirementsInput.value.split('\n')
         : undefined,
       design_images:
         designImagesInput.value.length > 0
@@ -474,11 +473,10 @@ const resetInputs = () => {
     implementationNotesInput.value =
       taskStore.selectedTask.task.addition?.implementation_notes?.join('\n') ||
       '';
-    dataRequirementsInput.value =
-      taskStore.selectedTask.task.addition?.data_requirements || '';
-    acceptanceCriteriaInput.value =
-      taskStore.selectedTask.task.addition?.acceptance_criteria?.join('\n') ||
-      '';
+    apiSchemaInput.value =
+      taskStore.selectedTask.task.addition?.api_schema || '';
+    requirementsInput.value =
+      taskStore.selectedTask.task.addition?.requirements?.join('\n') || '';
     designImagesInput.value =
       taskStore.selectedTask.task.addition?.design_images || [];
   }
