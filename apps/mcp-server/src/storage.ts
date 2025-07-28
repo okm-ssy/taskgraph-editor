@@ -101,7 +101,21 @@ export class TaskgraphStorage {
       if (taskIndex === -1) {
         throw new Error(`Task ${taskName} not found`);
       }
-      taskgraph.tasks[taskIndex] = { ...taskgraph.tasks[taskIndex], ...taskData };
+      
+      // 既存のタスクを取得
+      const existingTask = taskgraph.tasks[taskIndex];
+      
+      // additionフィールドを深くマージ
+      const updatedTask = {
+        ...existingTask,
+        ...taskData,
+        addition: {
+          ...existingTask.addition,
+          ...(taskData.addition || {})
+        }
+      };
+      
+      taskgraph.tasks[taskIndex] = updatedTask;
       return taskgraph;
     }, projectId);
   }

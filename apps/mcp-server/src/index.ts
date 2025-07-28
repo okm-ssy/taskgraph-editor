@@ -155,6 +155,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
                 properties: {
                   baseDifficulty: { type: 'number', description: 'Base difficulty (optional, default: 0)' },
                   category: { type: 'string', description: 'Category (optional, default: "")' },
+                  field: { type: 'string', enum: ['front', 'back', 'infra', 'other', 'parent', ''], description: 'Field (optional)' },
                   implementation_notes: { type: 'array', items: { type: 'string' }, description: 'Implementation guidelines and technical constraints (optional)' },
                   data_requirements: { type: 'string', description: 'API specifications and endpoints (optional)' },
                   acceptance_criteria: { type: 'array', items: { type: 'string' }, description: 'Requirements and test cases (optional)' },
@@ -190,6 +191,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
                 properties: {
                   baseDifficulty: { type: 'number', description: 'New base difficulty (optional)' },
                   category: { type: 'string', description: 'New category (optional)' },
+                  field: { type: 'string', enum: ['front', 'back', 'infra', 'other', 'parent', ''], description: 'New field (optional)' },
                   implementation_notes: { type: 'array', items: { type: 'string' }, description: 'New implementation guidelines and technical constraints (optional)' },
                   data_requirements: { type: 'string', description: 'New API specifications and endpoints (optional)' },
                   acceptance_criteria: { type: 'array', items: { type: 'string' }, description: 'New requirements and test cases (optional)' },
