@@ -158,7 +158,10 @@ watch(
 watch(
   selectedIds,
   (newValue) => {
-    emit('update:modelValue', [...newValue]);
+    // 配列の内容が実際に変わった場合のみemitする
+    if (JSON.stringify(newValue) !== JSON.stringify(props.modelValue)) {
+      emit('update:modelValue', [...newValue]);
+    }
   },
   { deep: true },
 );
