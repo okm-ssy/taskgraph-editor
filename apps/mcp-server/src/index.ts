@@ -35,7 +35,7 @@ function formatError(error: unknown): string {
     }
     
     if (message.includes('Unknown tool')) {
-      return `${message}. Available: taskgraph_list_projects, taskgraph_get_taskgraph, taskgraph_get_task, taskgraph_create_task, taskgraph_update_task, taskgraph_delete_task`;
+      return `${message}. Available: taskgraph_list_projects, taskgraph_get_taskgraph, taskgraph_get_task, taskgraph_create_task, taskgraph_update_task, taskgraph_delete_task, taskgraph_update_notes, taskgraph_update_implementation_notes, taskgraph_update_data_requirements, taskgraph_update_acceptance_criteria, taskgraph_get_schema`;
     }
     
     return `Error: ${message}`;
@@ -98,6 +98,31 @@ const GetTaskSchema = z.object({
 const DeleteTaskSchema = z.object({
   projectId: z.string(),
   name: z.string(),
+});
+
+// 個別フィールド更新用のスキーマ
+const UpdateNotesSchema = z.object({
+  projectId: z.string(),
+  name: z.string(),
+  notes: z.array(z.string()),
+});
+
+const UpdateImplementationNotesSchema = z.object({
+  projectId: z.string(),
+  name: z.string(),
+  implementation_notes: z.array(z.string()),
+});
+
+const UpdateDataRequirementsSchema = z.object({
+  projectId: z.string(),
+  name: z.string(),
+  data_requirements: z.string(),
+});
+
+const UpdateAcceptanceCriteriaSchema = z.object({
+  projectId: z.string(),
+  name: z.string(),
+  acceptance_criteria: z.array(z.string()),
 });
 
 // ツール一覧の定義
@@ -217,6 +242,58 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
       },
     },
     {
+      name: 'taskgraph_update_notes',
+      description: 'Update task notes',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          projectId: { type: 'string', description: 'Project ID' },
+          name: { type: 'string', description: 'Task name' },
+          notes: { type: 'array', items: { type: 'string' }, description: 'New notes array' },
+        },
+        required: ['projectId', 'name', 'notes'],
+      },
+    },
+    {
+      name: 'taskgraph_update_implementation_notes',
+      description: 'Update task implementation notes',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          projectId: { type: 'string', description: 'Project ID' },
+          name: { type: 'string', description: 'Task name' },
+          implementation_notes: { type: 'array', items: { type: 'string' }, description: 'New implementation notes array' },
+        },
+        required: ['projectId', 'name', 'implementation_notes'],
+      },
+    },
+    {
+      name: 'taskgraph_update_data_requirements',
+      description: 'Update task data requirements (API specifications)',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          projectId: { type: 'string', description: 'Project ID' },
+          name: { type: 'string', description: 'Task name' },
+          data_requirements: { type: 'string', description: 'New data requirements' },
+        },
+        required: ['projectId', 'name', 'data_requirements'],
+      },
+    },
+    {
+      name: 'taskgraph_update_acceptance_criteria',
+      description: 'Update task acceptance criteria',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          projectId: { type: 'string', description: 'Project ID' },
+          name: { type: 'string', description: 'Task name' },
+          acceptance_criteria: { type: 'array', items: { type: 'string' }, description: 'New acceptance criteria array' },
+        },
+        required: ['projectId', 'name', 'acceptance_criteria'],
+      },
+    },
+    {
       name: 'taskgraph_get_schema',
       description: 'Get the task schema and usage help',
       inputSchema: {
@@ -330,6 +407,64 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             {
               type: 'text',
               text: `Task "${taskName}" deleted successfully from project "${projectId}"`,
+            },
+          ],
+        };
+      }
+
+      case 'taskgraph_update_notes': {
+        const { projectId, name: taskName, notes } = UpdateNotesSchema.parse(args);
+        await storage.updateTask(projectId, taskName, { notes });
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Notes updated for task "${taskName}" in project "${projectId}"`,
+            },
+          ],
+        };
+      }
+
+      case 'taskgraph_update_implementation_notes': {
+        const { projectId, name: taskName, implementation_notes } = UpdateImplementationNotesSchema.parse(args);
+        await storage.updateTask(projectId, taskName, { 
+          addition: { implementation_notes } 
+        });
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Implementation notes updated for task "${taskName}" in project "${projectId}"`,
+            },
+          ],
+        };
+      }
+
+      case 'taskgraph_update_data_requirements': {
+        const { projectId, name: taskName, data_requirements } = UpdateDataRequirementsSchema.parse(args);
+        await storage.updateTask(projectId, taskName, { 
+          addition: { data_requirements } 
+        });
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Data requirements updated for task "${taskName}" in project "${projectId}"`,
+            },
+          ],
+        };
+      }
+
+      case 'taskgraph_update_acceptance_criteria': {
+        const { projectId, name: taskName, acceptance_criteria } = UpdateAcceptanceCriteriaSchema.parse(args);
+        await storage.updateTask(projectId, taskName, { 
+          addition: { acceptance_criteria } 
+        });
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Acceptance criteria updated for task "${taskName}" in project "${projectId}"`,
             },
           ],
         };
