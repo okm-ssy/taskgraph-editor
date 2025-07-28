@@ -35,7 +35,7 @@ function formatError(error: unknown): string {
     }
     
     if (message.includes('Unknown tool')) {
-      return `${message}. Available: taskgraph_list_projects, taskgraph_get_taskgraph, taskgraph_get_task, taskgraph_create_task, taskgraph_update_task, taskgraph_delete_task, taskgraph_update_notes, taskgraph_update_implementation_notes, taskgraph_update_api_schema, taskgraph_update_requirements, taskgraph_get_schema`;
+      return `${message}. Available: taskgraph_list_projects, taskgraph_get_taskgraph, taskgraph_get_task, taskgraph_create_task, taskgraph_update_task, taskgraph_delete_task, taskgraph_update_notes, taskgraph_update_implementation_notes, taskgraph_update_api_schemas, taskgraph_update_requirements, taskgraph_get_schema`;
     }
     
     return `Error: ${message}`;
@@ -48,15 +48,15 @@ function formatError(error: unknown): string {
 function getTaskSchemaHelp(): string {
   return `Task schema:
 Required: name (string), description (string)
-Optional: difficulty (number=0), baseDifficulty (number=0), depends (string[]), notes (string[]), issueNumber (number), category (string=""), implementation_notes (string[]), api_schema (string), requirements (string[]), design_images (string[])
+Optional: difficulty (number=0), baseDifficulty (number=0), depends (string[]), notes (string[]), issueNumber (number), category (string=""), implementation_notes (string[]), api_schemas (string[]), requirements (string[]), design_images (string[])
 
 Field descriptions:
 - implementation_notes: Implementation guidelines, library requirements, performance constraints, security considerations
-- api_schema: API specifications, OpenAPI definitions, endpoint references
+- api_schemas: API specifications, OpenAPI definitions, endpoint references
 - requirements: Requirements and test cases that must be satisfied
 - design_images: IDs of related UI design images
 
-Example: {"name": "task-1", "description": "My task", "difficulty": 2.5, "depends": ["task-0"], "addition": {"implementation_notes": ["Use React hooks", "Performance: < 100ms"], "api_schema": "GET /api/users/{id}", "requirements": ["Feature works as expected", "Tests pass"]}}`;
+Example: {"name": "task-1", "description": "My task", "difficulty": 2.5, "depends": ["task-0"], "addition": {"implementation_notes": ["Use React hooks", "Performance: < 100ms"], "api_schemas": ["GET /api/users/{id}"], "requirements": ["Feature works as expected", "Tests pass"]}}`;
 }
 
 // MCPサーバーの作成
@@ -113,10 +113,10 @@ const UpdateImplementationNotesSchema = z.object({
   implementation_notes: z.array(z.string()),
 });
 
-const UpdateApiSchemaSchema = z.object({
+const UpdateApiSchemasSchema = z.object({
   projectId: z.string(),
   name: z.string(),
-  api_schema: z.string(),
+  api_schemas: z.array(z.string()),
 });
 
 const UpdateRequirementsSchema = z.object({
@@ -182,7 +182,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
                   category: { type: 'string', description: 'Category (optional, default: "")' },
                   field: { type: 'string', enum: ['front', 'back', 'infra', 'other', 'parent', ''], description: 'Field (optional)' },
                   implementation_notes: { type: 'array', items: { type: 'string' }, description: 'Implementation guidelines and technical constraints (optional)' },
-                  api_schema: { type: 'string', description: 'API specifications and endpoints (optional)' },
+                  api_schemas: { type: 'array', items: { type: 'string' }, description: 'API specifications and endpoints (optional)' },
                   requirements: { type: 'array', items: { type: 'string' }, description: 'Requirements and test cases (optional)' },
                   design_images: { type: 'array', items: { type: 'string' }, description: 'Design image IDs (optional)' },
                 },
@@ -218,7 +218,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
                   category: { type: 'string', description: 'New category (optional)' },
                   field: { type: 'string', enum: ['front', 'back', 'infra', 'other', 'parent', ''], description: 'New field (optional)' },
                   implementation_notes: { type: 'array', items: { type: 'string' }, description: 'New implementation guidelines and technical constraints (optional)' },
-                  api_schema: { type: 'string', description: 'New API specifications and endpoints (optional)' },
+                  api_schemas: { type: 'array', items: { type: 'string' }, description: 'New API specifications and endpoints (optional)' },
                   requirements: { type: 'array', items: { type: 'string' }, description: 'New requirements and test cases (optional)' },
                   design_images: { type: 'array', items: { type: 'string' }, description: 'New design image IDs (optional)' },
                 },
@@ -268,16 +268,16 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
       },
     },
     {
-      name: 'taskgraph_update_api_schema',
-      description: 'Update task API schema (API specifications)',
+      name: 'taskgraph_update_api_schemas',
+      description: 'Update task API schemas (API specifications)',
       inputSchema: {
         type: 'object',
         properties: {
           projectId: { type: 'string', description: 'Project ID' },
           name: { type: 'string', description: 'Task name' },
-          api_schema: { type: 'string', description: 'New API schema' },
+          api_schemas: { type: 'array', items: { type: 'string' }, description: 'New API schemas array' },
         },
-        required: ['projectId', 'name', 'api_schema'],
+        required: ['projectId', 'name', 'api_schemas'],
       },
     },
     {
@@ -440,16 +440,16 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       }
 
-      case 'taskgraph_update_api_schema': {
-        const { projectId, name: taskName, api_schema } = UpdateApiSchemaSchema.parse(args);
+      case 'taskgraph_update_api_schemas': {
+        const { projectId, name: taskName, api_schemas } = UpdateApiSchemasSchema.parse(args);
         await storage.updateTask(projectId, taskName, { 
-          addition: { api_schema } 
+          addition: { api_schemas } 
         });
         return {
           content: [
             {
               type: 'text',
-              text: `API schema updated for task "${taskName}" in project "${projectId}"`,
+              text: `API schemas updated for task "${taskName}" in project "${projectId}"`,
             },
           ],
         };

@@ -226,13 +226,13 @@
 
           <div class="mb-4">
             <label
-              for="api_schema"
+              for="api_schemas"
               class="block text-sm font-medium text-blue-700 mb-1"
               >API仕様・エンドポイント</label
             >
             <textarea
-              id="api_schema"
-              v-model="apiSchemaInput"
+              id="api_schemas"
+              v-model="apiSchemasInput"
               class="w-full px-3 py-2 border border-gray-300 rounded-md"
               rows="2"
               placeholder="使用するエンドポイントやOpenAPI定義への参照を1行ずつ入力してください"
@@ -299,7 +299,7 @@ const notesInput = ref('');
 const difficultyInput = ref(0);
 const categoryInput = ref('');
 const implementationNotesInput = ref('');
-const apiSchemaInput = ref('');
+const apiSchemasInput = ref('');
 const requirementsInput = ref('');
 const designImagesInput = ref<string[]>([]);
 const fieldInput = ref('');
@@ -345,7 +345,8 @@ watch(
       fieldInput.value = newTask.task.addition?.field || '';
       implementationNotesInput.value =
         newTask.task.addition?.implementation_notes?.join('\n') || '';
-      apiSchemaInput.value = newTask.task.addition?.api_schema || '';
+      apiSchemasInput.value =
+        newTask.task.addition?.api_schemas?.join('\n') || '';
       requirementsInput.value =
         newTask.task.addition?.requirements?.join('\n') || '';
       designImagesInput.value = newTask.task.addition?.design_images || [];
@@ -366,7 +367,7 @@ watch(
     categoryInput,
     fieldInput,
     implementationNotesInput,
-    apiSchemaInput,
+    apiSchemasInput,
     requirementsInput,
     designImagesInput,
   ],
@@ -438,7 +439,9 @@ const handleSubmit = () => {
       implementation_notes: implementationNotesInput.value
         ? implementationNotesInput.value.split('\n')
         : undefined,
-      api_schema: apiSchemaInput.value || undefined,
+      api_schemas: apiSchemasInput.value
+        ? apiSchemasInput.value.split('\n')
+        : undefined,
       requirements: requirementsInput.value
         ? requirementsInput.value.split('\n')
         : undefined,
@@ -473,8 +476,8 @@ const resetInputs = () => {
     implementationNotesInput.value =
       taskStore.selectedTask.task.addition?.implementation_notes?.join('\n') ||
       '';
-    apiSchemaInput.value =
-      taskStore.selectedTask.task.addition?.api_schema || '';
+    apiSchemasInput.value =
+      taskStore.selectedTask.task.addition?.api_schemas?.join('\n') || '';
     requirementsInput.value =
       taskStore.selectedTask.task.addition?.requirements?.join('\n') || '';
     designImagesInput.value =

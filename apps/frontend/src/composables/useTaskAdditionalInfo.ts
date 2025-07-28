@@ -8,8 +8,10 @@ export const useTaskAdditionalInfo = () => {
       task.addition.implementation_notes.some((note) => note.trim() !== '')
     );
 
-    const hasApiSchema = !!(
-      task.addition?.api_schema && task.addition.api_schema.trim() !== ''
+    const hasApiSchemas = !!(
+      task.addition?.api_schemas &&
+      task.addition.api_schemas.length > 0 &&
+      task.addition.api_schemas.some((schema) => schema.trim() !== '')
     );
 
     const hasRequirements = !!(
@@ -24,12 +26,12 @@ export const useTaskAdditionalInfo = () => {
 
     return {
       hasImplementationNotes,
-      hasApiSchema,
+      hasApiSchemas,
       hasRequirements,
       hasDesignImages,
       filledCount: [
         hasImplementationNotes,
-        hasApiSchema,
+        hasApiSchemas,
         hasRequirements,
         hasDesignImages,
       ].filter(Boolean).length,
@@ -43,7 +45,7 @@ export const useTaskAdditionalInfo = () => {
     if (info.hasImplementationNotes) signals.push('o');
     else signals.push('-');
 
-    if (info.hasApiSchema) signals.push('o');
+    if (info.hasApiSchemas) signals.push('o');
     else signals.push('-');
 
     if (info.hasRequirements) signals.push('o');
