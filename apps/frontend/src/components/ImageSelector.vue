@@ -14,7 +14,8 @@
 
     <div
       v-else
-      class="grid grid-cols-3 gap-3 max-h-64 overflow-y-auto border border-gray-300 rounded-md p-3"
+      class="grid grid-cols-3 gap-3 overflow-y-auto border border-gray-300 rounded-md p-3"
+      :class="getGridHeightClass()"
     >
       <div
         v-for="image in images"
@@ -48,11 +49,13 @@
         </div>
 
         <!-- 画像プレビュー -->
-        <div class="relative w-16 h-16 mb-2">
+        <div
+          class="relative w-16 h-16 mb-2 bg-gray-100 rounded border border-gray-300 overflow-hidden"
+        >
           <img
             :src="getImageUrl(image.path)"
             :alt="image.filename"
-            class="w-full h-full object-cover rounded border border-gray-300"
+            class="w-full h-full object-cover"
             @error="handleImageError"
           />
         </div>
@@ -235,6 +238,18 @@ const toggleSelection = (imageId: string) => {
 
 const handleImageError = (_event: Event) => {
   // 画像読み込みエラーは静かに処理
+};
+
+// 画像グリッドの高さクラスを計算
+const getGridHeightClass = (): string => {
+  const imageCount = images.value.length;
+  if (imageCount <= 3) {
+    // 1行分の高さ（約120px）
+    return 'h-[120px]';
+  } else {
+    // 2行分の高さ（約252px）
+    return 'h-[252px]';
+  }
 };
 
 // Lifecycle
