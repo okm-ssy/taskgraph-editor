@@ -78,21 +78,26 @@
         </p>
 
         <div class="mt-auto flex justify-between items-center">
-          <!-- GitHub Issue リンク -->
-          <a
-            v-if="hasGitHubInfo"
-            :href="issueUrl"
-            target="_blank"
-            rel="noopener noreferrer"
-            @click.stop
-            :class="[
-              'text-blue-600 hover:text-blue-800 font-medium underline',
-              props.compact ? 'text-[10px]' : 'text-xs',
-            ]"
-          >
-            #{{ task.issueNumber }}
-          </a>
-          <div v-else />
+          <!-- 左側: Issue リンクと情報シグナル -->
+          <div class="flex items-center gap-2">
+            <!-- GitHub Issue リンク -->
+            <a
+              v-if="hasGitHubInfo"
+              :href="issueUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              @click.stop
+              :class="[
+                'text-blue-600 hover:text-blue-800 font-medium underline',
+                props.compact ? 'text-[10px]' : 'text-xs',
+              ]"
+            >
+              #{{ task.issueNumber }}
+            </a>
+
+            <!-- 追加情報シグナル -->
+            <TaskInfoSignal :task="task" :compact="props.compact" />
+          </div>
 
           <!-- カテゴリ/難易度 -->
           <span
@@ -141,6 +146,7 @@ import {
   fieldBackgroundClass,
   difficultyColorClass,
 } from '../../utilities/task';
+import TaskInfoSignal from '../TaskInfoSignal.vue';
 import TaskDetail from '../viewer/TaskDetail.vue';
 
 const props = defineProps<{
