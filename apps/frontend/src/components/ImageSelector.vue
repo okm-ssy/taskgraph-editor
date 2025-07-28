@@ -4,8 +4,15 @@
       画面設計画像選択
     </label>
 
-    <div v-if="loading" class="text-sm text-gray-500 mb-2">
-      画像一覧を読み込み中...
+    <!-- ローディング中も高さを確保 -->
+    <div
+      v-if="loading"
+      class="border border-gray-300 rounded-md p-3"
+      :class="getGridHeightClassForCount(expectedImageCount)"
+    >
+      <div class="text-sm text-gray-500 text-center py-10">
+        画像一覧を読み込み中...
+      </div>
     </div>
 
     <div v-else-if="images.length === 0" class="text-sm text-gray-500 mb-2">
@@ -124,8 +131,9 @@ const images = ref<
     path: string;
   }>
 >([]);
-const loading = ref(false);
+const loading = ref(true); // 初期値をtrueに変更
 const selectedIds = ref<string[]>([]);
+const expectedImageCount = ref(0); // 期待される画像数
 
 // プレビュー用の状態
 const previewImage = ref<string | null>(null);
@@ -162,6 +170,9 @@ const loadProjectImages = async () => {
       const taskgraphData = await taskgraphResponse.text();
       const taskgraph = JSON.parse(taskgraphData);
       const designImages = taskgraph.info?.addition?.design_images || [];
+
+      // 期待される画像数を設定
+      expectedImageCount.value = designImages.length;
 
       // 登録済み画像を画像リストに変換
       images.value = designImages
@@ -242,8 +253,12 @@ const handleImageError = (_event: Event) => {
 
 // 画像グリッドの高さクラスを計算
 const getGridHeightClass = (): string => {
-  const imageCount = images.value.length;
-  if (imageCount <= 3) {
+  return getGridHeightClassForCount(images.value.length);
+};
+
+// 画像数から高さクラスを計算
+const getGridHeightClassForCount = (count: number): string => {
+  if (count <= 3) {
     // 1行分の高さ（約120px）
     return 'h-[120px]';
   } else {
@@ -252,9 +267,30 @@ const getGridHeightClass = (): string => {
   }
 };
 
+// 予想される画像数を事前に設定
+const initExpectedImageCount = async () => {
+  try {
+    const projectId = taskStore.getCurrentProjectId();
+    const taskgraphResponse = await fetch(
+      `/api/load-taskgraph?projectId=${projectId}`,
+    );
+    if (taskgraphResponse.ok) {
+      const taskgraphData = await taskgraphResponse.text();
+      const taskgraph = JSON.parse(taskgraphData);
+      const designImages = taskgraph.info?.addition?.design_images || [];
+      expectedImageCount.value = designImages.length;
+    }
+  } catch (error) {
+    console.error('Error loading expected image count:', error);
+  }
+};
+
 // Lifecycle
 onMounted(() => {
-  loadProjectImages();
+  // 期待される画像数を先に設定してから画像を読み込む
+  initExpectedImageCount().then(() => {
+    loadProjectImages();
+  });
 });
 </script>
 
