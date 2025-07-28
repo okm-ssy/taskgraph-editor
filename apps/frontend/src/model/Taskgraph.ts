@@ -87,7 +87,7 @@ export const taskZodSchema = zod
           .optional(),
         // 実装支援用の新規フィールド
         implementation_notes: zod.array(zod.string()).optional(), // 実装時の注意点・参考情報
-        api_schema: zod.string().optional(), // API仕様・エンドポイント情報
+        api_schemas: zod.array(zod.string()).optional(), // API仕様・エンドポイント情報
         requirements: zod.array(zod.string()).optional(), // 受け入れ基準（必須）
         design_images: zod.array(zod.string()).optional(), // 関連する画面設計画像のID
       })
