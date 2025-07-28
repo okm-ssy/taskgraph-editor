@@ -4,15 +4,20 @@
       画面設計画像選択
     </label>
 
-    <!-- ローディング中も高さを確保 -->
+    <!-- ローディング中も高さを確保（画像がある場合のみ） -->
     <div
-      v-if="loading"
+      v-if="loading && expectedImageCount > 0"
       class="border border-gray-300 rounded-md p-3"
       :class="getGridHeightClassForCount(expectedImageCount)"
     >
       <div class="text-sm text-gray-500 text-center py-10">
         画像一覧を読み込み中...
       </div>
+    </div>
+
+    <!-- ローディング中で画像がない場合 -->
+    <div v-else-if="loading" class="text-sm text-gray-500 mb-2">
+      画像一覧を読み込み中...
     </div>
 
     <div v-else-if="images.length === 0" class="text-sm text-gray-500 mb-2">
@@ -134,7 +139,7 @@ const images = ref<
 >([]);
 const loading = ref(true); // 初期値をtrueに変更
 const selectedIds = ref<string[]>([]);
-const expectedImageCount = ref(4); // デフォルトで2行分（4つ）の高さを確保
+const expectedImageCount = ref(0); // 初期値は0
 
 // プレビュー用の状態
 const previewImage = ref<string | null>(null);
@@ -149,7 +154,7 @@ watch(
     // modelValueが変更されたタイミングで画像数を推定
     if (newValue && newValue.length > 0 && expectedImageCount.value === 0) {
       // 既に選択されている画像がある場合、少なくともその数以上の画像があるはず
-      expectedImageCount.value = Math.max(newValue.length, 4); // 最低でも4つ（2行分）確保
+      expectedImageCount.value = newValue.length;
     }
   },
   { immediate: true },
@@ -297,11 +302,6 @@ const getPreviewStyle = () => {
 
 // Lifecycle
 onMounted(async () => {
-  // 初期値として最低限の高さ（2行分）を確保
-  if (expectedImageCount.value === 0) {
-    expectedImageCount.value = 4; // デフォルトで2行分の高さを確保
-  }
-
   // 画像を読み込む
   await loadProjectImages();
 });
