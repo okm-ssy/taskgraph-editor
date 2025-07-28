@@ -285,16 +285,7 @@ watch(
       githubProjectNumberInput.value = newInfo.github?.projectNumber || null;
       // 既存データとの互換性を保つため、文字列配列の場合はオブジェクト配列に変換
       const designImages = newInfo.addition?.design_images || [];
-      if (designImages.length > 0 && typeof designImages[0] === 'string') {
-        // 文字列配列の場合はオブジェクト配列に変換
-        designImagesInput.value = (designImages as string[]).map((path) => ({
-          id: nanoid(),
-          path: path,
-        }));
-      } else {
-        // すでにオブジェクト配列の場合はそのまま使用
-        designImagesInput.value = designImages as ProjectImage[];
-      }
+      designImagesInput.value = designImages as ProjectImage[];
     }
   },
   { immediate: true },
@@ -310,7 +301,7 @@ const handleSubmit = () => {
       projectNumber?: number;
     };
     addition?: {
-      design_images: string[];
+      design_images: ProjectImage[];
     };
   } = {
     name: nameInput.value || undefined,
