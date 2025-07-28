@@ -76,9 +76,9 @@ addition: {
   relations: string[],
 
   // MCP専用の実装支援フィールド
-  acceptance_criteria?: string[],    // 受け入れ条件
+  requirements?: string[],           // 受け入れ条件
   ui_requirements?: string,          // UI要件
-  data_requirements?: string,        // データ要件
+  api_schemas?: string[],            // API仕様・エンドポイント情報
   implementation_notes?: string[],   // 実装メモ
   design_images?: string[]          // デザイン画像URL
 }
@@ -151,15 +151,15 @@ interface DesignImage {
 1. **タスク実装前に必ずaddition情報を確認**
 2. **プロジェクトのaddition情報で全体方針を把握**
 3. **画面設計画像がある場合は必ず参照し、正確な実装を実行**
-4. **acceptance_criteriaを満たすまで実装完了と判断しない**
+4. **requirementsを満たすまで実装完了と判断しない**
 
 ### フィールドの活用方法
 
 **タスクレベル (task.addition):**
 - `implementation_notes`: 実装前に必読、技術選択の参考に
 - `ui_requirements`: UI実装仕様として厳密に従う
-- `data_requirements`: API設計・データ処理の要件として実装
-- `acceptance_criteria`: 実装完了の判定基準（最優先）
+- `api_schemas`: API設計・データ処理の要件として実装
+- `requirements`: 実装完了の判定基準（最優先）
 - `design_images`: 指定画像IDの画面設計を参照
 
 **プロジェクトレベル (info.addition):**
@@ -193,7 +193,7 @@ interface DesignImage {
         "baseDifficulty": 3,
         "category": "デザイン",
         "relations": ["design/mockup.fig"],
-        "acceptance_criteria": [
+        "requirements": [
           "レスポンシブ対応",
           "ダークモード対応"
         ],
