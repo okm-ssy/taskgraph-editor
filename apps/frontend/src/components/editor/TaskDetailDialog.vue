@@ -307,6 +307,7 @@ const fieldInput = ref('');
 // ドラッグ検出用の状態
 const isDragging = ref(false);
 const dragStartedInDialog = ref(false);
+const mouseDownOnOverlay = ref(false);
 
 // エラーメッセージ表示用の状態
 const errorMessage = ref('');
@@ -509,8 +510,11 @@ const handleOverlayMouseDown = (event: MouseEvent) => {
   );
   if (dialogContent && dialogContent.contains(event.target as Node)) {
     dragStartedInDialog.value = true;
+    mouseDownOnOverlay.value = false;
   } else {
     dragStartedInDialog.value = false;
+    // オーバーレイ（背景）でマウスダウンされた場合のみフラグを立てる
+    mouseDownOnOverlay.value = event.target === event.currentTarget;
   }
   isDragging.value = false;
 
@@ -541,10 +545,13 @@ const handleOverlayClick = (event: MouseEvent) => {
     return;
   }
 
-  // ダイアログの背景部分がクリックされた場合のみ閉じる
-  if (event.target === event.currentTarget) {
+  // オーバーレイでマウスダウンが開始され、かつオーバーレイでクリックされた場合のみ閉じる
+  if (mouseDownOnOverlay.value && event.target === event.currentTarget) {
     handleCancel();
   }
+
+  // 処理後はフラグをリセット
+  mouseDownOnOverlay.value = false;
 };
 
 // ダイアログが閉じられた時の処理
