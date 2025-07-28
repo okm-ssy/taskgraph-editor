@@ -375,6 +375,7 @@ watch(
       errorMessage.value = '';
     }
   },
+  { flush: 'post' }, // DOMの更新後に実行
 );
 
 // カテゴリが変更された時の処理
