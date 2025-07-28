@@ -8,17 +8,14 @@ export const useTaskAdditionalInfo = () => {
       task.addition.implementation_notes.some((note) => note.trim() !== '')
     );
 
-    const hasDataRequirements = !!(
-      task.addition?.data_requirements &&
-      task.addition.data_requirements.trim() !== ''
+    const hasApiSchema = !!(
+      task.addition?.api_schema && task.addition.api_schema.trim() !== ''
     );
 
-    const hasAcceptanceCriteria = !!(
-      task.addition?.acceptance_criteria &&
-      task.addition.acceptance_criteria.length > 0 &&
-      task.addition.acceptance_criteria.some(
-        (criteria) => criteria.trim() !== '',
-      )
+    const hasRequirements = !!(
+      task.addition?.requirements &&
+      task.addition.requirements.length > 0 &&
+      task.addition.requirements.some((criteria) => criteria.trim() !== '')
     );
 
     const hasDesignImages = !!(
@@ -27,13 +24,13 @@ export const useTaskAdditionalInfo = () => {
 
     return {
       hasImplementationNotes,
-      hasDataRequirements,
-      hasAcceptanceCriteria,
+      hasApiSchema,
+      hasRequirements,
       hasDesignImages,
       filledCount: [
         hasImplementationNotes,
-        hasDataRequirements,
-        hasAcceptanceCriteria,
+        hasApiSchema,
+        hasRequirements,
         hasDesignImages,
       ].filter(Boolean).length,
     };
@@ -46,10 +43,10 @@ export const useTaskAdditionalInfo = () => {
     if (info.hasImplementationNotes) signals.push('o');
     else signals.push('-');
 
-    if (info.hasDataRequirements) signals.push('o');
+    if (info.hasApiSchema) signals.push('o');
     else signals.push('-');
 
-    if (info.hasAcceptanceCriteria) signals.push('o');
+    if (info.hasRequirements) signals.push('o');
     else signals.push('-');
 
     if (info.hasDesignImages) signals.push('o');
