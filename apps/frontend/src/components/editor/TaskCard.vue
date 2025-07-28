@@ -166,7 +166,7 @@ const dropdownOptions = {
     show: TIMING.TOOLTIP.SHOW_DELAY_MS,
     hide: TIMING.TOOLTIP.HIDE_DELAY_MS,
   },
-  placement: 'auto',
+  placement: 'left',
 };
 
 // EditorTaskを取得する関数
