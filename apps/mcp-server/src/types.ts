@@ -8,6 +8,9 @@ export const DesignImageSchema = z.object({
   tags: z.array(z.string()).optional(),
 });
 
+// 分野の定義
+const fieldSchema = z.enum(['front', 'back', 'infra', 'other', 'parent', '']);
+
 // Taskgraph型定義（frontendと同じ）
 export const TaskSchema = z.object({
   name: z.string(),
@@ -19,6 +22,7 @@ export const TaskSchema = z.object({
   addition: z.object({
     baseDifficulty: z.number().default(0),
     category: z.string().default(''),
+    field: fieldSchema.optional(),
     layout: z.object({
       x: z.number(),
       y: z.number(),
@@ -43,6 +47,7 @@ export const TaskInputSchema = z.object({
     baseDifficulty: z.number().optional(),
     relations: z.array(z.string()).optional(),
     category: z.string().optional(),
+    field: fieldSchema.optional(),
     implementation_notes: z.array(z.string()).optional(),
     data_requirements: z.string().optional(), // API仕様・エンドポイント情報
     acceptance_criteria: z.array(z.string()).optional(),
