@@ -133,7 +133,7 @@ const images = ref<
 >([]);
 const loading = ref(true); // 初期値をtrueに変更
 const selectedIds = ref<string[]>([]);
-const expectedImageCount = ref(0); // 期待される画像数
+const expectedImageCount = ref(4); // デフォルトで2行分（4つ）の高さを確保
 
 // プレビュー用の状態
 const previewImage = ref<string | null>(null);
@@ -144,6 +144,11 @@ watch(
   () => props.modelValue,
   (newValue) => {
     selectedIds.value = [...newValue];
+    // modelValueが変更されたタイミングで画像数を推定
+    if (newValue && newValue.length > 0 && expectedImageCount.value === 0) {
+      // 既に選択されている画像がある場合、少なくともその数以上の画像があるはず
+      expectedImageCount.value = Math.max(newValue.length, 4); // 最低でも4つ（2行分）確保
+    }
   },
   { immediate: true },
 );
@@ -267,30 +272,15 @@ const getGridHeightClassForCount = (count: number): string => {
   }
 };
 
-// 予想される画像数を事前に設定
-const initExpectedImageCount = async () => {
-  try {
-    const projectId = taskStore.getCurrentProjectId();
-    const taskgraphResponse = await fetch(
-      `/api/load-taskgraph?projectId=${projectId}`,
-    );
-    if (taskgraphResponse.ok) {
-      const taskgraphData = await taskgraphResponse.text();
-      const taskgraph = JSON.parse(taskgraphData);
-      const designImages = taskgraph.info?.addition?.design_images || [];
-      expectedImageCount.value = designImages.length;
-    }
-  } catch (error) {
-    console.error('Error loading expected image count:', error);
-  }
-};
-
 // Lifecycle
-onMounted(() => {
-  // 期待される画像数を先に設定してから画像を読み込む
-  initExpectedImageCount().then(() => {
-    loadProjectImages();
-  });
+onMounted(async () => {
+  // 初期値として最低限の高さ（2行分）を確保
+  if (expectedImageCount.value === 0) {
+    expectedImageCount.value = 4; // デフォルトで2行分の高さを確保
+  }
+
+  // 画像を読み込む
+  await loadProjectImages();
 });
 </script>
 
