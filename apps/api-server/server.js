@@ -5,7 +5,7 @@ import path from 'path';
 import multer from 'multer';
 
 const app = express();
-const PORT = 3333;
+const PORT = 9393;
 
 // プロジェクトルートのdataフォルダのパス
 const DATA_DIR = path.join(process.cwd(), '..', '..', 'data');

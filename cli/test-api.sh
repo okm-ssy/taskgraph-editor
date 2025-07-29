@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # APIテストスクリプト
-API_BASE="http://localhost:3333"
+API_BASE="http://localhost:9393"
 
 # プロジェクトルートに移動
 cd "${REPOSITORY_ROOT}"
@@ -29,7 +29,7 @@ cd "${REPOSITORY_ROOT}"
 echo ""
 echo "📡 サーバー接続確認..."
 if ! curl -s --connect-timeout 3 "$API_BASE" >/dev/null; then
-    echo "❌ APIサーバーが起動していません (port 3333)"
+    echo "❌ APIサーバーが起動していません (port 9393)"
     exit 0
 else
     echo "✅ APIサーバー接続OK"
