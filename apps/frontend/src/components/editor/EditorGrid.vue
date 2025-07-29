@@ -19,20 +19,6 @@
           Export
         </button>
         <button
-          class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm transition-colors"
-          @click="handleAutoLayout"
-          :disabled="editorTasks.length === 0"
-        >
-          自動配置
-        </button>
-        <button
-          class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded-md text-sm transition-colors"
-          @click="handleReload"
-          title="ファイルから最新データをリロード"
-        >
-          リロード
-        </button>
-        <button
           class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-md text-sm transition-colors"
           @click="toggleAddPanel"
         >
@@ -428,15 +414,6 @@ const toggleAddPanel = () => {
   uiStore.toggleAddPanel();
 };
 
-// 手動リロード処理
-const handleReload = async () => {
-  await taskStore.loadFromFile();
-  // レイアウトを更新
-  layout.value = taskStore.gridTasks;
-  // Curve更新をトリガー
-  triggerCurveUpdate();
-};
-
 // LocalStorage同期機能
 const { exportToFile } = useFileStorageSync();
 
@@ -447,15 +424,6 @@ const handleExport = async () => {
     // 成功通知などを表示することもできます
     console.log('Taskgraph exported successfully');
   }
-};
-
-// 自動配置の実行
-const handleAutoLayout = () => {
-  taskStore.autoLayoutTasks();
-  // レイアウトを更新
-  layout.value = taskStore.gridTasks;
-  // Curve更新をトリガー
-  triggerCurveUpdate();
 };
 
 // 最左端のタスクを表示するためのスクロール調整
