@@ -261,12 +261,42 @@ export const useCurrentTasks = defineStore('editorTask', () => {
         if (newMtime) {
           lastMtime.value = newMtime;
         }
+
+        // バックアップを作成
+        await createBackupIfNeeded(projectId);
       } catch (error) {
         console.error('ファイル保存エラー:', error);
       } finally {
         isSaving = false; // 保存終了
       }
     }, 1000); // 1秒のデバウンス
+  };
+
+  // バックアップを作成（10分間隔制御）
+  const createBackupIfNeeded = async (projectId?: string): Promise<void> => {
+    try {
+      const url = projectId
+        ? `/api/backup-taskgraph?projectId=${encodeURIComponent(projectId)}`
+        : '/api/backup-taskgraph';
+
+      const response = await fetch(url, {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create backup');
+      }
+
+      const result = await response.json();
+      if (result.success) {
+        console.log(`バックアップ作成: ${result.backupFile}`);
+      } else {
+        console.log(`バックアップスキップ: ${result.message}`);
+      }
+    } catch (error) {
+      console.error('バックアップ作成エラー:', error);
+      // バックアップエラーは致命的ではないので、処理を続行
+    }
   };
 
   // ファイルの最終更新時刻を取得
