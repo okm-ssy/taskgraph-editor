@@ -45,14 +45,9 @@ app.get('/api/load-taskgraph', async (req, res) => {
   } catch (error) {
     console.log('Error reading file:', error.code, error.message);
     if (error.code === 'ENOENT') {
-      // ファイルが存在しない場合は空のタスクグラフを返す（MCPサーバーと同じ動作）
-      const emptyTaskgraph = {
-        info: {},
-        tasks: []
-      };
-      console.log('File not found, returning empty taskgraph');
-      res.setHeader('Content-Type', 'application/json');
-      res.json(emptyTaskgraph);
+      // ファイルが存在しない場合は404を返す
+      console.log('File not found, returning 404');
+      res.status(404).json({ error: 'Taskgraph file not found' });
     } else {
       console.error('Failed to load taskgraph:', error);
       res.status(500).json({ error: 'Failed to load taskgraph' });
