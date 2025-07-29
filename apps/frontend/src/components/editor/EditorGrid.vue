@@ -11,14 +11,6 @@
       </div>
       <div class="flex gap-2">
         <button
-          class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-sm transition-colors"
-          @click="handleExport"
-          :disabled="editorTasks.length === 0"
-          title="MCPサーバー用にエクスポート"
-        >
-          Export
-        </button>
-        <button
           class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-md text-sm transition-colors"
           @click="toggleAddPanel"
         >
@@ -177,7 +169,6 @@ import {
 } from 'vue';
 import { GridLayout, GridItem } from 'vue3-grid-layout-next';
 
-import { useFileStorageSync } from '../../composables/useFileStorageSync';
 import { useTaskActionsProvider } from '../../composables/useTaskActions';
 import { LAYOUT, TIMING } from '../../constants';
 import { GridTask } from '../../model/GridTask';
@@ -412,18 +403,6 @@ const handleAddTask = () => {
 // タスク追加パネルの切り替え
 const toggleAddPanel = () => {
   uiStore.toggleAddPanel();
-};
-
-// LocalStorage同期機能
-const { exportToFile } = useFileStorageSync();
-
-// エクスポート処理
-const handleExport = async () => {
-  const success = await exportToFile();
-  if (success) {
-    // 成功通知などを表示することもできます
-    console.log('Taskgraph exported successfully');
-  }
 };
 
 // 最左端のタスクを表示するためのスクロール調整
