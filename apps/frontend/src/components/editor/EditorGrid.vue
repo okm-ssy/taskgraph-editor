@@ -32,50 +32,30 @@
           minWidth: LAYOUT.GRID.TOTAL_WIDTH,
         }"
       >
-        <!-- 矢印SVGレイヤー（タスクカードより奥に配置） -->
-        <div
-          class="absolute z-0"
-          :style="{
-            width: LAYOUT.GRID.TOTAL_WIDTH,
-            height: '100%',
-            top: 0,
-            left: 0,
-          }"
-        >
-          <Curve
-            :connections="connections"
-            :force-update="curveUpdateTrigger"
-            :continuous-update="false"
-            :is-dragging="isDraggingOrResizing"
-            :hovered-connection-key="hoveredConnectionKey"
-            :grid-bounds="gridBounds"
-            @connection-click="handleConnectionClick"
-            @connection-hover="handleConnectionHover"
-          />
-        </div>
-
-        <!-- 矢印クリック用の透明レイヤー（タスクより下） -->
-        <div
-          class="absolute z-5 pointer-events-none"
-          :style="{
-            width: LAYOUT.GRID.TOTAL_WIDTH,
-            height: '100%',
-            top: 0,
-            left: 0,
-          }"
-        >
-          <Curve
-            :connections="connections"
-            :force-update="curveUpdateTrigger"
-            :continuous-update="false"
-            :is-dragging="isDraggingOrResizing"
-            :click-layer-only="true"
-            :hovered-connection-key="hoveredConnectionKey"
-            :grid-bounds="gridBounds"
-            @connection-click="handleConnectionClick"
-            @connection-hover="handleConnectionHover"
-          />
-        </div>
+        <!-- 矢印レイヤー -->
+        <template v-for="layer in curveLayerConfigs" :key="layer.name">
+          <div
+            :class="layer.class"
+            :style="{
+              width: LAYOUT.GRID.TOTAL_WIDTH,
+              height: '100%',
+              top: 0,
+              left: 0,
+            }"
+          >
+            <Curve
+              :connections="connections"
+              :force-update="curveUpdateTrigger"
+              :continuous-update="false"
+              :is-dragging="isDraggingOrResizing"
+              :click-layer-only="layer.clickLayerOnly"
+              :hovered-connection-key="hoveredConnectionKey"
+              :grid-bounds="gridBounds"
+              @connection-click="handleConnectionClick"
+              @connection-hover="handleConnectionHover"
+            />
+          </div>
+        </template>
         <!-- 新規タスク追加パネル -->
         <TaskAddPanel
           v-if="uiStore.showAddPanel"
@@ -85,26 +65,14 @@
         <!-- グリッドレイアウト -->
         <GridLayout
           v-model:layout="layout"
-          :col-num="
-            isCompactMode
-              ? LAYOUT.GRID.COL_NUM.COMPACT
-              : LAYOUT.GRID.COL_NUM.NORMAL
-          "
+          :col-num="layoutConfig.colNum"
           :width="LAYOUT.GRID.TOTAL_WIDTH"
-          :row-height="
-            isCompactMode
-              ? LAYOUT.GRID.ROW_HEIGHT.COMPACT
-              : LAYOUT.GRID.ROW_HEIGHT.NORMAL
-          "
+          :row-height="layoutConfig.rowHeight"
           :is-draggable="!disableGrid"
           :is-resizable="!disableGrid"
           :vertical-compact="false"
           :use-css-transforms="true"
-          :margin="
-            isCompactMode
-              ? [LAYOUT.GRID.MARGIN.COMPACT, LAYOUT.GRID.MARGIN.COMPACT]
-              : [LAYOUT.GRID.MARGIN.NORMAL, LAYOUT.GRID.MARGIN.NORMAL]
-          "
+          :margin="[layoutConfig.margin, layoutConfig.margin]"
           :responsive="false"
           :auto-size="false"
           :prevent-collision="true"
@@ -202,6 +170,19 @@ const gridContainer = ref<HTMLDivElement | null>(null);
 // 表示モード管理（propsから取得）
 const isCompactMode = computed(() => props.compactMode ?? false);
 
+// レイアウト設定のcomputed
+const layoutConfig = computed(() => ({
+  colNum: isCompactMode.value
+    ? LAYOUT.GRID.COL_NUM.COMPACT
+    : LAYOUT.GRID.COL_NUM.NORMAL,
+  rowHeight: isCompactMode.value
+    ? LAYOUT.GRID.ROW_HEIGHT.COMPACT
+    : LAYOUT.GRID.ROW_HEIGHT.NORMAL,
+  margin: isCompactMode.value
+    ? LAYOUT.GRID.MARGIN.COMPACT
+    : LAYOUT.GRID.MARGIN.NORMAL,
+}));
+
 // provide/injectでコンポーネント通信を改善
 const taskActions = useTaskActionsProvider();
 
@@ -220,6 +201,20 @@ const isDraggingOrResizing = ref(false);
 const disableGrid = ref(false);
 const hoveredConnectionKey = ref<string | null>(null);
 
+// Curveレイヤーの設定
+const curveLayerConfigs = [
+  {
+    name: 'background',
+    class: 'absolute z-0',
+    clickLayerOnly: false,
+  },
+  {
+    name: 'clickLayer',
+    class: 'absolute z-5 pointer-events-none',
+    clickLayerOnly: true,
+  },
+];
+
 // グリッド全体のサイズを計算
 const gridBounds = computed(() => {
   if (layout.value.length === 0) {
@@ -233,8 +228,8 @@ const gridBounds = computed(() => {
   let maxY = 0;
 
   layout.value.forEach((item) => {
-    const itemRightEdge = (item.x + item.w) * 160; // グリッドセルの幅（概算）
-    const itemBottomEdge = (item.y + item.h) * 60; // グリッドセルの高さ（概算）
+    const itemRightEdge = (item.x + item.w) * LAYOUT.GRID.CELL_WIDTH;
+    const itemBottomEdge = (item.y + item.h) * LAYOUT.GRID.CELL_HEIGHT;
 
     if (itemRightEdge > maxX) maxX = itemRightEdge;
     if (itemBottomEdge > maxY) maxY = itemBottomEdge;
@@ -271,6 +266,13 @@ const triggerCurveUpdate = () => {
       curveUpdateTrigger.value++;
     }, 10);
   });
+};
+
+// 複数回のカーブ更新をトリガー
+const triggerCurveUpdateMultiple = (count: number) => {
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => triggerCurveUpdate(), i * 10);
+  }
 };
 
 // レイアウト更新時の処理（グリッド有効時のみ）
@@ -350,8 +352,7 @@ const handleItemMoved = () => {
   setTimeout(() => {
     disableGrid.value = false;
     isDraggingOrResizing.value = false;
-    triggerCurveUpdate();
-    triggerCurveUpdate(); // 2回実行で確実に
+    triggerCurveUpdateMultiple(2);
   }, TIMING.DEBOUNCE.DEFAULT_MS);
 };
 
@@ -366,8 +367,7 @@ const handleItemResized = () => {
   setTimeout(() => {
     disableGrid.value = false;
     isDraggingOrResizing.value = false;
-    triggerCurveUpdate();
-    triggerCurveUpdate(); // 2回実行で確実に
+    triggerCurveUpdateMultiple(2);
   }, TIMING.DEBOUNCE.DEFAULT_MS);
 };
 
@@ -377,16 +377,10 @@ const getVisibleAreaPosition = () => {
 
   const scrollTop = gridContainer.value.scrollTop;
 
-  // GridLayoutの実際の設定値を使用
-  const rowHeight = isCompactMode.value
-    ? LAYOUT.GRID.ROW_HEIGHT.COMPACT
-    : LAYOUT.GRID.ROW_HEIGHT.NORMAL;
-  const margin = isCompactMode.value
-    ? LAYOUT.GRID.MARGIN.COMPACT
-    : LAYOUT.GRID.MARGIN.NORMAL;
-
   // スクロール位置をグリッド座標に変換（マージンも考慮）
-  const gridY = Math.floor(scrollTop / (rowHeight + margin));
+  const gridY = Math.floor(
+    scrollTop / (layoutConfig.value.rowHeight + layoutConfig.value.margin),
+  );
 
   // X座標は左端（0）に固定
   return { x: 0, y: gridY };
@@ -413,11 +407,8 @@ const scrollToLeftmostTask = () => {
   const minX = Math.min(...editorTasks.value.map((task) => task.grid.x));
 
   // グリッドの設定値を取得
-  const colNum = isCompactMode.value
-    ? LAYOUT.GRID.COL_NUM.COMPACT
-    : LAYOUT.GRID.COL_NUM.NORMAL;
   const gridWidth = gridContainer.value.clientWidth;
-  const cellWidth = gridWidth / colNum;
+  const cellWidth = gridWidth / layoutConfig.value.colNum;
 
   // 表示マージン設定
   const SCROLL_MARGIN_RATIO = 0.1; // 10%マージン
@@ -472,12 +463,12 @@ onMounted(() => {
 
   // 初期描画のために複数回更新をトリガー
   nextTick(() => {
-    triggerCurveUpdate();
+    triggerCurveUpdateMultiple(1);
     setTimeout(() => {
-      triggerCurveUpdate();
+      triggerCurveUpdateMultiple(1);
     }, TIMING.ANIMATION.SHORT_MS);
     setTimeout(() => {
-      triggerCurveUpdate();
+      triggerCurveUpdateMultiple(1);
     }, TIMING.ANIMATION.MEDIUM_MS);
   });
 });
