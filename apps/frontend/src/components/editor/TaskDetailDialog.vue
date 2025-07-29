@@ -257,6 +257,75 @@
           </div>
         </div>
 
+        <!-- Business Requirements Section -->
+        <div class="mb-6 pb-6 border-b border-gray-200">
+          <h4 class="text-md font-medium text-green-700 mb-4">
+            軽量ビジネス要件
+          </h4>
+
+          <div class="mb-4">
+            <label
+              for="business_purpose"
+              class="block text-sm font-medium text-green-700 mb-1"
+              >目的（なぜこの機能が必要か）</label
+            >
+            <input
+              id="business_purpose"
+              v-model="businessPurposeInput"
+              type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md"
+              placeholder="例：ユーザーの操作効率を向上させるため"
+            />
+          </div>
+
+          <div class="mb-4 grid grid-cols-2 gap-4">
+            <div>
+              <label
+                for="target_users"
+                class="block text-sm font-medium text-green-700 mb-1"
+                >対象ユーザー（規模感含む）</label
+              >
+              <input
+                id="target_users"
+                v-model="targetUsersInput"
+                type="text"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                placeholder="例：管理者・約50名"
+              />
+            </div>
+
+            <div>
+              <label
+                for="usage_frequency"
+                class="block text-sm font-medium text-green-700 mb-1"
+                >使用頻度</label
+              >
+              <input
+                id="usage_frequency"
+                v-model="usageFrequencyInput"
+                type="text"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                placeholder="例：1日数回、月1回"
+              />
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label
+              for="current_problem"
+              class="block text-sm font-medium text-green-700 mb-1"
+              >現在の問題（解決したいこと）</label
+            >
+            <input
+              id="current_problem"
+              v-model="currentProblemInput"
+              type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md"
+              placeholder="例：手動で処理していて時間がかかる"
+            />
+          </div>
+        </div>
+
         <!-- エラーメッセージ表示 -->
         <div
           v-if="errorMessage"
@@ -301,6 +370,10 @@ const apiSchemasInput = ref('');
 const requirementsInput = ref('');
 const designImagesInput = ref<string[]>([]);
 const fieldInput = ref('');
+const businessPurposeInput = ref('');
+const targetUsersInput = ref('');
+const usageFrequencyInput = ref('');
+const currentProblemInput = ref('');
 
 // ドラッグ検出用の状態
 const isDragging = ref(false);
@@ -377,6 +450,11 @@ watch(
       requirementsInput.value =
         newTask.task.addition?.requirements?.join('\n') || '';
       designImagesInput.value = newTask.task.addition?.design_images || [];
+      businessPurposeInput.value =
+        newTask.task.addition?.business_purpose || '';
+      targetUsersInput.value = newTask.task.addition?.target_users || '';
+      usageFrequencyInput.value = newTask.task.addition?.usage_frequency || '';
+      currentProblemInput.value = newTask.task.addition?.current_problem || '';
       // ダイアログが開かれたときはエラーメッセージをクリア
       errorMessage.value = '';
     }
@@ -397,6 +475,10 @@ watch(
     apiSchemasInput,
     requirementsInput,
     designImagesInput,
+    businessPurposeInput,
+    targetUsersInput,
+    usageFrequencyInput,
+    currentProblemInput,
   ],
   () => {
     if (errorMessage.value) {
@@ -476,6 +558,10 @@ const handleSubmit = () => {
         designImagesInput.value.length > 0
           ? designImagesInput.value
           : undefined,
+      business_purpose: businessPurposeInput.value || undefined,
+      target_users: targetUsersInput.value || undefined,
+      usage_frequency: usageFrequencyInput.value || undefined,
+      current_problem: currentProblemInput.value || undefined,
     },
   });
 
@@ -509,6 +595,14 @@ const resetInputs = () => {
       taskStore.selectedTask.task.addition?.requirements?.join('\n') || '';
     designImagesInput.value =
       taskStore.selectedTask.task.addition?.design_images || [];
+    businessPurposeInput.value =
+      taskStore.selectedTask.task.addition?.business_purpose || '';
+    targetUsersInput.value =
+      taskStore.selectedTask.task.addition?.target_users || '';
+    usageFrequencyInput.value =
+      taskStore.selectedTask.task.addition?.usage_frequency || '';
+    currentProblemInput.value =
+      taskStore.selectedTask.task.addition?.current_problem || '';
   }
 };
 
