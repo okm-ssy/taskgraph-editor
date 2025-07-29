@@ -45,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch } from 'vue';
 
 import { TIMING } from '../../constants/timing';
 import { useEditorUIStore } from '../../store/editor_ui_store';
@@ -89,12 +89,12 @@ watch(
   { deep: true },
 );
 
-// 初期データロード
-onMounted(async () => {
-  if (taskStore.editorTasks.length === 0) {
-    await taskStore.loadSampleData();
-  }
-});
+// 初期データロードを無効化（ユーザーが明示的に読み込みボタンを押すまで何も表示しない）
+// onMounted(async () => {
+//   if (taskStore.editorTasks.length === 0) {
+//     await taskStore.loadSampleData();
+//   }
+// });
 </script>
 
 <style scoped>

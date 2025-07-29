@@ -154,6 +154,10 @@ export const useJsonProcessor = () => {
       // data/sample.taskgraph.json からサンプルデータを取得
       const response = await fetch('/api/load-taskgraph?projectId=sample');
       if (!response.ok) {
+        if (response.status === 404) {
+          taskLoadError.value = 'サンプルデータファイルが見つかりません';
+          return false;
+        }
         throw new Error('Failed to load sample data');
       }
       const sampleData = await response.text();
