@@ -74,7 +74,7 @@
             id="notes"
             v-model="notesInput"
             class="w-full px-3 py-2 border border-gray-300 rounded-md"
-:rows="notesRows"
+            :rows="notesRows"
             placeholder="詳細な説明やメモを入力してください"
           />
         </div>
@@ -151,7 +151,6 @@
 
         <!-- Additional Fields Section -->
         <div class="mb-6 pb-6 border-b border-gray-200">
-          <hr /></hr>
           <div class="mb-4 grid grid-cols-2 gap-4">
             <div>
               <label
@@ -233,7 +232,7 @@
               id="api_schemas"
               v-model="apiSchemasInput"
               class="w-full px-3 py-2 border border-gray-300 rounded-md"
-:rows="apiSchemasRows"
+              :rows="apiSchemasRows"
               placeholder="使用するエンドポイントやOpenAPI定義への参照を1行ずつ入力してください"
             />
           </div>
@@ -248,7 +247,7 @@
               id="requirements"
               v-model="requirementsInput"
               class="w-full px-3 py-2 border border-gray-300 rounded-md"
-:rows="requirementsRows"
+              :rows="requirementsRows"
               placeholder="満たすべき要件やテストケースを1行ずつ入力してください"
             />
           </div>
