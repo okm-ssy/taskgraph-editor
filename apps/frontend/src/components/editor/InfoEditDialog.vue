@@ -118,7 +118,7 @@
               v-model="businessPurposeInput"
               type="text"
               class="w-full px-3 py-2 border border-gray-300 rounded-md"
-              placeholder="例：ユーザーの操作効率を向上させるため"
+              placeholder="ユーザーの操作効率を向上させるため"
             />
           </div>
 
@@ -134,7 +134,7 @@
                 v-model="targetUsersInput"
                 type="text"
                 class="w-full px-3 py-2 border border-gray-300 rounded-md"
-                placeholder="例：管理者・約50名"
+                placeholder="管理者・約50名"
               />
             </div>
 
@@ -149,7 +149,7 @@
                 v-model="usageFrequencyInput"
                 type="text"
                 class="w-full px-3 py-2 border border-gray-300 rounded-md"
-                placeholder="例：1日数回、月1回"
+                placeholder="1日数回、月1回"
               />
             </div>
           </div>
@@ -165,7 +165,7 @@
               v-model="currentProblemInput"
               type="text"
               class="w-full px-3 py-2 border border-gray-300 rounded-md"
-              placeholder="例：手動で処理していて時間がかかる"
+              placeholder="手動で処理していて時間がかかる"
             />
           </div>
         </div>
