@@ -9,10 +9,85 @@ const PORT = 9393;
 
 // プロジェクトルートのdataフォルダのパス
 const DATA_DIR = path.join(process.cwd(), '..', '..', 'data');
+const BACKUP_DIR = path.join(DATA_DIR, 'backup');
 
 // プロジェクトIDからファイルパスを生成
 const getTaskgraphFilePath = (projectId) => {
   return path.join(DATA_DIR, `${projectId}.taskgraph.json`);
+};
+
+// バックアップファイルパスを生成
+const getBackupFilePath = (projectId, datetime) => {
+  return path.join(BACKUP_DIR, `${projectId}.${datetime}.json`);
+};
+
+// 古いバックアップファイルを削除（3日経過）
+const cleanupOldBackups = async (projectId) => {
+  try {
+    // バックアップディレクトリが存在しない場合は作成
+    try {
+      await fs.access(BACKUP_DIR);
+    } catch {
+      await fs.mkdir(BACKUP_DIR, { recursive: true });
+      return; // 新規作成の場合、削除対象なし
+    }
+
+    const files = await fs.readdir(BACKUP_DIR);
+    const threeDaysAgo = Date.now() - (3 * 24 * 60 * 60 * 1000); // 3日前のタイムスタンプ
+    
+    // プロジェクトに関連するバックアップファイルのみをチェック
+    const projectBackups = files.filter(file => 
+      file.startsWith(`${projectId}.`) && file.endsWith('.json')
+    );
+    
+    for (const file of projectBackups) {
+      const filePath = path.join(BACKUP_DIR, file);
+      try {
+        const stats = await fs.stat(filePath);
+        if (stats.mtime.getTime() < threeDaysAgo) {
+          await fs.unlink(filePath);
+          console.log(`古いバックアップファイルを削除: ${file}`);
+        }
+      } catch (error) {
+        console.error(`バックアップファイル削除エラー: ${file}`, error);
+      }
+    }
+  } catch (error) {
+    console.error('バックアップクリーンアップエラー:', error);
+  }
+};
+
+// 最新のバックアップ時刻を取得
+const getLatestBackupTime = async (projectId) => {
+  try {
+    await fs.access(BACKUP_DIR);
+    const files = await fs.readdir(BACKUP_DIR);
+    
+    // プロジェクトに関連するバックアップファイルを取得
+    const projectBackups = files
+      .filter(file => file.startsWith(`${projectId}.`) && file.endsWith('.json'))
+      .map(file => {
+        const stats = fs.stat(path.join(BACKUP_DIR, file));
+        return { file, stats };
+      });
+    
+    if (projectBackups.length === 0) {
+      return null;
+    }
+    
+    // 最新のファイルを見つける
+    let latestTime = 0;
+    for (const backup of projectBackups) {
+      const stats = await backup.stats;
+      if (stats.mtime.getTime() > latestTime) {
+        latestTime = stats.mtime.getTime();
+      }
+    }
+    
+    return new Date(latestTime);
+  } catch {
+    return null; // バックアップディレクトリが存在しない場合
+  }
 };
 
 app.use(cors());
@@ -80,6 +155,68 @@ app.get('/api/taskgraph-mtime', async (req, res) => {
   } catch (error) {
     console.error('Failed to get file mtime:', error);
     res.status(500).json({ error: 'Failed to get file modification time' });
+  }
+});
+
+// バックアップ作成エンドポイント
+app.post('/api/backup-taskgraph', async (req, res) => {
+  try {
+    const { projectId = 'default' } = req.query;
+    
+    // 現在のファイルが存在するかチェック
+    const taskgraphFile = getTaskgraphFilePath(projectId);
+    try {
+      await fs.access(taskgraphFile);
+    } catch {
+      return res.status(404).json({ error: 'Original taskgraph file not found' });
+    }
+    
+    // 最新のバックアップ時刻を取得
+    const latestBackupTime = await getLatestBackupTime(projectId);
+    const now = new Date();
+    const tenMinutesAgo = new Date(now.getTime() - (10 * 60 * 1000));
+    
+    // 前回バックアップから10分経過していない場合はスキップ
+    if (latestBackupTime && latestBackupTime > tenMinutesAgo) {
+      return res.json({
+        success: false,
+        message: 'Backup skipped - less than 10 minutes since last backup',
+        lastBackupTime: latestBackupTime.toISOString()
+      });
+    }
+    
+    // バックアップディレクトリを確認・作成
+    try {
+      await fs.access(BACKUP_DIR);
+    } catch {
+      await fs.mkdir(BACKUP_DIR, { recursive: true });
+    }
+    
+    // 日時文字列を生成 (YYYYMMDD-HHMMSS 形式)
+    const datetime = now.toISOString()
+      .replace(/[:-]/g, '')
+      .replace(/\.\d{3}Z$/, '')
+      .replace('T', '-');
+    
+    // バックアップファイル作成
+    const backupFilePath = getBackupFilePath(projectId, datetime);
+    const originalData = await fs.readFile(taskgraphFile, 'utf-8');
+    await fs.writeFile(backupFilePath, originalData, 'utf-8');
+    
+    // 古いバックアップファイルを削除
+    await cleanupOldBackups(projectId);
+    
+    console.log(`バックアップ作成: ${backupFilePath}`);
+    
+    res.json({
+      success: true,
+      message: 'Backup created successfully',
+      backupFile: `${projectId}.${datetime}.json`,
+      backupTime: now.toISOString()
+    });
+  } catch (error) {
+    console.error('Failed to create backup:', error);
+    res.status(500).json({ error: 'Failed to create backup' });
   }
 });
 
