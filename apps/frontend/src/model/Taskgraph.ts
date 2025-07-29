@@ -95,11 +95,6 @@ export const taskZodSchema = zod
         api_schemas: zod.array(zod.string()).optional(), // API仕様・エンドポイント情報
         requirements: zod.array(zod.string()).optional(), // 受け入れ基準（必須）
         design_images: zod.array(zod.string()).optional(), // 関連する画面設計画像のID
-        // 軽量ビジネス要件フォーマット
-        business_purpose: zod.string().optional(), // 目的: なぜこの機能が必要か（1行）
-        target_users: zod.string().optional(), // 対象ユーザー: 誰が使うか + 規模感
-        usage_frequency: zod.string().optional(), // 使用頻度: どのくらい使われるか
-        current_problem: zod.string().optional(), // 現在の問題: 何を解決したいか（あれば）
       })
       .optional(),
   })
