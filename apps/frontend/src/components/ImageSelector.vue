@@ -34,17 +34,17 @@
         :key="image.path"
         class="flex flex-col items-center p-2 hover:bg-gray-50 rounded border cursor-pointer relative"
         :class="
-          selectedIds.includes(image.id || '')
+          selectedPaths.includes(image.path)
             ? 'border-blue-500 bg-blue-50'
             : 'border-gray-100'
         "
-        @click="toggleSelection(image.id || '')"
+        @click="toggleSelection(image.path)"
         @mouseenter="(e) => showPreview(image.path, e)"
         @mouseleave="hidePreview"
       >
         <!-- 選択インジケーター -->
         <div
-          v-if="selectedIds.includes(image.id || '')"
+          v-if="selectedPaths.includes(image.path)"
           class="absolute top-1 right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center"
         >
           <svg
@@ -99,13 +99,13 @@
     </div>
 
     <!-- 選択された画像の表示 -->
-    <div v-if="selectedIds.length > 0" class="mt-3">
+    <div v-if="selectedPaths.length > 0" class="mt-3">
       <p class="text-sm font-medium text-gray-700 mb-1">
-        選択中: {{ selectedIds.length }}件
+        選択中: {{ selectedPaths.length }}件
       </p>
       <div class="text-xs text-gray-600">
-        <div v-for="id in selectedIds" :key="id" class="truncate">
-          {{ getFilenameFromId(id) }}
+        <div v-for="path in selectedPaths" :key="path" class="truncate">
+          {{ getFilenameFromId(path) }}
         </div>
       </div>
     </div>
@@ -138,7 +138,7 @@ const images = ref<
   }>
 >([]);
 const loading = ref(true); // 初期値をtrueに変更
-const selectedIds = ref<string[]>([]);
+const selectedPaths = ref<string[]>([]);
 const expectedImageCount = ref(0); // 初期値は0
 
 // プレビュー用の状態
@@ -150,7 +150,7 @@ const previewPosition = ref({ x: 0, y: 0 });
 watch(
   () => props.modelValue,
   (newValue) => {
-    selectedIds.value = [...newValue];
+    selectedPaths.value = [...newValue];
     // modelValueが変更されたタイミングで画像数を推定
     if (newValue && newValue.length > 0 && expectedImageCount.value === 0) {
       // 既に選択されている画像がある場合、少なくともその数以上の画像があるはず
@@ -161,7 +161,7 @@ watch(
 );
 
 watch(
-  selectedIds,
+  selectedPaths,
   (newValue) => {
     // 配列の内容が実際に変わった場合のみemitする
     if (JSON.stringify(newValue) !== JSON.stringify(props.modelValue)) {
@@ -237,9 +237,9 @@ const getImageUrl = (path: string): string => {
   return `/api/images/${path}`;
 };
 
-const getFilenameFromId = (id: string): string => {
-  const image = images.value.find((img) => img.id === id);
-  return image ? image.filename : id;
+const getFilenameFromId = (path: string): string => {
+  const image = images.value.find((img) => img.path === path);
+  return image ? image.filename : path.split('/').pop() || path;
 };
 
 const showPreview = (imagePath: string, event: MouseEvent) => {
@@ -260,14 +260,14 @@ const hidePreview = () => {
   currentPreviewPath.value = null;
 };
 
-const toggleSelection = (imageId: string) => {
-  if (!imageId) return;
+const toggleSelection = (imagePath: string) => {
+  if (!imagePath) return;
 
-  const index = selectedIds.value.indexOf(imageId);
+  const index = selectedPaths.value.indexOf(imagePath);
   if (index > -1) {
-    selectedIds.value.splice(index, 1);
+    selectedPaths.value.splice(index, 1);
   } else {
-    selectedIds.value.push(imageId);
+    selectedPaths.value.push(imagePath);
   }
 };
 
