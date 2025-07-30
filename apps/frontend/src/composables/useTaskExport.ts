@@ -61,18 +61,18 @@ export function useTaskExport() {
 
     let content = `# ${info.name} - 要件定義\n\n`;
     content += `## プロジェクト概要\n\n`;
-    content += `### ビジネス背景\n`;
+    content += `### ビジネス背景\n\n`;
     content += `- **目的**: ${businessPurpose}\n`;
     content += `- **対象ユーザー**: ${targetUsers}\n`;
     content += `- **ビジネス背景**: ${businessContext}\n\n`;
-    content += `## タスク別要件\n`;
+    content += `\n## タスク別要件\n`;
 
     sortedTasks.forEach((task, index) => {
       if (index > 0) content += '\n---\n';
       content += `\n### ${task.name}\n\n`;
       content += `**概要**: ${task.description}\n\n`;
 
-      content += `**受け入れ基準**: \n`;
+      content += `**受け入れ基準**:\n`;
       if (
         task.addition?.requirements &&
         task.addition.requirements.length > 0
@@ -85,7 +85,7 @@ export function useTaskExport() {
       }
 
       if (task.notes && task.notes.length > 0) {
-        content += `\n**備考**: \n`;
+        content += `\n**備考**:\n`;
         task.notes.forEach((note) => {
           content += `- ${note}\n`;
         });
@@ -99,7 +99,7 @@ export function useTaskExport() {
     const sortedTasks = topologicalSort(tasks);
 
     let content = `# ${info.name} - 設計仕様\n\n`;
-    content += `## プロジェクト情報\n`;
+    content += `## プロジェクト情報\n\n`;
     if (info.github) {
       content += `- **リポジトリ**: ${info.github.organization}/${info.github.repository}\n`;
       content += `- **プロジェクト**: #${info.github.projectNumber}\n`;
@@ -107,22 +107,22 @@ export function useTaskExport() {
 
     sortedTasks.forEach((task, index) => {
       if (index > 0) content += '\n---\n';
-      content += `\n## ${task.name}\n\n`;
-      content += `### 概要\n`;
+      content += `\n\n## ${task.name}\n\n`;
+      content += `### 概要\n\n`;
       content += `${task.description}\n\n`;
 
       if (
         task.addition?.design_images &&
         task.addition.design_images.length > 0
       ) {
-        content += `### 画面設計\n`;
+        content += `### 画面設計\n\n`;
         task.addition.design_images.forEach((img) => {
           content += `![画面設計](${img})\n`;
         });
         content += '\n';
       }
 
-      content += `### 実装方針\n`;
+      content += `\n### 実装方針\n\n`;
       if (
         task.addition?.implementation_notes &&
         task.addition.implementation_notes.length > 0
@@ -134,7 +134,7 @@ export function useTaskExport() {
         content += '未設定\n';
       }
 
-      content += `\n### API仕様\n`;
+      content += `\n### API仕様\n\n`;
       if (task.addition?.api_schemas && task.addition.api_schemas.length > 0) {
         task.addition.api_schemas.forEach((api) => {
           content += `- ${api}\n`;
@@ -144,7 +144,7 @@ export function useTaskExport() {
       }
 
       if (task.issueNumber) {
-        content += `\n### 関連Issue\n`;
+        content += `\n### 関連Issue\n\n`;
         content += `- GitHub Issue: #${task.issueNumber}\n`;
       }
     });
@@ -179,7 +179,7 @@ export function useTaskExport() {
     );
     const roundedTotalHours = Math.round(totalHours * 100) / 100;
 
-    content += `\n## 進捗サマリー\n`;
+    content += `\n## 進捗サマリー\n\n`;
     content += `- **総タスク数**: ${totalTasks}件\n`;
     content += `- **総見積工数**: ${roundedTotalHours}時間\n`;
     content += `- **完了済み**: 0件\n`;
