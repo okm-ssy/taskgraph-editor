@@ -172,19 +172,11 @@ export function useTaskExport() {
       content += `  - **分野**: ${field} | **分類**: ${category}\n`;
     });
 
-    const totalTasks = tasks.length;
-    const totalHours = tasks.reduce(
-      (sum, task) => sum + (task.difficulty || 0),
-      0,
-    );
-    const roundedTotalHours = Math.round(totalHours * 100) / 100;
-
-    content += `\n## 進捗サマリー\n\n`;
-    content += `- **総タスク数**: ${totalTasks}件\n`;
-    content += `- **総見積工数**: ${roundedTotalHours}時間\n`;
-    content += `- **完了済み**: 0件\n`;
-    content += `- **進行中**: 0件\n`;
-    content += `- **未着手**: ${totalTasks}件\n`;
+    content += `\n## 実装方針\n\n`;
+    content += `要件と設計を見て実装してください。\n`;
+    content += `タスクの実装が終わったら、マークダウンのチェックボックスをチェックしてください。\n`;
+    content += `タスクの実装が終わったら、次の実装はせず、方針を確認してください。\n`;
+    content += `情報が足りないときは聞いてください。情報が不明なまま実装をしてはいけません。\n`;
 
     return content;
   }
