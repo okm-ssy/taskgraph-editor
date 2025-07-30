@@ -5,21 +5,19 @@
     <div class="flex items-center gap-4 mb-4">
       <ProjectSelector />
       <Switcher :modelValue="currentPage" @update:modelValue="navigateToPage" />
-      <div class="flex items-center gap-2 border p-2 rounded-2xl">
-        <button
-          :class="[
-            'px-4 py-2 rounded-md text-base transition-colors',
-            isCompactMode
-              ? 'bg-green-500 hover:bg-green-600 text-white'
-              : 'bg-gray-200 hover:bg-gray-300 text-gray-700',
-          ]"
-          @click="toggleCompactMode"
-          :title="`コンパクトモード: ${isCompactMode ? 'ON' : 'OFF'}`"
-        >
-          {{ isCompactMode ? 'コンパクト中' : 'コンパクト' }}
-        </button>
-        <ExportButton />
-      </div>
+      <button
+        :class="[
+          'px-4 py-2 rounded-md text-base transition-colors',
+          isCompactMode
+            ? 'bg-green-500 hover:bg-green-600 text-white'
+            : 'bg-gray-200 hover:bg-gray-300 text-gray-700',
+        ]"
+        @click="toggleCompactMode"
+        :title="`コンパクトモード: ${isCompactMode ? 'ON' : 'OFF'}`"
+      >
+        {{ isCompactMode ? 'コンパクト中' : 'コンパクト' }}
+      </button>
+      <ExportButton />
     </div>
 
     <JsonInput
