@@ -12,7 +12,7 @@ export function useTaskExport() {
   });
 
   const projectInfo = computed(() => {
-    return taskStore.projectInfo;
+    return taskStore.info;
   });
 
   function topologicalSort(tasks: Task[]): Task[] {
