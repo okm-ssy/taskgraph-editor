@@ -3,8 +3,9 @@ import { z } from 'zod';
 // 画面設計画像の型定義
 export const DesignImageSchema = z.object({
   id: z.string(),
-  title: z.string(),
-  filepath: z.string(),
+  path: z.string(),
+  title: z.string().optional(),
+  filepath: z.string().optional(),
   tags: z.array(z.string()).optional(),
 });
 
