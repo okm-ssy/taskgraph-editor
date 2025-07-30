@@ -117,7 +117,12 @@ export function useTaskExport() {
       ) {
         content += `### 画面設計\n\n`;
         task.addition.design_images.forEach((img) => {
-          content += `![画面設計](${img})\n`;
+          // IDオブジェクト形式と文字列パス形式の両方に対応
+          const imagePath =
+            typeof img === 'object' && img !== null && 'path' in img
+              ? img.path
+              : img;
+          content += `![画面設計](${imagePath})\n`;
         });
         content += '\n';
       }
