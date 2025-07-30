@@ -177,10 +177,11 @@ export function useTaskExport() {
       (sum, task) => sum + (task.difficulty || 0),
       0,
     );
+    const roundedTotalHours = Math.round(totalHours * 100) / 100;
 
     content += `\n## 進捗サマリー\n`;
     content += `- **総タスク数**: ${totalTasks}件\n`;
-    content += `- **総見積工数**: ${totalHours}時間\n`;
+    content += `- **総見積工数**: ${roundedTotalHours}時間\n`;
     content += `- **完了済み**: 0件\n`;
     content += `- **進行中**: 0件\n`;
     content += `- **未着手**: ${totalTasks}件\n`;
