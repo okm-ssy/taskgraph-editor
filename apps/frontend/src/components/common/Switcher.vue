@@ -1,20 +1,26 @@
 <template>
-  <div>
-    <div class="flex items-center gap-2">
-      <button
-        v-for="page in pages"
-        :key="page.id"
-        :class="[
-          'px-4 py-2 rounded-md text-base transition-colors',
-          currentPage.id === page.id
-            ? 'bg-blue-500 hover:bg-blue-600 text-white'
-            : 'bg-gray-200 hover:bg-gray-300 text-gray-700',
-        ]"
-        @click="switchPage(page)"
-      >
-        {{ page.name }}
-      </button>
-    </div>
+  <div class="relative inline-flex bg-gray-200 rounded-lg p-1">
+    <button
+      v-for="page in pages"
+      :key="page.id"
+      :class="[
+        'relative px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 z-10',
+        currentPage.id === page.id
+          ? 'text-blue-600'
+          : 'text-gray-500 hover:text-gray-700',
+      ]"
+      @click="switchPage(page)"
+    >
+      {{ page.name }}
+    </button>
+    <!-- スライドする背景 -->
+    <div
+      :class="[
+        'absolute top-1 bottom-1 bg-white rounded-md shadow-sm transition-transform duration-200 ease-in-out',
+        'w-[calc(50%-0.125rem)]',
+        currentPage.id === 'editor' ? 'translate-x-full' : 'translate-x-0',
+      ]"
+    />
   </div>
 </template>
 
