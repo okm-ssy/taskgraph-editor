@@ -34,24 +34,15 @@ const title = computed(() => {
 
 const handleExport = async () => {
   if (taskStore.tasks.length === 0) {
-    alert('エクスポートするタスクがありません');
     return;
   }
 
   isExporting.value = true;
 
   try {
-    const success = downloadFiles();
-    if (success) {
-      alert('ファイルのエクスポートが完了しました');
-    } else {
-      alert('エクスポートに失敗しました');
-    }
+    downloadFiles();
   } catch (error) {
     console.error('エクスポートエラー:', error);
-    alert(
-      `エクスポートエラー: ${error instanceof Error ? error.message : '不明なエラー'}`,
-    );
   } finally {
     isExporting.value = false;
   }
