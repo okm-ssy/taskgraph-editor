@@ -18,6 +18,7 @@
         >
           {{ isCompactMode ? 'コンパクト中' : 'コンパクト' }}
         </button>
+        <ExportButton />
       </div>
     </div>
 
@@ -52,6 +53,7 @@ import { Page, viewerPage, editorPage } from '../store/types/page';
 import EditorPage from './EditorPage.vue';
 import ViewerPage from './ViewerPage.vue';
 
+import ExportButton from '@/components/ExportButton.vue';
 import JsonInput from '@/components/common/JsonInput.vue';
 import ProjectSelector from '@/components/common/ProjectSelector.vue';
 import Switcher from '@/components/common/Switcher.vue';
