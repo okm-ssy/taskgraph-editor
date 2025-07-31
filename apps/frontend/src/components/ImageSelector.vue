@@ -4,11 +4,11 @@
       画面設計画像選択
     </label>
 
-    <!-- 画像プレビュー（枠の直上） -->
+    <!-- 画像プレビュー（枠の直上、右側） -->
     <div
       v-if="previewImage"
       class="absolute z-[9999] bg-white border border-gray-300 rounded-lg shadow-xl p-3"
-      style="bottom: 100%; left: 0; margin-bottom: 8px"
+      style="bottom: 100%; right: 0; margin-bottom: 8px"
     >
       <img
         :src="previewImage"
