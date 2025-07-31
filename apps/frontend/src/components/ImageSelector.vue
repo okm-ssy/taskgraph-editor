@@ -82,19 +82,6 @@
             <span v-if="!image.id" class="text-xs text-red-400">(未登録)</span>
           </div>
         </div>
-
-        <!-- 画像プレビュー（真下に表示） -->
-        <div
-          v-if="previewImage && currentPreviewPath === image.path"
-          class="fixed z-[9999] bg-white border border-gray-300 rounded-lg shadow-xl p-2"
-          :style="getPreviewStyle()"
-        >
-          <img
-            :src="previewImage"
-            alt="プレビュー"
-            class="max-w-xs max-h-48 object-contain"
-          />
-        </div>
       </div>
     </div>
 
@@ -107,6 +94,22 @@
         <div v-for="path in selectedPaths" :key="path" class="truncate">
           {{ getFilenameFromId(path) }}
         </div>
+      </div>
+    </div>
+
+    <!-- 画像プレビュー（固定位置） -->
+    <div
+      v-if="previewImage"
+      class="fixed right-4 top-1/2 -translate-y-1/2 z-[9999] bg-white border border-gray-300 rounded-lg shadow-xl p-4"
+    >
+      <div class="text-sm font-medium text-gray-700 mb-2">プレビュー</div>
+      <img
+        :src="previewImage"
+        alt="プレビュー"
+        class="max-w-sm max-h-96 object-contain"
+      />
+      <div class="text-xs text-gray-500 mt-2 text-center">
+        {{ getFilenameFromId(currentPreviewPath || '') }}
       </div>
     </div>
   </div>
@@ -144,7 +147,6 @@ const expectedImageCount = ref(0); // 初期値は0
 // プレビュー用の状態
 const previewImage = ref<string | null>(null);
 const currentPreviewPath = ref<string | null>(null);
-const previewPosition = ref({ x: 0, y: 0 });
 
 // Watch
 watch(
@@ -258,17 +260,9 @@ const isSelected = (imagePath: string): boolean => {
   return false;
 };
 
-const showPreview = (imagePath: string, event: MouseEvent) => {
+const showPreview = (imagePath: string, _event: MouseEvent) => {
   previewImage.value = getImageUrl(imagePath);
   currentPreviewPath.value = imagePath;
-
-  // マウス位置を取得
-  const target = event.currentTarget as HTMLElement;
-  const rect = target.getBoundingClientRect();
-  previewPosition.value = {
-    x: rect.left + rect.width / 2,
-    y: rect.top - 10,
-  };
 };
 
 const hidePreview = () => {
@@ -307,14 +301,7 @@ const getGridHeightClassForCount = (count: number): string => {
   }
 };
 
-// プレビューのスタイルを計算
-const getPreviewStyle = () => {
-  return {
-    left: `${previewPosition.value.x}px`,
-    top: `${previewPosition.value.y}px`,
-    transform: 'translate(-50%, -100%)',
-  };
-};
+// プレビューのスタイルを計算（削除済み - 固定位置を使用）
 
 // Lifecycle
 onMounted(async () => {
