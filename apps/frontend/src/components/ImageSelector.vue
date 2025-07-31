@@ -34,7 +34,7 @@
         :key="image.path"
         class="flex flex-col items-center p-2 hover:bg-gray-50 rounded border cursor-pointer relative"
         :class="
-          selectedPaths.includes(image.path)
+          isSelected(image.path)
             ? 'border-blue-500 bg-blue-50'
             : 'border-gray-100'
         "
@@ -44,7 +44,7 @@
       >
         <!-- 選択インジケーター -->
         <div
-          v-if="selectedPaths.includes(image.path)"
+          v-if="isSelected(image.path)"
           class="absolute top-1 right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center"
         >
           <svg
@@ -237,9 +237,25 @@ const getImageUrl = (path: string): string => {
   return `/api/images/${path}`;
 };
 
-const getFilenameFromId = (path: string): string => {
-  const image = images.value.find((img) => img.path === path);
-  return image ? image.filename : path.split('/').pop() || path;
+const getFilenameFromId = (pathOrId: string): string => {
+  const image = images.value.find(
+    (img) => img.path === pathOrId || img.id === pathOrId,
+  );
+  return image ? image.filename : pathOrId.split('/').pop() || pathOrId;
+};
+
+// パスまたはIDが選択されているかチェック
+const isSelected = (imagePath: string): boolean => {
+  // 直接パスでチェック
+  if (selectedPaths.value.includes(imagePath)) {
+    return true;
+  }
+  // このパスに対応する画像のIDでもチェック
+  const image = images.value.find((img) => img.path === imagePath);
+  if (image && image.id && selectedPaths.value.includes(image.id)) {
+    return true;
+  }
+  return false;
 };
 
 const showPreview = (imagePath: string, event: MouseEvent) => {
