@@ -328,6 +328,7 @@ const tooltipPosition = ref({ x: 0, y: 0 });
 // ドラッグ検出用の状態
 const isDragging = ref(false);
 const dragStartedInDialog = ref(false);
+const mouseDownOnOverlay = ref(false);
 
 // ダイアログが開いている間、背景のスクロールを防ぐ
 watch(
@@ -543,8 +544,11 @@ const handleOverlayMouseDown = (event: MouseEvent) => {
   );
   if (dialogContent && dialogContent.contains(event.target as Node)) {
     dragStartedInDialog.value = true;
+    mouseDownOnOverlay.value = false;
   } else {
     dragStartedInDialog.value = false;
+    // オーバーレイ（背景）でマウスダウンされた場合のみフラグを立てる
+    mouseDownOnOverlay.value = event.target === event.currentTarget;
   }
   isDragging.value = false;
 
@@ -563,17 +567,23 @@ const handleOverlayMouseDown = (event: MouseEvent) => {
 
 // オーバーレイクリックの処理
 const handleOverlayClick = (event: MouseEvent) => {
+  // ドラッグ操作だった場合はダイアログを閉じない
   if (isDragging.value) {
     return;
   }
 
+  // ダイアログ内でマウスダウンが開始された場合はダイアログを閉じない
   if (dragStartedInDialog.value) {
     return;
   }
 
-  if (event.target === event.currentTarget) {
+  // オーバーレイでマウスダウンが開始され、かつオーバーレイでクリックされた場合のみ閉じる
+  if (mouseDownOnOverlay.value && event.target === event.currentTarget) {
     handleCancel();
   }
+
+  // 処理後はフラグをリセット
+  mouseDownOnOverlay.value = false;
 };
 
 // ツールチップスタイルの計算
