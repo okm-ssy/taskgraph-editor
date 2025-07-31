@@ -1,8 +1,24 @@
 <template>
-  <div>
+  <div class="relative">
     <label class="block text-sm font-medium text-blue-700 mb-2">
       画面設計画像選択
     </label>
+
+    <!-- 画像プレビュー（枠の直上） -->
+    <div
+      v-if="previewImage"
+      class="absolute z-[9999] bg-white border border-gray-300 rounded-lg shadow-xl p-3"
+      style="bottom: 100%; left: 0; margin-bottom: 8px"
+    >
+      <img
+        :src="previewImage"
+        alt="プレビュー"
+        class="max-w-xs max-h-48 object-contain"
+      />
+      <div class="text-xs text-gray-500 mt-2 text-center">
+        {{ getFilenameFromId(currentPreviewPath || '') }}
+      </div>
+    </div>
 
     <!-- ローディング中も高さを確保（画像がある場合のみ） -->
     <div
@@ -94,22 +110,6 @@
         <div v-for="path in selectedPaths" :key="path" class="truncate">
           {{ getFilenameFromId(path) }}
         </div>
-      </div>
-    </div>
-
-    <!-- 画像プレビュー（固定位置） -->
-    <div
-      v-if="previewImage"
-      class="fixed right-4 top-1/2 -translate-y-1/2 z-[9999] bg-white border border-gray-300 rounded-lg shadow-xl p-4"
-    >
-      <div class="text-sm font-medium text-gray-700 mb-2">プレビュー</div>
-      <img
-        :src="previewImage"
-        alt="プレビュー"
-        class="max-w-sm max-h-96 object-contain"
-      />
-      <div class="text-xs text-gray-500 mt-2 text-center">
-        {{ getFilenameFromId(currentPreviewPath || '') }}
       </div>
     </div>
   </div>
