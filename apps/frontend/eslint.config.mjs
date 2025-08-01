@@ -39,6 +39,9 @@ export default [
       // コンポーネントの命名規則を SampleComponent.vue のように複数単語だけでなく Sample.vue のような単語も許可
       'vue/multi-word-component-names': 'off',
 
+      // anyの暗黙的な使用を禁止（Parameter 'req' implicitly has an 'any' typeを検知）
+      '@typescript-eslint/no-explicit-any': 'error',
+
       // HTMLタグ で <div></div> を <div /> とするよう強制
       'vue/html-self-closing': [
         'error',
