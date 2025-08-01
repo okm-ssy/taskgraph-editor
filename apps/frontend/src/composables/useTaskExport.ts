@@ -212,8 +212,8 @@ export function useTaskExport() {
   function downloadFiles() {
     try {
       const files = exportToMarkdown();
-      const info = projectInfo.value;
-      const projectId = info?.id || 'project';
+      const taskStore = useCurrentTasks();
+      const projectId = taskStore.selectedProjectId || 'project';
 
       Object.entries(files).forEach(([filename, content]) => {
         // ファイル名を ${project-id}-[TYPE].md 形式に変換
