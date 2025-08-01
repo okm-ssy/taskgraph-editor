@@ -1,8 +1,8 @@
 import { computed } from 'vue';
 
 import { useProject } from '@/composables/useProject';
-import type { Task } from '@/model/task';
-import type { ProjectInfo } from '@/model/taskgraph';
+import type { Task } from '@/model/Taskgraph';
+import type { ProjectInfo } from '@/model/Taskgraph';
 import { useCurrentTasks } from '@/store/task_store';
 
 export function useTaskExport() {

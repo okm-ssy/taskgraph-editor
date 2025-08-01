@@ -33,11 +33,8 @@ export default [
         },
       ],
 
-      // anyの暗黙的な使用を禁止（Parameter 'req' implicitly has an 'any' typeを検知）
+      // anyの明示的な使用を禁止
       '@typescript-eslint/no-explicit-any': 'error',
-      
-      // 新しいコードでのみ型注釈を要求（既存コードには影響しない）
-      '@typescript-eslint/explicit-module-boundary-types': 'off',
 
       // コンポーネントの命名規則を SampleComponent.vue のように複数単語だけでなく Sample.vue のような単語も許可
       'vue/multi-word-component-names': 'off',
