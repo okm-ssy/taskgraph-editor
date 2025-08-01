@@ -29,16 +29,25 @@ export const difficultyBackgroundClass = (difficulty: number) => {
 };
 
 export const fieldBackgroundClass = (field: string, status?: TaskStatus) => {
-  const getColorVariant = (baseColor: string, borderColor: string) => {
-    if (!status) return `bg-${baseColor}-100 border-${borderColor}-400`;
+  const getColorVariant = (
+    baseColor: string,
+    borderColor: string,
+    baseLevel = '100',
+  ) => {
+    if (!status)
+      return `bg-${baseColor}-${baseLevel} border-${borderColor}-400`;
 
     switch (status) {
       case TASK_STATUS.DOING:
-        return `bg-${baseColor}-200 border-${borderColor}-500`; // 濃い
+        return baseLevel === '200'
+          ? `bg-${baseColor}-300 border-${borderColor}-500` // gray-200の場合は300に
+          : `bg-${baseColor}-200 border-${borderColor}-500`; // 濃い
       case TASK_STATUS.DONE:
-        return `bg-${baseColor}-50 border-${borderColor}-300`; // 薄い
+        return baseLevel === '200'
+          ? `bg-${baseColor}-100 border-${borderColor}-300` // gray-200の場合は100に
+          : `bg-${baseColor}-50 border-${borderColor}-300`; // 薄い
       default:
-        return `bg-${baseColor}-100 border-${borderColor}-400`; // 未着手（標準）
+        return `bg-${baseColor}-${baseLevel} border-${borderColor}-400`; // 未着手（標準）
     }
   };
 
@@ -50,11 +59,11 @@ export const fieldBackgroundClass = (field: string, status?: TaskStatus) => {
     case 'infra':
       return getColorVariant('yellow', 'yellow');
     case 'other':
-      return getColorVariant('gray', 'gray');
+      return getColorVariant('gray', 'gray', '200');
     case 'parent':
       return getColorVariant('red', 'red');
     default:
-      return getColorVariant('gray', 'gray');
+      return getColorVariant('gray', 'gray', '200');
   }
 };
 
