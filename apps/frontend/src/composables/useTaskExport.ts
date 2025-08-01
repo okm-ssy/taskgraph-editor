@@ -212,15 +212,21 @@ export function useTaskExport() {
   function downloadFiles() {
     try {
       const files = exportToMarkdown();
+      const info = projectInfo.value;
+      const projectId = info?.id || 'project';
 
       Object.entries(files).forEach(([filename, content]) => {
+        // ファイル名を ${project-id}-[TYPE].md 形式に変換
+        const fileType = filename.replace('.md', '');
+        const customFilename = `${projectId}-${fileType}.md`;
+
         const blob = new Blob([content], {
           type: 'text/markdown;charset=utf-8',
         });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = filename;
+        link.download = customFilename;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
