@@ -98,7 +98,7 @@
             <!-- 追加情報シグナル -->
             <TaskInfoSignal :task="task" :compact="props.compact" />
           </div>
-
+          <div class="m-1" />
           <!-- カテゴリ/難易度 -->
           <span
             :class="[
