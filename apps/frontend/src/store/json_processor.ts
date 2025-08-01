@@ -2,7 +2,11 @@ import { ref } from 'vue';
 
 // import sampleTaskgraphData from '../assets/sample.taskgraph.json';
 import { EditorTask } from '../model/EditorTask';
-import { validateTaskgraph, type Taskgraph } from '../model/Taskgraph';
+import {
+  validateTaskgraph,
+  type Taskgraph,
+  type Task,
+} from '../model/Taskgraph';
 
 import { useErrorStore } from './error_store';
 
@@ -62,7 +66,7 @@ export const useJsonProcessor = () => {
       // 新しいEditorTaskを作成
       const newEditorTasks: EditorTask[] = [];
       if (taskgraph && taskgraph.tasks) {
-        taskgraph.tasks.forEach((task) => {
+        taskgraph.tasks.forEach((task: Task) => {
           const editorTask = new EditorTask();
           editorTask.task = { ...task };
 

@@ -540,7 +540,11 @@ export const useCurrentTasks = defineStore('editorTask', () => {
         ...editorTask.task.addition,
         baseDifficulty: editorTask.task.addition?.baseDifficulty || 0,
         category: editorTask.task.addition?.category || '',
-        field: editorTask.task.addition?.field || '',
+        field: (['', 'front', 'back', 'infra', 'other', 'parent'].includes(
+          editorTask.task.addition?.field || '',
+        )
+          ? editorTask.task.addition?.field
+          : '') as '' | 'front' | 'back' | 'infra' | 'other' | 'parent',
         layout: {
           x: editorTask.grid.x,
           y: editorTask.grid.y,
