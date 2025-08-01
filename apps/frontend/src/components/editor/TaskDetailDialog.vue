@@ -255,6 +255,29 @@
           <div class="mb-4">
             <ImageSelector v-model="designImagesInput" />
           </div>
+
+          <div class="mb-4">
+            <label
+              for="status"
+              class="block text-sm font-medium text-blue-700 mb-1"
+              >進捗状況</label
+            >
+            <select
+              id="status"
+              v-model="statusInput"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md"
+            >
+              <option :value="TASK_STATUS.UNTOUCH">
+                {{ TASK_STATUS_LABELS[TASK_STATUS.UNTOUCH] }}
+              </option>
+              <option :value="TASK_STATUS.DOING">
+                {{ TASK_STATUS_LABELS[TASK_STATUS.DOING] }}
+              </option>
+              <option :value="TASK_STATUS.DONE">
+                {{ TASK_STATUS_LABELS[TASK_STATUS.DONE] }}
+              </option>
+            </select>
+          </div>
         </div>
 
         <!-- エラーメッセージ表示 -->
@@ -277,6 +300,7 @@ import { useEditorUIStore } from '../../store/editor_ui_store';
 import { useCurrentTasks } from '../../store/task_store';
 import ImageSelector from '../ImageSelector.vue';
 
+import { TASK_STATUS, TASK_STATUS_LABELS, type TaskStatus } from '@/constants';
 import { stringToField } from '@/utilities/task';
 
 const taskStore = useCurrentTasks();
@@ -301,6 +325,7 @@ const apiSchemasInput = ref('');
 const requirementsInput = ref('');
 const designImagesInput = ref<string[]>([]);
 const fieldInput = ref('');
+const statusInput = ref<TaskStatus>(TASK_STATUS.UNTOUCH);
 
 // ドラッグ検出用の状態
 const isDragging = ref(false);
@@ -377,6 +402,8 @@ watch(
       requirementsInput.value =
         newTask.task.addition?.requirements?.join('\n') || '';
       designImagesInput.value = newTask.task.addition?.design_images || [];
+      statusInput.value =
+        (newTask.task.addition?.status as TaskStatus) || TASK_STATUS.UNTOUCH;
       // ダイアログが開かれたときはエラーメッセージをクリア
       errorMessage.value = '';
     }
@@ -397,6 +424,7 @@ watch(
     apiSchemasInput,
     requirementsInput,
     designImagesInput,
+    statusInput,
   ],
   () => {
     if (errorMessage.value) {
@@ -476,6 +504,7 @@ const handleSubmit = () => {
         designImagesInput.value.length > 0
           ? designImagesInput.value
           : undefined,
+      status: statusInput.value,
     },
   });
 
@@ -509,6 +538,9 @@ const resetInputs = () => {
       taskStore.selectedTask.task.addition?.requirements?.join('\n') || '';
     designImagesInput.value =
       taskStore.selectedTask.task.addition?.design_images || [];
+    statusInput.value =
+      (taskStore.selectedTask.task.addition?.status as TaskStatus) ||
+      TASK_STATUS.UNTOUCH;
   }
 };
 

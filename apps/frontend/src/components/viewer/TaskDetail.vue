@@ -96,6 +96,23 @@
       <label class="block text-xs font-medium text-gray-500">Issue 番号:</label>
       <p class="text-gray-800 text-xs">#{{ task.task.issueNumber }}</p>
     </div>
+
+    <div v-if="task.task.addition?.status">
+      <label class="block text-xs font-medium text-gray-500 mb-0.5"
+        >進捗状況</label
+      >
+      <span
+        :class="[
+          'inline-block px-2 py-0.5 text-xs font-semibold rounded-full leading-none',
+          statusClass,
+        ]"
+      >
+        {{
+          TASK_STATUS_LABELS[task.task.addition.status] ||
+          task.task.addition.status
+        }}
+      </span>
+    </div>
   </div>
 </template>
 
@@ -105,6 +122,8 @@ import { computed } from 'vue';
 import type { EditorTask } from '../../model/EditorTask';
 import { useCurrentTasks } from '../../store/task_store';
 import { fieldBackgroundClass } from '../../utilities/task';
+
+import { TASK_STATUS, TASK_STATUS_LABELS } from '@/constants';
 
 const props = defineProps<{
   task: EditorTask; // EditorTask オブジェクト全体を受け取る
@@ -127,6 +146,20 @@ const dependingOnTaskNames = computed(() => {
 const validNotes = computed(() => {
   if (!props.task?.task.notes) return [];
   return props.task.task.notes.filter((note) => note && note !== '');
+});
+
+const statusClass = computed(() => {
+  const status = props.task?.task.addition?.status;
+  switch (status) {
+    case TASK_STATUS.UNTOUCH:
+      return 'bg-gray-100 text-gray-800';
+    case TASK_STATUS.DOING:
+      return 'bg-blue-100 text-blue-800';
+    case TASK_STATUS.DONE:
+      return 'bg-green-100 text-green-800';
+    default:
+      return 'bg-gray-100 text-gray-800';
+  }
 });
 </script>
 
