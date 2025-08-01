@@ -176,11 +176,6 @@ const getEditorTaskById = (id: string) => {
   return taskStore.getTaskById(id);
 };
 
-/*
-@source inline("{bg-blue,bg-green,bg-yellow,bg-red,bg-gray}-{50,100,200,300}");
-@source inline("{border-blue,border-green,border-yellow,border-red,border-gray}-{300,400,500}");
-*/
-
 // 分野と進捗状況に基づいて背景色を計算
 const fieldColorClass = computed(() => {
   const status = props.task.addition?.status as TaskStatus;
