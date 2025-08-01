@@ -1,5 +1,6 @@
 import { computed } from 'vue';
 
+import { useProject } from '@/composables/useProject';
 import type { Task } from '@/model/task';
 import type { ProjectInfo } from '@/model/taskgraph';
 import { useCurrentTasks } from '@/store/task_store';
@@ -212,8 +213,8 @@ export function useTaskExport() {
   function downloadFiles() {
     try {
       const files = exportToMarkdown();
-      const taskStore = useCurrentTasks();
-      const projectId = taskStore.selectedProjectId || 'project';
+      const { selectedProjectId } = useProject();
+      const projectId = selectedProjectId.value || 'project';
 
       Object.entries(files).forEach(([filename, content]) => {
         // ファイル名を ${project-id}-[TYPE].md 形式に変換
