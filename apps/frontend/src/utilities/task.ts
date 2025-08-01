@@ -1,5 +1,6 @@
-import { DIFFICULTY } from '../constants';
+import { DIFFICULTY, TASK_STATUS } from '../constants';
 
+import type { TaskStatus } from '@/constants';
 import { Field } from '@/model/Taskgraph';
 
 export const difficultyColorClass = (difficulty: number) => {
@@ -27,20 +28,33 @@ export const difficultyBackgroundClass = (difficulty: number) => {
   return 'bg-purple-100 border-purple-500';
 };
 
-export const fieldBackgroundClass = (field: string) => {
+export const fieldBackgroundClass = (field: string, status?: TaskStatus) => {
+  const getColorVariant = (baseColor: string, borderColor: string) => {
+    if (!status) return `bg-${baseColor}-100 border-${borderColor}-400`;
+
+    switch (status) {
+      case TASK_STATUS.DOING:
+        return `bg-${baseColor}-200 border-${borderColor}-500`; // 濃い
+      case TASK_STATUS.DONE:
+        return `bg-${baseColor}-50 border-${borderColor}-300`; // 薄い
+      default:
+        return `bg-${baseColor}-100 border-${borderColor}-400`; // 未着手（標準）
+    }
+  };
+
   switch (field) {
     case 'back':
-      return 'bg-blue-100 border-blue-400';
+      return getColorVariant('blue', 'blue');
     case 'front':
-      return 'bg-green-100 border-green-400';
+      return getColorVariant('green', 'green');
     case 'infra':
-      return 'bg-yellow-100 border-yellow-400';
+      return getColorVariant('yellow', 'yellow');
     case 'other':
-      return 'bg-gray-200 border-gray-400';
+      return getColorVariant('gray', 'gray');
     case 'parent':
-      return 'bg-red-100 border-red-400';
+      return getColorVariant('red', 'red');
     default:
-      return 'bg-gray-200 border-gray-400';
+      return getColorVariant('gray', 'gray');
   }
 };
 
