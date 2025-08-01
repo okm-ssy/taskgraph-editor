@@ -188,3 +188,4 @@ export type DesignImage = zod.infer<typeof designImageZodSchema>;
 export type Task = zod.infer<typeof taskZodSchema>;
 export type Taskgraph = zod.infer<typeof taskgraphZodSchema>;
 export type Field = zod.infer<typeof fieldZodSchema>;
+export type ProjectInfo = zod.infer<typeof infoZodSchema>;
