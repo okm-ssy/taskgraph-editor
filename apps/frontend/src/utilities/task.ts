@@ -40,8 +40,8 @@ export const fieldBackgroundClass = (field: string, status?: TaskStatus) => {
     switch (status) {
       case TASK_STATUS.DOING:
         return baseLevel === '200'
-          ? `bg-${baseColor}-400 border-${borderColor}-600` // gray-200の場合は400に
-          : `bg-${baseColor}-300 border-${borderColor}-600`; // より濃い
+          ? `bg-${baseColor}-400 border-black` // gray-200の場合は400に、黒枠
+          : `bg-${baseColor}-300 border-black`; // より濃い、黒枠
       case TASK_STATUS.DONE:
         return `bg-gray-100 border-${borderColor}-300`; // 完了は薄い灰色背景
       default:
