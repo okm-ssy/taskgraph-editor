@@ -95,6 +95,7 @@ export const taskZodSchema = zod
         api_schemas: zod.array(zod.string()).optional(), // API仕様・エンドポイント情報
         requirements: zod.array(zod.string()).optional(), // 受け入れ基準（必須）
         design_images: zod.array(zod.string()).optional(), // 関連する画面設計画像のID
+        status: zod.enum(['untouch', 'doing', 'done']).optional(), // タスクの進捗状況
       })
       .optional(),
   })
