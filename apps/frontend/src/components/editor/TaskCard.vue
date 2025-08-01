@@ -149,6 +149,8 @@ import {
 import TaskInfoSignal from '../TaskInfoSignal.vue';
 import TaskDetail from '../viewer/TaskDetail.vue';
 
+import type { TaskStatus } from '@/constants';
+
 const props = defineProps<{
   task: Task;
   id: string;
@@ -174,9 +176,10 @@ const getEditorTaskById = (id: string) => {
   return taskStore.getTaskById(id);
 };
 
-// 分野に基づいて背景色を計算
+// 分野と進捗状況に基づいて背景色を計算
 const fieldColorClass = computed(() => {
-  return fieldBackgroundClass(props.task.addition?.field || '');
+  const status = props.task.addition?.status as TaskStatus;
+  return fieldBackgroundClass(props.task.addition?.field || '', status);
 });
 
 // 難易度に基づいて文字色を計算
