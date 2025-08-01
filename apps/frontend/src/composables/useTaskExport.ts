@@ -58,7 +58,7 @@ export function useTaskExport() {
 
     const businessPurpose = info.addition?.business_purpose || '未設定';
     const targetUsers = info.addition?.target_users || '未設定';
-    const businessContext = info.addition?.business_context || '未設定';
+    const businessContext = info.addition?.current_problem || '未設定';
 
     let content = `# ${info.name} - 要件定義\n\n`;
     content += `## プロジェクト概要\n\n`;
@@ -117,13 +117,9 @@ export function useTaskExport() {
         task.addition.design_images.length > 0
       ) {
         content += `### 画面設計\n\n`;
-        task.addition.design_images.forEach((img) => {
-          // IDオブジェクト形式と文字列パス形式の両方に対応
-          const imagePath =
-            typeof img === 'object' && img !== null && 'path' in img
-              ? img.path
-              : img;
-          content += `![画面設計](${imagePath})\n`;
+        task.addition.design_images.forEach((img: string) => {
+          // 画像IDまたはパス
+          content += `![画面設計](${img})\n`;
         });
         content += '\n';
       }
