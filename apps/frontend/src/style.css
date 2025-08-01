@@ -3,4 +3,5 @@
 
 /* 進捗状況による動的クラス名のsafelist */
 @source inline("{bg-blue,bg-green,bg-yellow,bg-red,bg-gray}-{50,100,200,300,400}");
+
 @source inline("{border-blue,border-green,border-yellow,border-red,border-gray}-{300,400,500,600}");

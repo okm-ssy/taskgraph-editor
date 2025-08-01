@@ -32,8 +32,8 @@ const tooltipText = computed(() => {
   const items = [];
 
   items.push(info.hasImplementationNotes ? '✓ 実装方針' : '○ 実装方針');
-  items.push(info.hasDataRequirements ? '✓ API仕様' : '○ API仕様');
-  items.push(info.hasAcceptanceCriteria ? '✓ 要件' : '○ 要件');
+  items.push(info.hasApiSchemas ? '✓ API仕様' : '○ API仕様');
+  items.push(info.hasRequirements ? '✓ 要件' : '○ 要件');
   items.push(info.hasDesignImages ? '✓ 画面設計画像' : '○ 画面設計画像');
 
   return items.join('\n');
