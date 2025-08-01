@@ -73,6 +73,13 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     return tasks.value.reduce((sum, task) => sum + task.difficulty, 0);
   });
 
+  // 完了タスクの工数合計
+  const completedDifficulty = computed(() => {
+    return tasks.value
+      .filter((task) => task.addition?.status === 'done')
+      .reduce((sum, task) => sum + task.difficulty, 0);
+  });
+
   // Actions
   const addTask = () => {
     const newTask = new EditorTask();
@@ -603,6 +610,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     taskCount,
     baseTotalDifficulty,
     totalDifficulty,
+    completedDifficulty,
     getTaskById,
     getDependentTasks,
     selectedTask, // 追加

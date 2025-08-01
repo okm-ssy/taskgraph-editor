@@ -7,6 +7,11 @@
           <span class="font-medium"
             >総工数: {{ totalDifficulty.toFixed(2) }}h</span
           >
+          <span
+            v-if="completedDifficulty > 0"
+            class="font-medium ml-3 text-green-600"
+            >終了: {{ completedDifficulty.toFixed(2) }}h</span
+          >
         </div>
       </div>
       <div class="flex gap-2">
@@ -187,7 +192,7 @@ const layoutConfig = computed(() => ({
 const taskActions = useTaskActionsProvider();
 
 // storeからtoRefsで値を取得
-const { editorTasks, totalDifficulty } = toRefs(taskStore);
+const { editorTasks, totalDifficulty, completedDifficulty } = toRefs(taskStore);
 
 // 矢印描画用: 依存関係のペアを取得
 type Arrow = {
