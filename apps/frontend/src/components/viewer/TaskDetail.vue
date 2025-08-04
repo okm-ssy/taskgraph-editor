@@ -6,7 +6,14 @@
       <label class="block text-xs font-medium text-gray-500 mb-0.5"
         >タスク名</label
       >
-      <p class="text-gray-800 text-sm font-semibold break-words">
+      <p
+        :class="[
+          'text-sm font-semibold break-words',
+          task.task.addition?.status === 'done'
+            ? 'text-gray-400'
+            : 'text-gray-800',
+        ]"
+      >
         {{ task.task.name }}
       </p>
     </div>

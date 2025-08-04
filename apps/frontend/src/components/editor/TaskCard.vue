@@ -44,7 +44,14 @@
         :class="fieldColorClass.replace('bg-', 'bg-opacity-70 bg-')"
       >
         <div class="flex items-center justify-start overflow-x-hidden">
-          <div class="font-bold text-gray-800 truncate text-sm">
+          <div
+            :class="[
+              'font-bold truncate text-sm',
+              task.addition?.status === 'done'
+                ? 'text-gray-400'
+                : 'text-gray-800',
+            ]"
+          >
             {{ task.name }}
           </div>
         </div>
