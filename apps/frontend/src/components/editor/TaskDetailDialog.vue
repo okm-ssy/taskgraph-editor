@@ -18,7 +18,7 @@
             <button
               type="button"
               @click="cycleStatus"
-              class="px-2 py-1 rounded text-xs transition-colors border w-16 text-center"
+              class="px-2 py-1 rounded text-xs transition-colors border w-16 text-center cursor-pointer"
               :class="getStatusButtonClass()"
             >
               {{ TASK_STATUS_LABELS[statusInput] }}
@@ -28,14 +28,14 @@
             <button
               type="button"
               @click="handleCancel"
-              class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md transition-colors"
+              class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md transition-colors cursor-pointer"
             >
               キャンセル
             </button>
             <button
               type="submit"
               form="task-detail-form"
-              class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors"
+              class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors cursor-pointer"
             >
               保存
             </button>
@@ -105,7 +105,7 @@
                 <button
                   type="button"
                   @click="decreaseDifficulty"
-                  class="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm font-semibold transition-colors"
+                  class="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm font-semibold transition-colors cursor-pointer"
                   :disabled="difficultyInput <= 0"
                 >
                   −
@@ -122,7 +122,7 @@
                 <button
                   type="button"
                   @click="increaseDifficulty"
-                  class="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm font-semibold transition-colors"
+                  class="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm font-semibold transition-colors cursor-pointer"
                 >
                   ＋
                 </button>
