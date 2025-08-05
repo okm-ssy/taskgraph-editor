@@ -476,13 +476,13 @@ const cycleStatus = () => {
 const getStatusButtonClass = () => {
   switch (statusInput.value) {
     case TASK_STATUS.UNTOUCH:
-      return 'bg-gray-100 hover:bg-gray-200 border-gray-300 text-gray-700';
+      return 'bg-white hover:bg-gray-50 border-gray-400 text-gray-600 border-2 border-dashed';
     case TASK_STATUS.DOING:
-      return 'bg-yellow-100 hover:bg-yellow-200 border-yellow-300 text-yellow-800';
+      return 'bg-orange-100 hover:bg-orange-200 border-orange-400 text-orange-800 border-2';
     case TASK_STATUS.DONE:
-      return 'bg-green-100 hover:bg-green-200 border-green-300 text-green-800';
+      return 'bg-green-500 hover:bg-green-600 border-green-600 text-white border-2 font-semibold';
     default:
-      return 'bg-gray-100 hover:bg-gray-200 border-gray-300 text-gray-700';
+      return 'bg-white hover:bg-gray-50 border-gray-400 text-gray-600 border-2 border-dashed';
   }
 };
 
