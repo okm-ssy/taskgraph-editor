@@ -13,21 +13,33 @@
         class="border-b px-6 py-4 flex-shrink-0 flex justify-between items-center"
       >
         <h3 class="text-lg font-medium">タスク詳細</h3>
-        <div class="flex gap-2">
-          <button
-            type="button"
-            @click="handleCancel"
-            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md transition-colors"
-          >
-            キャンセル
-          </button>
-          <button
-            type="submit"
-            form="task-detail-form"
-            class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors"
-          >
-            保存
-          </button>
+        <div class="flex gap-2 items-center">
+          <div>
+            <button
+              type="button"
+              @click="cycleStatus"
+              class="px-3 py-2 rounded-md transition-colors border w-20 text-center"
+              :class="getStatusButtonClass()"
+            >
+              {{ TASK_STATUS_LABELS[statusInput] }}
+            </button>
+          </div>
+          <div class="flex gap-2">
+            <button
+              type="button"
+              @click="handleCancel"
+              class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md transition-colors"
+            >
+              キャンセル
+            </button>
+            <button
+              type="submit"
+              form="task-detail-form"
+              class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors"
+            >
+              保存
+            </button>
+          </div>
         </div>
       </div>
 
@@ -255,29 +267,6 @@
           <div class="mb-4">
             <ImageSelector v-model="designImagesInput" />
           </div>
-
-          <div class="mb-4">
-            <label
-              for="status"
-              class="block text-sm font-medium text-blue-700 mb-1"
-              >進捗状況</label
-            >
-            <select
-              id="status"
-              v-model="statusInput"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md"
-            >
-              <option :value="TASK_STATUS.UNTOUCH">
-                {{ TASK_STATUS_LABELS[TASK_STATUS.UNTOUCH] }}
-              </option>
-              <option :value="TASK_STATUS.DOING">
-                {{ TASK_STATUS_LABELS[TASK_STATUS.DOING] }}
-              </option>
-              <option :value="TASK_STATUS.DONE">
-                {{ TASK_STATUS_LABELS[TASK_STATUS.DONE] }}
-              </option>
-            </select>
-          </div>
         </div>
 
         <!-- エラーメッセージ表示 -->
@@ -473,6 +462,28 @@ const getInputColorClass = () => {
   if (input < recommended) return 'text-blue-600';
   if (input > recommended) return 'text-red-600';
   return 'text-black';
+};
+
+// ステータスをループで切り替える関数
+const cycleStatus = () => {
+  const statuses = [TASK_STATUS.UNTOUCH, TASK_STATUS.DOING, TASK_STATUS.DONE];
+  const currentIndex = statuses.indexOf(statusInput.value);
+  const nextIndex = (currentIndex + 1) % statuses.length;
+  statusInput.value = statuses[nextIndex];
+};
+
+// ステータスボタンのスタイルクラスを取得する関数
+const getStatusButtonClass = () => {
+  switch (statusInput.value) {
+    case TASK_STATUS.UNTOUCH:
+      return 'bg-gray-100 hover:bg-gray-200 border-gray-300 text-gray-700';
+    case TASK_STATUS.DOING:
+      return 'bg-yellow-100 hover:bg-yellow-200 border-yellow-300 text-yellow-800';
+    case TASK_STATUS.DONE:
+      return 'bg-green-100 hover:bg-green-200 border-green-300 text-green-800';
+    default:
+      return 'bg-gray-100 hover:bg-gray-200 border-gray-300 text-gray-700';
+  }
 };
 
 // フォーム送信時の処理
