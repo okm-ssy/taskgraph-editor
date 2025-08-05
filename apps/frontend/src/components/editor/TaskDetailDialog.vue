@@ -18,7 +18,7 @@
             <button
               type="button"
               @click="cycleStatus"
-              class="px-3 py-2 rounded-md transition-colors border w-20 text-center"
+              class="px-2 py-1 rounded text-xs transition-colors border w-16 text-center"
               :class="getStatusButtonClass()"
             >
               {{ TASK_STATUS_LABELS[statusInput] }}
@@ -476,13 +476,13 @@ const cycleStatus = () => {
 const getStatusButtonClass = () => {
   switch (statusInput.value) {
     case TASK_STATUS.UNTOUCH:
-      return 'bg-white hover:bg-gray-50 border-gray-400 text-gray-600 border-2 border-dashed';
+      return 'bg-gray-100 hover:bg-gray-200 border-gray-300 text-gray-700 font-medium';
     case TASK_STATUS.DOING:
-      return 'bg-orange-100 hover:bg-orange-200 border-orange-400 text-orange-800 border-2';
+      return 'bg-orange-100 hover:bg-orange-200 border-orange-300 text-orange-800 font-medium';
     case TASK_STATUS.DONE:
-      return 'bg-green-500 hover:bg-green-600 border-green-600 text-white border-2 font-semibold';
+      return 'bg-green-100 hover:bg-green-200 border-green-300 text-green-800 font-medium';
     default:
-      return 'bg-white hover:bg-gray-50 border-gray-400 text-gray-600 border-2 border-dashed';
+      return 'bg-gray-100 hover:bg-gray-200 border-gray-300 text-gray-700 font-medium';
   }
 };
 
