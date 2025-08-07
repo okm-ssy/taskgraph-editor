@@ -24,16 +24,24 @@ export const useTaskAdditionalInfo = () => {
       task.addition?.design_images && task.addition.design_images.length > 0
     );
 
+    const hasRelations = !!(
+      task.addition?.relations &&
+      task.addition.relations.length > 0 &&
+      task.addition.relations.some((relation) => relation.trim() !== '')
+    );
+
     return {
       hasImplementationNotes,
       hasApiSchemas,
       hasRequirements,
       hasDesignImages,
+      hasRelations,
       filledCount: [
         hasImplementationNotes,
         hasApiSchemas,
         hasRequirements,
         hasDesignImages,
+        hasRelations,
       ].filter(Boolean).length,
     };
   };
@@ -49,6 +57,9 @@ export const useTaskAdditionalInfo = () => {
     else signals.push('-');
 
     if (info.hasRequirements) signals.push('o');
+    else signals.push('-');
+
+    if (info.hasRelations) signals.push('o');
     else signals.push('-');
 
     if (info.hasDesignImages) signals.push('o');
