@@ -142,8 +142,14 @@ const selectedIndex = ref(-1); // 選択中のアイテムのインデックス
 const newFilePath = ref(''); // 新規ファイルパス入力用
 
 // ファイルパス検索のComposableを使用
-const { searchQuery, searchResults, isLoading, error, loadFiles } =
-  useFilePathSearch(props.rootPath || '');
+const {
+  searchQuery,
+  searchResults,
+  isLoading,
+  error,
+  loadFiles,
+  isFileExists,
+} = useFilePathSearch(props.rootPath || '');
 
 // ルートパスが変更されたときにファイル一覧を再読み込み
 watch(
@@ -316,10 +322,10 @@ const getFileIconColorForPath = (filePath: string): string => {
   return getFileIconColor(filename);
 };
 
-// 新規ファイルかどうかの判定（簡易版）
+// 新規ファイルかどうかの判定
 const isNewFile = (filePath: string): boolean => {
-  // 検索結果にない場合は新規ファイルとみなす
-  return !searchResults.value.some((file) => file.path === filePath);
+  // ファイルが実際に存在するかチェック
+  return !isFileExists(filePath);
 };
 
 // 新規ファイル用のアイコン
