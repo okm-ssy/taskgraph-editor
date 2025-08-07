@@ -19,7 +19,7 @@
         <span class="flex-1 text-blue-800 font-mono">{{ path }}</span>
         <button
           type="button"
-          @click="removeFile(index)"
+          @click.stop="removeFile(index)"
           class="text-blue-600 hover:text-red-600 font-medium cursor-pointer"
         >
           ×
