@@ -24,7 +24,7 @@
 
     <!-- ファイル検索・追加セクション -->
     <div
-      class="bg-gray-50 border-2 border-gray-300 rounded-md p-3 shadow-inner"
+      class="file-path-search-container bg-gray-50 border-2 border-gray-300 rounded-md p-3 shadow-inner"
     >
       <!-- 検索入力 -->
       <div class="mb-2">
@@ -82,7 +82,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted, onUnmounted } from 'vue';
 
 import { useFilePathSearch } from '../../composables/useFilePathSearch';
 
@@ -142,16 +142,29 @@ const isAlreadySelected = (path: string) => {
   return props.modelValue?.includes(path) || false;
 };
 
-// 検索結果エリア外をクリックしたときに閉じる処理
-const handleClickOutside = (event: MouseEvent) => {
+// 検索ボックス外のクリックで閉じる処理
+const handleDocumentClick = (event: MouseEvent) => {
   const target = event.target as HTMLElement;
-  if (!target.closest('.border.border-gray-300.rounded-md.p-3')) {
+  const searchContainer = document.querySelector('.file-path-search-container');
+
+  // 検索コンテナ外をクリックした場合のみ閉じる
+  if (searchContainer && !searchContainer.contains(target)) {
     showResults.value = false;
   }
 };
 
-// ドキュメントにイベントリスナーを追加
-document.addEventListener('click', handleClickOutside);
+// コンポーネントマウント時にイベントリスナーを追加
+onMounted(() => {
+  // 少し遅延を入れて、初期レンダリング後に追加
+  setTimeout(() => {
+    document.addEventListener('click', handleDocumentClick);
+  }, 100);
+});
+
+// コンポーネントアンマウント時にイベントリスナーを削除
+onUnmounted(() => {
+  document.removeEventListener('click', handleDocumentClick);
+});
 </script>
 
 <style scoped></style>
