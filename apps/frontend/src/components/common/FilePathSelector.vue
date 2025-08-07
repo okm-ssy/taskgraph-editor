@@ -34,13 +34,14 @@
           placeholder="ファイルパスを検索..."
           class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
           @focus="handleSearchFocus"
+          @keydown="handleKeydown"
         />
       </div>
 
       <!-- 検索結果 -->
       <div
         v-if="showResults"
-        class="bg-white border border-gray-300 rounded-md max-h-48 overflow-y-auto shadow-sm"
+        class="file-search-results bg-white border border-gray-300 rounded-md max-h-48 overflow-y-auto shadow-sm"
       >
         <div v-if="isLoading" class="p-3 text-center text-gray-500 text-sm">
           ファイル一覧を読み込み中...
@@ -59,12 +60,15 @@
 
         <div v-else>
           <button
-            v-for="file in searchResults"
+            v-for="(file, index) in searchResults"
             :key="file.path"
             type="button"
             @click="addFile(file.path)"
-            class="w-full text-left px-3 py-2 hover:bg-blue-50 border-b border-gray-200 last:border-b-0 cursor-pointer transition-colors"
-            :class="{ 'opacity-50': isAlreadySelected(file.path) }"
+            class="file-search-item w-full text-left px-3 py-2 hover:bg-blue-50 border-b border-gray-200 last:border-b-0 cursor-pointer transition-colors"
+            :class="{
+              'opacity-50': isAlreadySelected(file.path),
+              'bg-blue-100': index === selectedIndex,
+            }"
             :disabled="isAlreadySelected(file.path)"
           >
             <div class="text-sm font-mono text-gray-800">{{ file.path }}</div>
@@ -96,6 +100,7 @@ const emit = defineEmits<{
 }>();
 
 const showResults = ref(false);
+const selectedIndex = ref(-1); // 選択中のアイテムのインデックス
 
 // ファイルパス検索のComposableを使用
 const { searchQuery, searchResults, isLoading, error, loadFiles, clearSearch } =
@@ -115,8 +120,66 @@ watch(
 // 検索フォーカス時の処理
 const handleSearchFocus = () => {
   showResults.value = true;
+  selectedIndex.value = -1; // フォーカス時に選択をリセット
   if (!searchResults.value.length && props.rootPath) {
     loadFiles();
+  }
+};
+
+// キーボードナビゲーション処理
+const handleKeydown = (event: KeyboardEvent) => {
+  if (!showResults.value || searchResults.value.length === 0) {
+    return;
+  }
+
+  switch (event.key) {
+    case 'ArrowDown':
+      event.preventDefault();
+      selectedIndex.value = Math.min(
+        selectedIndex.value + 1,
+        searchResults.value.length - 1,
+      );
+      scrollToSelected();
+      break;
+
+    case 'ArrowUp':
+      event.preventDefault();
+      selectedIndex.value = Math.max(selectedIndex.value - 1, -1);
+      scrollToSelected();
+      break;
+
+    case 'Enter':
+      event.preventDefault();
+      if (
+        selectedIndex.value >= 0 &&
+        selectedIndex.value < searchResults.value.length
+      ) {
+        const selectedFile = searchResults.value[selectedIndex.value];
+        if (!isAlreadySelected(selectedFile.path)) {
+          addFile(selectedFile.path);
+        }
+      }
+      break;
+
+    case 'Escape':
+      showResults.value = false;
+      selectedIndex.value = -1;
+      break;
+  }
+};
+
+// 選択中のアイテムが見えるようにスクロール
+const scrollToSelected = () => {
+  if (selectedIndex.value < 0) return;
+
+  const container = document.querySelector('.file-search-results');
+  const items = container?.querySelectorAll('.file-search-item');
+
+  if (items && items[selectedIndex.value]) {
+    items[selectedIndex.value].scrollIntoView({
+      block: 'nearest',
+      behavior: 'smooth',
+    });
   }
 };
 
@@ -128,6 +191,7 @@ const addFile = (path: string) => {
   }
   clearSearch();
   showResults.value = false;
+  selectedIndex.value = -1; // 選択インデックスをリセット
 };
 
 // ファイルを削除
