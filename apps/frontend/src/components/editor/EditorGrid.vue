@@ -328,11 +328,17 @@ const handleLayoutUpdated = (newLayout: GridTask[]) => {
     }
   }
 
-  // 通常の更新処理（リサイズなど）
+  // 通常の更新処理（移動・リサイズなど）
   newLayout.forEach((item) => {
     const oldItem = layout.value.find((old) => old.i === item.i);
-    if (oldItem && (item.w !== oldItem.w || item.h !== oldItem.h)) {
-      // サイズ変更のみ適用
+    if (
+      oldItem &&
+      (item.x !== oldItem.x ||
+        item.y !== oldItem.y ||
+        item.w !== oldItem.w ||
+        item.h !== oldItem.h)
+    ) {
+      // 位置・サイズ変更を適用
       taskStore.updateGridTask(item.i, {
         x: item.x,
         y: item.y,
