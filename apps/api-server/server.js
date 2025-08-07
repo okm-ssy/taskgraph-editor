@@ -3,9 +3,12 @@ import cors from 'cors';
 import fs from 'fs/promises';
 import path from 'path';
 import multer from 'multer';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 
 const app = express();
 const PORT = 9393;
+const execAsync = promisify(exec);
 
 // プロジェクトルートのdataフォルダのパス
 const DATA_DIR = path.join(process.cwd(), '..', '..', 'data');
@@ -437,6 +440,63 @@ app.get('/api/project-images/:projectId', async (req, res) => {
   } catch (error) {
     console.error('Failed to list project images:', error);
     res.status(500).json({ error: 'プロジェクト画像一覧の取得に失敗しました' });
+  }
+});
+
+// ファイル一覧取得エンドポイント（git ls-files使用）
+app.get('/api/file-list', async (req, res) => {
+  try {
+    const rootPath = req.query.rootPath;
+    
+    if (!rootPath) {
+      return res.status(400).json({ error: 'rootPathパラメータが必要です' });
+    }
+
+    // パスの存在確認
+    try {
+      await fs.access(rootPath);
+    } catch {
+      return res.status(404).json({ error: '指定されたパスが存在しません' });
+    }
+
+    // 指定されたディレクトリがGitリポジトリか確認
+    try {
+      await execAsync('git rev-parse --git-dir', { cwd: rootPath });
+    } catch {
+      return res.status(400).json({ error: '指定されたパスはGitリポジトリではありません' });
+    }
+
+    // git ls-filesを実行してファイル一覧を取得
+    const { stdout, stderr } = await execAsync('git ls-files', {
+      cwd: rootPath,
+      maxBuffer: 10 * 1024 * 1024 // 10MB
+    });
+
+    if (stderr) {
+      console.error('git ls-files error:', stderr);
+    }
+
+    // ファイルパスを配列に変換し、FileItem形式に変換
+    const files = stdout
+      .split('\n')
+      .filter(line => line.trim() !== '')
+      .map(filePath => {
+        const name = path.basename(filePath);
+        const directory = path.dirname(filePath);
+        return {
+          path: filePath,
+          name: name,
+          directory: directory === '.' ? '' : directory
+        };
+      });
+
+    res.json({ files });
+  } catch (error) {
+    console.error('Failed to get file list:', error);
+    res.status(500).json({ 
+      error: 'ファイル一覧の取得に失敗しました',
+      details: error.message 
+    });
   }
 });
 
