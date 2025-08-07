@@ -280,85 +280,96 @@ const triggerCurveUpdateMultiple = (count: number) => {
   }
 };
 
-// レイアウト更新時の処理（グリッド有効時のみ）
-const handleLayoutUpdated = (newLayout: GridTask[]) => {
-  if (disableGrid.value) return;
+// 現在のレイアウト状態を保存
+const previousLayout = ref<GridTask[]>([]);
 
-  // バルク移動の処理：選択された項目が複数ある場合
-  if (uiStore.selectedTaskIds.size > 1) {
-    // 移動したアイテムを検出
-    const movedItem = newLayout.find((newItem) => {
-      const oldItem = layout.value.find((old) => old.i === newItem.i);
-      return (
-        oldItem &&
-        uiStore.selectedTaskIds.has(newItem.i) &&
-        (newItem.x !== oldItem.x || newItem.y !== oldItem.y)
-      );
-    });
+// ドラッグ検出用の状態
+const isDragDetected = ref(false);
 
-    if (movedItem) {
-      const oldItem = layout.value.find((old) => old.i === movedItem.i);
-      if (oldItem) {
-        // 移動量を計算
-        const deltaX = movedItem.x - oldItem.x;
-        const deltaY = movedItem.y - oldItem.y;
+// layout の変更を監視して保存処理を実行
+watch(
+  () => layout.value,
+  (newLayout, oldLayout) => {
+    // 初期化時はスキップ
+    if (!oldLayout || oldLayout.length === 0) {
+      return;
+    }
 
-        // 選択されたすべてのタスクを同じ距離だけ移動
-        uiStore.selectedTaskIds.forEach((taskId) => {
-          if (taskId !== movedItem.i) {
-            // 既に移動済みのアイテムは除く
-            const oldPos = layout.value.find((item) => item.i === taskId);
-            if (oldPos) {
-              const newX = oldPos.x + deltaX;
-              const newY = oldPos.y + deltaY;
+    // ドラッグ中でない場合のみ処理
+    if (!isDraggingOrResizing.value && !isDragDetected.value) {
+      // 変更されたアイテムを検出
+      let foundChanges = false;
 
-              // 境界チェック
-              if (newX >= 0 && newY >= 0) {
-                taskStore.updateGridTask(taskId, {
-                  x: newX,
-                  y: newY,
-                  w: oldPos.w,
-                  h: oldPos.h,
-                });
-              }
-            }
-          }
-        });
+      // previousLayoutが初期化されていない場合の対応
+      if (previousLayout.value.length === 0) {
+        previousLayout.value = JSON.parse(JSON.stringify(newLayout));
+        return;
+      }
+
+      newLayout.forEach((newItem) => {
+        const oldItem = previousLayout.value.find((old) => old.i === newItem.i);
+
+        if (oldItem && (newItem.x !== oldItem.x || newItem.y !== oldItem.y)) {
+          foundChanges = true;
+          taskStore.updateGridTask(newItem.i, {
+            x: newItem.x,
+            y: newItem.y,
+            w: newItem.w,
+            h: newItem.h,
+          });
+        }
+      });
+
+      if (foundChanges) {
+        // 位置変更後にpreviousLayoutを更新
+        previousLayout.value = JSON.parse(JSON.stringify(newLayout));
       }
     }
-  }
+  },
+  { deep: true },
+);
 
-  // 通常の更新処理（移動・リサイズなど）
-  newLayout.forEach((item) => {
-    const oldItem = layout.value.find((old) => old.i === item.i);
-    if (
-      oldItem &&
-      (item.x !== oldItem.x ||
-        item.y !== oldItem.y ||
-        item.w !== oldItem.w ||
-        item.h !== oldItem.h)
-    ) {
-      // 位置・サイズ変更を適用
-      taskStore.updateGridTask(item.i, {
-        x: item.x,
-        y: item.y,
-        w: item.w,
-        h: item.h,
-      });
-    }
-  });
-
+// レイアウト更新時の処理（グリッド有効時のみ）
+const handleLayoutUpdated = (_newLayout: GridTask[]) => {
+  if (disableGrid.value) return;
   triggerCurveUpdate();
 };
 
 const handleItemMove = () => {
+  // 移動開始時の位置を保存
+  previousLayout.value = JSON.parse(JSON.stringify(layout.value));
+
   // ドラッグ中は矢印更新を完全停止
   isDraggingOrResizing.value = true;
   // グリッドを無効化してパフォーマンス向上
   disableGrid.value = true;
 };
 
-const handleItemMoved = () => {
+const handleItemMoved = (i: string, newX: number, newY: number) => {
+  console.log('handleItemMoved called:', i, newX, newY);
+
+  // previousLayoutと比較して位置変更をチェック
+  const oldItem = previousLayout.value.find((item) => item.i === i);
+  if (oldItem && (oldItem.x !== newX || oldItem.y !== newY)) {
+    console.log('Position actually changed:', {
+      from: { x: oldItem.x, y: oldItem.y },
+      to: { x: newX, y: newY },
+    });
+
+    // 位置変更を保存
+    const currentItem = layout.value.find((item) => item.i === i);
+    if (currentItem) {
+      taskStore.updateGridTask(i, {
+        x: newX,
+        y: newY,
+        w: currentItem.w,
+        h: currentItem.h,
+      });
+    }
+  } else {
+    console.log('No actual position change detected');
+  }
+
   // ドラッグ完了時にグリッドを復帰
   setTimeout(() => {
     disableGrid.value = false;
@@ -468,6 +479,8 @@ watch(
 
 onMounted(() => {
   layout.value = taskStore.gridTasks;
+  // previousLayoutを初期化
+  previousLayout.value = [...layout.value];
   taskStore.buildGraphData();
   updateArrows();
   document.addEventListener('mousemove', handleMouseMove);
