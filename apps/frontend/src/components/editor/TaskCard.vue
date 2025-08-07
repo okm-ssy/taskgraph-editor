@@ -75,6 +75,7 @@
           props.compact ? 'p-2' : 'p-3',
         ]"
         @click="handleCardClick"
+        @mouseenter="isHoveringTaskName = false"
         @dragenter.prevent
         @dragover.prevent
       >
