@@ -13,8 +13,8 @@
       >
         <div
           class="w-4 h-4 flex-shrink-0"
-          v-html="getFileIcon(path)"
-          :style="{ color: getFileIconColor(path) }"
+          v-html="getFileIconForPath(path)"
+          :style="{ color: getFileIconColorForPath(path) }"
         />
         <span class="flex-1 text-blue-800 font-mono">{{ path }}</span>
         <button
@@ -92,10 +92,33 @@
       </div>
     </div>
 
+    <!-- 新規ファイル追加セクション -->
+    <div class="border-t pt-3 mt-3">
+      <div class="flex gap-2">
+        <input
+          v-model="newFilePath"
+          type="text"
+          placeholder="新規ファイルパスを入力（例: src/components/NewComponent.vue）"
+          class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
+          @keydown.enter="addNewFile"
+        />
+        <button
+          type="button"
+          @click="addNewFile"
+          class="px-3 py-2 bg-green-500 hover:bg-green-600 text-white text-sm rounded-md cursor-pointer transition-colors"
+          :disabled="!newFilePath.trim()"
+        >
+          追加
+        </button>
+      </div>
+    </div>
+
     <!-- ヘルプテキスト -->
-    <p class="text-xs text-gray-600">
-      このタスクに関連するファイルパスを追加できます。検索して選択してください。
-    </p>
+    <div class="text-xs text-gray-600 space-y-1">
+      <p>このタスクに関連するファイルパスを追加できます。</p>
+      <p>• <strong>既存ファイル</strong>: 上の検索ボックスから選択</p>
+      <p>• <strong>新規ファイル</strong>: 下の入力欄に作成予定のパスを入力</p>
+    </div>
   </div>
 </template>
 
@@ -116,6 +139,7 @@ const emit = defineEmits<{
 
 const showResults = ref(false);
 const selectedIndex = ref(-1); // 選択中のアイテムのインデックス
+const newFilePath = ref(''); // 新規ファイルパス入力用
 
 // ファイルパス検索のComposableを使用
 const { searchQuery, searchResults, isLoading, error, loadFiles } =
@@ -215,6 +239,16 @@ const removeFile = (index: number) => {
   emit('update:modelValue', newValue);
 };
 
+// 新規ファイルを追加
+const addNewFile = () => {
+  const path = newFilePath.value.trim();
+  if (path && !isAlreadySelected(path)) {
+    const newValue = [...(props.modelValue || []), path];
+    emit('update:modelValue', newValue);
+    newFilePath.value = ''; // 入力をクリア
+  }
+};
+
 // 既に選択されているかチェック
 const isAlreadySelected = (path: string) => {
   return props.modelValue?.includes(path) || false;
@@ -257,6 +291,40 @@ const getFileIconColor = (filename: string): string => {
   } catch {
     return '#6b7280';
   }
+};
+
+// パス用のアイコンを取得（新規ファイルかどうかを判定）
+const getFileIconForPath = (filePath: string): string => {
+  const filename = filePath.split('/').pop() || filePath;
+
+  // 新規ファイルかどうかの判定（簡易版）
+  // 実際には存在チェックが必要だが、今は新規入力されたものとして扱う
+  if (isNewFile(filePath)) {
+    return getNewFileIcon();
+  }
+
+  return getFileIcon(filename);
+};
+
+// パス用の色を取得
+const getFileIconColorForPath = (filePath: string): string => {
+  if (isNewFile(filePath)) {
+    return '#10b981'; // green-500
+  }
+
+  const filename = filePath.split('/').pop() || filePath;
+  return getFileIconColor(filename);
+};
+
+// 新規ファイルかどうかの判定（簡易版）
+const isNewFile = (filePath: string): boolean => {
+  // 検索結果にない場合は新規ファイルとみなす
+  return !searchResults.value.some((file) => file.path === filePath);
+};
+
+// 新規ファイル用のアイコン
+const getNewFileIcon = (): string => {
+  return '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" /><path d="M15,13H17V15H19V17H17V19H15V17H13V15H15V13Z" /></svg>';
 };
 
 // デフォルトのファイルアイコン
