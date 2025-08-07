@@ -40,8 +40,10 @@
 
       <!-- ドラッグハンドル部分 (カードの上部) -->
       <div
-        class="drag-handle py-2 px-3 flex justify-between items-center border-b border-opacity-30 cursor-move relative"
+        class="drag-handle py-1 px-3 flex justify-between items-center border-b border-opacity-30 cursor-move relative"
         :class="fieldColorClass.replace('bg-', 'bg-opacity-70 bg-')"
+        @mouseenter="isHoveringTaskName = true"
+        @mouseleave="isHoveringTaskName = false"
       >
         <div class="flex items-center justify-start overflow-x-hidden">
           <div
@@ -142,7 +144,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 import { TIMING } from '../../constants';
 import type { Task } from '../../model/Taskgraph';
@@ -168,15 +170,18 @@ const dragDropStore = useDragDropStore();
 const uiStore = useEditorUIStore();
 const taskStore = useCurrentTasks();
 
+// タスク名領域のホバー状態を管理
+const isHoveringTaskName = ref(false);
+
 // ドロップダウンオプション
-const dropdownOptions = {
-  triggers: ['hover', 'focus'],
+const dropdownOptions = computed(() => ({
+  triggers: isHoveringTaskName.value ? [] : ['hover', 'focus'],
   delay: {
     show: TIMING.TOOLTIP.SHOW_DELAY_MS,
     hide: TIMING.TOOLTIP.HIDE_DELAY_MS,
   },
   placement: 'bottom',
-};
+}));
 
 // EditorTaskを取得する関数
 const getEditorTaskById = (id: string) => {
