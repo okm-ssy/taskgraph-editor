@@ -153,9 +153,14 @@ export function useTaskExport() {
       // 関連ファイルの追加
       if (task.addition?.relations && task.addition.relations.length > 0) {
         content += `\n### 関連ファイル\n\n`;
+
+        content += `**関連ファイル**:\n`;
         task.addition.relations.forEach((filePath) => {
-          content += `- ${filePath}\n`;
+          content += `- \`${filePath}\`\n`;
         });
+
+        // 注意: 現在は区別せずに全てを関連ファイルとして出力
+        // 将来的にファイル存在チェックを実装する場合は既存/新規ファイルを分類可能
       }
     });
 
