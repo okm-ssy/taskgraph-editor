@@ -265,11 +265,11 @@
           </div>
 
           <div class="mb-4">
-            <ImageSelector v-model="designImagesInput" />
+            <FilePathSelector v-model="relationsInput" :root-path="rootPath" />
           </div>
 
           <div class="mb-4">
-            <FilePathSelector v-model="relationsInput" :root-path="rootPath" />
+            <ImageSelector v-model="designImagesInput" />
           </div>
         </div>
 
