@@ -149,6 +149,14 @@ export function useTaskExport() {
         content += `\n### 関連Issue\n\n`;
         content += `- GitHub Issue: #${task.issueNumber}\n`;
       }
+
+      // 関連ファイルの追加
+      if (task.addition?.relations && task.addition.relations.length > 0) {
+        content += `\n### 関連ファイル\n\n`;
+        task.addition.relations.forEach((filePath) => {
+          content += `- ${filePath}\n`;
+        });
+      }
     });
 
     return content;
@@ -206,13 +214,12 @@ export function useTaskExport() {
     };
   }
 
-  async function downloadFiles() {
+  function downloadFiles() {
     try {
       const files = exportToMarkdown();
       const { selectedProjectId } = useProject();
       const projectId = selectedProjectId.value || 'project';
 
-      // Markdownファイルをダウンロード
       Object.entries(files).forEach(([filename, content]) => {
         // ファイル名を ${project-id}-[TYPE].md 形式に変換
         const fileType = filename.replace('.md', '');
@@ -231,69 +238,10 @@ export function useTaskExport() {
         URL.revokeObjectURL(url);
       });
 
-      // 関連ファイルを収集してダウンロード
-      const relatedFiles = new Set<string>();
-      const tasks = exportedTasks.value;
-
-      tasks.forEach((task) => {
-        // design_images から関連ファイルを収集
-        if (task.addition?.design_images) {
-          task.addition.design_images.forEach((imageId) => {
-            relatedFiles.add(imageId);
-          });
-        }
-
-        // relations から関連ファイルを収集
-        if (task.addition?.relations) {
-          task.addition.relations.forEach((filePath) => {
-            relatedFiles.add(filePath);
-          });
-        }
-      });
-
-      // 関連ファイルをダウンロード
-      for (const filePath of relatedFiles) {
-        try {
-          await downloadRelatedFile(filePath, projectId);
-        } catch (error) {
-          console.warn(
-            `関連ファイルのダウンロードに失敗しました: ${filePath}`,
-            error,
-          );
-        }
-      }
-
       return true;
     } catch (error) {
       console.error('エクスポートエラー:', error);
       return false;
-    }
-  }
-
-  async function downloadRelatedFile(filePath: string, projectId: string) {
-    try {
-      const response = await fetch(filePath);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-
-      // ファイル名を取得（パスから最後の部分を抽出）
-      const fileName = filePath.split('/').pop() || 'file';
-      const customFilename = `${projectId}-${fileName}`;
-
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = customFilename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error(`関連ファイルのダウンロードエラー: ${filePath}`, error);
-      throw error;
     }
   }
 
