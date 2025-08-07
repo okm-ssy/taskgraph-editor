@@ -517,19 +517,15 @@ const handleSubmit = () => {
       field: stringToField(fieldInput.value),
       implementation_notes: implementationNotesInput.value
         ? implementationNotesInput.value.split('\n')
-        : undefined,
+        : [],
       api_schemas: apiSchemasInput.value
         ? apiSchemasInput.value.split('\n')
-        : undefined,
+        : [],
       requirements: requirementsInput.value
         ? requirementsInput.value.split('\n')
-        : undefined,
-      design_images:
-        designImagesInput.value.length > 0
-          ? designImagesInput.value
-          : undefined,
-      relations:
-        relationsInput.value.length > 0 ? relationsInput.value : undefined,
+        : [],
+      design_images: designImagesInput.value,
+      relations: relationsInput.value,
       status: statusInput.value,
     },
   });
