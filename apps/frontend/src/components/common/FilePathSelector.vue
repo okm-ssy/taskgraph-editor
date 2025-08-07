@@ -118,7 +118,7 @@ const showResults = ref(false);
 const selectedIndex = ref(-1); // 選択中のアイテムのインデックス
 
 // ファイルパス検索のComposableを使用
-const { searchQuery, searchResults, isLoading, error, loadFiles, clearSearch } =
+const { searchQuery, searchResults, isLoading, error, loadFiles } =
   useFilePathSearch(props.rootPath || '');
 
 // ルートパスが変更されたときにファイル一覧を再読み込み
@@ -204,9 +204,8 @@ const addFile = (path: string) => {
     const newValue = [...(props.modelValue || []), path];
     emit('update:modelValue', newValue);
   }
-  clearSearch();
-  showResults.value = false;
-  selectedIndex.value = -1; // 選択インデックスをリセット
+  // 検索はクリアしないで、選択インデックスだけリセット
+  selectedIndex.value = -1;
 };
 
 // ファイルを削除
