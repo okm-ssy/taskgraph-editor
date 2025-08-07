@@ -119,3 +119,10 @@ export function getFileColorClass(filename: string): string {
   const ext = getFileExtension(filename);
   return FILE_EXTENSION_COLORS[ext] || DEFAULT_FILE_COLOR;
 }
+
+// material-file-iconsライブラリを使用してアイコンSVGを取得
+export function getFileIconSvg(_filename: string): string {
+  // material-file-iconsは動的インポートが必要なので、
+  // 実際の使用時にcomponentで呼び出す
+  return '';
+}

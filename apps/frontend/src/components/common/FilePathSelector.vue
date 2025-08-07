@@ -11,6 +11,11 @@
         :key="index"
         class="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded-md text-sm"
       >
+        <div
+          class="w-4 h-4 flex-shrink-0"
+          v-html="getFileIcon(path)"
+          :style="{ color: getFileIconColor(path) }"
+        />
         <span class="flex-1 text-blue-800 font-mono">{{ path }}</span>
         <button
           type="button"
@@ -71,8 +76,13 @@
             }"
             :disabled="isAlreadySelected(file.path)"
           >
-            <div class="text-sm font-mono">
-              <span :class="getFileColorClass(file.name)">{{ file.name }}</span>
+            <div class="text-sm font-mono flex items-center gap-2">
+              <div
+                class="w-4 h-4 flex-shrink-0"
+                v-html="getFileIcon(file.name)"
+                :style="{ color: getFileIconColor(file.name) }"
+              />
+              <span class="text-blue-700">{{ file.name }}</span>
               <span class="text-xs text-gray-500 ml-2">{{
                 file.directory
               }}</span>
@@ -90,10 +100,10 @@
 </template>
 
 <script setup lang="ts">
+import { getIcon } from 'material-file-icons';
 import { ref, watch, onMounted, onUnmounted } from 'vue';
 
 import { useFilePathSearch } from '../../composables/useFilePathSearch';
-import { getFileColorClass } from '../../constants/fileExtensions';
 
 const props = defineProps<{
   modelValue: string[];
@@ -229,6 +239,31 @@ onMounted(() => {
     document.addEventListener('click', handleDocumentClick);
   }, 100);
 });
+
+// material-file-iconsからアイコンを取得
+const getFileIcon = (filename: string): string => {
+  try {
+    const icon = getIcon(filename);
+    return icon?.svg || getDefaultFileIcon();
+  } catch {
+    return getDefaultFileIcon();
+  }
+};
+
+// アイコンの色を取得（material-file-iconsの色情報を使用）
+const getFileIconColor = (filename: string): string => {
+  try {
+    const icon = getIcon(filename);
+    return icon?.color || '#6b7280'; // デフォルトはgray-500
+  } catch {
+    return '#6b7280';
+  }
+};
+
+// デフォルトのファイルアイコン
+const getDefaultFileIcon = (): string => {
+  return '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" /></svg>';
+};
 
 // コンポーネントアンマウント時にイベントリスナーを削除
 onUnmounted(() => {
