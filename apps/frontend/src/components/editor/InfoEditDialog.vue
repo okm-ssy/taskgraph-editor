@@ -101,6 +101,31 @@
           </div>
         </div>
 
+        <!-- リポジトリパス設定セクション -->
+        <div class="mb-6 pb-6 border-b border-gray-200">
+          <h4 class="text-sm font-semibold text-purple-600 mb-4">
+            ファイル検索設定
+          </h4>
+
+          <div class="mb-4">
+            <label
+              for="root-path"
+              class="block text-sm font-medium text-purple-700 mb-1"
+              >リポジトリルートパス</label
+            >
+            <input
+              id="root-path"
+              v-model="rootPathInput"
+              type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md"
+              placeholder="/home/user/projects/my-project"
+            />
+            <p class="text-xs text-gray-600 mt-1">
+              ファイル検索で使用するプロジェクトのルートディレクトリパスを設定してください
+            </p>
+          </div>
+        </div>
+
         <!-- 軽量ビジネス要件セクション -->
         <div class="mb-6 pb-6 border-b border-gray-200">
           <h4 class="text-sm font-semibold text-green-600 mb-4">
@@ -310,6 +335,7 @@ const nameInput = ref('');
 const githubOrganizationInput = ref('');
 const githubRepositoryInput = ref('');
 const githubProjectNumberInput = ref<number | null>(null);
+const rootPathInput = ref('');
 const designImagesInput = ref<ProjectImage[]>([]);
 const bulkPathInput = ref('');
 const businessPurposeInput = ref('');
@@ -357,6 +383,7 @@ watch(
       githubOrganizationInput.value = newInfo.github?.organization || '';
       githubRepositoryInput.value = newInfo.github?.repository || '';
       githubProjectNumberInput.value = newInfo.github?.projectNumber || null;
+      rootPathInput.value = newInfo.addition?.root_path || '';
       // 既存データとの互換性を保つため、文字列配列の場合はオブジェクト配列に変換
       const designImages = newInfo.addition?.design_images || [];
       designImagesInput.value = designImages as ProjectImage[];
@@ -381,6 +408,7 @@ const handleSubmit = () => {
       projectNumber?: number;
     };
     addition?: {
+      root_path?: string;
       design_images?: ProjectImage[];
       business_purpose?: string;
       target_users?: string;
@@ -397,6 +425,7 @@ const handleSubmit = () => {
   };
 
   // additionフィールドの構築
+  const hasRootPath = rootPathInput.value.trim() !== '';
   const hasDesignImages = designImagesInput.value.length > 0;
   const hasBusinessRequirements =
     businessPurposeInput.value ||
@@ -404,8 +433,12 @@ const handleSubmit = () => {
     usageFrequencyInput.value ||
     currentProblemInput.value;
 
-  if (hasDesignImages || hasBusinessRequirements) {
+  if (hasRootPath || hasDesignImages || hasBusinessRequirements) {
     updatedInfo.addition = {};
+
+    if (hasRootPath) {
+      updatedInfo.addition.root_path = rootPathInput.value.trim();
+    }
 
     if (hasDesignImages) {
       updatedInfo.addition.design_images = designImagesInput.value;
