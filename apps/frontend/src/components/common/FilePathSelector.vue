@@ -23,7 +23,9 @@
     </div>
 
     <!-- ファイル検索・追加セクション -->
-    <div class="border border-gray-300 rounded-md p-3">
+    <div
+      class="bg-gray-50 border-2 border-gray-300 rounded-md p-3 shadow-inner"
+    >
       <!-- 検索入力 -->
       <div class="mb-2">
         <input
@@ -38,7 +40,7 @@
       <!-- 検索結果 -->
       <div
         v-if="showResults"
-        class="border border-gray-200 rounded-md max-h-48 overflow-y-auto"
+        class="bg-white border border-gray-300 rounded-md max-h-48 overflow-y-auto shadow-sm"
       >
         <div v-if="isLoading" class="p-3 text-center text-gray-500 text-sm">
           ファイル一覧を読み込み中...
@@ -61,7 +63,7 @@
             :key="file.path"
             type="button"
             @click="addFile(file.path)"
-            class="w-full text-left px-3 py-2 hover:bg-gray-100 border-b last:border-b-0 cursor-pointer"
+            class="w-full text-left px-3 py-2 hover:bg-blue-50 border-b border-gray-200 last:border-b-0 cursor-pointer transition-colors"
             :class="{ 'opacity-50': isAlreadySelected(file.path) }"
             :disabled="isAlreadySelected(file.path)"
           >
