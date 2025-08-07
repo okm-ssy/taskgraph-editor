@@ -71,8 +71,8 @@
             }"
             :disabled="isAlreadySelected(file.path)"
           >
-            <div class="text-sm font-mono text-gray-800">
-              <span>{{ file.name }}</span>
+            <div class="text-sm font-mono">
+              <span :class="getFileColorClass(file.name)">{{ file.name }}</span>
               <span class="text-xs text-gray-500 ml-2">{{
                 file.directory
               }}</span>
@@ -93,6 +93,7 @@
 import { ref, watch, onMounted, onUnmounted } from 'vue';
 
 import { useFilePathSearch } from '../../composables/useFilePathSearch';
+import { getFileColorClass } from '../../constants/fileExtensions';
 
 const props = defineProps<{
   modelValue: string[];
