@@ -291,7 +291,6 @@ import { ref, watch, onUnmounted, computed } from 'vue';
 import { useTaskCategories } from '../../composables/useTaskCategories';
 import { useEditorUIStore } from '../../store/editor_ui_store';
 import { useCurrentTasks } from '../../store/task_store';
-import { useCurrentTaskgraph } from '../../store/taskgraph_store';
 import ImageSelector from '../ImageSelector.vue';
 import FilePathSelector from '../common/FilePathSelector.vue';
 
@@ -299,7 +298,6 @@ import { TASK_STATUS, TASK_STATUS_LABELS, type TaskStatus } from '@/constants';
 import { stringToField } from '@/utilities/task';
 
 const taskStore = useCurrentTasks();
-const taskgraphStore = useCurrentTaskgraph();
 const uiStore = useEditorUIStore();
 const {
   allCategories,
@@ -334,7 +332,7 @@ const errorMessage = ref('');
 
 // プロジェクトのルートパスを取得
 const rootPath = computed(() => {
-  return taskgraphStore.taskgraph?.info?.addition?.root_path || '';
+  return taskStore.info?.addition?.root_path || '';
 });
 
 // textareaの行数を動的に計算
