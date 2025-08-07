@@ -115,6 +115,11 @@ export function useFilePathSearch(rootPath: string) {
     searchQuery.value = '';
   };
 
+  // ファイルが存在するかチェック
+  const isFileExists = (filePath: string): boolean => {
+    return files.value.some((file) => file.path === filePath);
+  };
+
   return {
     searchQuery,
     searchResults,
@@ -122,5 +127,6 @@ export function useFilePathSearch(rootPath: string) {
     error,
     loadFiles,
     clearSearch,
+    isFileExists,
   };
 }
