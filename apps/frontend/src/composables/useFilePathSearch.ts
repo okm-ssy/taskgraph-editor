@@ -5,6 +5,7 @@ interface FileItem {
   path: string;
   name: string;
   directory: string;
+  searchKey?: string; // 検索用の正規化されたキー
 }
 
 export function useFilePathSearch(rootPath: string) {
@@ -15,9 +16,15 @@ export function useFilePathSearch(rootPath: string) {
 
   // Fuse.jsの設定
   const fuseOptions = {
-    keys: ['path', 'name'],
-    threshold: 0.3,
+    keys: [
+      { name: 'searchKey', weight: 2 }, // 正規化されたキーを優先
+      { name: 'path', weight: 1 },
+      { name: 'name', weight: 1.5 },
+    ],
+    threshold: 0.4, // より柔軟なマッチング
     includeScore: true,
+    ignoreLocation: true, // 文字の位置を無視
+    useExtendedSearch: true,
   };
 
   const fuse = computed(() => {
@@ -31,7 +38,37 @@ export function useFilePathSearch(rootPath: string) {
       return files.value.slice(0, 100); // 最初の100件を表示
     }
 
-    const results = fuse.value.search(searchQuery.value);
+    // 検索クエリも正規化
+    const normalizedQuery = searchQuery.value
+      .toLowerCase()
+      .replace(/[/\-_.]/g, '')
+      .replace(/\s+/g, '');
+
+    // 通常の検索と正規化検索の両方を試す
+    let results = fuse.value.search(searchQuery.value);
+
+    // 結果が少ない場合は正規化したクエリでも検索
+    if (
+      results.length < 5 &&
+      normalizedQuery !== searchQuery.value.toLowerCase()
+    ) {
+      const normalizedResults = fuse.value.search(normalizedQuery);
+      // スコアでマージして重複を除去
+      const mergedMap = new Map();
+      [...results, ...normalizedResults].forEach((result) => {
+        const path = result.item.path;
+        if (
+          !mergedMap.has(path) ||
+          (mergedMap.get(path).score ?? 1) > (result.score ?? 0)
+        ) {
+          mergedMap.set(path, result);
+        }
+      });
+      results = Array.from(mergedMap.values()).sort(
+        (a, b) => (a.score ?? 0) - (b.score ?? 0),
+      );
+    }
+
     return results.map((result) => result.item).slice(0, 100); // 最初の100件を表示
   });
 
@@ -57,7 +94,14 @@ export function useFilePathSearch(rootPath: string) {
       }
 
       const data = await response.json();
-      files.value = data.files || [];
+      // 検索用のキーを生成（パスから特殊文字を除去）
+      files.value = (data.files || []).map((file: FileItem) => ({
+        ...file,
+        searchKey: file.path
+          .toLowerCase()
+          .replace(/[/\-_.]/g, '') // スラッシュ、ハイフン、アンダースコア、ドットを除去
+          .replace(/\s+/g, ''), // 空白を除去
+      }));
     } catch (err) {
       error.value =
         err instanceof Error ? err.message : '不明なエラーが発生しました';
