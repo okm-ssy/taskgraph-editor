@@ -78,7 +78,7 @@
       >
         <p
           :class="[
-            'text-gray-700 line-clamp-2 mb-2',
+            'text-gray-700 line-clamp-1 mb-2',
             props.compact ? 'text-xs' : 'text-sm',
           ]"
         >
