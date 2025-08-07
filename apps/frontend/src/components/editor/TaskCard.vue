@@ -2,6 +2,7 @@
   <VDropdown
     :lazy="true"
     v-bind="dropdownOptions"
+    :disabled="isHoveringTaskName"
     :aria-id="`tooltip-for-${id}`"
     class="h-full w-full"
   >
@@ -174,14 +175,14 @@ const taskStore = useCurrentTasks();
 const isHoveringTaskName = ref(false);
 
 // ドロップダウンオプション
-const dropdownOptions = computed(() => ({
-  triggers: isHoveringTaskName.value ? [] : ['hover', 'focus'],
+const dropdownOptions = {
+  triggers: ['hover', 'focus'],
   delay: {
     show: TIMING.TOOLTIP.SHOW_DELAY_MS,
     hide: TIMING.TOOLTIP.HIDE_DELAY_MS,
   },
   placement: 'bottom',
-}));
+};
 
 // EditorTaskを取得する関数
 const getEditorTaskById = (id: string) => {
