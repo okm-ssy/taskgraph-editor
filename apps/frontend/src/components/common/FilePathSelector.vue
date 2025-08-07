@@ -71,8 +71,12 @@
             }"
             :disabled="isAlreadySelected(file.path)"
           >
-            <div class="text-sm font-mono text-gray-800">{{ file.path }}</div>
-            <div class="text-xs text-gray-500">{{ file.directory }}</div>
+            <div class="text-sm font-mono text-gray-800">
+              <span>{{ file.name }}</span>
+              <span class="text-xs text-gray-500 ml-2">{{
+                file.directory
+              }}</span>
+            </div>
           </button>
         </div>
       </div>
