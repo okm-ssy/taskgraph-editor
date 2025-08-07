@@ -267,6 +267,10 @@
           <div class="mb-4">
             <ImageSelector v-model="designImagesInput" />
           </div>
+
+          <div class="mb-4">
+            <FilePathSelector v-model="relationsInput" :root-path="rootPath" />
+          </div>
         </div>
 
         <!-- エラーメッセージ表示 -->
@@ -287,12 +291,15 @@ import { ref, watch, onUnmounted, computed } from 'vue';
 import { useTaskCategories } from '../../composables/useTaskCategories';
 import { useEditorUIStore } from '../../store/editor_ui_store';
 import { useCurrentTasks } from '../../store/task_store';
+import { useCurrentTaskgraph } from '../../store/taskgraph_store';
 import ImageSelector from '../ImageSelector.vue';
+import FilePathSelector from '../common/FilePathSelector.vue';
 
 import { TASK_STATUS, TASK_STATUS_LABELS, type TaskStatus } from '@/constants';
 import { stringToField } from '@/utilities/task';
 
 const taskStore = useCurrentTasks();
+const taskgraphStore = useCurrentTaskgraph();
 const uiStore = useEditorUIStore();
 const {
   allCategories,
@@ -313,6 +320,7 @@ const implementationNotesInput = ref('');
 const apiSchemasInput = ref('');
 const requirementsInput = ref('');
 const designImagesInput = ref<string[]>([]);
+const relationsInput = ref<string[]>([]);
 const fieldInput = ref('');
 const statusInput = ref<TaskStatus>(TASK_STATUS.UNTOUCH);
 
@@ -323,6 +331,11 @@ const mouseDownOnOverlay = ref(false);
 
 // エラーメッセージ表示用の状態
 const errorMessage = ref('');
+
+// プロジェクトのルートパスを取得
+const rootPath = computed(() => {
+  return taskgraphStore.taskgraph?.info?.addition?.root_path || '';
+});
 
 // textareaの行数を動的に計算
 const notesRows = computed(() => {
@@ -391,6 +404,7 @@ watch(
       requirementsInput.value =
         newTask.task.addition?.requirements?.join('\n') || '';
       designImagesInput.value = newTask.task.addition?.design_images || [];
+      relationsInput.value = newTask.task.addition?.relations || [];
       statusInput.value =
         (newTask.task.addition?.status as TaskStatus) || TASK_STATUS.UNTOUCH;
       // ダイアログが開かれたときはエラーメッセージをクリア
@@ -413,6 +427,7 @@ watch(
     apiSchemasInput,
     requirementsInput,
     designImagesInput,
+    relationsInput,
     statusInput,
   ],
   () => {
@@ -515,6 +530,8 @@ const handleSubmit = () => {
         designImagesInput.value.length > 0
           ? designImagesInput.value
           : undefined,
+      relations:
+        relationsInput.value.length > 0 ? relationsInput.value : undefined,
       status: statusInput.value,
     },
   });
@@ -549,6 +566,8 @@ const resetInputs = () => {
       taskStore.selectedTask.task.addition?.requirements?.join('\n') || '';
     designImagesInput.value =
       taskStore.selectedTask.task.addition?.design_images || [];
+    relationsInput.value =
+      taskStore.selectedTask.task.addition?.relations || [];
     statusInput.value =
       (taskStore.selectedTask.task.addition?.status as TaskStatus) ||
       TASK_STATUS.UNTOUCH;

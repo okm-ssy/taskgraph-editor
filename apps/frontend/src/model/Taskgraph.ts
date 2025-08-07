@@ -51,6 +51,7 @@ export const infoZodSchema = zod
         tech_stack: zod.array(zod.string()).optional(), // 主要技術スタック
         coding_guidelines: zod.string().optional(), // コーディング規約・注意点
         deployment_notes: zod.string().optional(), // デプロイ・環境に関する注意事項
+        root_path: zod.string().optional(), // リポジトリのルートパス（ファイル検索用）
         design_images: zod.array(projectImageZodSchema).optional(), // プロジェクト内の画面設計画像
         // 軽量ビジネス要件フォーマット
         business_purpose: zod.string().optional(), // 目的: なぜこの機能が必要か（1行）
@@ -95,6 +96,7 @@ export const taskZodSchema = zod
         api_schemas: zod.array(zod.string()).optional(), // API仕様・エンドポイント情報
         requirements: zod.array(zod.string()).optional(), // 受け入れ基準（必須）
         design_images: zod.array(zod.string()).optional(), // 関連する画面設計画像のID
+        relations: zod.array(zod.string()).optional(), // 関連ファイルパス
         status: zod.enum(['untouch', 'doing', 'done']).optional(), // タスクの進捗状況
       })
       .optional(),
