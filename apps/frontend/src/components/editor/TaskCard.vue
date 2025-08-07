@@ -1,81 +1,78 @@
 <template>
-  <VDropdown
-    :lazy="true"
-    v-bind="dropdownOptions"
-    :disabled="isHoveringTaskName"
-    :aria-id="`tooltip-for-${id}`"
-    class="h-full w-full"
+  <div
+    :class="[
+      'h-full w-full flex flex-col border-2 rounded-lg transition-all relative',
+      fieldColorClass,
+      isDroppable ? 'ring-4 ring-blue-400 scale-105' : '',
+      isDraggingSource ? 'opacity-50' : '',
+      props.compact ? 'compact-mode' : 'normal-mode',
+      isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : '',
+    ]"
+    style="z-index: 1; overflow: visible"
+    @dragover="handleDragOver"
+    @dragleave="handleDragLeave"
+    @drop="handleDrop"
+    :aria-describedby="`tooltip-for-${id}`"
   >
+    <!-- target: 依存先（矢印の終点） -->
     <div
-      :class="[
-        'h-full w-full flex flex-col border-2 rounded-lg transition-all relative',
-        fieldColorClass,
-        isDroppable ? 'ring-4 ring-blue-400 scale-105' : '',
-        isDraggingSource ? 'opacity-50' : '',
-        props.compact ? 'compact-mode' : 'normal-mode',
-        isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : '',
-      ]"
-      style="z-index: 1; overflow: visible"
-      @dragover="handleDragOver"
-      @dragleave="handleDragLeave"
-      @drop="handleDrop"
-      :aria-describedby="`tooltip-for-${id}`"
+      :id="`target-${id}`"
+      class="absolute -left-1 top-6 -translate-x-1/4 -translate-y-1/2 bg-blue-500 rounded-full h-4 w-4"
+      style="z-index: 20"
+    />
+
+    <!-- source: 依存元（矢印の起点、ドラッグ可能） -->
+    <div
+      :id="`source-${id}`"
+      class="dependency-handle absolute right-0 top-6 translate-x-1/2 -translate-y-1/2 bg-blue-500 rounded-full h-4 w-4 cursor-move hover:scale-125 transition-transform"
+      style="z-index: 20"
+      draggable="true"
+      @dragstart="handleDragStart"
+      @dragend="handleDragEnd"
+      title="ドラッグして依存関係を作成"
+    />
+
+    <!-- ドラッグハンドル部分 (カードの上部) -->
+    <div
+      class="drag-handle py-1 px-3 flex justify-between items-center border-b border-opacity-30 cursor-move relative"
+      :class="fieldColorClass.replace('bg-', 'bg-opacity-70 bg-')"
     >
-      <!-- target: 依存先（矢印の終点） -->
-      <div
-        :id="`target-${id}`"
-        class="absolute -left-1 top-6 -translate-x-1/4 -translate-y-1/2 bg-blue-500 rounded-full h-4 w-4"
-        style="z-index: 20"
-      />
-
-      <!-- source: 依存元（矢印の起点、ドラッグ可能） -->
-      <div
-        :id="`source-${id}`"
-        class="dependency-handle absolute right-0 top-6 translate-x-1/2 -translate-y-1/2 bg-blue-500 rounded-full h-4 w-4 cursor-move hover:scale-125 transition-transform"
-        style="z-index: 20"
-        draggable="true"
-        @dragstart="handleDragStart"
-        @dragend="handleDragEnd"
-        title="ドラッグして依存関係を作成"
-      />
-
-      <!-- ドラッグハンドル部分 (カードの上部) -->
-      <div
-        class="drag-handle py-1 px-3 flex justify-between items-center border-b border-opacity-30 cursor-move relative"
-        :class="fieldColorClass.replace('bg-', 'bg-opacity-70 bg-')"
-        @mouseenter="isHoveringTaskName = true"
-        @mouseleave="isHoveringTaskName = false"
-      >
-        <div class="flex items-center justify-start overflow-x-hidden">
-          <div
-            :class="[
-              'font-bold truncate text-sm',
-              task.addition?.status === 'done'
-                ? 'text-gray-400'
-                : 'text-gray-800',
-            ]"
-          >
-            {{ task.name }}
-          </div>
-        </div>
-        <div class="flex items-center justify-center">
-          <button
-            @click="handleRemove"
-            class="task-action-button text-gray-500 hover:bg-white rounded-full p-1"
-          >
-            ×
-          </button>
+      <div class="flex items-center justify-start overflow-x-hidden">
+        <div
+          :class="[
+            'font-bold truncate text-sm',
+            task.addition?.status === 'done'
+              ? 'text-gray-400'
+              : 'text-gray-800',
+          ]"
+        >
+          {{ task.name }}
         </div>
       </div>
+      <div class="flex items-center justify-center">
+        <button
+          @click="handleRemove"
+          class="task-action-button text-gray-500 hover:bg-white rounded-full p-1"
+        >
+          ×
+        </button>
+      </div>
+    </div>
 
+    <VDropdown
+      :lazy="true"
+      v-bind="dropdownOptions"
+      :aria-id="`tooltip-for-${id}`"
+      class="h-full w-full"
+    >
       <!-- カード本体 (クリックで詳細表示) -->
+
       <div
         :class="[
           'task-content flex-1 flex flex-col cursor-pointer relative overflow-hidden',
           props.compact ? 'p-2' : 'p-3',
         ]"
         @click="handleCardClick"
-        @mouseenter="isHoveringTaskName = false"
         @dragenter.prevent
         @dragover.prevent
       >
@@ -130,23 +127,22 @@
           </span>
         </div>
       </div>
-    </div>
-
-    <template #popper>
-      <TaskDetail
-        v-if="getEditorTaskById(id)"
-        :task="getEditorTaskById(id)!"
-        :hide-dependencies="true"
-      />
-      <div v-else class="p-2 bg-red-100 text-red-700 text-xs">
-        詳細情報取得エラー
-      </div>
-    </template>
-  </VDropdown>
+      <template #popper>
+        <TaskDetail
+          v-if="getEditorTaskById(id)"
+          :task="getEditorTaskById(id)!"
+          :hide-dependencies="true"
+        />
+        <div v-else class="p-2 bg-red-100 text-red-700 text-xs">
+          詳細情報取得エラー
+        </div>
+      </template>
+    </VDropdown>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 
 import { TIMING } from '../../constants';
 import type { Task } from '../../model/Taskgraph';
@@ -171,9 +167,6 @@ const props = defineProps<{
 const dragDropStore = useDragDropStore();
 const uiStore = useEditorUIStore();
 const taskStore = useCurrentTasks();
-
-// タスク名領域のホバー状態を管理
-const isHoveringTaskName = ref(false);
 
 // ドロップダウンオプション
 const dropdownOptions = {
