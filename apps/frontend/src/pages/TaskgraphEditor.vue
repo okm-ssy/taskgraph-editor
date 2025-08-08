@@ -61,7 +61,7 @@ import { useAppTitle } from '@/composables/useTitle';
 const router = useRouter();
 const route = useRoute();
 const taskStore = useCurrentTasks();
-const { selectedProjectId, selectProject } = useProject();
+const { selectedProjectId } = useProject();
 
 // タイトル管理を初期化
 useAppTitle();
@@ -96,12 +96,6 @@ onMounted(async () => {
     !localStorage.getItem(PROJECT_CONSTANTS.STORAGE_KEY)
   ) {
     await taskStore.initializeStore();
-
-    // 初回ロード時にprojectNumberを保存
-    if (selectedProjectId.value) {
-      const projectNumber = taskStore.info?.github?.projectNumber;
-      selectProject(selectedProjectId.value, projectNumber);
-    }
   }
 });
 

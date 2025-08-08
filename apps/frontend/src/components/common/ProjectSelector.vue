@@ -98,12 +98,9 @@ const isCreating = ref(false);
 
 const handleProjectChange = async () => {
   if (selectedProjectId.value) {
+    selectProject(selectedProjectId.value);
     // プロジェクト変更時にタスクストアを再読み込み
     await taskStore.loadFromFile();
-
-    // タスクグラフのinfoからprojectNumberを取得して保存
-    const projectNumber = taskStore.info?.github?.projectNumber;
-    selectProject(selectedProjectId.value, projectNumber);
   }
 };
 
@@ -138,14 +135,11 @@ const createProject = async () => {
 
     // 成功したら、プロジェクトリストを更新して新しいプロジェクトを選択
     await fetchProjects();
+    selectProject(data.project.id);
     showCreateForm.value = false;
     newProjectName.value = '';
     // 新しいプロジェクトのデータを読み込む
     await taskStore.loadFromFile();
-
-    // タスクグラフのinfoからprojectNumberを取得して保存
-    const projectNumber = taskStore.info?.github?.projectNumber;
-    selectProject(data.project.id, projectNumber);
   } catch (error) {
     createError.value = 'プロジェクトの作成中にエラーが発生しました';
     console.error('Failed to create project:', error);
