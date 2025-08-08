@@ -9,24 +9,14 @@ export interface Project {
 
 export const useProject = () => {
   const selectedProjectId = ref<string>('');
-  const selectedProjectNumber = ref<number | undefined>();
   const projects = ref<Project[]>([]);
   const isLoading = ref(false);
 
-  // LocalStorageから選択されたプロジェクトIDとprojectNumberを読み込み
+  // LocalStorageから選択されたプロジェクトIDを読み込み
   const loadSelectedProject = () => {
-    const savedId = localStorage.getItem(PROJECT_CONSTANTS.STORAGE_KEY);
-    if (savedId) {
-      selectedProjectId.value = savedId;
-    }
-    const savedNumber = localStorage.getItem(
-      PROJECT_CONSTANTS.STORAGE_KEY_NUMBER,
-    );
-    if (savedNumber) {
-      const parsed = parseInt(savedNumber, 10);
-      if (!isNaN(parsed)) {
-        selectedProjectNumber.value = parsed;
-      }
+    const saved = localStorage.getItem(PROJECT_CONSTANTS.STORAGE_KEY);
+    if (saved) {
+      selectedProjectId.value = saved;
     }
   };
 
@@ -50,23 +40,10 @@ export const useProject = () => {
   };
 
   // プロジェクトを選択
-  const selectProject = (projectId: string, projectNumber?: number) => {
+  const selectProject = (projectId: string) => {
     if (projectId) {
       selectedProjectId.value = projectId;
       localStorage.setItem(PROJECT_CONSTANTS.STORAGE_KEY, projectId);
-
-      // projectNumberの保存
-      if (projectNumber !== undefined) {
-        selectedProjectNumber.value = projectNumber;
-        localStorage.setItem(
-          PROJECT_CONSTANTS.STORAGE_KEY_NUMBER,
-          projectNumber.toString(),
-        );
-      } else {
-        // projectNumberが未定義の場合はlocalStorageから削除
-        selectedProjectNumber.value = undefined;
-        localStorage.removeItem(PROJECT_CONSTANTS.STORAGE_KEY_NUMBER);
-      }
     }
   };
 
@@ -77,22 +54,11 @@ export const useProject = () => {
     }
   });
 
-  // 選択されたprojectNumberの変更を監視
-  watch(selectedProjectNumber, (newProjectNumber) => {
-    if (newProjectNumber !== undefined) {
-      localStorage.setItem(
-        PROJECT_CONSTANTS.STORAGE_KEY_NUMBER,
-        newProjectNumber.toString(),
-      );
-    }
-  });
-
   // 初期化時にLocalStorageから読み込み
   loadSelectedProject();
 
   return {
     selectedProjectId,
-    selectedProjectNumber,
     projects,
     isLoading,
     fetchProjects,
