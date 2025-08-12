@@ -230,9 +230,9 @@ export function useTaskExport() {
     const progress = generateProgress(tasks, info);
 
     return {
-      'REQUIREMENTS.md': requirements,
-      'DESIGN.md': design,
-      'PROGRESS.md': progress,
+      'requirements.md': requirements,
+      'design.md': design,
+      'progress.md': progress,
     };
   }
 
