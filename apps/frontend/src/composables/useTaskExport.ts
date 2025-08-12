@@ -53,7 +53,11 @@ export function useTaskExport() {
     return result;
   }
 
-  function generateRequirements(tasks: Task[], info: ProjectInfo): string {
+  function generateRequirements(
+    tasks: Task[],
+    info: ProjectInfo,
+    projectId: string,
+  ): string {
     const sortedTasks = topologicalSort(tasks);
 
     const businessPurpose = info.addition?.business_purpose || '未設定';
@@ -61,6 +65,7 @@ export function useTaskExport() {
     const businessContext = info.addition?.current_problem || '未設定';
 
     let content = `# ${info.name} - 要件定義\n\n`;
+    content += `**プロジェクトID**: ${projectId}\n\n`;
     content += `## プロジェクト概要\n\n`;
     content += `### ビジネス背景\n\n`;
     content += `- **目的**: ${businessPurpose}\n`;
@@ -112,10 +117,15 @@ export function useTaskExport() {
     return imageId;
   }
 
-  function generateDesign(tasks: Task[], info: ProjectInfo): string {
+  function generateDesign(
+    tasks: Task[],
+    info: ProjectInfo,
+    projectId: string,
+  ): string {
     const sortedTasks = topologicalSort(tasks);
 
     let content = `# ${info.name} - 設計仕様\n\n`;
+    content += `**プロジェクトID**: ${projectId}\n\n`;
     content += `## プロジェクト情報\n\n`;
     if (info.github) {
       content += `- **リポジトリ**: ${info.github.organization}/${info.github.repository}\n`;
@@ -184,10 +194,15 @@ export function useTaskExport() {
     return content;
   }
 
-  function generateProgress(tasks: Task[], info: ProjectInfo): string {
+  function generateProgress(
+    tasks: Task[],
+    info: ProjectInfo,
+    projectId: string,
+  ): string {
     const sortedTasks = topologicalSort(tasks);
 
     let content = `# ${info.name} - 実装進捗\n\n`;
+    content += `**プロジェクトID**: ${projectId}\n\n`;
     content += `## 実装順序（依存関係順）\n\n`;
 
     sortedTasks.forEach((task, index) => {
@@ -216,6 +231,8 @@ export function useTaskExport() {
   function exportToMarkdown() {
     const tasks = exportedTasks.value;
     const info = projectInfo.value;
+    const { selectedProjectId } = useProject();
+    const projectId = selectedProjectId.value || 'project';
 
     if (!tasks || tasks.length === 0) {
       throw new Error('エクスポートするタスクがありません');
@@ -225,9 +242,9 @@ export function useTaskExport() {
       throw new Error('プロジェクト情報がありません');
     }
 
-    const requirements = generateRequirements(tasks, info);
-    const design = generateDesign(tasks, info);
-    const progress = generateProgress(tasks, info);
+    const requirements = generateRequirements(tasks, info, projectId);
+    const design = generateDesign(tasks, info, projectId);
+    const progress = generateProgress(tasks, info, projectId);
 
     return {
       'requirements.md': requirements,
@@ -239,21 +256,15 @@ export function useTaskExport() {
   function downloadFiles() {
     try {
       const files = exportToMarkdown();
-      const { selectedProjectId } = useProject();
-      const projectId = selectedProjectId.value || 'project';
 
       Object.entries(files).forEach(([filename, content]) => {
-        // ファイル名を ${project-id}-[TYPE].md 形式に変換
-        const fileType = filename.replace('.md', '');
-        const customFilename = `${projectId}-${fileType}.md`;
-
         const blob = new Blob([content], {
           type: 'text/markdown;charset=utf-8',
         });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = customFilename;
+        link.download = filename;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
