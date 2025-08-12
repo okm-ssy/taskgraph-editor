@@ -96,6 +96,22 @@ export function useTaskExport() {
     return content;
   }
 
+  // 画像IDからパスを取得する関数
+  function getImagePath(imageId: string, info: ProjectInfo): string {
+    // プロジェクト情報の design_images から ID でパスを検索
+    const projectImage = info.addition?.design_images?.find(
+      (img) => img.id === imageId,
+    );
+
+    if (projectImage) {
+      return projectImage.path;
+    }
+
+    // プロジェクトに登録されていない場合は、IDをそのまま返す
+    // （既にパスの場合や、外部URLの場合に対応）
+    return imageId;
+  }
+
   function generateDesign(tasks: Task[], info: ProjectInfo): string {
     const sortedTasks = topologicalSort(tasks);
 
@@ -118,8 +134,9 @@ export function useTaskExport() {
       ) {
         content += `### 画面設計\n\n`;
         task.addition.design_images.forEach((img: string) => {
-          // 画像IDまたはパス
-          content += `![画面設計](${img})\n`;
+          // 画像IDを絶対パスに変換
+          const imagePath = getImagePath(img, info);
+          content += `![画面設計](${imagePath})\n`;
         });
         content += '\n';
       }
