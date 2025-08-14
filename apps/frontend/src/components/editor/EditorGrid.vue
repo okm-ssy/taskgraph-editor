@@ -1,6 +1,6 @@
 <template>
   <div class="h-full flex flex-col">
-    <div class="flex justify-between items-center border-b bg-gray-50 p-3">
+    <div class="flex justify-between items-center border-b bg-gray-50 p-3 h-16">
       <div class="flex items-center gap-4">
         <h3 class="font-semibold">タスクグリッドエディター</h3>
         <div v-if="editorTasks.length > 0" class="text-sm text-gray-600">
@@ -14,14 +14,16 @@
           >
         </div>
       </div>
-      <div v-if="!props.readOnly" class="flex gap-2">
-        <button
-          class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-md text-sm transition-colors"
-          @click="toggleAddPanel"
-        >
-          パネルで追加
-        </button>
-        <TaskAddButton @click="handleAddTask" />
+      <div class="flex gap-2 min-h-[2.5rem]">
+        <template v-if="!props.readOnly">
+          <button
+            class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-md text-sm transition-colors"
+            @click="toggleAddPanel"
+          >
+            パネルで追加
+          </button>
+          <TaskAddButton @click="handleAddTask" />
+        </template>
       </div>
     </div>
 
