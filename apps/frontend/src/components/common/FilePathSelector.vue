@@ -18,6 +18,7 @@
         />
         <span class="flex-1 text-blue-800 font-mono">{{ path }}</span>
         <button
+          v-if="!props.disabled"
           type="button"
           @click.stop="removeFile(index)"
           class="text-blue-600 hover:text-red-600 font-medium cursor-pointer"
@@ -29,6 +30,7 @@
 
     <!-- ファイル検索・追加セクション -->
     <div
+      v-if="!props.disabled"
       class="file-path-search-container bg-gray-50 border-2 border-gray-300 rounded-md p-3 shadow-inner"
     >
       <!-- 検索入力 -->
@@ -131,6 +133,7 @@ import { useFilePathSearch } from '../../composables/useFilePathSearch';
 const props = defineProps<{
   modelValue: string[];
   rootPath?: string;
+  disabled?: boolean;
 }>();
 
 const emit = defineEmits<{

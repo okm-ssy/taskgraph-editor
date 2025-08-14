@@ -260,6 +260,8 @@
               id="implementation_notes"
               v-model="implementationNotesInput"
               class="w-full px-3 py-2 border border-gray-300 rounded-md"
+              :disabled="props.readOnly"
+              :class="props.readOnly ? 'bg-gray-100 cursor-not-allowed' : ''"
               :rows="implementationNotesRows"
               placeholder="○○を参考にする、ファイルを分割する、Pinia を利用する"
             />

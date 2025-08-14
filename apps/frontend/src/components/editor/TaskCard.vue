@@ -23,14 +23,14 @@
 
     <!-- source: 依存元（矢印の起点、ドラッグ可能） -->
     <div
-      v-if="!props.readOnly"
       :id="`source-${id}`"
-      class="dependency-handle absolute right-0 top-6 translate-x-1/2 -translate-y-1/2 bg-blue-500 rounded-full h-4 w-4 cursor-move hover:scale-125 transition-transform"
+      class="dependency-handle absolute right-0 top-6 translate-x-1/2 -translate-y-1/2 bg-blue-500 rounded-full h-4 w-4 transition-transform"
+      :class="props.readOnly ? 'cursor-default' : 'cursor-move hover:scale-125'"
       style="z-index: 20"
-      draggable="true"
-      @dragstart="handleDragStart"
-      @dragend="handleDragEnd"
-      title="ドラッグして依存関係を作成"
+      :draggable="!props.readOnly"
+      @dragstart="!props.readOnly && handleDragStart"
+      @dragend="!props.readOnly && handleDragEnd"
+      :title="props.readOnly ? '依存関係表示' : 'ドラッグして依存関係を作成'"
     />
 
     <!-- ドラッグハンドル部分 (カードの上部) -->
