@@ -33,10 +33,10 @@ jobs:
         run: ./bin/tg lint
         timeout-minutes: 5
 
-      - name: Build with readonly mode enabled
+      - name: Build for GitHub Pages
         run: |
           cd apps/frontend
-          VITE_READONLY_MODE=true npm run build
+          VITE_GITHUB_PAGES=true VITE_READONLY_MODE=true npm run build
         timeout-minutes: 5
 
       - name: Setup Pages
