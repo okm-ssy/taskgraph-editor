@@ -18,8 +18,14 @@
             <button
               type="button"
               @click="cycleStatus"
-              class="px-2 py-1 rounded text-xs transition-colors border w-16 text-center cursor-pointer"
-              :class="getStatusButtonClass()"
+              :disabled="props.readOnly"
+              class="px-2 py-1 rounded text-xs transition-colors border w-16 text-center"
+              :class="[
+                getStatusButtonClass(),
+                props.readOnly
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'cursor-pointer',
+              ]"
             >
               {{ TASK_STATUS_LABELS[statusInput] }}
             </button>
@@ -33,6 +39,7 @@
               キャンセル
             </button>
             <button
+              v-if="!props.readOnly"
               type="submit"
               form="task-detail-form"
               class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors cursor-pointer"
@@ -57,6 +64,8 @@
             v-model="nameInput"
             type="text"
             class="w-full px-3 py-2 border border-gray-300 rounded-md"
+            :disabled="props.readOnly"
+            :class="props.readOnly ? 'bg-gray-100 cursor-not-allowed' : ''"
             required
           />
         </div>
@@ -72,6 +81,8 @@
             v-model="descriptionInput"
             type="text"
             class="w-full px-3 py-2 border border-gray-300 rounded-md"
+            :disabled="props.readOnly"
+            :class="props.readOnly ? 'bg-gray-100 cursor-not-allowed' : ''"
             placeholder="タスクの概要を1行で入力してください"
           />
         </div>
@@ -86,6 +97,8 @@
             id="notes"
             v-model="notesInput"
             class="w-full px-3 py-2 border border-gray-300 rounded-md"
+            :disabled="props.readOnly"
+            :class="props.readOnly ? 'bg-gray-100 cursor-not-allowed' : ''"
             :rows="notesRows"
             placeholder="詳細な説明やメモを入力してください"
           />
@@ -105,8 +118,13 @@
                 <button
                   type="button"
                   @click="decreaseDifficulty"
-                  class="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm font-semibold transition-colors cursor-pointer"
-                  :disabled="difficultyInput <= 0"
+                  :disabled="props.readOnly || difficultyInput <= 0"
+                  :class="[
+                    'px-2 py-1 bg-gray-200 rounded text-sm font-semibold transition-colors',
+                    props.readOnly || difficultyInput <= 0
+                      ? 'opacity-50 cursor-not-allowed'
+                      : 'hover:bg-gray-300 cursor-pointer',
+                  ]"
                 >
                   −
                 </button>
@@ -116,13 +134,23 @@
                   type="number"
                   min="0"
                   step="0.1"
+                  :disabled="props.readOnly"
                   class="min-w-0 flex-1 px-2 py-1 border border-gray-300 rounded text-center text-sm"
-                  :class="getInputColorClass()"
+                  :class="[
+                    getInputColorClass(),
+                    props.readOnly ? 'bg-gray-100 cursor-not-allowed' : '',
+                  ]"
                 />
                 <button
                   type="button"
                   @click="increaseDifficulty"
-                  class="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm font-semibold transition-colors cursor-pointer"
+                  :disabled="props.readOnly"
+                  :class="[
+                    'px-2 py-1 bg-gray-200 rounded text-sm font-semibold transition-colors',
+                    props.readOnly
+                      ? 'opacity-50 cursor-not-allowed'
+                      : 'hover:bg-gray-300 cursor-pointer',
+                  ]"
                 >
                   ＋
                 </button>
@@ -182,8 +210,9 @@
                 id="category"
                 v-model="categoryInput"
                 class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                :class="props.readOnly ? 'bg-gray-100 cursor-not-allowed' : ''"
                 @change="onCategoryChange"
-                :disabled="!isLoaded || !!loadError"
+                :disabled="props.readOnly || !isLoaded || !!loadError"
               >
                 <option value="">カテゴリを選択してください</option>
                 <option
@@ -206,6 +235,8 @@
                 id="field"
                 v-model="fieldInput"
                 class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                :class="props.readOnly ? 'bg-gray-100 cursor-not-allowed' : ''"
+                :disabled="props.readOnly"
               >
                 <option value="">分野を選択してください</option>
                 <option
@@ -259,17 +290,26 @@
               id="requirements"
               v-model="requirementsInput"
               class="w-full px-3 py-2 border border-gray-300 rounded-md"
+              :disabled="props.readOnly"
+              :class="props.readOnly ? 'bg-gray-100 cursor-not-allowed' : ''"
               :rows="requirementsRows"
               placeholder="満たすべき要件やテストケースを1行ずつ入力してください"
             />
           </div>
 
           <div class="mb-4">
-            <FilePathSelector v-model="relationsInput" :root-path="rootPath" />
+            <FilePathSelector
+              v-model="relationsInput"
+              :root-path="rootPath"
+              :disabled="props.readOnly"
+            />
           </div>
 
           <div class="mb-4">
-            <ImageSelector v-model="designImagesInput" />
+            <ImageSelector
+              v-model="designImagesInput"
+              :disabled="props.readOnly"
+            />
           </div>
         </div>
 
@@ -287,6 +327,10 @@
 
 <script setup lang="ts">
 import { ref, watch, onUnmounted, computed } from 'vue';
+
+const props = defineProps<{
+  readOnly?: boolean;
+}>();
 
 import { useTaskCategories } from '../../composables/useTaskCategories';
 import { useEditorUIStore } from '../../store/editor_ui_store';
