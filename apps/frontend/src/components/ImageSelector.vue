@@ -48,15 +48,18 @@
       <div
         v-for="image in images"
         :key="image.path"
-        class="flex flex-col items-center p-2 hover:bg-gray-50 rounded border cursor-pointer relative"
-        :class="
+        class="flex flex-col items-center p-2 rounded border relative"
+        :class="[
           isSelected(image.path)
             ? 'border-blue-500 bg-blue-50'
-            : 'border-gray-100'
-        "
-        @click="toggleSelection(image.path)"
-        @mouseenter="(e) => showPreview(image.path, e)"
-        @mouseleave="hidePreview"
+            : 'border-gray-100',
+          props.disabled
+            ? 'opacity-50 cursor-not-allowed'
+            : 'hover:bg-gray-50 cursor-pointer',
+        ]"
+        @click="!props.disabled && toggleSelection(image.path)"
+        @mouseenter="(e) => !props.disabled && showPreview(image.path, e)"
+        @mouseleave="!props.disabled && hidePreview"
       >
         <!-- 選択インジケーター -->
         <div
@@ -123,6 +126,7 @@ import { useCurrentTasks } from '../store/task_store';
 // Props & Emits
 const props = defineProps<{
   modelValue: string[];
+  disabled?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -271,7 +275,7 @@ const hidePreview = () => {
 };
 
 const toggleSelection = (imagePath: string) => {
-  if (!imagePath) return;
+  if (!imagePath || props.disabled) return;
 
   const index = selectedPaths.value.indexOf(imagePath);
   if (index > -1) {
