@@ -122,7 +122,7 @@
         </div>
       </div>
       <template #popper>
-        <TaskDetail
+        <TaskDetailTooltip
           v-if="getEditorTaskById(id)"
           :task="getEditorTaskById(id)!"
           :hide-dependencies="true"
@@ -148,7 +148,8 @@ import {
   difficultyColorClass,
 } from '../../utilities/task';
 import TaskInfoSignal from '../TaskInfoSignal.vue';
-import TaskDetail from '../viewer/TaskDetail.vue';
+
+import TaskDetailTooltip from './TaskDetailTooltip.vue';
 
 import type { TaskStatus } from '@/constants';
 
