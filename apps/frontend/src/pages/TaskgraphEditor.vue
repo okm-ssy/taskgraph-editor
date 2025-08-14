@@ -4,6 +4,18 @@
 
     <div class="flex items-center gap-4 mb-4">
       <ProjectSelector />
+      <button
+        :class="[
+          'px-4 py-2 rounded-md text-base transition-colors',
+          isReadOnlyMode
+            ? 'bg-blue-500 hover:bg-blue-600 text-white'
+            : 'bg-gray-200 hover:bg-gray-300 text-gray-700',
+        ]"
+        @click="toggleReadOnlyMode"
+        :title="`readOnlyモード: ${isReadOnlyMode ? 'ON' : 'OFF'}`"
+      >
+        {{ isReadOnlyMode ? '読み取り専用' : '編集モード' }}
+      </button>
       <ExportButton />
     </div>
 
@@ -16,15 +28,15 @@
       {{ taskCount }}個のタスク
     </div>
 
-    <EditorGrid :read-only="false" class="flex-1 min-h-0" />
+    <EditorGrid :read-only="isReadOnlyMode" class="flex-1 min-h-0" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 import EditorGrid from '../components/editor/EditorGrid.vue';
-import { PROJECT_CONSTANTS } from '../constants';
+import { PROJECT_CONSTANTS, STORAGE_KEYS } from '../constants';
 import { useCurrentTasks } from '../store/task_store';
 
 import ExportButton from '@/components/ExportButton.vue';
@@ -38,6 +50,11 @@ const { selectedProjectId } = useProject();
 
 // タイトル管理を初期化
 useAppTitle();
+
+// readOnlyモードの状態管理
+const isReadOnlyMode = ref(
+  localStorage.getItem(STORAGE_KEYS.READ_ONLY_MODE) === 'true',
+);
 
 // ストア初期化確認
 onMounted(async () => {
@@ -64,6 +81,15 @@ const handleParseError = (errorMessage: string) => {
 };
 
 const taskCount = computed(() => taskStore.editorTasks.length);
+
+// readOnlyモードの切り替え
+const toggleReadOnlyMode = () => {
+  isReadOnlyMode.value = !isReadOnlyMode.value;
+  localStorage.setItem(
+    STORAGE_KEYS.READ_ONLY_MODE,
+    isReadOnlyMode.value.toString(),
+  );
+};
 </script>
 
 <style scoped lang="scss" />
