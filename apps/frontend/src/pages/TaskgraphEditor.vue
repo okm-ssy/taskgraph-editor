@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full p-4">
+  <div class="w-full h-screen flex flex-col p-4">
     <h2 class="font-bold text-xl mb-4">タスクグラフツール</h2>
 
     <div class="flex items-center gap-4 mb-4">
@@ -31,7 +31,7 @@
     <EditorGrid
       :compact-mode="isCompactMode"
       :read-only="false"
-      class="h-full"
+      class="flex-1 min-h-0"
     />
   </div>
 </template>
