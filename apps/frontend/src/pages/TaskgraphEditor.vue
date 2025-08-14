@@ -5,6 +5,7 @@
     <div class="flex items-center gap-4 mb-4">
       <ProjectSelector />
       <button
+        v-if="!IS_READONLY_MODE"
         :class="[
           'px-4 py-2 rounded-md text-base transition-colors',
           isReadOnlyMode
@@ -16,6 +17,12 @@
       >
         {{ isReadOnlyMode ? '読み取り専用' : '編集モード' }}
       </button>
+      <div
+        v-else
+        class="px-4 py-2 bg-blue-100 text-blue-800 rounded-md text-base"
+      >
+        読み取り専用モード
+      </div>
       <ExportButton />
     </div>
 
@@ -36,7 +43,11 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 import EditorGrid from '../components/editor/EditorGrid.vue';
-import { PROJECT_CONSTANTS, STORAGE_KEYS } from '../constants';
+import {
+  PROJECT_CONSTANTS,
+  STORAGE_KEYS,
+  IS_READONLY_MODE,
+} from '../constants';
 import { useCurrentTasks } from '../store/task_store';
 
 import ExportButton from '@/components/ExportButton.vue';
@@ -52,8 +63,11 @@ const { selectedProjectId } = useProject();
 useAppTitle();
 
 // readOnlyモードの状態管理
+// 環境変数で強制readonly が設定されている場合はそれを優先
+// そうでなければlocalStorageの値を使用
 const isReadOnlyMode = ref(
-  localStorage.getItem(STORAGE_KEYS.READ_ONLY_MODE) === 'true',
+  IS_READONLY_MODE ||
+    localStorage.getItem(STORAGE_KEYS.READ_ONLY_MODE) === 'true',
 );
 
 // ストア初期化確認
@@ -82,8 +96,10 @@ const handleParseError = (errorMessage: string) => {
 
 const taskCount = computed(() => taskStore.editorTasks.length);
 
-// readOnlyモードの切り替え
+// readOnlyモードの切り替え（環境変数で強制設定されていない場合のみ）
 const toggleReadOnlyMode = () => {
+  if (IS_READONLY_MODE) return; // 環境変数で強制設定されている場合は切り替え不可
+
   isReadOnlyMode.value = !isReadOnlyMode.value;
   localStorage.setItem(
     STORAGE_KEYS.READ_ONLY_MODE,
