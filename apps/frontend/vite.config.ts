@@ -6,6 +6,7 @@ import { defineConfig } from 'vite';
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: process.env.VITE_READONLY_MODE === 'true' ? '/taskgraph-editor/' : '/',
   plugins: [vue(), tailwindcss()],
   server: {
     port: 5353,
