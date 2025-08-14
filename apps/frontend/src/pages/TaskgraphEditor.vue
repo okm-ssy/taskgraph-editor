@@ -3,7 +3,7 @@
     <h2 class="font-bold text-xl mb-4">タスクグラフツール</h2>
 
     <div class="flex items-center gap-4 mb-4">
-      <ProjectSelector />
+      <ProjectSelector v-if="!isReadOnlyMode" />
       <button
         v-if="!IS_READONLY_MODE"
         :class="[
@@ -72,6 +72,11 @@ const isReadOnlyMode = ref(
 
 // ストア初期化確認
 onMounted(async () => {
+  // readonly モードの場合はAPI通信を行わないため、ストア初期化をスキップ
+  if (isReadOnlyMode.value) {
+    return;
+  }
+
   // プロジェクトIDが設定されているか、もしくはdefaultを使う場合のみ初期化
   // useProjectで既にlocalStorageから読み込まれているはず
   if (
@@ -84,7 +89,10 @@ onMounted(async () => {
 
 // クリーンアップ
 onUnmounted(() => {
-  taskStore.stopPolling();
+  // readonly モード時はポーリングが開始されていないため、stopPollingをスキップ
+  if (!isReadOnlyMode.value) {
+    taskStore.stopPolling();
+  }
 });
 
 const handleParseSuccess = (jsonString: string) => {
