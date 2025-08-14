@@ -1,8 +1,15 @@
 # Taskgraph Editor
 
 [![CI](https://github.com/okm-ssy/taskgraph-editor/actions/workflows/CI.yml/badge.svg)](https://github.com/okm-ssy/taskgraph-editor/actions/workflows/CI.yml)
+[![Deploy to GitHub Pages](https://github.com/okm-ssy/taskgraph-editor/actions/workflows/CD.yml/badge.svg)](https://github.com/okm-ssy/taskgraph-editor/actions/workflows/CD.yml)
 
 タスクをJSON形式で階層的に管理し、依存関係を視覚的に表現できるWebアプリケーションです。
+
+## 🚀 Live Demo
+
+**読み取り専用版**: [https://okm-ssy.github.io/taskgraph-editor/](https://okm-ssy.github.io/taskgraph-editor/)
+
+※ GitHub Pages版は完全に読み取り専用として動作し、タスクグラフの閲覧とSVGエクスポートが可能です。
 
 ## 特徴
 
