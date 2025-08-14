@@ -53,8 +53,9 @@
           {{ task.name }}
         </div>
       </div>
-      <div v-if="!props.readOnly" class="flex items-center justify-center">
+      <div class="flex items-center justify-center min-w-[2rem] h-8">
         <button
+          v-if="!props.readOnly"
           @click="handleRemove"
           class="task-action-button text-gray-500 hover:bg-white rounded-full p-1"
         >
