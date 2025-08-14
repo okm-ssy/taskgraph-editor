@@ -9,9 +9,9 @@
       isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : '',
     ]"
     style="z-index: 1; overflow: visible"
-    @dragover="handleDragOver"
-    @dragleave="handleDragLeave"
-    @drop="handleDrop"
+    @dragover="!props.readOnly && handleDragOver($event)"
+    @dragleave="!props.readOnly && handleDragLeave()"
+    @drop="!props.readOnly && handleDrop($event)"
     :aria-describedby="`tooltip-for-${id}`"
   >
     <!-- target: 依存先（矢印の終点） -->
@@ -23,6 +23,7 @@
 
     <!-- source: 依存元（矢印の起点、ドラッグ可能） -->
     <div
+      v-if="!props.readOnly"
       :id="`source-${id}`"
       class="dependency-handle absolute right-0 top-6 translate-x-1/2 -translate-y-1/2 bg-blue-500 rounded-full h-4 w-4 cursor-move hover:scale-125 transition-transform"
       style="z-index: 20"
@@ -34,8 +35,11 @@
 
     <!-- ドラッグハンドル部分 (カードの上部) -->
     <div
-      class="drag-handle py-1 px-3 flex justify-between items-center border-b border-opacity-30 cursor-move relative"
-      :class="fieldColorClass.replace('bg-', 'bg-opacity-70 bg-')"
+      :class="[
+        'drag-handle py-1 px-3 flex justify-between items-center border-b border-opacity-30 relative',
+        !props.readOnly ? 'cursor-move' : '',
+        fieldColorClass.replace('bg-', 'bg-opacity-70 bg-'),
+      ]"
     >
       <div class="flex items-center justify-start overflow-x-hidden">
         <div
@@ -49,7 +53,7 @@
           {{ task.name }}
         </div>
       </div>
-      <div class="flex items-center justify-center">
+      <div v-if="!props.readOnly" class="flex items-center justify-center">
         <button
           @click="handleRemove"
           class="task-action-button text-gray-500 hover:bg-white rounded-full p-1"
@@ -162,6 +166,7 @@ const props = defineProps<{
   task: Task;
   id: string;
   compact?: boolean;
+  readOnly?: boolean;
 }>();
 
 const dragDropStore = useDragDropStore();

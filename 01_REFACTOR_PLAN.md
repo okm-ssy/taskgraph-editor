@@ -19,7 +19,7 @@
 
 #### 削除対象
 - `components/viewer/EditorViewer.vue`
-- `components/viewer/TaskDialog.vue` 
+- `components/viewer/TaskDialog.vue`
 - `components/viewer/TaskgraphViewer.vue`
 - `pages/ViewerPage.vue`
 - `pages/EditorPage.vue`
@@ -47,7 +47,7 @@ components/editor/* → components/
   - ドラッグハンドル（dependency-handle）
   - ドラッグ&ドロップ機能
 
-#### EditorGrid.vue  
+#### EditorGrid.vue
 - `readOnly: boolean` propsを追加
 - 編集機能の条件表示：
   - TaskAddButton
@@ -70,11 +70,11 @@ components/editor/* → components/
 
 #### TaskgraphEditor.vue での使用
 ```vue
-<EditorGrid 
-  v-model:selecting="isSelecting" 
+<EditorGrid
+  v-model:selecting="isSelecting"
   :compact-mode="compactMode"
   :read-only="currentMode === 'viewer'"
-  class="h-full" 
+  class="h-full"
 />
 ```
 
@@ -83,7 +83,7 @@ components/editor/* → components/
 components/
 ├── common/              # そのまま
 ├── EditorGrid.vue       # editor/ から移動
-├── TaskCard.vue         # editor/ から移動  
+├── TaskCard.vue         # editor/ から移動
 ├── Curve.vue           # editor/ から移動
 ├── InfoEditDialog.vue  # editor/ から移動
 ├── TaskAddButton.vue   # editor/ から移動
@@ -100,7 +100,7 @@ components/
 ## 実装メリット
 
 1. **コード重複削除** - 2つの異なる表示ロジックを統一
-2. **見た目統一** - Editorと完全同じ見た目をViewerで実現  
+2. **見た目統一** - Editorと完全同じ見た目をViewerで実現
 3. **保守性向上** - 1つのコンポーネントで両方対応
 4. **GitHub Pages対応** - 軽量化されたViewer機能
 5. **localStorage対応準備** - 統一されたデータ管理
@@ -115,7 +115,7 @@ components/
 ## 実装手順
 
 1. TaskCard.vueにreadOnlyモード追加
-2. EditorGrid.vueにreadOnlyモード追加  
+2. EditorGrid.vueにreadOnlyモード追加
 3. TaskgraphEditor.vueを直接EditorGrid使用に変更
 4. components/editor/* を components/ に移動
 5. 不要なviewer/*とpage/*を削除

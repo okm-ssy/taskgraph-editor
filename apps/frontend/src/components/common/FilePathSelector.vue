@@ -293,7 +293,7 @@ const getFileIcon = (filename: string): string => {
 const getFileIconColor = (filename: string): string => {
   try {
     const icon = getIcon(filename);
-    return icon?.color || '#6b7280'; // デフォルトはgray-500
+    return (icon as any)?.color || '#6b7280'; // デフォルトはgray-500
   } catch {
     return '#6b7280';
   }

@@ -29,13 +29,10 @@
       {{ taskCount }}個のタスク
     </div>
 
-    <ViewerPage
-      v-if="currentPage.id === 'viewer'"
+    <EditorGrid
       :compact-mode="isCompactMode"
-    />
-    <EditorPage
-      v-else-if="currentPage.id === 'editor'"
-      :compact-mode="isCompactMode"
+      :read-only="currentPage.id === 'viewer'"
+      class="h-full"
     />
   </div>
 </template>
@@ -44,12 +41,10 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 
+import EditorGrid from '../components/editor/EditorGrid.vue';
 import { STORAGE_KEYS, PROJECT_CONSTANTS } from '../constants';
 import { useCurrentTasks } from '../store/task_store';
 import { Page, viewerPage, editorPage } from '../store/types/page';
-
-import EditorPage from './EditorPage.vue';
-import ViewerPage from './ViewerPage.vue';
 
 import ExportButton from '@/components/ExportButton.vue';
 import JsonInput from '@/components/common/JsonInput.vue';

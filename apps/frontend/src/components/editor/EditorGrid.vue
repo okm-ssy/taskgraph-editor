@@ -14,7 +14,7 @@
           >
         </div>
       </div>
-      <div class="flex gap-2">
+      <div v-if="!props.readOnly" class="flex gap-2">
         <button
           class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-md text-sm transition-colors"
           @click="toggleAddPanel"
@@ -63,7 +63,7 @@
         </template>
         <!-- 新規タスク追加パネル -->
         <TaskAddPanel
-          v-if="uiStore.showAddPanel"
+          v-if="!props.readOnly && uiStore.showAddPanel"
           @close="uiStore.toggleAddPanel"
         />
 
@@ -73,8 +73,8 @@
           :col-num="layoutConfig.colNum"
           :width="LAYOUT.GRID.TOTAL_WIDTH"
           :row-height="layoutConfig.rowHeight"
-          :is-draggable="!disableGrid"
-          :is-resizable="!disableGrid"
+          :is-draggable="!disableGrid && !props.readOnly"
+          :is-resizable="!disableGrid && !props.readOnly"
           :vertical-compact="false"
           :use-css-transforms="true"
           :margin="[layoutConfig.margin, layoutConfig.margin]"
@@ -113,6 +113,7 @@
               :task="task.task"
               :id="task.id"
               :compact="isCompactMode"
+              :read-only="props.readOnly"
             />
           </GridItem>
         </GridLayout>
@@ -160,6 +161,7 @@ import TaskDetailDialog from './TaskDetailDialog.vue';
 const props = defineProps<{
   selecting?: boolean;
   compactMode?: boolean;
+  readOnly?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -528,6 +530,9 @@ const handleMouseMove = (event: MouseEvent) => {
 
 // 依存関係クリック時の処理（削除）
 const handleConnectionClick = (connection: Connection) => {
+  // readOnlyモードでは何もしない
+  if (props.readOnly) return;
+
   // source と target の ID から実際のタスクを特定
   const sourceTaskId = connection.sourceId.replace('source-', '');
   const targetTaskId = connection.targetId.replace('target-', '');
