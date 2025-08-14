@@ -120,7 +120,7 @@
       </div>
 
       <!-- タスク詳細ダイアログ -->
-      <TaskDetailDialog />
+      <TaskDetailDialog :read-only="props.readOnly" />
 
       <!-- プロジェクト情報ダイアログ -->
       <InfoEditDialog />
