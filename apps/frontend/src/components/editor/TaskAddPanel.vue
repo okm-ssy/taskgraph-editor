@@ -223,7 +223,9 @@ const nameInput = ref('');
 const descriptionInput = ref('');
 const notesInput = ref('');
 const categoryInput = ref('');
-const fieldInput = ref<'' | 'front' | 'back' | 'infra' | 'other' | 'parent'>('');
+const fieldInput = ref<'' | 'front' | 'back' | 'infra' | 'other' | 'parent'>(
+  '',
+);
 const difficultyInput = ref(0);
 const isAutoDifficulty = ref(false);
 
@@ -274,7 +276,13 @@ const handleCategoryChange = () => {
   // カテゴリに応じた分野を自動設定
   const suggestedField = getFieldByCategory(categoryInput.value);
   if (suggestedField) {
-    fieldInput.value = suggestedField as '' | 'front' | 'back' | 'infra' | 'other' | 'parent';
+    fieldInput.value = suggestedField as
+      | ''
+      | 'front'
+      | 'back'
+      | 'infra'
+      | 'other'
+      | 'parent';
   }
 };
 
