@@ -5,7 +5,7 @@
       fieldColorClass,
       isDroppable ? 'ring-4 ring-blue-400 scale-105' : '',
       isDraggingSource ? 'opacity-50' : '',
-      props.compact ? 'compact-mode' : 'normal-mode',
+      'compact-mode',
       isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : '',
     ]"
     style="z-index: 1; overflow: visible"
@@ -74,18 +74,13 @@
       <div
         :class="[
           'task-content flex-1 flex flex-col cursor-pointer relative overflow-hidden',
-          props.compact ? 'p-2' : 'p-3',
+          'p-2',
         ]"
         @click="handleCardClick"
         @dragenter.prevent
         @dragover.prevent
       >
-        <p
-          :class="[
-            'text-gray-700 line-clamp-1 mb-2',
-            props.compact ? 'text-xs' : 'text-sm',
-          ]"
-        >
+        <p :class="['text-gray-700 line-clamp-1 mb-2', 'text-xs']">
           {{ task.description }}
         </p>
 
@@ -101,23 +96,18 @@
               @click.stop
               :class="[
                 'text-blue-600 hover:text-blue-800 font-medium underline',
-                props.compact ? 'text-[10px]' : 'text-xs',
+                'text-[10px]',
               ]"
             >
               #{{ task.issueNumber }}
             </a>
 
             <!-- 追加情報シグナル -->
-            <TaskInfoSignal :task="task" :compact="props.compact" />
+            <TaskInfoSignal :task="task" :compact="true" />
           </div>
           <div class="m-1" />
           <!-- カテゴリ/難易度 -->
-          <span
-            :class="[
-              'bg-white rounded-full px-2 py-1',
-              props.compact ? 'text-[10px]' : 'text-xs',
-            ]"
-          >
+          <span :class="['bg-white rounded-full px-2 py-1', 'text-[10px]']">
             <span
               v-if="task.addition?.category"
               :class="difficultyTextColorClass"
@@ -165,7 +155,6 @@ import type { TaskStatus } from '@/constants';
 const props = defineProps<{
   task: Task;
   id: string;
-  compact?: boolean;
   readOnly?: boolean;
 }>();
 

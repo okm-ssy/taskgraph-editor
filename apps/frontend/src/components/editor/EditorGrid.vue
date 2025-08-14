@@ -112,7 +112,7 @@
             <TaskCard
               :task="task.task"
               :id="task.id"
-              :compact="isCompactMode"
+              :compact="true"
               :read-only="props.readOnly"
             />
           </GridItem>
@@ -160,7 +160,6 @@ import TaskDetailDialog from './TaskDetailDialog.vue';
 
 const props = defineProps<{
   selecting?: boolean;
-  compactMode?: boolean;
   readOnly?: boolean;
 }>();
 
@@ -174,21 +173,12 @@ const dragDropStore = useDragDropStore();
 const layout = ref<GridTask[]>([]);
 const gridContainer = ref<HTMLDivElement | null>(null);
 
-// 表示モード管理（propsから取得）
-const isCompactMode = computed(() => props.compactMode ?? false);
-
-// レイアウト設定のcomputed
-const layoutConfig = computed(() => ({
-  colNum: isCompactMode.value
-    ? LAYOUT.GRID.COL_NUM.COMPACT
-    : LAYOUT.GRID.COL_NUM.NORMAL,
-  rowHeight: isCompactMode.value
-    ? LAYOUT.GRID.ROW_HEIGHT.COMPACT
-    : LAYOUT.GRID.ROW_HEIGHT.NORMAL,
-  margin: isCompactMode.value
-    ? LAYOUT.GRID.MARGIN.COMPACT
-    : LAYOUT.GRID.MARGIN.NORMAL,
-}));
+// レイアウト設定（コンパクトモードをデフォルトに）
+const layoutConfig = {
+  colNum: LAYOUT.GRID.COL_NUM.COMPACT,
+  rowHeight: LAYOUT.GRID.ROW_HEIGHT.COMPACT,
+  margin: LAYOUT.GRID.MARGIN.COMPACT,
+};
 
 // provide/injectでコンポーネント通信を改善
 const taskActions = useTaskActionsProvider();

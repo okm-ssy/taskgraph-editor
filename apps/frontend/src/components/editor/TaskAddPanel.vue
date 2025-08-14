@@ -321,8 +321,8 @@ const getVisibleAreaPosition = () => {
   const scrollTop = container.scrollTop;
 
   // GridLayoutの実際の設定値を使用（EditorGridと同じ）
-  const rowHeight = LAYOUT.GRID.ROW_HEIGHT.NORMAL;
-  const margin = LAYOUT.GRID.MARGIN.NORMAL;
+  const rowHeight = LAYOUT.GRID.ROW_HEIGHT.COMPACT;
+  const margin = LAYOUT.GRID.MARGIN.COMPACT;
 
   // スクロール位置をグリッド座標に変換（マージンも考慮）
   const gridY = Math.floor(scrollTop / (rowHeight + margin));
