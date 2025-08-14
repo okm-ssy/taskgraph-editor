@@ -1,7 +1,6 @@
 export const STORAGE_KEYS = {
   TASKGRAPH_DATA: 'taskgraph-data',
   TASKGRAPH_DATA_EXPIRY: 'taskgraph-data-expiry',
-  COMPACT_MODE: 'taskgraph-compact-mode',
 } as const;
 
 export const STORAGE_EXPIRY = {

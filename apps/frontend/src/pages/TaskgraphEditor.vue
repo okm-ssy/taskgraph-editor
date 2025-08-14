@@ -4,18 +4,6 @@
 
     <div class="flex items-center gap-4 mb-4">
       <ProjectSelector />
-      <button
-        :class="[
-          'px-4 py-2 rounded-md text-base transition-colors',
-          isCompactMode
-            ? 'bg-green-500 hover:bg-green-600 text-white'
-            : 'bg-gray-200 hover:bg-gray-300 text-gray-700',
-        ]"
-        @click="toggleCompactMode"
-        :title="`コンパクトモード: ${isCompactMode ? 'ON' : 'OFF'}`"
-      >
-        {{ isCompactMode ? 'コンパクト中' : 'コンパクト' }}
-      </button>
       <ExportButton />
     </div>
 
@@ -28,19 +16,15 @@
       {{ taskCount }}個のタスク
     </div>
 
-    <EditorGrid
-      :compact-mode="isCompactMode"
-      :read-only="false"
-      class="flex-1 min-h-0"
-    />
+    <EditorGrid :read-only="false" class="flex-1 min-h-0" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { computed, onMounted, onUnmounted } from 'vue';
 
 import EditorGrid from '../components/editor/EditorGrid.vue';
-import { STORAGE_KEYS, PROJECT_CONSTANTS } from '../constants';
+import { PROJECT_CONSTANTS } from '../constants';
 import { useCurrentTasks } from '../store/task_store';
 
 import ExportButton from '@/components/ExportButton.vue';
@@ -54,10 +38,6 @@ const { selectedProjectId } = useProject();
 
 // タイトル管理を初期化
 useAppTitle();
-
-const isCompactMode = ref(
-  localStorage.getItem(STORAGE_KEYS.COMPACT_MODE) === 'true',
-);
 
 // ストア初期化確認
 onMounted(async () => {
@@ -81,15 +61,6 @@ const handleParseSuccess = (jsonString: string) => {
 };
 const handleParseError = (errorMessage: string) => {
   console.error('JSONパースエラー(EditorViewer):', errorMessage);
-};
-
-// コンパクトモードの切り替え
-const toggleCompactMode = () => {
-  isCompactMode.value = !isCompactMode.value;
-  localStorage.setItem(
-    STORAGE_KEYS.COMPACT_MODE,
-    isCompactMode.value.toString(),
-  );
 };
 
 const taskCount = computed(() => taskStore.editorTasks.length);
