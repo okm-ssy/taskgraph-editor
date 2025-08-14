@@ -395,7 +395,7 @@ const getVisibleAreaPosition = () => {
 
   // スクロール位置をグリッド座標に変換（マージンも考慮）
   const gridY = Math.floor(
-    scrollTop / (layoutConfig.value.rowHeight + layoutConfig.value.margin),
+    scrollTop / (layoutConfig.rowHeight + layoutConfig.margin),
   );
 
   // X座標は左端（0）に固定
@@ -424,7 +424,7 @@ const scrollToLeftmostTask = () => {
 
   // グリッドの設定値を取得
   const gridWidth = gridContainer.value.clientWidth;
-  const cellWidth = gridWidth / layoutConfig.value.colNum;
+  const cellWidth = gridWidth / layoutConfig.colNum;
 
   // 表示マージン設定
   const SCROLL_MARGIN_RATIO = 0.1; // 10%マージン
