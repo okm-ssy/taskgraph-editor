@@ -24,7 +24,7 @@ const getBackupFilePath = (projectId, datetime) => {
   return path.join(BACKUP_DIR, `${projectId}.${datetime}.json`);
 };
 
-// 古いバックアップファイルを削除（3日経過）
+// 古いバックアップファイルを削除（3日経過、ただし最新1件は必ず残す）
 const cleanupOldBackups = async (projectId) => {
   try {
     // バックアップディレクトリが存在しない場合は作成
@@ -43,16 +43,40 @@ const cleanupOldBackups = async (projectId) => {
       file.startsWith(`${projectId}.`) && file.endsWith('.json')
     );
     
-    for (const file of projectBackups) {
-      const filePath = path.join(BACKUP_DIR, file);
-      try {
-        const stats = await fs.stat(filePath);
-        if (stats.mtime.getTime() < threeDaysAgo) {
-          await fs.unlink(filePath);
-          console.log(`古いバックアップファイルを削除: ${file}`);
+    // バックアップファイルが1件以下の場合は削除しない
+    if (projectBackups.length <= 1) {
+      return;
+    }
+    
+    // ファイルを更新時刻でソートして最新のファイルを特定
+    const backupsWithStats = await Promise.all(
+      projectBackups.map(async (file) => {
+        const filePath = path.join(BACKUP_DIR, file);
+        try {
+          const stats = await fs.stat(filePath);
+          return { file, filePath, mtime: stats.mtime.getTime() };
+        } catch (error) {
+          console.error(`バックアップファイル情報取得エラー: ${file}`, error);
+          return null;
         }
-      } catch (error) {
-        console.error(`バックアップファイル削除エラー: ${file}`, error);
+      })
+    );
+    
+    // nullを除外してソート（新しい順）
+    const validBackups = backupsWithStats
+      .filter(backup => backup !== null)
+      .sort((a, b) => b.mtime - a.mtime);
+    
+    // 最新のファイルを除いて古いファイルを削除
+    for (let i = 1; i < validBackups.length; i++) {
+      const backup = validBackups[i];
+      if (backup.mtime < threeDaysAgo) {
+        try {
+          await fs.unlink(backup.filePath);
+          console.log(`古いバックアップファイルを削除: ${backup.file}`);
+        } catch (error) {
+          console.error(`バックアップファイル削除エラー: ${backup.file}`, error);
+        }
       }
     }
   } catch (error) {
