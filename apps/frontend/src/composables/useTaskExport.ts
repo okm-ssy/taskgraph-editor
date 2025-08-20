@@ -60,18 +60,9 @@ export function useTaskExport() {
   ): string {
     const sortedTasks = topologicalSort(tasks);
 
-    const businessPurpose = info.addition?.business_purpose || '未設定';
-    const targetUsers = info.addition?.target_users || '未設定';
-    const businessContext = info.addition?.current_problem || '未設定';
-
     let content = `# ${info.name} - 要件定義\n\n`;
     content += `**プロジェクトID**: ${projectId}\n\n`;
-    content += `## プロジェクト概要\n\n`;
-    content += `### ビジネス背景\n\n`;
-    content += `- **目的**: ${businessPurpose}\n`;
-    content += `- **対象ユーザー**: ${targetUsers}\n`;
-    content += `- **ビジネス背景**: ${businessContext}\n\n`;
-    content += `\n## タスク別要件\n`;
+    content += `## タスク別要件\n`;
 
     sortedTasks.forEach((task, index) => {
       if (index > 0) content += '\n---\n';
