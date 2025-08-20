@@ -6,11 +6,38 @@ import {
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { TaskgraphStorage } from './storage.js';
 import { Task, TaskSchema, TaskInputSchema, TaskgraphSchema } from './types.js';
 
 // ストレージインスタンス
 const storage = new TaskgraphStorage();
+
+// TSVファイルからカテゴリデータを読み込む関数
+async function loadCategoriesFromTSV(): Promise<Array<{ category: string; baseDifficulty: number; field: string }>> {
+  try {
+    const __dirname = path.dirname(fileURLToPath(import.meta.url));
+    const tsvPath = path.join(__dirname, '..', '..', '..', 'apps', 'frontend', 'public', 'task-categories.tsv');
+    const tsvContent = await fs.readFile(tsvPath, 'utf-8');
+    
+    const lines = tsvContent.split('\n').filter(line => line.trim());
+    const categories = lines.map(line => {
+      const [category, baseDifficulty, field] = line.split('\t');
+      return {
+        category: category.trim(),
+        baseDifficulty: parseFloat(baseDifficulty) || 0,
+        field: field ? field.trim() : ''
+      };
+    });
+    
+    return categories;
+  } catch (error) {
+    console.error('Failed to load categories from TSV:', error);
+    return [];
+  }
+}
 
 // エラーメッセージをシンプルにするヘルパー関数
 function formatError(error: unknown): string {
@@ -79,9 +106,7 @@ const GetTaskgraphSchema = z.object({
   projectId: z.string(),
 });
 
-const GetCategoriesSchema = z.object({
-  projectId: z.string(),
-});
+const GetCategoriesSchema = z.object({});
 
 const CreateTaskSchema = z.object({
   projectId: z.string(),
@@ -307,13 +332,10 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: 'taskgraph_get_categories',
-      description: 'Get all unique categories from tasks in a project',
+      description: 'Get all available task categories from TSV master data',
       inputSchema: {
         type: 'object',
-        properties: {
-          projectId: { type: 'string', description: 'Project ID' },
-        },
-        required: ['projectId'],
+        properties: {},
       },
     },
   ],
@@ -497,32 +519,33 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case 'taskgraph_get_categories': {
-        const { projectId } = GetCategoriesSchema.parse(args);
-        const taskgraph = await storage.readTaskgraph(projectId);
+        GetCategoriesSchema.parse(args);
         
-        if (!taskgraph) {
-          throw new Error(`Project "${projectId}" not found`);
-        }
+        // TSVファイルからカテゴリデータを読み込む
+        const categoriesData = await loadCategoriesFromTSV();
         
-        // タスクからユニークなカテゴリを抽出
-        const categories = new Set<string>();
-        for (const task of taskgraph.tasks) {
-          if (task.addition?.category) {
-            categories.add(task.addition.category);
+        // フィールドごとにグループ化
+        const categoriesByField: Record<string, Array<{ category: string; baseDifficulty: number }>> = {};
+        
+        for (const item of categoriesData) {
+          const field = item.field || 'その他';
+          if (!categoriesByField[field]) {
+            categoriesByField[field] = [];
           }
+          categoriesByField[field].push({
+            category: item.category,
+            baseDifficulty: item.baseDifficulty
+          });
         }
-        
-        // カテゴリをソートして配列として返す
-        const sortedCategories = Array.from(categories).sort();
         
         return {
           content: [
             {
               type: 'text',
               text: JSON.stringify({
-                projectId,
-                categories: sortedCategories,
-                count: sortedCategories.length
+                totalCount: categoriesData.length,
+                categoriesByField,
+                allCategories: categoriesData.map(c => c.category)
               }, null, 2),
             },
           ],
