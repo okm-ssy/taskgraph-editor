@@ -35,7 +35,7 @@ function formatError(error: unknown): string {
     }
     
     if (message.includes('Unknown tool')) {
-      return `${message}. Available: taskgraph_list_projects, taskgraph_get_taskgraph, taskgraph_get_task, taskgraph_create_task, taskgraph_update_task, taskgraph_delete_task, taskgraph_update_notes, taskgraph_update_implementation_notes, taskgraph_update_api_schemas, taskgraph_update_requirements, taskgraph_get_schema`;
+      return `${message}. Available: taskgraph_list_projects, taskgraph_get_taskgraph, taskgraph_get_task, taskgraph_create_task, taskgraph_update_task, taskgraph_delete_task, taskgraph_update_notes, taskgraph_update_implementation_notes, taskgraph_update_api_schemas, taskgraph_update_requirements, taskgraph_get_schema, taskgraph_get_categories`;
     }
     
     return `Error: ${message}`;
@@ -76,6 +76,10 @@ const server = new Server(
 const ListProjectsSchema = z.object({});
 
 const GetTaskgraphSchema = z.object({
+  projectId: z.string(),
+});
+
+const GetCategoriesSchema = z.object({
   projectId: z.string(),
 });
 
@@ -301,6 +305,17 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
         properties: {},
       },
     },
+    {
+      name: 'taskgraph_get_categories',
+      description: 'Get all unique categories from tasks in a project',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          projectId: { type: 'string', description: 'Project ID' },
+        },
+        required: ['projectId'],
+      },
+    },
   ],
 }));
 
@@ -476,6 +491,39 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             {
               type: 'text',
               text: getTaskSchemaHelp(),
+            },
+          ],
+        };
+      }
+
+      case 'taskgraph_get_categories': {
+        const { projectId } = GetCategoriesSchema.parse(args);
+        const taskgraph = await storage.readTaskgraph(projectId);
+        
+        if (!taskgraph) {
+          throw new Error(`Project "${projectId}" not found`);
+        }
+        
+        // タスクからユニークなカテゴリを抽出
+        const categories = new Set<string>();
+        for (const task of taskgraph.tasks) {
+          if (task.addition?.category) {
+            categories.add(task.addition.category);
+          }
+        }
+        
+        // カテゴリをソートして配列として返す
+        const sortedCategories = Array.from(categories).sort();
+        
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({
+                projectId,
+                categories: sortedCategories,
+                count: sortedCategories.length
+              }, null, 2),
             },
           ],
         };
