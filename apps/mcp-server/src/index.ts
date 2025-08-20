@@ -404,6 +404,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           addition: {
             baseDifficulty: inputTask.addition?.baseDifficulty ?? 0,
             category: inputTask.addition?.category ?? '',
+            field: inputTask.addition?.field ?? '',
+            implementation_notes: inputTask.addition?.implementation_notes ?? [],
+            api_schemas: inputTask.addition?.api_schemas ?? [],
+            requirements: inputTask.addition?.requirements ?? [],
+            design_images: inputTask.addition?.design_images ?? [],
           },
         });
 
