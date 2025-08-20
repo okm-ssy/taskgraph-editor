@@ -53,11 +53,6 @@ export const infoZodSchema = zod
         deployment_notes: zod.string().optional(), // デプロイ・環境に関する注意事項
         root_path: zod.string().optional(), // リポジトリのルートパス（ファイル検索用）
         design_images: zod.array(projectImageZodSchema).optional(), // プロジェクト内の画面設計画像
-        // 軽量ビジネス要件フォーマット
-        business_purpose: zod.string().optional(), // 目的: なぜこの機能が必要か（1行）
-        target_users: zod.string().optional(), // 対象ユーザー: 誰が使うか + 規模感
-        usage_frequency: zod.string().optional(), // 使用頻度: どのくらい使われるか
-        current_problem: zod.string().optional(), // 現在の問題: 何を解決したいか（あれば）
       })
       .optional(),
   })

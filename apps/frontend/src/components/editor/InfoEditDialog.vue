@@ -126,75 +126,6 @@
           </div>
         </div>
 
-        <!-- 軽量ビジネス要件セクション -->
-        <div class="mb-6 pb-6 border-b border-gray-200">
-          <h4 class="text-sm font-semibold text-green-600 mb-4">
-            軽量ビジネス要件フォーマット
-          </h4>
-
-          <div class="mb-4">
-            <label
-              for="business-purpose"
-              class="block text-sm font-medium text-green-700 mb-1"
-              >目的（なぜこの機能が必要か）</label
-            >
-            <input
-              id="business-purpose"
-              v-model="businessPurposeInput"
-              type="text"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md"
-              placeholder="ユーザーの操作効率を向上させるため"
-            />
-          </div>
-
-          <div class="mb-4 grid grid-cols-2 gap-4">
-            <div>
-              <label
-                for="target-users"
-                class="block text-sm font-medium text-green-700 mb-1"
-                >対象ユーザー（規模感含む）</label
-              >
-              <input
-                id="target-users"
-                v-model="targetUsersInput"
-                type="text"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md"
-                placeholder="管理者・約50名"
-              />
-            </div>
-
-            <div>
-              <label
-                for="usage-frequency"
-                class="block text-sm font-medium text-green-700 mb-1"
-                >使用頻度</label
-              >
-              <input
-                id="usage-frequency"
-                v-model="usageFrequencyInput"
-                type="text"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md"
-                placeholder="1日数回、月1回"
-              />
-            </div>
-          </div>
-
-          <div class="mb-4">
-            <label
-              for="current-problem"
-              class="block text-sm font-medium text-green-700 mb-1"
-              >現在の問題（解決したいこと）</label
-            >
-            <input
-              id="current-problem"
-              v-model="currentProblemInput"
-              type="text"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md"
-              placeholder="手動で処理していて時間がかかる"
-            />
-          </div>
-        </div>
-
         <!-- 画像設計セクション -->
         <div class="mb-6 pb-6 border-b border-gray-200">
           <h4 class="text-sm font-semibold text-green-600 mb-4">
@@ -338,10 +269,6 @@ const githubProjectNumberInput = ref<number | null>(null);
 const rootPathInput = ref('');
 const designImagesInput = ref<ProjectImage[]>([]);
 const bulkPathInput = ref('');
-const businessPurposeInput = ref('');
-const targetUsersInput = ref('');
-const usageFrequencyInput = ref('');
-const currentProblemInput = ref('');
 
 // ファイル入力参照
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -387,12 +314,6 @@ watch(
       // 既存データとの互換性を保つため、文字列配列の場合はオブジェクト配列に変換
       const designImages = newInfo.addition?.design_images || [];
       designImagesInput.value = designImages as ProjectImage[];
-
-      // ビジネス要件フィールドの設定
-      businessPurposeInput.value = newInfo.addition?.business_purpose || '';
-      targetUsersInput.value = newInfo.addition?.target_users || '';
-      usageFrequencyInput.value = newInfo.addition?.usage_frequency || '';
-      currentProblemInput.value = newInfo.addition?.current_problem || '';
     }
   },
   { immediate: true },
@@ -410,10 +331,6 @@ const handleSubmit = () => {
     addition?: {
       root_path?: string;
       design_images?: ProjectImage[];
-      business_purpose?: string;
-      target_users?: string;
-      usage_frequency?: string;
-      current_problem?: string;
     };
   } = {
     name: nameInput.value || undefined,
@@ -427,13 +344,8 @@ const handleSubmit = () => {
   // additionフィールドの構築
   const hasRootPath = rootPathInput.value.trim() !== '';
   const hasDesignImages = designImagesInput.value.length > 0;
-  const hasBusinessRequirements =
-    businessPurposeInput.value ||
-    targetUsersInput.value ||
-    usageFrequencyInput.value ||
-    currentProblemInput.value;
 
-  if (hasRootPath || hasDesignImages || hasBusinessRequirements) {
+  if (hasRootPath || hasDesignImages) {
     updatedInfo.addition = {};
 
     if (hasRootPath) {
@@ -442,19 +354,6 @@ const handleSubmit = () => {
 
     if (hasDesignImages) {
       updatedInfo.addition.design_images = designImagesInput.value;
-    }
-
-    if (businessPurposeInput.value) {
-      updatedInfo.addition.business_purpose = businessPurposeInput.value;
-    }
-    if (targetUsersInput.value) {
-      updatedInfo.addition.target_users = targetUsersInput.value;
-    }
-    if (usageFrequencyInput.value) {
-      updatedInfo.addition.usage_frequency = usageFrequencyInput.value;
-    }
-    if (currentProblemInput.value) {
-      updatedInfo.addition.current_problem = currentProblemInput.value;
     }
   }
 
