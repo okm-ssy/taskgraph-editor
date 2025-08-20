@@ -28,8 +28,8 @@
       :class="props.readOnly ? 'cursor-default' : 'cursor-move hover:scale-125'"
       style="z-index: 20"
       :draggable="!props.readOnly"
-      @dragstart="!props.readOnly && handleDragStart"
-      @dragend="!props.readOnly && handleDragEnd"
+      @dragstart="handleDragStart"
+      @dragend="handleDragEnd"
       :title="props.readOnly ? '依存関係表示' : 'ドラッグして依存関係を作成'"
     />
 
@@ -205,6 +205,15 @@ const handleCardClick = () => {
 
 // ドラッグ開始（source から）
 const handleDragStart = (event: DragEvent) => {
+  if (props.readOnly) {
+    event.preventDefault();
+    return;
+  }
+
+  console.log('🚀 handleDragStart called:', {
+    sourceId: props.id,
+    taskName: props.task.name,
+  });
   event.stopPropagation(); // 親要素へのイベント伝播を防ぐ
   event.dataTransfer!.effectAllowed = 'link';
   event.dataTransfer!.setData('text/plain', props.id);
@@ -220,6 +229,10 @@ const handleDragStart = (event: DragEvent) => {
 
 // ドラッグ終了
 const handleDragEnd = () => {
+  if (props.readOnly) {
+    return;
+  }
+  console.log('🏁 handleDragEnd called');
   dragDropStore.endDrag();
 };
 
@@ -243,10 +256,30 @@ const handleDragLeave = () => {
 const handleDrop = (event: DragEvent) => {
   event.preventDefault();
 
+  console.log('🎯 handleDrop called:', {
+    targetId: props.id,
+    draggingSourceId: dragDropStore.draggingSourceId,
+    canDrop: dragDropStore.canDrop(props.id),
+    readOnly: props.readOnly,
+  });
+
   if (dragDropStore.canDrop(props.id) && dragDropStore.draggingSourceId) {
     // ドラッグ元のタスクを取得
     const sourceTask = taskStore.getTaskById(dragDropStore.draggingSourceId);
     const targetTask = taskStore.getTaskById(props.id);
+
+    console.log('📋 Task details:', {
+      sourceTask: sourceTask
+        ? { id: sourceTask.id, name: sourceTask.task.name }
+        : null,
+      targetTask: targetTask
+        ? {
+            id: targetTask.id,
+            name: targetTask.task.name,
+            currentDepends: targetTask.task.depends,
+          }
+        : null,
+    });
 
     if (sourceTask && targetTask) {
       // ドロップ先（target）がドラッグ元（source）に依存する
@@ -254,11 +287,29 @@ const handleDrop = (event: DragEvent) => {
       const newDepends = [...targetTask.task.depends];
       if (!newDepends.includes(sourceTask.task.name)) {
         newDepends.push(sourceTask.task.name);
-        taskStore.updateTask(props.id, {
+        console.log('✅ Adding dependency:', {
+          target: targetTask.task.name,
+          source: sourceTask.task.name,
+          newDepends,
+        });
+        const updateResult = taskStore.updateTask(props.id, {
           depends: newDepends,
         });
+        console.log('📝 Update result:', updateResult);
+      } else {
+        console.log('⚠️ Dependency already exists');
       }
+    } else {
+      console.log('❌ Missing tasks:', {
+        sourceTask: !!sourceTask,
+        targetTask: !!targetTask,
+      });
     }
+  } else {
+    console.log('❌ Cannot drop:', {
+      canDrop: dragDropStore.canDrop(props.id),
+      draggingSourceId: dragDropStore.draggingSourceId,
+    });
   }
   dragDropStore.endDrag();
 };
