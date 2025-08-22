@@ -24,12 +24,12 @@ export const LAYOUT = {
     },
     MAX_COL: 200,
     ITEM_SIZE: {
-      WIDTH: 2,
+      WIDTH: 4,
       HEIGHT: 3,
-      MIN_WIDTH: 1,
+      MIN_WIDTH: 2,
       MIN_HEIGHT: 3,
     },
-    TOTAL_WIDTH: '600dvw',
+    TOTAL_WIDTH: '200dvw',
     ROW_HEIGHT: {
       NORMAL: 50,
       COMPACT: 35,
