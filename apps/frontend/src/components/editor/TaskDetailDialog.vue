@@ -61,6 +61,7 @@
           >
           <input
             id="name"
+            ref="nameInputRef"
             v-model="nameInput"
             type="text"
             class="w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -328,7 +329,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onUnmounted, computed } from 'vue';
+import { ref, watch, onUnmounted, computed, nextTick } from 'vue';
 
 const props = defineProps<{
   readOnly?: boolean;
@@ -356,6 +357,7 @@ const {
 } = useTaskCategories();
 
 const nameInput = ref('');
+const nameInputRef = ref<HTMLInputElement | null>(null);
 const descriptionInput = ref('');
 const notesInput = ref('');
 const difficultyInput = ref(0);
@@ -417,6 +419,13 @@ watch(
     if (isVisible) {
       // ダイアログが開いたときに背景のスクロールを無効化
       document.body.style.overflow = 'hidden';
+      // タスク名フィールドにフォーカス
+      nextTick(() => {
+        if (nameInputRef.value && !props.readOnly) {
+          nameInputRef.value.focus();
+          nameInputRef.value.select();
+        }
+      });
     } else {
       // ダイアログが閉じたときに背景のスクロールを有効化
       document.body.style.overflow = '';
