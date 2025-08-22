@@ -24,7 +24,7 @@ export const LAYOUT = {
     },
     MAX_COL: 200,
     ITEM_SIZE: {
-      WIDTH: 4,
+      WIDTH: 3,
       HEIGHT: 3,
       MIN_WIDTH: 2,
       MIN_HEIGHT: 3,
