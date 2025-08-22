@@ -16,7 +16,7 @@ export const LAYOUT = {
     INITIAL: 100,
   },
   GRID: {
-    CELL_WIDTH: 85,
+    CELL_WIDTH: 57,
     CELL_HEIGHT: 60,
     COL_NUM: {
       NORMAL: 100,
@@ -24,7 +24,7 @@ export const LAYOUT = {
     },
     MAX_COL: 200,
     ITEM_SIZE: {
-      WIDTH: 2,
+      WIDTH: 3,
       HEIGHT: 3,
       MIN_WIDTH: 2,
       MIN_HEIGHT: 3,
