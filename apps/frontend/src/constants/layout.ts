@@ -37,6 +37,7 @@ export const LAYOUT = {
     MARGIN: {
       NORMAL: 10,
       COMPACT: 10,
+      HORIZONTAL: 40, // 横方向の間隔を大きくして矢印が見えるように
     },
   },
   MODAL: {
