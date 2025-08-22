@@ -19,6 +19,7 @@
         >
         <input
           id="task-name"
+          ref="nameInputRef"
           v-model="nameInput"
           type="text"
           placeholder="タスク名を入力"
@@ -196,7 +197,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 
 import { useTaskCategories } from '../../composables/useTaskCategories';
 import { LAYOUT } from '../../constants';
@@ -220,6 +221,7 @@ const {
 } = useTaskCategories();
 
 const nameInput = ref('');
+const nameInputRef = ref<HTMLInputElement | null>(null);
 const descriptionInput = ref('');
 const notesInput = ref('');
 const categoryInput = ref('');
@@ -254,6 +256,13 @@ onMounted(() => {
   if (container) {
     container.addEventListener('scroll', updateScrollPosition);
   }
+  // タスク名フィールドにフォーカスして選択
+  nextTick(() => {
+    if (nameInputRef.value) {
+      nameInputRef.value.focus();
+      nameInputRef.value.select();
+    }
+  });
 });
 
 onUnmounted(() => {
@@ -313,28 +322,38 @@ const getInputColorClass = () => {
   return 'text-black';
 };
 
-// スクロール位置を考慮した位置計算（EditorGridと同じロジック）
-const getVisibleAreaPosition = () => {
+// パネル位置を考慮したタスク配置位置の計算
+const getPanelAreaPosition = () => {
   const container = document.querySelector('.overflow-auto');
   if (!container) return { x: 0, y: 0 };
 
+  // パネルの右端付近にタスクを配置
+  // パネル幅(320px) + マージン(50px) を考慮して、その左側に配置
+  const panelWidth = 320;
+  const panelMargin = LAYOUT.MODAL.MIN_MARGIN;
+  const containerWidth = container.clientWidth;
+
+  // グリッド座標に変換
+  const cellWidth = LAYOUT.GRID.CELL_WIDTH + LAYOUT.GRID.MARGIN.HORIZONTAL;
+  const targetX = Math.floor(
+    (containerWidth - panelWidth - panelMargin - 200) / cellWidth,
+  );
+
+  // Y座標は現在のスクロール位置を基準
   const scrollTop = container.scrollTop;
+  const rowHeight = LAYOUT.GRID.ROW_HEIGHT.COMPACT + LAYOUT.GRID.MARGIN.COMPACT;
+  const gridY = Math.floor(scrollTop / rowHeight);
 
-  // GridLayoutの実際の設定値を使用（EditorGridと同じ）
-  const rowHeight = LAYOUT.GRID.ROW_HEIGHT.COMPACT;
-  const margin = LAYOUT.GRID.MARGIN.COMPACT;
-
-  // スクロール位置をグリッド座標に変換（マージンも考慮）
-  const gridY = Math.floor(scrollTop / (rowHeight + margin));
-
-  // X座標は左端（0）に固定
-  return { x: 0, y: gridY };
+  return {
+    x: Math.max(0, targetX), // 負の値にならないように
+    y: gridY,
+  };
 };
 
 // 新規タスク追加
 const addNewTask = () => {
-  // EditorGridと同じ位置計算を使用
-  const position = getVisibleAreaPosition();
+  // パネル付近の位置計算を使用
+  const position = getPanelAreaPosition();
   const newTask = taskStore.addTaskAtPosition(position.x, position.y);
 
   // タスク情報の更新（依存関係は空配列）
