@@ -423,7 +423,6 @@ watch(
       nextTick(() => {
         if (nameInputRef.value && !props.readOnly) {
           nameInputRef.value.focus();
-          nameInputRef.value.select();
         }
       });
     } else {
