@@ -36,7 +36,7 @@ export const LAYOUT = {
     },
     MARGIN: {
       NORMAL: 10,
-      COMPACT: 5,
+      COMPACT: 10,
     },
   },
   MODAL: {
