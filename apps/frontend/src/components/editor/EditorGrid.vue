@@ -79,7 +79,7 @@
           :is-resizable="!disableGrid && !props.readOnly"
           :vertical-compact="false"
           :use-css-transforms="true"
-          :margin="[layoutConfig.margin, layoutConfig.margin]"
+          :margin="[LAYOUT.GRID.MARGIN.HORIZONTAL, layoutConfig.margin]"
           :responsive="false"
           :auto-size="false"
           :prevent-collision="true"
