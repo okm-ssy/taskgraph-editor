@@ -11,8 +11,22 @@ const isLoaded = ref(false);
 const loadError = ref<string | null>(null);
 
 export const useTaskCategories = () => {
+  // GitHub Pages環境かどうかを判定
+  const isGitHubPages = () => {
+    return window.location.hostname.includes('github.io');
+  };
+
   // TSVファイルの読み込み
   const loadCategories = async () => {
+    // GitHub Pages環境では読み込みをスキップ
+    if (isGitHubPages()) {
+      console.log(
+        'GitHub Pages environment detected. Skipping task-categories.tsv loading.',
+      );
+      isLoaded.value = true;
+      return;
+    }
+
     try {
       const response = await fetch('/task-categories.tsv');
       if (!response.ok) {
