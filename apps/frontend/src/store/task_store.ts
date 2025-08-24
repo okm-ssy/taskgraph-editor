@@ -361,6 +361,9 @@ export const useCurrentTasks = defineStore('editorTask', () => {
         }
 
         return result;
+      } else {
+        // ファイルが存在しないまたは空の場合、JSONパネルを開く
+        jsonProcessor.jsonInputVisible.value = true;
       }
     } catch (error) {
       console.error('ファイル読み込みエラー:', error);

@@ -121,13 +121,6 @@ watch(
   },
   { deep: true },
 );
-
-// 初期データロードを無効化（ユーザーが明示的に読み込みボタンを押すまで何も表示しない）
-// onMounted(async () => {
-//   if (taskStore.editorTasks.length === 0) {
-//     await taskStore.loadSampleData();
-//   }
-// });
 </script>
 
 <style scoped>
