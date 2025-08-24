@@ -349,7 +349,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     try {
       const projectId = getCurrentProjectId();
       const jsonData = await getFromFile(projectId);
-      if (jsonData) {
+      if (jsonData && jsonData.trim()) {
         isLoadingFromStorage = true;
         const result = parseJsonToTaskgraph(jsonData);
         isLoadingFromStorage = false;
@@ -362,7 +362,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
 
         return result;
       } else {
-        // ファイルが存在しないまたは空の場合、JSONパネルを開く
+        // ファイルが存在しない、空文字、または空白のみの場合、JSONパネルを開く
         jsonProcessor.jsonInputVisible.value = true;
       }
     } catch (error) {
