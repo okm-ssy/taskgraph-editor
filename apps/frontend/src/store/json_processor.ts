@@ -24,6 +24,7 @@ export const useJsonProcessor = () => {
 
     if (!jsonString.trim()) {
       taskLoadError.value = 'JSONテキストを入力してください';
+      jsonInputVisible.value = true; // 空の場合はJSONパネルを開く
       return false;
     }
 
@@ -48,6 +49,7 @@ export const useJsonProcessor = () => {
 
         const errorMessage = `バリデーションエラー: ${errorDetails}`;
         taskLoadError.value = errorMessage;
+        jsonInputVisible.value = true; // エラー時はJSONパネルを開く
         errorStore.addValidationError(errorMessage, validationResult.error);
         return false;
       }
@@ -56,6 +58,7 @@ export const useJsonProcessor = () => {
       if (validationResult.hasCycles) {
         const cycleMessage = `循環依存が検出されました: ${validationResult.cycles?.map((cycle) => cycle.join(' -> ')).join(', ') || '詳細不明'}`;
         taskLoadError.value = cycleMessage;
+        jsonInputVisible.value = true; // エラー時はJSONパネルを開く
         errorStore.addValidationError(cycleMessage, validationResult.cycles);
         return false;
       }
@@ -132,6 +135,7 @@ export const useJsonProcessor = () => {
         errorMessage += (error as Error).message;
       }
       taskLoadError.value = errorMessage;
+      jsonInputVisible.value = true; // JSON解析エラー時はJSONパネルを開く
       errorStore.addValidationError(errorMessage, error);
       return false;
     }
