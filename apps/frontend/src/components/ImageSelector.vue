@@ -7,7 +7,7 @@
     <!-- 画像プレビュー（枠の直上、右側） -->
     <div
       v-if="previewImage"
-      class="absolute z-[9999] bg-white border border-gray-300 rounded-lg shadow-xl p-3"
+      class="absolute z-[9999] bg-white border border-gray-300 rounded-lg shadow-xl p-3 pointer-events-none"
       style="bottom: 100%; right: 0; margin-bottom: 8px"
     >
       <img
