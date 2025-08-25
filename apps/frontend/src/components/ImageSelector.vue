@@ -4,11 +4,11 @@
       画面設計画像選択
     </label>
 
-    <!-- 画像プレビュー（枠の直上、右側） -->
+    <!-- 画像プレビュー（枠の直上、左側に表示してマウス動線を避ける） -->
     <div
       v-if="previewImage"
       class="absolute z-[9999] bg-white border border-gray-300 rounded-lg shadow-xl p-3 pointer-events-none"
-      style="bottom: 100%; right: 0; margin-bottom: 8px"
+      style="bottom: 100%; left: 0; margin-bottom: 8px"
     >
       <img
         :src="previewImage"
@@ -119,7 +119,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 
 import { useCurrentTasks } from '../store/task_store';
 
@@ -151,6 +151,7 @@ const expectedImageCount = ref(0); // 初期値は0
 // プレビュー用の状態
 const previewImage = ref<string | null>(null);
 const currentPreviewPath = ref<string | null>(null);
+const previewTimer = ref<number | null>(null);
 
 // Watch
 watch(
@@ -265,13 +266,26 @@ const isSelected = (imagePath: string): boolean => {
 };
 
 const showPreview = (imagePath: string, _event: MouseEvent) => {
+  // 既存のタイマーをクリア
+  if (previewTimer.value) {
+    clearTimeout(previewTimer.value);
+    previewTimer.value = null;
+  }
   previewImage.value = getImageUrl(imagePath);
   currentPreviewPath.value = imagePath;
 };
 
 const hidePreview = () => {
-  previewImage.value = null;
-  currentPreviewPath.value = null;
+  // 既存のタイマーをクリア
+  if (previewTimer.value) {
+    clearTimeout(previewTimer.value);
+  }
+  // 少し遅延してプレビューを非表示にする
+  previewTimer.value = window.setTimeout(() => {
+    previewImage.value = null;
+    currentPreviewPath.value = null;
+    previewTimer.value = null;
+  }, 100); // 100ms後に非表示
 };
 
 const toggleSelection = (imagePath: string) => {
@@ -311,6 +325,14 @@ const getGridHeightClassForCount = (count: number): string => {
 onMounted(async () => {
   // 画像を読み込む
   await loadProjectImages();
+});
+
+onUnmounted(() => {
+  // タイマーをクリアしてメモリリークを防ぐ
+  if (previewTimer.value) {
+    clearTimeout(previewTimer.value);
+    previewTimer.value = null;
+  }
 });
 </script>
 
