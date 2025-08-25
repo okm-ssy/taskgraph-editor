@@ -1,7 +1,7 @@
 <template>
   <div class="relative">
     <label class="block text-sm font-medium text-blue-700 mb-2">
-      画面設計画像選択
+      関連画像を選択
     </label>
 
     <!-- 画像プレビュー（枠の直上、左側に表示してマウス動線を避ける） -->
