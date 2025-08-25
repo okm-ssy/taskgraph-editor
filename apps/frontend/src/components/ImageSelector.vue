@@ -59,7 +59,7 @@
         ]"
         @click="!props.disabled && toggleSelection(image.path)"
         @mouseenter="(e) => !props.disabled && showPreview(image.path, e)"
-        @mouseleave="!props.disabled && hidePreview"
+        @mouseleave="hidePreview"
       >
         <!-- 選択インジケーター -->
         <div
