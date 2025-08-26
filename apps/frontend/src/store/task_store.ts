@@ -586,6 +586,15 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     return updatedTasks;
   };
 
+  // depth順に自動配置
+  const autoLayoutByDepth = () => {
+    if (editorTasks.value.length === 0) return;
+
+    graphLayout.autoLayoutByDepth(editorTasks.value);
+    buildGraphData();
+    saveToFile();
+  };
+
   // タスク選択のアクション（UIストアに委譲）
   const selectTask = (id: string) => {
     uiStore.selectTask(id);
@@ -626,6 +635,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     loadSampleData,
     buildGraphData,
     autoLayoutTasks,
+    autoLayoutByDepth,
     selectTask,
     updateInfo, // UIストアに委譲
     saveToFile,
