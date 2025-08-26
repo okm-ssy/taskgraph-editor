@@ -36,7 +36,7 @@
     <!-- ドラッグハンドル部分 (カードの上部) -->
     <div
       :class="[
-        'drag-handle py-1 px-3 flex justify-between items-center border-b border-opacity-30 relative',
+        'drag-handle px-3 flex justify-between items-center border-b border-opacity-30 relative',
         !props.readOnly ? 'cursor-move' : '',
         fieldColorClass.replace('bg-', 'bg-opacity-70 bg-'),
       ]"
