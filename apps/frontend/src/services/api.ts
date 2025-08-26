@@ -84,10 +84,29 @@ class ApiService {
    * タスクグラフを読み込み
    */
   async loadTaskgraph(projectId?: string): Promise<string | null> {
+    // GitHub PagesまたはREADONLYモードではnullを返す
+    if (IS_READONLY_MODE) {
+      return null;
+    }
+
     const url = projectId
       ? `/api/load-taskgraph?projectId=${encodeURIComponent(projectId)}`
       : '/api/load-taskgraph';
-    return this.get<string>(url);
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        if (response.status === 404) {
+          return null;
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      // タスクグラフは常にJSON文字列として返す
+      return await response.text();
+    } catch (error) {
+      console.error(`APIリクエストエラー: ${url}`, error);
+      throw error;
+    }
   }
 
   /**
