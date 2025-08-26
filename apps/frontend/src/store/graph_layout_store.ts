@@ -603,7 +603,7 @@ export const useGraphLayout = () => {
     });
 
     // 列幅と行間隔
-    const COLUMN_WIDTH = 6; // グリッド幅
+    const COLUMN_WIDTH = 1; // グリッド幅
     const ROW_HEIGHT = 4; // グリッド高さ
 
     // depthごとに配置
