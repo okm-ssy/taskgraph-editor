@@ -40,7 +40,6 @@ export const useDepthCalculator = () => {
 
       // 循環依存チェック
       if (visiting.has(taskName)) {
-        console.warn(`循環依存を検出しました: ${taskName}`);
         circularDependencies.add(taskName);
         return 0;
       }
@@ -79,12 +78,6 @@ export const useDepthCalculator = () => {
     // すべてのタスクのdepthを計算
     tasks.forEach((task) => {
       calculateDepth(task.task.name);
-    });
-
-    // デバッグ用: depth情報を出力
-    console.log('Depth calculation completed:');
-    tasks.forEach((task) => {
-      console.log(`  ${task.task.name}: depth=${task.depth}`);
     });
 
     // 循環依存が検出された場合は警告を返す
