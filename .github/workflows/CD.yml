@@ -25,9 +25,22 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+          cache-dependency-path: |
+            apps/frontend/package-lock.json
+            apps/api-server/package-lock.json
+            apps/mcp-server/package-lock.json
 
       - name: Make tg command executable
         run: chmod +x cli/taskgraph-editor.sh bin/tg
+
+      - name: Configure npm
+        run: |
+          npm config set registry https://registry.npmjs.org/
+          npm config set fetch-retries 3
+          npm config set fetch-retry-mintimeout 10000
+          npm config set fetch-retry-maxtimeout 60000
 
       - name: Run linter
         run: ./bin/tg lint
