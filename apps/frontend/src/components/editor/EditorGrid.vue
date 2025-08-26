@@ -25,17 +25,35 @@
           <TaskAddButton @click="handleAddTask" />
           <button
             v-if="!props.readOnly"
-            class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition-colors flex items-center"
+            class="px-4 py-2 font-medium rounded-lg transition-colors flex items-center relative overflow-hidden"
+            :class="
+              taskStore.taskCount === 0 || taskStore.layoutUndoState.canUndo
+                ? 'bg-gray-400 cursor-not-allowed text-white'
+                : 'bg-green-500 hover:bg-green-600 text-white'
+            "
             @click="handleAutoLayoutByDepth"
-            :disabled="taskStore.taskCount === 0"
+            :disabled="
+              taskStore.taskCount === 0 || taskStore.layoutUndoState.canUndo
+            "
             :title="
               taskStore.taskCount === 0
                 ? 'タスクがありません'
-                : 'depth順に自動配置'
+                : taskStore.layoutUndoState.canUndo
+                  ? '20秒経過後または「整列前に戻す」実行後に使用可能です'
+                  : 'depth順に自動配置'
             "
           >
-            <span class="mr-1">⚙</span>
-            <span>自動配置</span>
+            <!-- プログレスバー -->
+            <div
+              v-if="taskStore.layoutUndoState.canUndo"
+              class="absolute left-0 top-0 h-full bg-green-600 opacity-30 transition-all duration-[20000ms] ease-linear"
+              :style="{
+                width: '100%',
+                animation: 'shrink 20s linear forwards',
+              }"
+            />
+            <span class="mr-1 relative z-10">⚙</span>
+            <span class="relative z-10">自動配置</span>
           </button>
         </template>
       </div>
@@ -690,5 +708,15 @@ watch(
   animation: none !important;
   will-change: transform;
   contain: strict;
+}
+
+/* 自動配置ボタンのプログレスバー アニメーション */
+@keyframes shrink {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
 }
 </style>
