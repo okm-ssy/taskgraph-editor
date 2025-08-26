@@ -12,7 +12,7 @@ import { useErrorStore } from './error_store';
 
 export const useJsonProcessor = () => {
   const taskLoadError = ref<string | null>(null);
-  const jsonInputVisible = ref(false);
+  const jsonInputVisible = ref(true);
   const errorStore = useErrorStore();
 
   // JSON文字列のパース
