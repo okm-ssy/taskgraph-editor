@@ -37,15 +37,6 @@
             <span class="mr-1">⚙</span>
             <span>自動配置</span>
           </button>
-          <button
-            v-if="!props.readOnly && taskStore.layoutUndoState.canUndo"
-            class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg transition-colors flex items-center"
-            @click="handleUndoAutoLayout"
-            title="20秒以内であれば自動配置前の状態に戻せます"
-          >
-            <span class="mr-1">↶</span>
-            <span>整列前に戻す</span>
-          </button>
         </template>
       </div>
     </div>
