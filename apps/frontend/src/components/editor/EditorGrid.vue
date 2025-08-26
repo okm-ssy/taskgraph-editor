@@ -46,7 +46,7 @@
             <!-- プログレスバー -->
             <div
               v-if="taskStore.layoutUndoState.canUndo"
-              class="absolute left-0 top-0 h-full bg-green-600 opacity-30 transition-all duration-[20000ms] ease-linear"
+              class="absolute left-0 bottom-0 h-1 bg-orange-400 progress-bar"
               :style="{
                 width: '100%',
                 animation: 'shrink 20s linear forwards',
@@ -711,12 +711,20 @@ watch(
 }
 
 /* 自動配置ボタンのプログレスバー アニメーション */
+.progress-bar {
+  border-radius: 0 0 0.5rem 0.5rem;
+  z-index: 5;
+  box-shadow: 0 0 4px rgba(251, 146, 60, 0.5);
+}
+
 @keyframes shrink {
-  from {
+  0% {
     width: 100%;
+    opacity: 1;
   }
-  to {
+  100% {
     width: 0%;
+    opacity: 0.8;
   }
 }
 </style>
