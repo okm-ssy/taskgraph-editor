@@ -603,8 +603,8 @@ export const useGraphLayout = () => {
     });
 
     // 列幅と行間隔
-    const COLUMN_WIDTH = 1; // グリッド幅
-    const ROW_HEIGHT = 4; // グリッド高さ
+    const COLUMN_WIDTH = LAYOUT.GRID.ITEM_SIZE.WIDTH; // グリッド幅
+    const ROW_HEIGHT = LAYOUT.GRID.ITEM_SIZE.HEIGHT; // グリッド高さ
 
     // depthごとに配置
     Object.keys(tasksByDepth).forEach((depthStr) => {
