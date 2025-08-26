@@ -37,8 +37,34 @@
             <span class="mr-1">⚙</span>
             <span>自動配置</span>
           </button>
+          <button
+            v-if="!props.readOnly && taskStore.layoutUndoState.canUndo"
+            class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg transition-colors flex items-center"
+            @click="handleUndoAutoLayout"
+            title="20秒以内であれば自動配置前の状態に戻せます"
+          >
+            <span class="mr-1">↶</span>
+            <span>整列前に戻す</span>
+          </button>
         </template>
       </div>
+    </div>
+
+    <!-- 自動配置undo情報表示 -->
+    <div
+      v-if="taskStore.layoutUndoState.canUndo"
+      class="bg-blue-50 border-l-4 border-blue-400 p-3 text-sm text-blue-800 flex items-center justify-between"
+    >
+      <div class="flex items-center">
+        <span class="mr-2">ℹ️</span>
+        <span>「整列前に戻す」で自動配置前の状態に戻せます (20秒以内)</span>
+      </div>
+      <button
+        @click="handleUndoAutoLayout"
+        class="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-xs transition-colors"
+      >
+        整列前に戻す
+      </button>
     </div>
 
     <div
@@ -436,6 +462,15 @@ const handleAutoLayoutByDepth = () => {
   layout.value = taskStore.gridTasks;
   // 最左端のタスクにスクロール
   scrollToLeftmostTask();
+};
+
+// 自動配置を元に戻すハンドラ
+const handleUndoAutoLayout = () => {
+  const success = taskStore.undoAutoLayout();
+  if (success) {
+    // レイアウトを更新
+    layout.value = taskStore.gridTasks;
+  }
 };
 
 // 最左端のタスクを表示するためのスクロール調整

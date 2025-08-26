@@ -586,13 +586,69 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     return updatedTasks;
   };
 
+  // 自動配置のundo用状態
+  const layoutUndoState = ref<{
+    backup: EditorTask[];
+    timer: NodeJS.Timeout | null;
+    canUndo: boolean;
+  }>({
+    backup: [],
+    timer: null,
+    canUndo: false,
+  });
+
   // depth順に自動配置
   const autoLayoutByDepth = () => {
     if (editorTasks.value.length === 0) return;
 
+    // 現在の状態をバックアップ（ディープコピー）
+    layoutUndoState.value.backup = JSON.parse(
+      JSON.stringify(editorTasks.value),
+    );
+    layoutUndoState.value.canUndo = true;
+
+    // 既存のタイマーをクリア
+    if (layoutUndoState.value.timer) {
+      clearTimeout(layoutUndoState.value.timer);
+    }
+
+    // 20秒後にundo機能を無効化
+    layoutUndoState.value.timer = setTimeout(() => {
+      layoutUndoState.value.canUndo = false;
+      layoutUndoState.value.backup = [];
+      layoutUndoState.value.timer = null;
+    }, 20000);
+
     graphLayout.autoLayoutByDepth(editorTasks.value);
     buildGraphData();
     saveToFile();
+  };
+
+  // 自動配置を元に戻す
+  const undoAutoLayout = () => {
+    if (
+      !layoutUndoState.value.canUndo ||
+      layoutUndoState.value.backup.length === 0
+    ) {
+      return false;
+    }
+
+    // バックアップから復元
+    editorTasks.value = JSON.parse(
+      JSON.stringify(layoutUndoState.value.backup),
+    );
+
+    // undo状態をクリア
+    if (layoutUndoState.value.timer) {
+      clearTimeout(layoutUndoState.value.timer);
+    }
+    layoutUndoState.value.canUndo = false;
+    layoutUndoState.value.backup = [];
+    layoutUndoState.value.timer = null;
+
+    buildGraphData();
+    saveToFile();
+    return true;
   };
 
   // タスク選択のアクション（UIストアに委譲）
@@ -636,6 +692,8 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     buildGraphData,
     autoLayoutTasks,
     autoLayoutByDepth,
+    undoAutoLayout,
+    layoutUndoState: computed(() => layoutUndoState.value),
     selectTask,
     updateInfo, // UIストアに委譲
     saveToFile,
