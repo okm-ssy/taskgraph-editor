@@ -1,6 +1,7 @@
 import { ref, watch } from 'vue';
 
 import { PROJECT_CONSTANTS } from '@/constants';
+import { IS_READONLY_MODE } from '@/constants/environment';
 
 export interface Project {
   id: string;
@@ -22,6 +23,11 @@ export const useProject = () => {
 
   // プロジェクト一覧を取得
   const fetchProjects = async (): Promise<Project[]> => {
+    // GitHub PagesまたはREADONLYモードではAPIリクエストをスキップ
+    if (IS_READONLY_MODE) {
+      return [];
+    }
+
     isLoading.value = true;
     try {
       const response = await fetch('/api/projects');
