@@ -11,6 +11,7 @@ import { useGraphLayout } from './graph_layout_store';
 import { useJsonProcessor } from './json_processor';
 
 import { PROJECT_CONSTANTS } from '@/constants';
+import { IS_READONLY_MODE } from '@/constants/environment';
 
 export const useCurrentTasks = defineStore('editorTask', () => {
   // グラフレイアウト関連
@@ -236,6 +237,11 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   // ファイルにデータを保存（デバウンス付き）
   let saveTimeout: NodeJS.Timeout | null = null;
   const saveToFile = async () => {
+    // GitHub PagesまたはREADONLYモードではAPI保存をスキップ
+    if (IS_READONLY_MODE) {
+      return;
+    }
+
     // デバウンス: 1秒以内の連続呼び出しをまとめる
     if (saveTimeout) {
       clearTimeout(saveTimeout);
@@ -281,6 +287,11 @@ export const useCurrentTasks = defineStore('editorTask', () => {
 
   // バックアップを作成（10分間隔制御）
   const createBackupIfNeeded = async (projectId?: string): Promise<void> => {
+    // GitHub PagesまたはREADONLYモードではバックアップをスキップ
+    if (IS_READONLY_MODE) {
+      return;
+    }
+
     try {
       const url = projectId
         ? `/api/backup-taskgraph?projectId=${encodeURIComponent(projectId)}`
@@ -308,6 +319,11 @@ export const useCurrentTasks = defineStore('editorTask', () => {
 
   // ファイルの最終更新時刻を取得
   const checkFileMtime = async (projectId?: string): Promise<string | null> => {
+    // GitHub PagesまたはREADONLYモードではAPIリクエストをスキップ
+    if (IS_READONLY_MODE) {
+      return null;
+    }
+
     try {
       const url = projectId
         ? `/api/taskgraph-mtime?projectId=${encodeURIComponent(projectId)}`
@@ -326,6 +342,11 @@ export const useCurrentTasks = defineStore('editorTask', () => {
 
   // ファイルからデータを取得
   const getFromFile = async (projectId?: string): Promise<string | null> => {
+    // GitHub PagesまたはREADONLYモードではAPIリクエストをスキップ
+    if (IS_READONLY_MODE) {
+      return null;
+    }
+
     try {
       const url = projectId
         ? `/api/load-taskgraph?projectId=${encodeURIComponent(projectId)}`
@@ -463,6 +484,11 @@ export const useCurrentTasks = defineStore('editorTask', () => {
 
   // ファイル変更のポーリング開始
   const startPolling = () => {
+    // GitHub PagesまたはREADONLYモードではポーリングをスキップ
+    if (IS_READONLY_MODE) {
+      return;
+    }
+
     // 既存のポーリングを停止
     stopPolling();
 
