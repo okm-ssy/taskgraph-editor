@@ -588,6 +588,51 @@ export const useGraphLayout = () => {
     }
   };
 
+  // depth順に自動配置
+  const autoLayoutByDepth = (editorTasks: EditorTask[]) => {
+    if (editorTasks.length === 0) return;
+
+    // depth別にタスクをグルーピング
+    const tasksByDepth: Record<number, EditorTask[]> = {};
+    editorTasks.forEach((task) => {
+      const depth = task.depth;
+      if (!tasksByDepth[depth]) {
+        tasksByDepth[depth] = [];
+      }
+      tasksByDepth[depth].push(task);
+    });
+
+    // 列幅と行間隔
+    const COLUMN_WIDTH = 6; // グリッド幅
+    const ROW_HEIGHT = 4; // グリッド高さ
+
+    // depthごとに配置
+    Object.keys(tasksByDepth).forEach((depthStr) => {
+      const depth = parseInt(depthStr);
+      const tasksAtDepth = tasksByDepth[depth];
+      const x = depth * COLUMN_WIDTH; // depthに応じたx座標
+
+      tasksAtDepth.forEach((task, index) => {
+        const y = index * ROW_HEIGHT; // 上から順に配置
+
+        // グリッド位置を更新
+        task.grid.x = x;
+        task.grid.y = y;
+
+        // レイアウト情報も更新
+        if (!task.task.addition) {
+          task.task.addition = {
+            baseDifficulty: 0,
+            category: '',
+          };
+        }
+        task.task.addition.layout = { x, y };
+      });
+    });
+
+    return editorTasks;
+  };
+
   return {
     graphNodes,
     canvasWidth,
@@ -597,6 +642,7 @@ export const useGraphLayout = () => {
     getPathD,
     convertGraphToGrid,
     optimizeGridLayout,
+    autoLayoutByDepth,
     GRAPH_SETTINGS,
   };
 };

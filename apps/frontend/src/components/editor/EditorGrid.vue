@@ -23,6 +23,20 @@
             パネルで追加
           </button>
           <TaskAddButton @click="handleAddTask" />
+          <button
+            v-if="!props.readOnly"
+            class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition-colors flex items-center"
+            @click="handleAutoLayoutByDepth"
+            :disabled="taskStore.taskCount === 0"
+            :title="
+              taskStore.taskCount === 0
+                ? 'タスクがありません'
+                : 'depth順に自動配置'
+            "
+          >
+            <span class="mr-1">⚙</span>
+            <span>自動配置</span>
+          </button>
         </template>
       </div>
     </div>
@@ -413,6 +427,15 @@ const handleAddTask = () => {
 // タスク追加パネルの切り替え
 const toggleAddPanel = () => {
   uiStore.toggleAddPanel();
+};
+
+// depth順自動配置ボタンのクリックハンドラ
+const handleAutoLayoutByDepth = () => {
+  taskStore.autoLayoutByDepth();
+  // レイアウトを更新
+  layout.value = taskStore.gridTasks;
+  // 最左端のタスクにスクロール
+  scrollToLeftmostTask();
 };
 
 // 最左端のタスクを表示するためのスクロール調整
