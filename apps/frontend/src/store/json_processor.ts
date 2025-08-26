@@ -1,5 +1,6 @@
 import { ref } from 'vue';
 
+import { IS_READONLY_MODE } from '../constants/environment';
 // import sampleTaskgraphData from '../assets/sample.taskgraph.json';
 import { EditorTask } from '../model/EditorTask';
 import {
@@ -12,7 +13,7 @@ import { useErrorStore } from './error_store';
 
 export const useJsonProcessor = () => {
   const taskLoadError = ref<string | null>(null);
-  const jsonInputVisible = ref(true);
+  const jsonInputVisible = ref(IS_READONLY_MODE);
   const errorStore = useErrorStore();
 
   // JSON文字列のパース
