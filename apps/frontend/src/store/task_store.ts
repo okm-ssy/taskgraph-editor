@@ -11,7 +11,7 @@ import { useGraphLayout } from './graph_layout_store';
 import { useJsonProcessor } from './json_processor';
 
 import { PROJECT_CONSTANTS } from '@/constants';
-import { IS_READONLY_MODE } from '@/constants/environment';
+import { apiService } from '@/services/api';
 
 export const useCurrentTasks = defineStore('editorTask', () => {
   // グラフレイアウト関連
@@ -237,11 +237,6 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   // ファイルにデータを保存（デバウンス付き）
   let saveTimeout: NodeJS.Timeout | null = null;
   const saveToFile = async () => {
-    // GitHub PagesまたはREADONLYモードではAPI保存をスキップ
-    if (IS_READONLY_MODE) {
-      return;
-    }
-
     // デバウンス: 1秒以内の連続呼び出しをまとめる
     if (saveTimeout) {
       clearTimeout(saveTimeout);
@@ -257,20 +252,13 @@ export const useCurrentTasks = defineStore('editorTask', () => {
         const jsonData = exportTaskgraphToJson();
         const projectId = getCurrentProjectId();
 
-        const url = `/api/save-taskgraph?projectId=${encodeURIComponent(projectId)}`;
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: jsonData,
-        });
-        if (!response.ok) {
+        const success = await apiService.saveTaskgraph(projectId, jsonData);
+        if (!success) {
           throw new Error('Failed to save taskgraph');
         }
 
         // 保存成功後にmtimeを更新
-        const newMtime = await checkFileMtime(projectId);
+        const newMtime = await apiService.getTaskgraphMtime(projectId);
         if (newMtime) {
           lastMtime.value = newMtime;
         }
@@ -287,29 +275,14 @@ export const useCurrentTasks = defineStore('editorTask', () => {
 
   // バックアップを作成（10分間隔制御）
   const createBackupIfNeeded = async (projectId?: string): Promise<void> => {
-    // GitHub PagesまたはREADONLYモードではバックアップをスキップ
-    if (IS_READONLY_MODE) {
-      return;
-    }
-
     try {
-      const url = projectId
-        ? `/api/backup-taskgraph?projectId=${encodeURIComponent(projectId)}`
-        : '/api/backup-taskgraph';
-
-      const response = await fetch(url, {
-        method: 'POST',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create backup');
-      }
-
-      const result = await response.json();
-      if (result.success) {
-        console.log(`バックアップ作成: ${result.backupFile}`);
+      const created = await apiService.createBackup(projectId);
+      if (created) {
+        console.log(
+          `バックアップを作成しました: ${projectId || 'default'}.taskgraph`,
+        );
       } else {
-        console.log(`バックアップスキップ: ${result.message}`);
+        console.log('バックアップはスキップされました（10分以内に作成済み）');
       }
     } catch (error) {
       console.error('バックアップ作成エラー:', error);
@@ -319,21 +292,8 @@ export const useCurrentTasks = defineStore('editorTask', () => {
 
   // ファイルの最終更新時刻を取得
   const checkFileMtime = async (projectId?: string): Promise<string | null> => {
-    // GitHub PagesまたはREADONLYモードではAPIリクエストをスキップ
-    if (IS_READONLY_MODE) {
-      return null;
-    }
-
     try {
-      const url = projectId
-        ? `/api/taskgraph-mtime?projectId=${encodeURIComponent(projectId)}`
-        : '/api/taskgraph-mtime';
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error('Failed to check file mtime');
-      }
-      const data = await response.json();
-      return data.exists ? data.mtime : null;
+      return await apiService.getTaskgraphMtime(projectId);
     } catch (error) {
       console.error('ファイル更新時刻チェックエラー:', error);
       return null;
@@ -342,23 +302,8 @@ export const useCurrentTasks = defineStore('editorTask', () => {
 
   // ファイルからデータを取得
   const getFromFile = async (projectId?: string): Promise<string | null> => {
-    // GitHub PagesまたはREADONLYモードではAPIリクエストをスキップ
-    if (IS_READONLY_MODE) {
-      return null;
-    }
-
     try {
-      const url = projectId
-        ? `/api/load-taskgraph?projectId=${encodeURIComponent(projectId)}`
-        : '/api/load-taskgraph';
-      const response = await fetch(url);
-      if (!response.ok) {
-        if (response.status === 404) {
-          return null; // ファイルが存在しない場合
-        }
-        throw new Error('Failed to load taskgraph');
-      }
-      return await response.text();
+      return await apiService.loadTaskgraph(projectId);
     } catch (error) {
       console.error('ファイル読み込みエラー:', error);
       return null;
@@ -484,11 +429,6 @@ export const useCurrentTasks = defineStore('editorTask', () => {
 
   // ファイル変更のポーリング開始
   const startPolling = () => {
-    // GitHub PagesまたはREADONLYモードではポーリングをスキップ
-    if (IS_READONLY_MODE) {
-      return;
-    }
-
     // 既存のポーリングを停止
     stopPolling();
 
