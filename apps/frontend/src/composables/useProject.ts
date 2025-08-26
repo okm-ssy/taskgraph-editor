@@ -1,7 +1,7 @@
 import { ref, watch } from 'vue';
 
 import { PROJECT_CONSTANTS } from '@/constants';
-import { IS_READONLY_MODE } from '@/constants/environment';
+import { apiService } from '@/services/api';
 
 export interface Project {
   id: string;
@@ -23,18 +23,9 @@ export const useProject = () => {
 
   // プロジェクト一覧を取得
   const fetchProjects = async (): Promise<Project[]> => {
-    // GitHub PagesまたはREADONLYモードではAPIリクエストをスキップ
-    if (IS_READONLY_MODE) {
-      return [];
-    }
-
     isLoading.value = true;
     try {
-      const response = await fetch('/api/projects');
-      if (!response.ok) {
-        throw new Error('Failed to fetch projects');
-      }
-      const projectList = await response.json();
+      const projectList = await apiService.fetchProjects();
       projects.value = projectList;
       return projectList;
     } catch (error) {
