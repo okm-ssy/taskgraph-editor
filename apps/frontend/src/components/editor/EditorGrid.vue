@@ -46,7 +46,7 @@
             <!-- プログレスバー -->
             <div
               v-if="taskStore.layoutUndoState.canUndo"
-              class="absolute left-0 bottom-0 h-1 bg-orange-400 progress-bar-smooth transition-all duration-100 ease-linear"
+              class="absolute left-0 bottom-0 h-1 bg-blue-500 progress-bar-smooth transition-all duration-100 ease-linear"
               :style="{ width: progressWidth + '%' }"
             />
             <span class="mr-1 relative z-10">⚙</span>
