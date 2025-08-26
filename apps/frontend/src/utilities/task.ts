@@ -9,7 +9,7 @@ export const difficultyColorClass = (difficulty: number) => {
   if (difficulty <= DIFFICULTY.COLOR_THRESHOLDS[2]) return 'text-green-500';
   if (difficulty <= DIFFICULTY.COLOR_THRESHOLDS[3]) return 'text-yellow-500';
   if (difficulty <= DIFFICULTY.COLOR_THRESHOLDS[4]) return 'text-red-500';
-  return 'text-gray-800';
+  return 'text-purple-800';
 };
 
 export const difficultyBackgroundClass = (difficulty: number) => {

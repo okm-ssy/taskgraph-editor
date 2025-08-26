@@ -9,9 +9,11 @@ export class EditorTask {
   id: string;
   grid: GridTask;
   task: Task;
+  depth: number; // タスクの深さ（依存関係の最大深度）
 
   constructor() {
     this.id = nanoid();
+    this.depth = 0; // 初期値は0
 
     this.grid = {
       i: this.id,

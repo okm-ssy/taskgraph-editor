@@ -36,12 +36,16 @@
     </div>
 
     <EditorGrid :read-only="isReadOnlyMode" class="flex-1 min-h-0" />
+
+    <!-- 循環依存警告 -->
+    <CircularWarning />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 
+import CircularWarning from '../components/common/CircularWarning.vue';
 import EditorGrid from '../components/editor/EditorGrid.vue';
 import {
   PROJECT_CONSTANTS,

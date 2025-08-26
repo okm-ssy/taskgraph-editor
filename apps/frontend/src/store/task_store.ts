@@ -6,6 +6,7 @@ import { EditorTask } from '../model/EditorTask'; // EditorTask をインポー�
 import type { GridTask } from '../model/GridTask';
 import type { Taskgraph, Task } from '../model/Taskgraph';
 
+import { useDepthCalculator } from './depth_calculator';
 import { useEditorUIStore } from './editor_ui_store';
 import { useGraphLayout } from './graph_layout_store';
 import { useJsonProcessor } from './json_processor';
@@ -19,6 +20,9 @@ export const useCurrentTasks = defineStore('editorTask', () => {
 
   // JSON処理関連
   const jsonProcessor = useJsonProcessor();
+
+  // Depth計算関連
+  const depthCalculator = useDepthCalculator();
 
   // UIストア
   const uiStore = useEditorUIStore();
@@ -105,6 +109,8 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     }
     newTask.task.addition.layout = { x, y };
     editorTasks.value.push(newTask);
+    // 新しいタスクのdepthを計算
+    depthCalculator.calculateDepthForNewTask(editorTasks.value, newTask);
     graphLayout.buildGraphData(editorTasks.value);
     saveToFile(); // ファイルに保存
     return newTask;
@@ -126,6 +132,11 @@ export const useCurrentTasks = defineStore('editorTask', () => {
 
       // タスクを削除
       editorTasks.value.splice(index, 1);
+      // 削除後にdepthを再計算
+      depthCalculator.updateDepthsOnTaskDelete(
+        editorTasks.value,
+        removedTaskName,
+      );
       graphLayout.buildGraphData(editorTasks.value);
       // 削除されたタスクが選択中だったらダイアログを閉じる
       if (uiStore.selectedTaskId === id) {
@@ -219,6 +230,18 @@ export const useCurrentTasks = defineStore('editorTask', () => {
       Object.assign(task.task, restTaskData);
     } else {
       Object.assign(task.task, taskData);
+    }
+
+    // 依存関係が変更された場合、depth を再計算
+    if (taskData.depends) {
+      const circularTasks = depthCalculator.updateDepthsOnDependencyChange(
+        editorTasks.value,
+        task.task.name,
+      );
+      // 循環依存が検出されたら警告を表示
+      if (circularTasks && circularTasks.length > 0) {
+        uiStore.setCircularWarning(circularTasks);
+      }
     }
 
     graphLayout.buildGraphData(editorTasks.value);
@@ -483,6 +506,13 @@ export const useCurrentTasks = defineStore('editorTask', () => {
   const updateTasks = (newTasks: EditorTask[], newInfo: Taskgraph['info']) => {
     info.value = newInfo;
     editorTasks.value = newTasks;
+
+    // 全タスクのdepthを計算
+    const circularTasks = depthCalculator.calculateAllDepths(editorTasks.value);
+    // 循環依存が検出されたら警告を表示
+    if (circularTasks && circularTasks.length > 0) {
+      uiStore.setCircularWarning(circularTasks);
+    }
 
     // layout情報が存在する場合は自動配置をスキップ
     if (hasValidLayoutInfo(newTasks)) {

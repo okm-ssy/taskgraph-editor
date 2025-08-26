@@ -110,6 +110,28 @@ export const useEditorUIStore = defineStore('editorUI', () => {
     isBulkMoving.value = false;
   };
 
+  // 循環依存警告
+  const circularWarning = ref<string[]>([]);
+  const showCircularWarning = ref(false);
+
+  // 循環依存警告を表示
+  const setCircularWarning = (taskNames: string[]) => {
+    circularWarning.value = taskNames;
+    showCircularWarning.value = taskNames.length > 0;
+    if (taskNames.length > 0) {
+      // 5秒後に自動的に警告を隠す
+      setTimeout(() => {
+        showCircularWarning.value = false;
+      }, 5000);
+    }
+  };
+
+  // 循環依存警告をクリア
+  const clearCircularWarning = () => {
+    circularWarning.value = [];
+    showCircularWarning.value = false;
+  };
+
   return {
     // State
     selectedTaskId,
@@ -121,6 +143,8 @@ export const useEditorUIStore = defineStore('editorUI', () => {
     dragSelectionRect,
     selectedTaskIds,
     isBulkMoving,
+    circularWarning,
+    showCircularWarning,
 
     // Actions
     selectTask,
@@ -137,5 +161,7 @@ export const useEditorUIStore = defineStore('editorUI', () => {
     clearBulkSelection,
     startBulkMoving,
     endBulkMoving,
+    setCircularWarning,
+    clearCircularWarning,
   };
 });
