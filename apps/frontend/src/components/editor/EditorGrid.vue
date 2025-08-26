@@ -46,11 +46,8 @@
             <!-- プログレスバー -->
             <div
               v-if="taskStore.layoutUndoState.canUndo"
-              class="absolute left-0 bottom-0 h-1 bg-orange-400 progress-bar"
-              :style="{
-                width: '100%',
-                animation: 'shrink 20s linear forwards',
-              }"
+              class="absolute left-0 bottom-0 h-1 bg-orange-400 progress-bar-smooth transition-all duration-100 ease-linear"
+              :style="{ width: progressWidth + '%' }"
             />
             <span class="mr-1 relative z-10">⚙</span>
             <span class="relative z-10">自動配置</span>
@@ -471,7 +468,27 @@ const handleAutoLayoutByDepth = () => {
   layout.value = taskStore.gridTasks;
   // 最左端のタスクにスクロール
   scrollToLeftmostTask();
+
+  // プログレスアニメーション開始
+  progressWidth.value = 100;
+  const startTime = Date.now();
+  const duration = 20000; // 20秒
+
+  const updateProgress = () => {
+    const elapsed = Date.now() - startTime;
+    const remaining = Math.max(0, duration - elapsed);
+    progressWidth.value = (remaining / duration) * 100;
+
+    if (remaining > 0 && taskStore.layoutUndoState.canUndo) {
+      requestAnimationFrame(updateProgress);
+    }
+  };
+
+  requestAnimationFrame(updateProgress);
 };
+
+// プログレスバーの幅管理
+const progressWidth = ref(100);
 
 // 自動配置を元に戻すハンドラ
 const handleUndoAutoLayout = () => {
@@ -479,6 +496,8 @@ const handleUndoAutoLayout = () => {
   if (success) {
     // レイアウトを更新
     layout.value = taskStore.gridTasks;
+    // プログレスバーをリセット
+    progressWidth.value = 100;
   }
 };
 
@@ -710,21 +729,10 @@ watch(
   contain: strict;
 }
 
-/* 自動配置ボタンのプログレスバー アニメーション */
-.progress-bar {
+/* 自動配置ボタンのプログレスバー */
+.progress-bar-smooth {
   border-radius: 0 0 0.5rem 0.5rem;
   z-index: 5;
   box-shadow: 0 0 4px rgba(251, 146, 60, 0.5);
-}
-
-@keyframes shrink {
-  0% {
-    width: 100%;
-    opacity: 1;
-  }
-  100% {
-    width: 0%;
-    opacity: 0.8;
-  }
 }
 </style>
