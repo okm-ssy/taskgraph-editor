@@ -5,6 +5,12 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual run'
+        required: false
+        default: 'Manual trigger'
 
 jobs:
   test:
@@ -12,6 +18,10 @@ jobs:
 
 
     steps:
+    - name: Show manual run reason
+      if: github.event_name == 'workflow_dispatch'
+      run: echo "Manual run reason: ${{ github.event.inputs.reason }}"
+      
     - name: Checkout repository
       uses: actions/checkout@v4
 
@@ -39,15 +49,30 @@ jobs:
     - name: Run linter
       run: ./bin/tg lint
       timeout-minutes: 5
+      continue-on-error: false
 
     - name: Run frontend tests
       run: ./bin/tg test-frontend
       timeout-minutes: 5
+      continue-on-error: false
 
     - name: Run API tests
       run: ./bin/tg test-api
       timeout-minutes: 5
+      continue-on-error: false
 
     - name: Test MCP server build
       run: ./bin/tg mcp-build
       timeout-minutes: 5
+      continue-on-error: false
+
+    - name: Upload logs on failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: ci-logs
+        path: |
+          apps/frontend/node_modules/.cache/
+          apps/api-server/node_modules/.cache/
+          apps/mcp-server/node_modules/.cache/
+        retention-days: 7
