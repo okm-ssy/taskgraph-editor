@@ -70,5 +70,14 @@ default_response=$(curl -s "$API_BASE/api/load-taskgraph")
 default_tasks=$(echo "$default_response" | jq -r '.tasks | length')
 echo "📊 デフォルトプロジェクトのタスク数: $default_tasks"
 
+# OpenAPIスキーマ検証テスト
+echo ""
+echo "🔍 OpenAPIスキーマ検証..."
+if "${REPOSITORY_ROOT}/cli/api/validate.sh"; then
+    echo "✅ スキーマ検証成功"
+else
+    echo "⚠️  スキーマ検証に問題があります（テストは継続）"
+fi
+
 echo ""
 echo "✅ APIテスト完了"

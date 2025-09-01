@@ -59,7 +59,6 @@ model TaskAddition {
 model Project {
   id: string;
   name: string;
-  tasks: Task[];
 }
 
 model TaskGraph {

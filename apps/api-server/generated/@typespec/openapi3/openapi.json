@@ -512,8 +512,7 @@
         "type": "object",
         "required": [
           "id",
-          "name",
-          "tasks"
+          "name"
         ],
         "properties": {
           "id": {
@@ -521,12 +520,6 @@
           },
           "name": {
             "type": "string"
-          },
-          "tasks": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Task"
-            }
           }
         }
       },
