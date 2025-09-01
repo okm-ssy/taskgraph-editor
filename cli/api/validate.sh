@@ -170,6 +170,10 @@ async function runTests() {
   console.log('🧪 エンドポイントテストを開始...');
   console.log('');
   
+  // テスト用のプロジェクトIDとタスク名
+  const testProjectId = 'default';
+  const testTaskName = 'test-task-' + Date.now();
+  
   // GET /projects のテスト
   try {
     console.log('📍 GET /projects');
@@ -179,6 +183,152 @@ async function runTests() {
     }
   } catch (error) {
     console.log('❌ GET /projects: リクエスト失敗 -', error.message);
+    testsFailed++;
+  }
+  
+  // GET /projects/{projectId} のテスト
+  try {
+    console.log('📍 GET /projects/' + testProjectId);
+    const result = await makeRequest('GET', '/projects/' + testProjectId);
+    if (result.status === 200) {
+      if (validateResponse('/projects/{projectId}', 'get', result.data, result.status.toString())) {
+        console.log('✅ GET /projects/{projectId}: スキーマ検証成功');
+      }
+    } else {
+      console.log('⚠️  GET /projects/{projectId}: ステータス ' + result.status);
+    }
+  } catch (error) {
+    console.log('❌ GET /projects/{projectId}: リクエスト失敗 -', error.message);
+    testsFailed++;
+  }
+  
+  // POST /projects/{projectId}/tasks のテスト
+  try {
+    console.log('📍 POST /projects/' + testProjectId + '/tasks');
+    const testTask = {
+      name: testTaskName,
+      description: 'テスト用タスク',
+      depends: [],
+      difficulty: 1.0
+    };
+    const result = await makeRequest('POST', '/projects/' + testProjectId + '/tasks', testTask);
+    if (result.status === 200 || result.status === 201) {
+      if (validateResponse('/projects/{projectId}/tasks', 'post', result.data, '200')) {
+        console.log('✅ POST /projects/{projectId}/tasks: スキーマ検証成功');
+      }
+    } else {
+      console.log('⚠️  POST /projects/{projectId}/tasks: ステータス ' + result.status);
+    }
+  } catch (error) {
+    console.log('❌ POST /projects/{projectId}/tasks: リクエスト失敗 -', error.message);
+    testsFailed++;
+  }
+  
+  // GET /projects/{projectId}/tasks/{taskName} のテスト
+  try {
+    console.log('📍 GET /projects/' + testProjectId + '/tasks/' + testTaskName);
+    const result = await makeRequest('GET', '/projects/' + testProjectId + '/tasks/' + testTaskName);
+    if (result.status === 200) {
+      if (validateResponse('/projects/{projectId}/tasks/{taskName}', 'get', result.data, result.status.toString())) {
+        console.log('✅ GET /projects/{projectId}/tasks/{taskName}: スキーマ検証成功');
+      }
+    } else {
+      console.log('⚠️  GET /projects/{projectId}/tasks/{taskName}: ステータス ' + result.status);
+    }
+  } catch (error) {
+    console.log('❌ GET /projects/{projectId}/tasks/{taskName}: リクエスト失敗 -', error.message);
+    testsFailed++;
+  }
+  
+  // PUT /projects/{projectId}/tasks/{taskName} のテスト
+  try {
+    console.log('📍 PUT /projects/' + testProjectId + '/tasks/' + testTaskName);
+    const updateData = {
+      description: 'テスト用タスク（更新済み）',
+      difficulty: 2.0
+    };
+    const result = await makeRequest('PUT', '/projects/' + testProjectId + '/tasks/' + testTaskName, updateData);
+    if (result.status === 200) {
+      if (validateResponse('/projects/{projectId}/tasks/{taskName}', 'put', result.data, result.status.toString())) {
+        console.log('✅ PUT /projects/{projectId}/tasks/{taskName}: スキーマ検証成功');
+      }
+    } else {
+      console.log('⚠️  PUT /projects/{projectId}/tasks/{taskName}: ステータス ' + result.status);
+    }
+  } catch (error) {
+    console.log('❌ PUT /projects/{projectId}/tasks/{taskName}: リクエスト失敗 -', error.message);
+    testsFailed++;
+  }
+  
+  // PATCH /projects/{projectId}/tasks/{taskName}/notes のテスト
+  try {
+    console.log('📍 PATCH /projects/' + testProjectId + '/tasks/' + testTaskName + '/notes');
+    const notesData = {
+      notes: ['テストノート1', 'テストノート2']
+    };
+    const result = await makeRequest('PATCH', '/projects/' + testProjectId + '/tasks/' + testTaskName + '/notes', notesData);
+    if (result.status === 200) {
+      if (validateResponse('/projects/{projectId}/tasks/{taskName}/notes', 'patch', result.data, result.status.toString())) {
+        console.log('✅ PATCH .../notes: スキーマ検証成功');
+      }
+    } else {
+      console.log('⚠️  PATCH .../notes: ステータス ' + result.status);
+    }
+  } catch (error) {
+    console.log('❌ PATCH .../notes: リクエスト失敗 -', error.message);
+    testsFailed++;
+  }
+  
+  // PATCH /projects/{projectId}/tasks/{taskName}/implementation のテスト
+  try {
+    console.log('📍 PATCH /projects/' + testProjectId + '/tasks/' + testTaskName + '/implementation');
+    const implData = {
+      implementation_notes: ['実装メモ1', '実装メモ2']
+    };
+    const result = await makeRequest('PATCH', '/projects/' + testProjectId + '/tasks/' + testTaskName + '/implementation', implData);
+    if (result.status === 200) {
+      if (validateResponse('/projects/{projectId}/tasks/{taskName}/implementation', 'patch', result.data, result.status.toString())) {
+        console.log('✅ PATCH .../implementation: スキーマ検証成功');
+      }
+    } else {
+      console.log('⚠️  PATCH .../implementation: ステータス ' + result.status);
+    }
+  } catch (error) {
+    console.log('❌ PATCH .../implementation: リクエスト失敗 -', error.message);
+    testsFailed++;
+  }
+  
+  // PATCH /projects/{projectId}/tasks/{taskName}/requirements のテスト
+  try {
+    console.log('📍 PATCH /projects/' + testProjectId + '/tasks/' + testTaskName + '/requirements');
+    const reqData = {
+      requirements: ['要件1', '要件2']
+    };
+    const result = await makeRequest('PATCH', '/projects/' + testProjectId + '/tasks/' + testTaskName + '/requirements', reqData);
+    if (result.status === 200) {
+      if (validateResponse('/projects/{projectId}/tasks/{taskName}/requirements', 'patch', result.data, result.status.toString())) {
+        console.log('✅ PATCH .../requirements: スキーマ検証成功');
+      }
+    } else {
+      console.log('⚠️  PATCH .../requirements: ステータス ' + result.status);
+    }
+  } catch (error) {
+    console.log('❌ PATCH .../requirements: リクエスト失敗 -', error.message);
+    testsFailed++;
+  }
+  
+  // DELETE /projects/{projectId}/tasks/{taskName} のテスト
+  try {
+    console.log('📍 DELETE /projects/' + testProjectId + '/tasks/' + testTaskName);
+    const result = await makeRequest('DELETE', '/projects/' + testProjectId + '/tasks/' + testTaskName);
+    if (result.status === 200 || result.status === 204) {
+      console.log('✅ DELETE /projects/{projectId}/tasks/{taskName}: 成功');
+      testsPassed++;
+    } else {
+      console.log('⚠️  DELETE /projects/{projectId}/tasks/{taskName}: ステータス ' + result.status);
+    }
+  } catch (error) {
+    console.log('❌ DELETE /projects/{projectId}/tasks/{taskName}: リクエスト失敗 -', error.message);
     testsFailed++;
   }
   
