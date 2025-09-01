@@ -51,6 +51,29 @@ taskgraph_editor() {
   test-mcp)
     script_name='test-mcp.sh'
     ;;
+  api)
+    # apiサブコマンドの処理
+    case $1 in
+      info)
+        shift
+        script_name='api/info.sh'
+        ;;
+      call)
+        script_name='api/call.sh'
+        ;;
+      build)
+        shift
+        script_name='api/build.sh'
+        ;;
+      *)
+        echo "Usage: tg api [info|call|build]" >&2
+        echo "  tg api info              - Show API endpoints" >&2
+        echo "  tg api call <METHOD> <PATH> [DATA] - Call API endpoint" >&2
+        echo "  tg api build             - Build API client binary" >&2
+        return 1
+        ;;
+    esac
+    ;;
   *)
     help && return
     ;;
@@ -78,6 +101,9 @@ help() {
   create-project                新しいプロジェクトファイルを作成する
   mcp-run                       MCPサーバーを開発モードで起動
   mcp-build                     MCPサーバーをビルド
+  api info                      API情報とエンドポイント一覧を表示
+  api call                      APIエンドポイントを実行 (例: tg api call GET /projects)
+  api build                     APIクライアントのバイナリをビルド
   help                          ヘルプを表示する
 END
 }
