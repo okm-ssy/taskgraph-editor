@@ -195,7 +195,8 @@ async function runTests() {
         console.log('✅ GET /projects/{projectId}: スキーマ検証成功');
       }
     } else {
-      console.log('⚠️  GET /projects/{projectId}: ステータス ' + result.status);
+      console.log('❌ GET /projects/{projectId}: ステータス ' + result.status + ' (未実装)');
+      testsFailed++;
     }
   } catch (error) {
     console.log('❌ GET /projects/{projectId}: リクエスト失敗 -', error.message);
@@ -217,7 +218,8 @@ async function runTests() {
         console.log('✅ POST /projects/{projectId}/tasks: スキーマ検証成功');
       }
     } else {
-      console.log('⚠️  POST /projects/{projectId}/tasks: ステータス ' + result.status);
+      console.log('❌ POST /projects/{projectId}/tasks: ステータス ' + result.status + ' (未実装)');
+      testsFailed++;
     }
   } catch (error) {
     console.log('❌ POST /projects/{projectId}/tasks: リクエスト失敗 -', error.message);
@@ -233,7 +235,8 @@ async function runTests() {
         console.log('✅ GET /projects/{projectId}/tasks/{taskName}: スキーマ検証成功');
       }
     } else {
-      console.log('⚠️  GET /projects/{projectId}/tasks/{taskName}: ステータス ' + result.status);
+      console.log('❌ GET /projects/{projectId}/tasks/{taskName}: ステータス ' + result.status + ' (未実装)');
+      testsFailed++;
     }
   } catch (error) {
     console.log('❌ GET /projects/{projectId}/tasks/{taskName}: リクエスト失敗 -', error.message);
@@ -253,7 +256,8 @@ async function runTests() {
         console.log('✅ PUT /projects/{projectId}/tasks/{taskName}: スキーマ検証成功');
       }
     } else {
-      console.log('⚠️  PUT /projects/{projectId}/tasks/{taskName}: ステータス ' + result.status);
+      console.log('❌ PUT /projects/{projectId}/tasks/{taskName}: ステータス ' + result.status + ' (未実装)');
+      testsFailed++;
     }
   } catch (error) {
     console.log('❌ PUT /projects/{projectId}/tasks/{taskName}: リクエスト失敗 -', error.message);
@@ -272,7 +276,8 @@ async function runTests() {
         console.log('✅ PATCH .../notes: スキーマ検証成功');
       }
     } else {
-      console.log('⚠️  PATCH .../notes: ステータス ' + result.status);
+      console.log('❌ PATCH .../notes: ステータス ' + result.status + ' (未実装)');
+      testsFailed++;
     }
   } catch (error) {
     console.log('❌ PATCH .../notes: リクエスト失敗 -', error.message);
@@ -291,7 +296,8 @@ async function runTests() {
         console.log('✅ PATCH .../implementation: スキーマ検証成功');
       }
     } else {
-      console.log('⚠️  PATCH .../implementation: ステータス ' + result.status);
+      console.log('❌ PATCH .../implementation: ステータス ' + result.status + ' (未実装)');
+      testsFailed++;
     }
   } catch (error) {
     console.log('❌ PATCH .../implementation: リクエスト失敗 -', error.message);
@@ -310,7 +316,8 @@ async function runTests() {
         console.log('✅ PATCH .../requirements: スキーマ検証成功');
       }
     } else {
-      console.log('⚠️  PATCH .../requirements: ステータス ' + result.status);
+      console.log('❌ PATCH .../requirements: ステータス ' + result.status + ' (未実装)');
+      testsFailed++;
     }
   } catch (error) {
     console.log('❌ PATCH .../requirements: リクエスト失敗 -', error.message);
@@ -325,7 +332,8 @@ async function runTests() {
       console.log('✅ DELETE /projects/{projectId}/tasks/{taskName}: 成功');
       testsPassed++;
     } else {
-      console.log('⚠️  DELETE /projects/{projectId}/tasks/{taskName}: ステータス ' + result.status);
+      console.log('❌ DELETE /projects/{projectId}/tasks/{taskName}: ステータス ' + result.status + ' (未実装)');
+      testsFailed++;
     }
   } catch (error) {
     console.log('❌ DELETE /projects/{projectId}/tasks/{taskName}: リクエスト失敗 -', error.message);
