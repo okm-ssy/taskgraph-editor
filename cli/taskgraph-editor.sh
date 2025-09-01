@@ -21,6 +21,9 @@ taskgraph_editor() {
   run)
     script_name='front/run.sh'
     ;;
+  build)
+    script_name='build.sh'
+    ;;
   stop)
     script_name='stop.sh'
     ;;
@@ -38,9 +41,6 @@ taskgraph_editor() {
     ;;
   mcp-run)
     script_name='mcp/run.sh'
-    ;;
-  mcp-build)
-    script_name='mcp/build.sh'
     ;;
   test)
     script_name='test.sh'
@@ -90,6 +90,7 @@ help() {
 
   edit                          vs-code で開く
   run                           フロントを立ち上げる
+  build                         MCPサーバーとAPI関連をビルド
   stop                          APIサーバーを停止する
   storybook                     Storybookを起動する
   lint                          フロントとMCPサーバーのlintを実行
@@ -100,7 +101,6 @@ help() {
   create-prompt-context         AI のプロンプト用にファイルを結合する
   create-project                新しいプロジェクトファイルを作成する
   mcp-run                       MCPサーバーを開発モードで起動
-  mcp-build                     MCPサーバーをビルド
   api info                      API情報とエンドポイント一覧を表示
   api call                      APIエンドポイントを実行 (例: tg api call GET /projects)
   api build                     APIクライアントのバイナリをビルド
