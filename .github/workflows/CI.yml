@@ -21,7 +21,7 @@ jobs:
     - name: Show manual run reason
       if: github.event_name == 'workflow_dispatch'
       run: echo "Manual run reason: ${{ github.event.inputs.reason }}"
-      
+
     - name: Checkout repository
       uses: actions/checkout@v4
 
@@ -61,8 +61,8 @@ jobs:
       timeout-minutes: 5
       continue-on-error: false
 
-    - name: Test MCP server build
-      run: ./bin/tg mcp-build
+    - name: Test build (MCP server and API Client)
+      run: ./bin/tg build
       timeout-minutes: 5
       continue-on-error: false
 
