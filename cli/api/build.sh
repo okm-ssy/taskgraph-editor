@@ -4,6 +4,22 @@ set -e
 
 echo "🔨 APIクライアントバイナリをビルドしています..."
 
+# まずOpenAPI定義を生成
+echo "📝 OpenAPI定義を生成しています..."
+cd "${REPOSITORY_ROOT}/apps/api-server"
+if [ -f "typespec/main.tsp" ]; then
+  npx tsp compile typespec >/dev/null 2>&1 || {
+    echo "⚠️  TypeSpecのコンパイルに失敗しました" >&2
+    echo "   手動で実行: cd apps/api-server && npx tsp compile typespec" >&2
+  }
+  if [ -f "generated/@typespec/openapi3/openapi.json" ]; then
+    echo "✅ OpenAPI定義を生成しました: apps/api-server/generated/@typespec/openapi3/openapi.json"
+  fi
+else
+  echo "⚠️  TypeSpec定義が見つかりません" >&2
+fi
+echo ""
+
 # ディレクトリが存在しない場合は作成
 if [ ! -d "${REPOSITORY_ROOT}/apps/api-client" ]; then
   mkdir -p "${REPOSITORY_ROOT}/apps/api-client"
