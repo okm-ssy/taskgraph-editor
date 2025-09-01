@@ -11,7 +11,7 @@ MCP_SERVER_PATH="./apps/mcp-server/dist/index.js"
 
 # ビルド実行
 echo "🔧 MCPサーバービルド実行..."
-if ! ./bin/tg mcp-build; then
+if ! ./bin/tg build; then
     echo "❌ MCPサーバービルドに失敗しました"
     exit 1
 fi
