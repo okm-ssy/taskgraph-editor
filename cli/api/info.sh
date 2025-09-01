@@ -90,6 +90,9 @@ if [ -f "$OPENAPI_FILE" ]; then
     console.log('Usage:');
     console.log('  tg api call GET /projects');
     console.log('  tg api call POST /projects/myproject/tasks \'{\"name\":\"task1\",\"description\":\"Test\"}\'');
+    console.log('');
+    console.log('OpenAPI Specification:');
+    console.log('  $OPENAPI_FILE');
   "
 else
   echo "OpenAPIファイルの生成に失敗しました" >&2
