@@ -18,6 +18,9 @@ JSONでタスクを分解管理するアプリ。schema は apps/frontend/src/mo
 # ビルドして開発サーバを立ち上げる
 tg run
 
+# MCPサーバーとAPI関連をビルド
+tg build
+
 # linter を実行する
 tg lint
 
@@ -29,6 +32,12 @@ tg test-api
 
 # MCPサーバー動作確認テストのみ
 tg test-mcp
+
+# API情報を表示
+tg api info
+
+# APIエンドポイントを実行
+tg api call GET /projects
 ```
 
 ## ディレクトリ構成

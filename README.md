@@ -79,6 +79,9 @@ tg edit
 # 開発サーバーを起動
 tg run
 
+# MCPサーバーとAPI関連をビルド
+tg build
+
 # APIサーバーを停止
 tg stop
 
@@ -109,8 +112,15 @@ tg create-project <プロジェクト名>
 # MCPサーバーを開発モードで起動
 tg mcp-run
 
-# MCPサーバーをビルド
-tg mcp-build
+# API情報を表示
+tg api info
+
+# APIエンドポイントを実行
+tg api call GET /projects
+tg api call POST /projects/myproject/tasks '{"name":"task1","description":"Test"}'
+
+# APIクライアントバイナリをビルド
+tg api build
 ```
 
 ## トラブルシューティング
@@ -120,6 +130,12 @@ tg mcp-build
 1. Node.jsがインストールされているか確認
 2. MCPサーバーのビルドが完了しているか確認：
 
+   ```bash
+   tg build
+   ```
+   
+   または手動で：
+   
    ```bash
    cd apps/mcp-server
    npm install
