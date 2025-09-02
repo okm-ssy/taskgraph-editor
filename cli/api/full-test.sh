@@ -266,14 +266,40 @@ async function runTests() {
 // サーバーが起動しているか確認
 const checkServer = http.get('$API_BASE/projects', (res) => {
   if (res.statusCode >= 200 && res.statusCode < 500) {
+    console.log('📡 APIサーバーとの接続を確認しました');
     runTests();
   } else {
     console.log('❌ APIサーバーが応答しません');
     process.exit(1);
   }
 }).on('error', () => {
+  console.log('');
   console.log('⚠️  APIサーバーが起動していません');
-  console.log('   tg run でサーバーを起動してください');
-  process.exit(0);
+  console.log('📦 サーバーなしでモックテストを実行します...');
+  console.log('');
+  
+  // サーバーが起動していない場合はモックテストを実行
+  const { execSync } = require('child_process');
+  const path = require('path');
+  
+  try {
+    // apps/api-serverディレクトリでテストを実行
+    const apiServerDir = path.resolve(__dirname, '../../apps/api-server');
+    process.chdir(apiServerDir);
+    
+    console.log('🧪 モックAPIテスト実行中...');
+    execSync('npm run test:mock', { stdio: 'inherit' });
+    
+    console.log('');
+    console.log('🔍 OpenAPIスキーマ検証テスト実行中...');
+    execSync('npm run test:openapi', { stdio: 'inherit' });
+    
+    console.log('');
+    console.log('✅ すべてのモックテストが成功しました');
+    process.exit(0);
+  } catch (error) {
+    console.log('❌ テストが失敗しました');
+    process.exit(1);
+  }
 });
 "

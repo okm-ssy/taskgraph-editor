@@ -10,7 +10,10 @@
     "start": "node server.js",
     "dev": "node --watch server.js",
     "lint": "eslint *.js --fix",
-    "test": "node --check server.js"
+    "test": "node --check server.js",
+    "test:mock": "node test/mock-api-test.js",
+    "test:openapi": "node test/openapi-validation-test.js",
+    "test:all": "npm run test:mock && npm run test:openapi"
   },
   "dependencies": {
     "cors": "^2.8.5",
