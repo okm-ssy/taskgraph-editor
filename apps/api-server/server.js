@@ -592,10 +592,22 @@ app.get('/api/projects/:projectId', async (req, res) => {
     const data = await fs.readFile(filePath, 'utf-8');
     const taskgraph = JSON.parse(data);
     
-    // TaskGraph形式に変換
+    // TaskGraph形式に変換（配列の場合はオブジェクトに変換）
+    let tasks = taskgraph.tasks || {};
+    if (Array.isArray(tasks)) {
+      // 配列の場合はオブジェクトに変換
+      const tasksObj = {};
+      tasks.forEach(task => {
+        if (task && task.name) {
+          tasksObj[task.name] = task;
+        }
+      });
+      tasks = tasksObj;
+    }
+    
     const response = {
       version: '1.0.0',
-      tasks: taskgraph.tasks || {}
+      tasks: tasks
     };
     
     res.json(response);
