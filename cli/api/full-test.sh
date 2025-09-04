@@ -136,7 +136,7 @@ async function runTests() {
   const newProjectId = 'test-project-' + Date.now();
   const createResult = await runTest(
     'POST /api/projects - 新規プロジェクト作成',
-    'POST', '/projects', { projectId: newProjectId }, [200, 201]
+    'POST', '/projects', { name: newProjectId }, [200, 201]
   );
   
   if (createResult && createResult.status === 200) {
@@ -197,10 +197,11 @@ async function runTests() {
     );
   }
   
-  // ファイル一覧取得
+  // ファイル一覧取得（rootPathパラメータを追加）
+  const repoRoot = process.cwd();
   await runTest(
     'GET /api/file-list - ファイル一覧取得',
-    'GET', '/file-list', null, [200]
+    'GET', '/file-list?rootPath=' + encodeURIComponent(repoRoot), null, [200]
   );
   
   // プロジェクト画像一覧取得
@@ -210,28 +211,85 @@ async function runTests() {
   );
   
   console.log('');
-  console.log('🧪 TypeSpec定義エンドポイントのテスト（未実装）');
+  console.log('🧪 TypeSpec定義エンドポイントのテスト');
   console.log('-----------------------------------------------');
   
-  // TypeSpecで定義されているが未実装のエンドポイント
-  const unimplementedTests = [
-    ['GET /projects/{projectId}', 'GET', '/projects/default'],
-    ['POST /projects/{projectId}/tasks', 'POST', '/projects/default/tasks', { name: 'test', description: 'test' }],
-    ['GET /projects/{projectId}/tasks/{taskName}', 'GET', '/projects/default/tasks/test'],
-    ['PUT /projects/{projectId}/tasks/{taskName}', 'PUT', '/projects/default/tasks/test', { description: 'updated' }],
-    ['DELETE /projects/{projectId}/tasks/{taskName}', 'DELETE', '/projects/default/tasks/test'],
-    ['PATCH /projects/{projectId}/tasks/{taskName}/notes', 'PATCH', '/projects/default/tasks/test/notes', { notes: ['note1'] }],
-    ['PATCH /projects/{projectId}/tasks/{taskName}/implementation', 'PATCH', '/projects/default/tasks/test/implementation', { implementation_notes: ['impl1'] }],
-    ['PATCH /projects/{projectId}/tasks/{taskName}/requirements', 'PATCH', '/projects/default/tasks/test/requirements', { requirements: ['req1'] }]
-  ];
+  // テスト用のタスク名を生成
+  const testTaskName = 'test-task-' + Date.now();
   
-  for (const [name, method, path, data] of unimplementedTests) {
-    const result = await makeRequest(method, path, data);
-    if (result.status === 404) {
-      console.log('⚠️  ' + name + ' - 未実装 (404)');
+  // GET /projects/{projectId}
+  let result = await makeRequest('GET', '/projects/default');
+  if (result.status === 200) {
+    console.log('✅ GET /projects/{projectId} - ステータス: ' + result.status);
+  } else {
+    console.log('❌ GET /projects/{projectId} - ステータス: ' + result.status);
+  }
+  
+  // POST /projects/{projectId}/tasks - タスクを作成
+  result = await makeRequest('POST', '/projects/default/tasks', { 
+    name: testTaskName, 
+    description: 'テストタスク'
+  });
+  if (result.status === 200 || result.status === 201) {
+    console.log('✅ POST /projects/{projectId}/tasks - ステータス: ' + result.status);
+    
+    // GET /projects/{projectId}/tasks/{taskName}
+    result = await makeRequest('GET', '/projects/default/tasks/' + testTaskName);
+    if (result.status === 200) {
+      console.log('✅ GET /projects/{projectId}/tasks/{taskName} - ステータス: ' + result.status);
     } else {
-      console.log('🔍 ' + name + ' - ステータス: ' + result.status);
+      console.log('❌ GET /projects/{projectId}/tasks/{taskName} - ステータス: ' + result.status);
     }
+    
+    // PUT /projects/{projectId}/tasks/{taskName}
+    result = await makeRequest('PUT', '/projects/default/tasks/' + testTaskName, { 
+      description: 'updated description'
+    });
+    if (result.status === 200) {
+      console.log('✅ PUT /projects/{projectId}/tasks/{taskName} - ステータス: ' + result.status);
+    } else {
+      console.log('❌ PUT /projects/{projectId}/tasks/{taskName} - ステータス: ' + result.status);
+    }
+    
+    // PATCH /projects/{projectId}/tasks/{taskName}/notes
+    result = await makeRequest('PATCH', '/projects/default/tasks/' + testTaskName + '/notes', { 
+      notes: ['テストノート1', 'テストノート2']
+    });
+    if (result.status === 200) {
+      console.log('✅ PATCH /projects/{projectId}/tasks/{taskName}/notes - ステータス: ' + result.status);
+    } else {
+      console.log('❌ PATCH /projects/{projectId}/tasks/{taskName}/notes - ステータス: ' + result.status);
+    }
+    
+    // PATCH /projects/{projectId}/tasks/{taskName}/implementation
+    result = await makeRequest('PATCH', '/projects/default/tasks/' + testTaskName + '/implementation', { 
+      implementation_notes: ['実装ノート1', '実装ノート2']
+    });
+    if (result.status === 200) {
+      console.log('✅ PATCH /projects/{projectId}/tasks/{taskName}/implementation - ステータス: ' + result.status);
+    } else {
+      console.log('❌ PATCH /projects/{projectId}/tasks/{taskName}/implementation - ステータス: ' + result.status);
+    }
+    
+    // PATCH /projects/{projectId}/tasks/{taskName}/requirements
+    result = await makeRequest('PATCH', '/projects/default/tasks/' + testTaskName + '/requirements', { 
+      requirements: ['要件1', '要件2']
+    });
+    if (result.status === 200) {
+      console.log('✅ PATCH /projects/{projectId}/tasks/{taskName}/requirements - ステータス: ' + result.status);
+    } else {
+      console.log('❌ PATCH /projects/{projectId}/tasks/{taskName}/requirements - ステータス: ' + result.status);
+    }
+    
+    // DELETE /projects/{projectId}/tasks/{taskName}
+    result = await makeRequest('DELETE', '/projects/default/tasks/' + testTaskName);
+    if (result.status === 204 || result.status === 200) {
+      console.log('✅ DELETE /projects/{projectId}/tasks/{taskName} - ステータス: ' + result.status);
+    } else {
+      console.log('❌ DELETE /projects/{projectId}/tasks/{taskName} - ステータス: ' + result.status);
+    }
+  } else {
+    console.log('❌ POST /projects/{projectId}/tasks - ステータス: ' + result.status);
   }
   
   console.log('');

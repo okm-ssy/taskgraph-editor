@@ -210,7 +210,8 @@ async function runTests() {
       name: testTaskName,
       description: 'テスト用タスク',
       depends: [],
-      difficulty: 1.0
+      difficulty: 1.0,
+      issueNumber: 123
     };
     const result = await makeRequest('POST', '/projects/' + testProjectId + '/tasks', testTask);
     if (result.status === 200 || result.status === 201) {
