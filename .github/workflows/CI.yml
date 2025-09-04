@@ -51,14 +51,9 @@ jobs:
       timeout-minutes: 5
       continue-on-error: false
 
-    - name: Run frontend tests
-      run: ./bin/tg test-frontend
-      timeout-minutes: 5
-      continue-on-error: false
-
-    - name: Run API tests
-      run: ./bin/tg test-api
-      timeout-minutes: 5
+    - name: Run all tests
+      run: ./bin/tg test
+      timeout-minutes: 10
       continue-on-error: false
 
     - name: Test build (MCP server and API Client)
