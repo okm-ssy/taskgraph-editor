@@ -50,6 +50,7 @@
 
       <textarea
         v-model="jsonInput"
+        @paste="handlePaste"
         class="w-full h-64 border border-gray-300 rounded p-2 font-mono text-sm"
         placeholder="ここにJSONデータを貼り付けてください"
       />
@@ -76,6 +77,27 @@ const uiStore = useEditorUIStore();
 const jsonInput = ref('');
 let ignoreNextChange = false;
 let isParsingJson = false;
+
+// ペーストイベントのハンドラー
+const handlePaste = (event: ClipboardEvent) => {
+  // ペーストされたテキストを取得
+  const pastedText = event.clipboardData?.getData('text');
+
+  // ペーストされたテキストが存在し、有効なJSONの可能性がある場合
+  if (pastedText && pastedText.trim().length > 0) {
+    // 少し遅延を入れてからパネルを閉じる（JSONパース処理を先に完了させるため）
+    setTimeout(() => {
+      // JSONとして解析可能かチェック
+      try {
+        JSON.parse(pastedText);
+        // 有効なJSONの場合のみパネルを閉じる
+        taskStore.toggleJsonInputVisibility();
+      } catch {
+        // JSONパースエラーの場合は何もしない（パネルは開いたまま）
+      }
+    }, 100);
+  }
+};
 
 // GitHub Projectsへのリンク情報
 const hasGitHubProjectInfo = computed(() => {
