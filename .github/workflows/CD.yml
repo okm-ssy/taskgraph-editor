@@ -25,7 +25,7 @@ jobs:
     steps:
       - name: Show manual run reason
         if: github.event_name == 'workflow_dispatch'
-        run: echo "Manual deployment reason: ${{ github.event.inputs.reason }}"
+        run: echo "Manual deployment reason ${{ github.event.inputs.reason }}"
         
       - name: Checkout
         uses: actions/checkout@v4
