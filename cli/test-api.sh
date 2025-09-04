@@ -25,14 +25,29 @@ echo "✅ APIサーバー構文テスト: 成功"
 
 cd "${REPOSITORY_ROOT}"
 
-# サーバーが起動しているかチェック
-echo ""
-echo "📡 サーバー接続確認..."
-if ! curl -s --connect-timeout 3 "$API_BASE" >/dev/null; then
-    echo "❌ APIサーバーが起動していません (port 9393)"
+# サーバーが起動しているかチェック（静かに確認）
+if ! curl -s --connect-timeout 3 "$API_BASE" >/dev/null 2>&1; then
+    # サーバーが起動していない場合は静かにモックテストのみ実行
+    echo ""
+    echo "📦 モックテストモードで実行します..."
+    
+    # モックテストとOpenAPIスキーマ検証を実行
+    cd "${REPOSITORY_ROOT}/apps/api-server"
+    
+    echo ""
+    echo "🧪 モックAPIテスト実行中..."
+    npm run test:mock
+    
+    echo ""
+    echo "🔍 OpenAPIスキーマ検証テスト実行中..."
+    npm run test:openapi
+    
+    echo ""
+    echo "✅ モックテストモード完了"
     exit 0
 else
-    echo "✅ APIサーバー接続OK"
+    echo ""
+    echo "📡 APIサーバーに接続しました"
 fi
 
 # プロジェクト一覧取得
