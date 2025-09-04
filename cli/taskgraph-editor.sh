@@ -48,6 +48,9 @@ taskgraph_editor() {
   test-api)
     script_name='test-api.sh'
     ;;
+  test-frontend)
+    script_name='test-frontend.sh'
+    ;;
   test-mcp)
     script_name='test-mcp.sh'
     ;;
@@ -96,6 +99,7 @@ help() {
   lint                          フロントとMCPサーバーのlintを実行
   test                          全ての動作確認テストを実行（API + MCP）
   test-api                      API動作確認テストを実行
+  test-frontend                 フロントエンドのテストを実行
   test-mcp                      MCPサーバー動作確認テストを実行
   create-component              フロントの vue ファイルと stories ファイルを作る
   create-prompt-context         AI のプロンプト用にファイルを結合する
