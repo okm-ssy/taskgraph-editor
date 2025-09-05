@@ -657,7 +657,14 @@ app.post('/api/projects/:projectId/tasks', async (req, res) => {
     const taskgraph = JSON.parse(data);
     
     // タスクが既に存在するか確認
-    if (taskgraph.tasks && taskgraph.tasks[name]) {
+    let taskExists = false;
+    if (Array.isArray(taskgraph.tasks)) {
+      taskExists = taskgraph.tasks.some(t => t.name === name);
+    } else if (taskgraph.tasks) {
+      taskExists = !!taskgraph.tasks[name];
+    }
+    
+    if (taskExists) {
       return res.status(409).json({ 
         code: 'DUPLICATE_TASK',
         message: `Task '${name}' already exists`,
@@ -678,10 +685,15 @@ app.post('/api/projects/:projectId/tasks', async (req, res) => {
       addition: addition || {}
     };
     
-    if (!taskgraph.tasks) {
-      taskgraph.tasks = {};
+    // tasksが配列の場合は追加、オブジェクトの場合はキーとして設定
+    if (Array.isArray(taskgraph.tasks)) {
+      taskgraph.tasks.push(newTask);
+    } else {
+      if (!taskgraph.tasks) {
+        taskgraph.tasks = {};
+      }
+      taskgraph.tasks[name] = newTask;
     }
-    taskgraph.tasks[name] = newTask;
     
     await fs.writeFile(filePath, JSON.stringify(taskgraph, null, 2), 'utf-8');
     res.json(newTask);
@@ -763,7 +775,16 @@ app.put('/api/projects/:projectId/tasks/:taskName', async (req, res) => {
     const data = await fs.readFile(filePath, 'utf-8');
     const taskgraph = JSON.parse(data);
     
-    const task = taskgraph.tasks && taskgraph.tasks[taskName];
+    // tasksが配列の場合は名前で検索、オブジェクトの場合はキーでアクセス
+    let task;
+    let taskIndex = -1;
+    if (Array.isArray(taskgraph.tasks)) {
+      taskIndex = taskgraph.tasks.findIndex(t => t.name === taskName);
+      task = taskIndex !== -1 ? taskgraph.tasks[taskIndex] : null;
+    } else {
+      task = taskgraph.tasks && taskgraph.tasks[taskName];
+    }
+    
     if (!task) {
       return res.status(404).json({ 
         code: 'TASK_NOT_FOUND',
@@ -781,7 +802,12 @@ app.put('/api/projects/:projectId/tasks/:taskName', async (req, res) => {
       name: taskName // 名前は変更不可
     };
     
-    taskgraph.tasks[taskName] = updatedTask;
+    // tasksが配列の場合はインデックスで更新、オブジェクトの場合はキーで更新
+    if (Array.isArray(taskgraph.tasks)) {
+      taskgraph.tasks[taskIndex] = updatedTask;
+    } else {
+      taskgraph.tasks[taskName] = updatedTask;
+    }
     await fs.writeFile(filePath, JSON.stringify(taskgraph, null, 2), 'utf-8');
     
     res.json(updatedTask);
@@ -814,7 +840,17 @@ app.delete('/api/projects/:projectId/tasks/:taskName', async (req, res) => {
     const data = await fs.readFile(filePath, 'utf-8');
     const taskgraph = JSON.parse(data);
     
-    if (!taskgraph.tasks || !taskgraph.tasks[taskName]) {
+    // tasksが配列の場合は名前で検索、オブジェクトの場合はキーでアクセス
+    let taskFound = false;
+    let taskIndex = -1;
+    if (Array.isArray(taskgraph.tasks)) {
+      taskIndex = taskgraph.tasks.findIndex(t => t.name === taskName);
+      taskFound = taskIndex !== -1;
+    } else if (taskgraph.tasks) {
+      taskFound = !!taskgraph.tasks[taskName];
+    }
+    
+    if (!taskFound) {
       return res.status(404).json({ 
         code: 'TASK_NOT_FOUND',
         message: `Task '${taskName}' not found`,
@@ -824,7 +860,12 @@ app.delete('/api/projects/:projectId/tasks/:taskName', async (req, res) => {
       });
     }
     
-    delete taskgraph.tasks[taskName];
+    // tasksが配列の場合は配列から削除、オブジェクトの場合はキーを削除
+    if (Array.isArray(taskgraph.tasks)) {
+      taskgraph.tasks.splice(taskIndex, 1);
+    } else {
+      delete taskgraph.tasks[taskName];
+    }
     await fs.writeFile(filePath, JSON.stringify(taskgraph, null, 2), 'utf-8');
     
     res.status(204).send();
@@ -867,7 +908,16 @@ app.patch('/api/projects/:projectId/tasks/:taskName/notes', async (req, res) => 
     const data = await fs.readFile(filePath, 'utf-8');
     const taskgraph = JSON.parse(data);
     
-    const task = taskgraph.tasks && taskgraph.tasks[taskName];
+    // tasksが配列の場合は名前で検索、オブジェクトの場合はキーでアクセス
+    let task;
+    let taskIndex = -1;
+    if (Array.isArray(taskgraph.tasks)) {
+      taskIndex = taskgraph.tasks.findIndex(t => t.name === taskName);
+      task = taskIndex !== -1 ? taskgraph.tasks[taskIndex] : null;
+    } else {
+      task = taskgraph.tasks && taskgraph.tasks[taskName];
+    }
+    
     if (!task) {
       return res.status(404).json({ 
         code: 'TASK_NOT_FOUND',
@@ -921,7 +971,16 @@ app.patch('/api/projects/:projectId/tasks/:taskName/implementation', async (req,
     const data = await fs.readFile(filePath, 'utf-8');
     const taskgraph = JSON.parse(data);
     
-    const task = taskgraph.tasks && taskgraph.tasks[taskName];
+    // tasksが配列の場合は名前で検索、オブジェクトの場合はキーでアクセス
+    let task;
+    let taskIndex = -1;
+    if (Array.isArray(taskgraph.tasks)) {
+      taskIndex = taskgraph.tasks.findIndex(t => t.name === taskName);
+      task = taskIndex !== -1 ? taskgraph.tasks[taskIndex] : null;
+    } else {
+      task = taskgraph.tasks && taskgraph.tasks[taskName];
+    }
+    
     if (!task) {
       return res.status(404).json({ 
         code: 'TASK_NOT_FOUND',
@@ -978,7 +1037,16 @@ app.patch('/api/projects/:projectId/tasks/:taskName/requirements', async (req, r
     const data = await fs.readFile(filePath, 'utf-8');
     const taskgraph = JSON.parse(data);
     
-    const task = taskgraph.tasks && taskgraph.tasks[taskName];
+    // tasksが配列の場合は名前で検索、オブジェクトの場合はキーでアクセス
+    let task;
+    let taskIndex = -1;
+    if (Array.isArray(taskgraph.tasks)) {
+      taskIndex = taskgraph.tasks.findIndex(t => t.name === taskName);
+      task = taskIndex !== -1 ? taskgraph.tasks[taskIndex] : null;
+    } else {
+      task = taskgraph.tasks && taskgraph.tasks[taskName];
+    }
+    
     if (!task) {
       return res.status(404).json({ 
         code: 'TASK_NOT_FOUND',
