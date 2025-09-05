@@ -714,7 +714,14 @@ app.get('/api/projects/:projectId/tasks/:taskName', async (req, res) => {
     const data = await fs.readFile(filePath, 'utf-8');
     const taskgraph = JSON.parse(data);
     
-    const task = taskgraph.tasks && taskgraph.tasks[taskName];
+    // tasksが配列の場合は名前で検索、オブジェクトの場合はキーでアクセス
+    let task;
+    if (Array.isArray(taskgraph.tasks)) {
+      task = taskgraph.tasks.find(t => t.name === taskName);
+    } else {
+      task = taskgraph.tasks && taskgraph.tasks[taskName];
+    }
+    
     if (!task) {
       return res.status(404).json({ 
         code: 'TASK_NOT_FOUND',
