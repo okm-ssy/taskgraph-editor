@@ -82,8 +82,8 @@ const nodes = computed<Node[]>(() => {
         category: task.task.addition?.category,
         issueNumber: task.task.issueNumber,
       },
-      targetPosition: Position.Left,
-      sourcePosition: Position.Right,
+      targetPosition: Position.Top,
+      sourcePosition: Position.Bottom,
     };
   });
 });
