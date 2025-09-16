@@ -68,8 +68,8 @@ const nodes = computed<Node[]>(() => {
     // addition.layoutの値を使用、存在しない場合はデフォルト値を使用
     const position = task.task.addition?.layout
       ? {
-          x: task.task.addition.layout.x,
-          y: task.task.addition.layout.y,
+          x: task.task.addition.layout.x * 200, // x座標を200px間隔に変換
+          y: task.task.addition.layout.y * 100, // y座標を100px間隔に変換
         }
       : {
           x: Math.floor(index / 5) * 250, // 横方向に配置
