@@ -40,7 +40,8 @@
       <div class="flex items-center justify-between text-xs mt-1 gap-1">
         <span
           v-if="data.category"
-          class="px-1 py-0.5 bg-gray-100 rounded truncate flex-1"
+          class="px-1 py-0.5 rounded truncate flex-1"
+          :class="categoryClass"
         >
           {{ data.category }}
         </span>
@@ -98,6 +99,19 @@ const fieldClass = computed(() => {
       return 'field-parent';
     default:
       return 'field-other';
+  }
+});
+
+// カテゴリ表示のクラス（フィールドに応じた背景色）
+const categoryClass = computed(() => {
+  switch (props.data.field) {
+    case 'front':
+    case 'back':
+    case 'infra':
+    case 'parent':
+      return 'bg-white/20 text-white';
+    default:
+      return 'bg-gray-100 text-gray-700';
   }
 });
 

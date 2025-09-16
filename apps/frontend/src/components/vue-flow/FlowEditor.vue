@@ -110,11 +110,10 @@ const edges = computed<Edge[]>(() => {
           animated: true,
           sourceHandle: 'right',
           targetHandle: 'left',
+          class: 'animated-edge',
           style: {
             stroke: '#6366f1',
             strokeWidth: 2,
-            strokeDasharray: '5,5',
-            animation: 'dash 1s linear infinite',
           },
         });
       });
@@ -187,9 +186,17 @@ watch(
   stroke-linejoin: round;
 }
 
+:deep(.animated-edge .vue-flow__edge-path) {
+  stroke-dasharray: 5 5;
+  animation: dash 20s linear infinite;
+}
+
 @keyframes dash {
+  from {
+    stroke-dashoffset: 0;
+  }
   to {
-    stroke-dashoffset: -10;
+    stroke-dashoffset: -100;
   }
 }
 </style>
