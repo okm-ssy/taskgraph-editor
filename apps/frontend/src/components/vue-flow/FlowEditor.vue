@@ -100,8 +100,10 @@ const edges = computed<Edge[]>(() => {
           id: `${dep}-${task.task.name}`,
           source: dep,
           target: task.task.name,
-          type: 'smoothstep',
+          type: 'straight',
           animated: false,
+          sourceHandle: 'right',
+          targetHandle: 'left',
           style: {
             stroke: '#64748b',
             strokeWidth: 2,
