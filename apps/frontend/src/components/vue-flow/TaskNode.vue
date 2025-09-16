@@ -1,6 +1,6 @@
 <template>
   <div
-    class="task-node px-4 py-3 bg-white border-2 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer min-w-[180px]"
+    class="task-node px-4 py-3 bg-white border-2 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer min-w-[180px] relative"
     :class="[
       fieldClass,
       {
@@ -10,6 +10,8 @@
     ]"
     @click="handleClick"
   >
+    <Handle type="target" :position="Position.Left" />
+    <Handle type="source" :position="Position.Right" />
     <div class="flex items-center justify-between mb-1">
       <h3 class="font-semibold text-sm truncate">{{ data.label }}</h3>
       <span
@@ -42,6 +44,7 @@
 </template>
 
 <script setup lang="ts">
+import { Handle, Position } from '@vue-flow/core';
 import { computed } from 'vue';
 
 import { DIFFICULTY } from '../../constants';
