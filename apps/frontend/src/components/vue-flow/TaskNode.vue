@@ -10,8 +10,18 @@
     ]"
     @click="handleClick"
   >
-    <Handle type="target" :position="Position.Left" />
-    <Handle type="source" :position="Position.Right" />
+    <Handle 
+      type="target" 
+      :position="Position.Left" 
+      class="handle-left"
+      :style="{ left: '-8px', top: '50%', transform: 'translateY(-50%)' }"
+    />
+    <Handle 
+      type="source" 
+      :position="Position.Right" 
+      class="handle-right"
+      :style="{ right: '-8px', top: '50%', transform: 'translateY(-50%)' }"
+    />
     <div class="flex items-center justify-between mb-1">
       <h3 class="font-semibold text-sm truncate">{{ data.label }}</h3>
       <span
@@ -157,5 +167,21 @@ const handleClick = () => {
 
 .field-other {
   background: white;
+}
+
+/* Handleのスタイル */
+:deep(.vue-flow__handle) {
+  width: 12px;
+  height: 12px;
+  border: 2px solid #555;
+  background-color: white;
+}
+
+:deep(.vue-flow__handle-left) {
+  left: -6px;
+}
+
+:deep(.vue-flow__handle-right) {
+  right: -6px;
 }
 </style>
