@@ -45,7 +45,7 @@
 import { computed } from 'vue';
 
 import { DIFFICULTY } from '../../constants';
-import { useEditorUI } from '../../store/editor_ui_store';
+import { useEditorUIStore } from '../../store/editor_ui_store';
 
 const props = defineProps<{
   data: {
@@ -63,7 +63,7 @@ const emit = defineEmits<{
   click: [];
 }>();
 
-const uiStore = useEditorUI();
+const uiStore = useEditorUIStore();
 
 const isSelected = computed(() => uiStore.selectedTaskId === props.id);
 

@@ -32,17 +32,19 @@
 </template>
 
 <script setup lang="ts">
-import { VueFlow, Background, Controls, MiniMap } from '@vue-flow/core';
+import { Background } from '@vue-flow/background';
+import { Controls } from '@vue-flow/controls';
+import { VueFlow } from '@vue-flow/core';
 import { Position } from '@vue-flow/core';
 import type { Node, Edge, Connection } from '@vue-flow/core';
+import { MiniMap } from '@vue-flow/minimap';
 import { computed, watch } from 'vue';
 import '@vue-flow/core/dist/style.css';
 import '@vue-flow/core/dist/theme-default.css';
 import '@vue-flow/controls/dist/style.css';
 import '@vue-flow/minimap/dist/style.css';
 
-import { useEditorUI } from '../../store/editor_ui_store';
-import { useGraphLayout } from '../../store/graph_layout_store';
+import { useEditorUIStore } from '../../store/editor_ui_store';
 import { useCurrentTasks } from '../../store/task_store';
 import TaskAddButton from '../grid-layout/TaskAddButton.vue';
 import TaskDetailDialog from '../grid-layout/TaskDetailDialog.vue';
@@ -54,33 +56,31 @@ const props = defineProps<{
 }>();
 
 const taskStore = useCurrentTasks();
-const layoutStore = useGraphLayout();
-const uiStore = useEditorUI();
+const uiStore = useEditorUIStore();
 
 const selectedTaskId = computed(() => uiStore.selectedTaskId);
 
 // タスクからノードへの変換
 const nodes = computed<Node[]>(() => {
   const tasks = taskStore.editorTasks;
-  const positions = layoutStore.nodePositions;
 
   return tasks.map((task, index) => {
-    const position = positions[task.name] || {
+    const position = {
       x: (index % 5) * 200,
       y: Math.floor(index / 5) * 150,
     };
 
     return {
-      id: task.name,
+      id: task.task.name,
       type: 'custom',
       position,
       data: {
-        label: task.name,
-        description: task.description,
-        difficulty: task.difficulty || 0,
-        field: task.field,
-        category: task.category,
-        issueNumber: task.issueNumber,
+        label: task.task.name,
+        description: task.task.description,
+        difficulty: task.task.difficulty || 0,
+        field: task.task.addition?.field,
+        category: task.task.addition?.category,
+        issueNumber: task.task.issueNumber,
       },
       targetPosition: Position.Left,
       sourcePosition: Position.Right,
@@ -94,12 +94,12 @@ const edges = computed<Edge[]>(() => {
   const tasks = taskStore.editorTasks;
 
   tasks.forEach((task) => {
-    if (task.depends && task.depends.length > 0) {
-      task.depends.forEach((dep) => {
+    if (task.task.depends && task.task.depends.length > 0) {
+      task.task.depends.forEach((dep) => {
         edgeList.push({
-          id: `${dep}-${task.name}`,
+          id: `${dep}-${task.task.name}`,
           source: dep,
-          target: task.name,
+          target: task.task.name,
           type: 'smoothstep',
           animated: false,
           style: {
@@ -148,10 +148,10 @@ const handleConnect = (connection: Connection) => {
 
   // 新しい依存関係を追加
   const targetTask = taskStore.editorTasks.find(
-    (t) => t.name === connection.target,
+    (t) => t.task.name === connection.target,
   );
   if (targetTask) {
-    const newDepends = [...(targetTask.depends || []), connection.source];
+    const newDepends = [...(targetTask.task.depends || []), connection.source];
     taskStore.updateTask(connection.target, { depends: newDepends });
   }
 };
@@ -159,10 +159,8 @@ const handleConnect = (connection: Connection) => {
 // ノード位置の更新を監視
 watch(
   nodes,
-  (newNodes) => {
-    newNodes.forEach((node) => {
-      layoutStore.setNodePosition(node.id, node.position);
-    });
+  (_newNodes) => {
+    // 位置更新ロジックは必要に応じて実装
   },
   { deep: true },
 );
