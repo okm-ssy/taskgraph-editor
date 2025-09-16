@@ -19,6 +19,10 @@
       <template #node-custom="{ data, id }">
         <TaskNode :data="data" :id="id" @click="handleTaskClick(id)" />
       </template>
+
+      <template #edge-custom="edgeProps">
+        <CustomEdge v-bind="edgeProps" :animated="true" />
+      </template>
     </VueFlow>
 
     <!-- タスク詳細ダイアログ -->
@@ -49,6 +53,7 @@ import { useCurrentTasks } from '../../store/task_store';
 import TaskAddButton from '../grid-layout/TaskAddButton.vue';
 import TaskDetailDialog from '../grid-layout/TaskDetailDialog.vue';
 
+import CustomEdge from './CustomEdge.vue';
 import TaskNode from './TaskNode.vue';
 
 const props = defineProps<{
@@ -106,15 +111,10 @@ const edges = computed<Edge[]>(() => {
           id: `${dep}-${task.task.name}`,
           source: dep,
           target: task.task.name,
-          type: 'bezier',
+          type: 'custom',
           animated: true,
           sourceHandle: 'right',
           targetHandle: 'left',
-          class: 'animated-edge',
-          style: {
-            stroke: '#6366f1',
-            strokeWidth: 2,
-          },
         });
       });
     }
