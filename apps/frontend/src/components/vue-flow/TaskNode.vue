@@ -11,15 +11,15 @@
     @click="handleClick"
   >
     <Handle 
+      id="left"
       type="target" 
       :position="Position.Left" 
-      class="handle-left"
       :style="{ left: '-8px', top: '50%', transform: 'translateY(-50%)' }"
     />
     <Handle 
+      id="right"
       type="source" 
       :position="Position.Right" 
-      class="handle-right"
       :style="{ right: '-8px', top: '50%', transform: 'translateY(-50%)' }"
     />
     <div class="flex items-center justify-between mb-1">
