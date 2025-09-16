@@ -37,17 +37,17 @@
         {{ data.description }}
       </p>
 
-      <div class="flex items-center justify-between text-xs mt-1">
+      <div class="flex items-center justify-between text-xs mt-1 gap-1">
         <span
           v-if="data.category"
-          class="px-1 py-0.5 bg-gray-100 rounded truncate max-w-[100px]"
+          class="px-1 py-0.5 bg-gray-100 rounded truncate flex-1"
         >
           {{ data.category }}
         </span>
-        <div class="flex items-center gap-1">
+        <div class="flex items-center gap-1 flex-shrink-0">
           <span
             v-if="data.difficulty"
-            class="px-1 py-0.5 rounded"
+            class="px-1 py-0.5 rounded whitespace-nowrap"
             :class="difficultyClass"
           >
             難易度: {{ data.difficulty }}

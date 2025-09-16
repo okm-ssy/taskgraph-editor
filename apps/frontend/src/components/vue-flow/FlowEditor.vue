@@ -106,13 +106,15 @@ const edges = computed<Edge[]>(() => {
           id: `${dep}-${task.task.name}`,
           source: dep,
           target: task.task.name,
-          type: 'straight',
-          animated: false,
+          type: 'bezier',
+          animated: true,
           sourceHandle: 'right',
           targetHandle: 'left',
           style: {
-            stroke: '#64748b',
+            stroke: '#6366f1',
             strokeWidth: 2,
+            strokeDasharray: '5,5',
+            animation: 'dash 1s linear infinite',
           },
         });
       });
@@ -177,5 +179,17 @@ watch(
 <style scoped>
 .vue-flow-container {
   background-color: #f9fafb;
+}
+
+/* エッジのアニメーション */
+:deep(.vue-flow__edge-path) {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -10;
+  }
 }
 </style>
