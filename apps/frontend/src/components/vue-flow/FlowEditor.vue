@@ -65,10 +65,16 @@ const nodes = computed<Node[]>(() => {
   const tasks = taskStore.editorTasks;
 
   return tasks.map((task, index) => {
-    const position = {
-      x: Math.floor(index / 5) * 250, // 横方向に配置
-      y: (index % 5) * 120, // 縦方向の間隔を調整
-    };
+    // addition.layoutの値を使用、存在しない場合はデフォルト値を使用
+    const position = task.task.addition?.layout
+      ? {
+          x: task.task.addition.layout.x,
+          y: task.task.addition.layout.y,
+        }
+      : {
+          x: Math.floor(index / 5) * 250, // 横方向に配置
+          y: (index % 5) * 120, // 縦方向の間隔を調整
+        };
 
     return {
       id: task.task.name,
