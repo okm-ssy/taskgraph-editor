@@ -66,8 +66,8 @@ const nodes = computed<Node[]>(() => {
 
   return tasks.map((task, index) => {
     const position = {
-      x: (index % 5) * 200,
-      y: Math.floor(index / 5) * 150,
+      x: Math.floor(index / 5) * 250,  // 横方向に配置
+      y: (index % 5) * 120,  // 縦方向の間隔を調整
     };
 
     return {
