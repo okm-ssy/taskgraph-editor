@@ -90,13 +90,15 @@ const generateEasingPoints = (steps: number) => {
   for (let i = 0; i <= steps; i++) {
     const t = i / steps;
     keyTimesArr.push(t);
-    // ease-in-out関数: 初めと終わりが速く、中間がゆっくり
-    // t < 0.5 ? 2 * t^2 : 1 - 2 * (1 - t)^2
+    // 逆ease-in-out関数: 初めと終わりが速く、中間がゆっくり
+    // 3次関数を使用して、より急激な加速・減速を実現
     let eased;
     if (t < 0.5) {
-      eased = 2 * Math.pow(t, 2);
+      // 前半：速く開始してゆっくりに
+      eased = 1 - Math.pow(1 - 2 * t, 3) / 2;
     } else {
-      eased = 1 - 2 * Math.pow(1 - t, 2);
+      // 後半：ゆっくりから速く終了
+      eased = (1 + Math.pow(2 * t - 1, 3)) / 2;
     }
     keyPointsArr.push(eased);
   }
