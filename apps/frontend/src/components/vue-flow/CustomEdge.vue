@@ -5,7 +5,6 @@
       :style="edgeStyle"
       class="vue-flow__edge-path animated-edge"
       :d="path"
-      :marker-end="`url(#arrow-${id})`"
     />
     <!-- エッジ上を動く円 -->
     <circle v-if="animated" r="4" :fill="edgeColor" class="edge-dot">
@@ -15,20 +14,6 @@
         :path="path"
       />
     </circle>
-    <!-- 矢印マーカーの定義 -->
-    <defs>
-      <marker
-        :id="`arrow-${id}`"
-        markerWidth="10"
-        markerHeight="10"
-        refX="10"
-        refY="5"
-        orient="auto"
-        markerUnits="strokeWidth"
-      >
-        <path d="M 0 0 L 10 5 L 0 10 z" :fill="edgeColor" />
-      </marker>
-    </defs>
   </g>
 </template>
 
@@ -73,7 +58,7 @@ const edgeStyle = computed(() => ({
 
 // アニメーション時間（一定）
 const animationDuration = computed(() => {
-  return 3; // 3秒で固定
+  return 6; // 6秒で固定
 });
 </script>
 
