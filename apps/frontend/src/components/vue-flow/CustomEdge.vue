@@ -6,7 +6,7 @@
       class="vue-flow__edge-path animated-edge"
       :d="path"
     />
-    <!-- エッジ上を動く円1つ目（0秒開始） -->
+    <!-- エッジ上を動く円 -->
     <circle
       v-if="animated"
       r="4"
@@ -18,29 +18,6 @@
         :dur="`${animationDuration}s`"
         repeatCount="indefinite"
         :path="path"
-        keyTimes="0;1"
-        keyPoints="0;1"
-        calcMode="spline"
-        keySplines="0.5 0 1 1"
-      />
-    </circle>
-    <!-- エッジ上を動く円2つ目（3秒遅延開始） -->
-    <circle
-      v-if="animated"
-      r="4"
-      :fill="edgeColor"
-      :opacity="0.5"
-      class="edge-dot"
-    >
-      <animateMotion
-        :dur="`${animationDuration}s`"
-        repeatCount="indefinite"
-        :path="path"
-        begin="3s"
-        keyTimes="0;1"
-        keyPoints="0;1"
-        calcMode="spline"
-        keySplines="0.5 0 1 1"
       />
     </circle>
   </g>
