@@ -18,6 +18,9 @@
         :dur="`${animationDuration}s`"
         repeatCount="indefinite"
         :path="path"
+        :keyTimes="keyTimesString"
+        :keyPoints="keyPointsString"
+        calcMode="linear"
       />
     </circle>
   </g>
@@ -27,6 +30,9 @@
 import { getBezierPath } from '@vue-flow/core';
 import type { EdgeProps } from '@vue-flow/core';
 import { computed } from 'vue';
+
+// メモ化用のキャッシュ
+const easingCache = new Map<string, string>();
 
 const props = defineProps<
   EdgeProps & {
@@ -66,6 +72,42 @@ const edgeStyle = computed(() => ({
 const animationDuration = computed(() => {
   return 6; // 6秒で固定
 });
+
+// 累乗関数のイージング計算（メモ化付き）
+const generateEasingPoints = (steps: number) => {
+  const cacheKey = `easing_${steps}`;
+
+  // キャッシュから取得
+  const cached = easingCache.get(cacheKey);
+  if (cached) {
+    const [keyTimes, keyPoints] = cached.split('|');
+    return { keyTimes, keyPoints };
+  }
+
+  const keyTimesArr: number[] = [];
+  const keyPointsArr: number[] = [];
+
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    keyTimesArr.push(t);
+    // ease-out累乗関数: 1 - (1 - t)^2
+    const eased = 1 - Math.pow(1 - t, 2);
+    keyPointsArr.push(eased);
+  }
+
+  const keyTimes = keyTimesArr.join(';');
+  const keyPoints = keyPointsArr.join(';');
+
+  // キャッシュに保存
+  easingCache.set(cacheKey, `${keyTimes}|${keyPoints}`);
+
+  return { keyTimes, keyPoints };
+};
+
+// イージング用のキーフレーム（20ステップで計算）
+const { keyTimes, keyPoints } = generateEasingPoints(20);
+const keyTimesString = computed(() => keyTimes);
+const keyPointsString = computed(() => keyPoints);
 </script>
 
 <style scoped>
