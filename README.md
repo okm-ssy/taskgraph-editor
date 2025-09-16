@@ -11,6 +11,51 @@
 
 ※ GitHub Pages版は完全に読み取り専用として動作し、タスクグラフの閲覧とSVGエクスポートが可能です。
 
+## セットアップと起動方法
+
+### 必要な環境
+
+- Node.js 18以上
+- npm または yarn
+
+### 初期セットアップ
+
+```bash
+# リポジトリをクローン
+git clone https://github.com/okm-ssy/taskgraph-editor.git
+cd taskgraph-editor
+
+# 依存関係をインストール
+npm install
+
+# MCPサーバーとAPIをビルド
+tg build
+```
+
+### 起動方法
+
+#### 方法1: tgコマンドを使用（PATHを通した場合）
+
+```bash
+# bin ディレクトリにPATHを通す
+export PATH="$PATH:/path/to/taskgraph-editor/bin"
+
+# 開発サーバーを起動
+tg run
+```
+
+#### 方法2: bin/tgを直接使用
+
+```bash
+# プロジェクトディレクトリから直接実行
+bin/tg run
+
+# または絶対パスで実行
+/path/to/taskgraph-editor/bin/tg run
+```
+
+ブラウザで <http://localhost:5353> にアクセスしてください。
+
 ## 特徴
 
 ### 🤖 AI連携対応（MCP サーバー）
@@ -33,123 +78,7 @@
 - **GitHub連携**: Issue番号との紐付けが可能
 - **データの永続化**: JSONファイルとして保存され、いつでも再利用可能
 
-## セットアップ
-
-### コマンドのセットアップ
-
-`tg` コマンドを使用するために、bin ディレクトリにPATHを通します：
-
-```bash
-# ~/.bashrc または ~/.zshrc に追加
-export PATH="$PATH:/path/to/taskgraph-editor/bin"
-
-# 設定を反映
-source ~/.bashrc  # または source ~/.zshrc
-```
-
-### 新規プロジェクトの作成
-
-```bash
-# 新しいプロジェクトを作成
-tg create-project <プロジェクト名>
-
-# 例
-tg create-project my-new-project
-```
-
-プロジェクト名には英数字、ハイフン、アンダースコアのみ使用できます。
-
-## 起動方法
-
-### 開発サーバーの起動
-
-```bash
-# PATHを通した後はどこからでも実行可能
-tg run
-```
-
-ブラウザで <http://localhost:5353> にアクセスしてください。
-
-## よく使うコマンド
-
-```bash
-# VS Codeで開く
-tg edit
-
-# 開発サーバーを起動
-tg run
-
-# MCPサーバーとAPI関連をビルド
-tg build
-
-# APIサーバーを停止
-tg stop
-
-# Storybookを起動
-tg storybook
-
-# コードの品質チェック（フロントとMCPサーバー）
-tg lint
-
-# 全ての動作確認テスト（API + MCP）
-tg test
-
-# API動作確認テストのみ
-tg test-api
-
-# MCPサーバー動作確認テストのみ
-tg test-mcp
-
-# Vueコンポーネントとストーリーファイルを作成
-tg create-component <コンポーネント名>
-
-# AIプロンプト用にファイルを結合
-tg create-prompt-context
-
-# 新しいプロジェクトを作成
-tg create-project <プロジェクト名>
-
-# MCPサーバーを開発モードで起動
-tg mcp-run
-
-# API情報を表示
-tg api info
-
-# APIエンドポイントを実行
-tg api call GET /projects
-tg api call POST /projects/myproject/tasks '{"name":"task1","description":"Test"}'
-
-# APIクライアントバイナリをビルド
-tg api build
-```
-
-## トラブルシューティング
-
-### MCPサーバーが動作しない場合
-
-1. Node.jsがインストールされているか確認
-2. MCPサーバーのビルドが完了しているか確認：
-
-   ```bash
-   tg build
-   ```
-   
-   または手動で：
-   
-   ```bash
-   cd apps/mcp-server
-   npm install
-   npm run build
-   ```
-
-3. Claude Desktopの設定パスが正しいか確認
-
-### タスクが保存されない場合
-
-- APIサーバーが起動しているか確認（ポート9393）
-- `data/`ディレクトリに書き込み権限があるか確認
-
-### タスクカテゴリー設定
+## タスクカテゴリー設定
 
 タスクカテゴリーと難易度の対応は `apps/frontend/public/task-categories.tsv` で管理されています。
 このファイルはタブ区切り形式で、各行に「カテゴリー名」と「基準難易度」を記載します。
@@ -161,30 +90,3 @@ vue - UI 変更	1.00
 ```
 
 このファイルが存在しない場合、カテゴリー選択時の自動補完と難易度の自動設定が機能しません。
-
-## 🔄 CI/CD
-
-### GitHub Actions
-
-プロジェクトでは以下のワークフローが自動実行されます：
-
-- **CI** (`CI.yml`): プッシュ・PR時の自動テスト
-- **CD** (`CD.yml`): mainブランチプッシュ時のGitHub Pagesデプロイ
-
-### CI失敗時の再実行
-
-GitHub Actionsが失敗した場合は以下の方法で再実行できます：
-
-1. **自動再実行**: GitHub ActionsのWebUIで「Re-run failed jobs」をクリック
-2. **手動実行**: 
-   - Actionsタブ → CI/CDワークフロー選択 → 「Run workflow」
-   - 理由（オプション）を入力して実行
-
-### トラブルシューティング
-
-CI失敗時のよくある原因：
-- npm依存関係の問題 → `npm ci` で解決することが多い
-- タイムアウト → GitHub Actions無料枠の制限時間（6時間/月）確認
-- キャッシュ問題 → ワークフローの「Actions cache」から古いキャッシュを削除
-
-失敗ログは「Artifacts」からダウンロードできます（7日間保持）。
