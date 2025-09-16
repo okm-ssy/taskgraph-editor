@@ -1,6 +1,6 @@
 <template>
   <div
-    class="task-node px-4 py-3 bg-white border-2 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer w-[200px] h-[120px] overflow-hidden relative"
+    class="task-node px-4 py-3 bg-white border-2 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer w-[200px] h-[120px] relative"
     :class="[
       fieldClass,
       {
@@ -22,7 +22,7 @@
       :position="Position.Right"
       :style="{ right: '-8px', top: '50%', transform: 'translateY(-50%)' }"
     />
-    <div class="flex flex-col h-full">
+    <div class="flex flex-col h-full overflow-hidden">
       <div class="flex items-center justify-between mb-1">
         <h3 class="font-semibold text-sm truncate">{{ data.label }}</h3>
         <span
