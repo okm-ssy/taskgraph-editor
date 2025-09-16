@@ -1,6 +1,6 @@
 <template>
   <div
-    class="task-node px-4 py-3 bg-white border-2 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer min-w-[180px] relative"
+    class="task-node px-4 py-3 bg-white border-2 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer w-[200px] h-[120px] overflow-hidden relative"
     :class="[
       fieldClass,
       {
@@ -22,32 +22,37 @@
       :position="Position.Right"
       :style="{ right: '-8px', top: '50%', transform: 'translateY(-50%)' }"
     />
-    <div class="flex items-center justify-between mb-1">
-      <h3 class="font-semibold text-sm truncate">{{ data.label }}</h3>
-      <span
-        v-if="data.issueNumber"
-        class="text-xs text-gray-500 ml-2 flex-shrink-0"
-      >
-        #{{ data.issueNumber }}
-      </span>
-    </div>
-
-    <p class="text-xs text-gray-600 line-clamp-2 mb-2">
-      {{ data.description }}
-    </p>
-
-    <div class="flex items-center justify-between text-xs">
-      <span v-if="data.category" class="px-2 py-1 bg-gray-100 rounded">
-        {{ data.category }}
-      </span>
-      <div class="flex items-center gap-1">
+    <div class="flex flex-col h-full">
+      <div class="flex items-center justify-between mb-1">
+        <h3 class="font-semibold text-sm truncate">{{ data.label }}</h3>
         <span
-          v-if="data.difficulty"
-          class="px-2 py-1 rounded"
-          :class="difficultyClass"
+          v-if="data.issueNumber"
+          class="text-xs text-gray-500 ml-2 flex-shrink-0"
         >
-          難易度: {{ data.difficulty }}
+          #{{ data.issueNumber }}
         </span>
+      </div>
+
+      <p class="text-xs text-gray-600 line-clamp-2 mb-auto">
+        {{ data.description }}
+      </p>
+
+      <div class="flex items-center justify-between text-xs mt-1">
+        <span
+          v-if="data.category"
+          class="px-1 py-0.5 bg-gray-100 rounded truncate max-w-[100px]"
+        >
+          {{ data.category }}
+        </span>
+        <div class="flex items-center gap-1">
+          <span
+            v-if="data.difficulty"
+            class="px-1 py-0.5 rounded"
+            :class="difficultyClass"
+          >
+            難易度: {{ data.difficulty }}
+          </span>
+        </div>
       </div>
     </div>
   </div>
