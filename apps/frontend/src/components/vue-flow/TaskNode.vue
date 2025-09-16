@@ -44,7 +44,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-import { DIFFICULTY_CONSTANTS } from '../../constants';
+import { DIFFICULTY } from '../../constants';
 import { useEditorUI } from '../../store/editor_ui_store';
 
 const props = defineProps<{
@@ -86,11 +86,13 @@ const fieldClass = computed(() => {
 // 難易度に応じたクラス
 const difficultyClass = computed(() => {
   const difficulty = props.data.difficulty || 0;
-  if (difficulty <= DIFFICULTY_CONSTANTS.LEVELS.EASY) {
+  const thresholds = DIFFICULTY.COLOR_THRESHOLDS;
+
+  if (difficulty <= thresholds[0]) {
     return 'bg-green-100 text-green-800';
-  } else if (difficulty <= DIFFICULTY_CONSTANTS.LEVELS.MEDIUM) {
+  } else if (difficulty <= thresholds[1]) {
     return 'bg-yellow-100 text-yellow-800';
-  } else if (difficulty <= DIFFICULTY_CONSTANTS.LEVELS.HARD) {
+  } else if (difficulty <= thresholds[2]) {
     return 'bg-orange-100 text-orange-800';
   } else {
     return 'bg-red-100 text-red-800';
