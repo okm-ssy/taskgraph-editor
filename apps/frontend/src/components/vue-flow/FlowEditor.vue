@@ -1,0 +1,175 @@
+<template>
+  <div class="w-full h-full relative">
+    <VueFlow
+      v-model:nodes="nodes"
+      v-model:edges="edges"
+      :fit-view-on-init="true"
+      :nodes-draggable="!readOnly"
+      :nodes-connectable="!readOnly"
+      :elements-selectable="!readOnly"
+      @node-click="handleNodeClick"
+      @edge-click="handleEdgeClick"
+      @connect="handleConnect"
+      class="vue-flow-container"
+    >
+      <Background pattern-color="#e5e7eb" :gap="16" />
+      <MiniMap />
+      <Controls />
+
+      <template #node-custom="{ data, id }">
+        <TaskNode :data="data" :id="id" @click="handleTaskClick(id)" />
+      </template>
+    </VueFlow>
+
+    <!-- タスク詳細ダイアログ -->
+    <TaskDetailDialog v-if="selectedTaskId" :task-id="selectedTaskId" />
+
+    <!-- タスク追加パネル -->
+    <div v-if="!readOnly" class="absolute top-4 right-4 z-10">
+      <TaskAddButton />
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { VueFlow, Background, Controls, MiniMap } from '@vue-flow/core';
+import { Position } from '@vue-flow/core';
+import type { Node, Edge, Connection } from '@vue-flow/core';
+import { computed, watch } from 'vue';
+import '@vue-flow/core/dist/style.css';
+import '@vue-flow/core/dist/theme-default.css';
+import '@vue-flow/controls/dist/style.css';
+import '@vue-flow/minimap/dist/style.css';
+
+import { useEditorUI } from '../../store/editor_ui_store';
+import { useGraphLayout } from '../../store/graph_layout_store';
+import { useCurrentTasks } from '../../store/task_store';
+import TaskAddButton from '../grid-layout/TaskAddButton.vue';
+import TaskDetailDialog from '../grid-layout/TaskDetailDialog.vue';
+
+import TaskNode from './TaskNode.vue';
+
+const props = defineProps<{
+  readOnly: boolean;
+}>();
+
+const taskStore = useCurrentTasks();
+const layoutStore = useGraphLayout();
+const uiStore = useEditorUI();
+
+const selectedTaskId = computed(() => uiStore.selectedTaskId);
+
+// タスクからノードへの変換
+const nodes = computed<Node[]>(() => {
+  const tasks = taskStore.editorTasks;
+  const positions = layoutStore.nodePositions;
+
+  return tasks.map((task, index) => {
+    const position = positions[task.name] || {
+      x: (index % 5) * 200,
+      y: Math.floor(index / 5) * 150,
+    };
+
+    return {
+      id: task.name,
+      type: 'custom',
+      position,
+      data: {
+        label: task.name,
+        description: task.description,
+        difficulty: task.difficulty || 0,
+        field: task.field,
+        category: task.category,
+        issueNumber: task.issueNumber,
+      },
+      targetPosition: Position.Left,
+      sourcePosition: Position.Right,
+    };
+  });
+});
+
+// 依存関係からエッジへの変換
+const edges = computed<Edge[]>(() => {
+  const edgeList: Edge[] = [];
+  const tasks = taskStore.editorTasks;
+
+  tasks.forEach((task) => {
+    if (task.depends && task.depends.length > 0) {
+      task.depends.forEach((dep) => {
+        edgeList.push({
+          id: `${dep}-${task.name}`,
+          source: dep,
+          target: task.name,
+          type: 'smoothstep',
+          animated: false,
+          style: {
+            stroke: '#64748b',
+            strokeWidth: 2,
+          },
+        });
+      });
+    }
+  });
+
+  return edgeList;
+});
+
+// ノードクリックハンドラ
+interface NodeClickEvent {
+  node?: {
+    id: string;
+  };
+}
+
+const handleNodeClick = (event: NodeClickEvent) => {
+  if (props.readOnly) return;
+  const nodeId = event.node?.id;
+  if (nodeId) {
+    uiStore.setSelectedTaskId(nodeId);
+  }
+};
+
+// タスククリックハンドラ
+const handleTaskClick = (taskId: string) => {
+  if (props.readOnly) return;
+  uiStore.setSelectedTaskId(taskId);
+};
+
+// エッジクリックハンドラ
+const handleEdgeClick = (_event: unknown) => {
+  if (props.readOnly) return;
+  // エッジクリック時の処理（必要に応じて実装）
+};
+
+// 接続ハンドラ
+const handleConnect = (connection: Connection) => {
+  if (props.readOnly) return;
+  if (!connection.source || !connection.target) return;
+
+  // 新しい依存関係を追加
+  const targetTask = taskStore.editorTasks.find(
+    (t) => t.name === connection.target,
+  );
+  if (targetTask) {
+    const newDepends = [...(targetTask.depends || []), connection.source];
+    taskStore.updateTask(connection.target, { depends: newDepends });
+  }
+};
+
+// ノード位置の更新を監視
+watch(
+  nodes,
+  (newNodes) => {
+    newNodes.forEach((node) => {
+      layoutStore.setNodePosition(node.id, node.position);
+    });
+  },
+  { deep: true },
+);
+</script>
+
+<style scoped>
+.vue-flow-container {
+  background-color: #f9fafb;
+}
+</style>

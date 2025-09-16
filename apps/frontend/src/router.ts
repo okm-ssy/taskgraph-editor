@@ -1,11 +1,20 @@
 import { createWebHistory, createRouter } from 'vue-router';
 
-import TaskgraphEditor from '@/pages/TaskgraphEditor.vue';
+import TaskgraphFlowEditor from '@/pages/TaskgraphFlowEditor.vue';
+import TaskgraphGridEditor from '@/pages/TaskgraphGridEditor.vue';
 
 const routes = [
   {
     path: '/',
-    component: TaskgraphEditor,
+    redirect: '/grid',
+  },
+  {
+    path: '/grid',
+    component: TaskgraphGridEditor,
+  },
+  {
+    path: '/flow',
+    component: TaskgraphFlowEditor,
   },
 ];
 
