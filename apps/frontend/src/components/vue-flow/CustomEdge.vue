@@ -90,9 +90,9 @@ const generateEasingPoints = (steps: number) => {
   for (let i = 0; i <= steps; i++) {
     const t = i / steps;
     keyTimesArr.push(t);
-    // 3次関数: y = (x - 0.5)^3 + 0.5
-    // 始めと終わりが速く、中間がゆっくりなS字カーブ
-    const eased = Math.pow(t - 0.5, 3) + 0.5;
+    // 3次関数を係数で調整: y = 0.2 * (x - 0.5)^3 + 0.5
+    // 係数0.2で傾きを緩やかにして初速を抑える
+    const eased = 0.2 * Math.pow(t - 0.5, 3) + 0.5;
     keyPointsArr.push(eased);
   }
 
