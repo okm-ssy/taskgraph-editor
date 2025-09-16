@@ -90,8 +90,14 @@ const generateEasingPoints = (steps: number) => {
   for (let i = 0; i <= steps; i++) {
     const t = i / steps;
     keyTimesArr.push(t);
-    // ease-out累乗関数: 1 - (1 - t)^2
-    const eased = 1 - Math.pow(1 - t, 2);
+    // ease-in-out関数: 初めと終わりが速く、中間がゆっくり
+    // t < 0.5 ? 2 * t^2 : 1 - 2 * (1 - t)^2
+    let eased;
+    if (t < 0.5) {
+      eased = 2 * Math.pow(t, 2);
+    } else {
+      eased = 1 - 2 * Math.pow(1 - t, 2);
+    }
     keyPointsArr.push(eased);
   }
 
