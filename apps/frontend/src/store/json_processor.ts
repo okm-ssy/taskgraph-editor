@@ -67,6 +67,13 @@ export const useJsonProcessor = () => {
       // バリデーション成功時のデータを使用
       const taskgraph = parsedData;
 
+      // baseDifficultyを計算するヘルパー関数
+      const calculateBaseDifficulty = (task: Task): number => {
+        const baseDiff = task.addition?.baseDifficulty ?? 0;
+        // baseDifficultyが設定されていればそれを使用、なければdifficultyから計算
+        return baseDiff > 0 ? baseDiff : task.difficulty;
+      };
+
       // 新しいEditorTaskを作成
       const newEditorTasks: EditorTask[] = [];
       if (taskgraph && taskgraph.tasks) {
@@ -74,12 +81,9 @@ export const useJsonProcessor = () => {
           const editorTask = new EditorTask();
           editorTask.task = { ...task };
 
-          // 既存データの場合、difficulty → baseDifficulty に移して、difficulty を1.2倍に変換
-          if (
-            task.addition &&
-            task.addition.baseDifficulty === 0 &&
-            task.difficulty > 0
-          ) {
+          // baseDifficultyを計算してdifficultyを1.2倍で設定
+          const baseDifficulty = calculateBaseDifficulty(task);
+          if (baseDifficulty > 0) {
             if (!editorTask.task.addition) {
               editorTask.task.addition = {
                 baseDifficulty: 0,
@@ -87,27 +91,9 @@ export const useJsonProcessor = () => {
                 field: '',
               };
             }
-            editorTask.task.addition.baseDifficulty = task.difficulty;
+            editorTask.task.addition.baseDifficulty = baseDifficulty;
             editorTask.task.difficulty =
-              Math.round(task.difficulty * 1.2 * 10) / 10;
-          }
-          // baseDifficultyが設定済みの場合はそのまま使用
-          else if (
-            task.addition &&
-            task.addition.baseDifficulty !== undefined &&
-            task.addition.baseDifficulty > 0
-          ) {
-            if (!editorTask.task.addition) {
-              editorTask.task.addition = {
-                baseDifficulty: 0,
-                category: '',
-                field: '',
-              };
-            }
-            editorTask.task.addition.baseDifficulty =
-              task.addition.baseDifficulty;
-            editorTask.task.difficulty =
-              Math.round(task.addition.baseDifficulty * 1.2 * 10) / 10;
+              Math.round(baseDifficulty * 1.2 * 10) / 10;
           }
 
           // layout情報があればグリッド座標に設定

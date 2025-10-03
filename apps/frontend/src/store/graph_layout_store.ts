@@ -555,6 +555,24 @@ export const useGraphLayout = () => {
     return editorTasks;
   };
 
+  // 位置の占有状態を操作するヘルパー
+  const iteratePositionCells = (
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    callback: (i: number, j: number) => boolean | void,
+  ): boolean => {
+    for (let i = x; i < x + w; i++) {
+      for (let j = y; j < y + h; j++) {
+        if (callback(i, j) === true) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
   // 位置が占有されているかチェック
   const isPositionOccupied = (
     x: number,
@@ -563,14 +581,9 @@ export const useGraphLayout = () => {
     h: number,
     occupied: Set<string>,
   ) => {
-    for (let i = x; i < x + w; i++) {
-      for (let j = y; j < y + h; j++) {
-        if (occupied.has(`${i},${j}`)) {
-          return true;
-        }
-      }
-    }
-    return false;
+    return iteratePositionCells(x, y, w, h, (i, j) =>
+      occupied.has(`${i},${j}`),
+    );
   };
 
   // 位置を占有済みとしてマーク
@@ -581,11 +594,9 @@ export const useGraphLayout = () => {
     h: number,
     occupied: Set<string>,
   ) => {
-    for (let i = x; i < x + w; i++) {
-      for (let j = y; j < y + h; j++) {
-        occupied.add(`${i},${j}`);
-      }
-    }
+    iteratePositionCells(x, y, w, h, (i, j) => {
+      occupied.add(`${i},${j}`);
+    });
   };
 
   // depth順に自動配置

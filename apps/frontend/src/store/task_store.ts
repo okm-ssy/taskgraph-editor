@@ -602,9 +602,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     if (editorTasks.value.length === 0) return;
 
     // 現在の状態をバックアップ（ディープコピー）
-    layoutUndoState.value.backup = JSON.parse(
-      JSON.stringify(editorTasks.value),
-    );
+    layoutUndoState.value.backup = structuredClone(editorTasks.value);
     layoutUndoState.value.canUndo = true;
 
     // 既存のタイマーをクリア
@@ -634,9 +632,7 @@ export const useCurrentTasks = defineStore('editorTask', () => {
     }
 
     // バックアップから復元
-    editorTasks.value = JSON.parse(
-      JSON.stringify(layoutUndoState.value.backup),
-    );
+    editorTasks.value = structuredClone(layoutUndoState.value.backup);
 
     // undo状態をクリア
     if (layoutUndoState.value.timer) {

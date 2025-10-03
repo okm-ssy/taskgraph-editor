@@ -28,56 +28,46 @@ export const difficultyBackgroundClass = (difficulty: number) => {
   return 'bg-purple-100 border-purple-500';
 };
 
+// フィールドカラー定義
+const FIELD_COLORS: Record<
+  string,
+  { baseColor: string; borderColor: string; baseLevel?: string }
+> = {
+  back: { baseColor: 'blue', borderColor: 'blue' },
+  front: { baseColor: 'green', borderColor: 'green' },
+  infra: { baseColor: 'yellow', borderColor: 'yellow' },
+  other: { baseColor: 'gray', borderColor: 'gray', baseLevel: '200' },
+  parent: { baseColor: 'red', borderColor: 'red' },
+};
+
 export const fieldBackgroundClass = (field: string, status?: TaskStatus) => {
-  const getColorVariant = (
-    baseColor: string,
-    borderColor: string,
-    baseLevel = '100',
-  ) => {
-    if (!status)
-      return `bg-${baseColor}-${baseLevel} border-${borderColor}-400`;
+  const colorConfig = FIELD_COLORS[field] || FIELD_COLORS.other;
+  const { baseColor, borderColor, baseLevel = '100' } = colorConfig;
 
-    switch (status) {
-      case TASK_STATUS.DOING:
-        return baseLevel === '200'
-          ? `bg-${baseColor}-400 border-black` // gray-200の場合は400に、黒枠
-          : `bg-${baseColor}-300 border-black`; // より濃い、黒枠
-      case TASK_STATUS.DONE:
-        return `bg-gray-100 border-${borderColor}-300`; // 完了は薄い灰色背景
-      default:
-        return `bg-${baseColor}-${baseLevel} border-${borderColor}-400`; // 未着手（標準）
-    }
-  };
+  if (!status) {
+    return `bg-${baseColor}-${baseLevel} border-${borderColor}-400`;
+  }
 
-  switch (field) {
-    case 'back':
-      return getColorVariant('blue', 'blue');
-    case 'front':
-      return getColorVariant('green', 'green');
-    case 'infra':
-      return getColorVariant('yellow', 'yellow');
-    case 'other':
-      return getColorVariant('gray', 'gray', '200');
-    case 'parent':
-      return getColorVariant('red', 'red');
+  switch (status) {
+    case TASK_STATUS.DOING:
+      return baseLevel === '200'
+        ? `bg-${baseColor}-400 border-black`
+        : `bg-${baseColor}-300 border-black`;
+    case TASK_STATUS.DONE:
+      return `bg-gray-100 border-${borderColor}-300`;
     default:
-      return getColorVariant('gray', 'gray', '200');
+      return `bg-${baseColor}-${baseLevel} border-${borderColor}-400`;
   }
 };
 
+const VALID_FIELDS = new Set<Field>([
+  'front',
+  'back',
+  'infra',
+  'other',
+  'parent',
+]);
+
 export const stringToField = (field: string): Field => {
-  switch (field) {
-    case 'front':
-      return 'front';
-    case 'back':
-      return 'back';
-    case 'infra':
-      return 'infra';
-    case 'other':
-      return 'other';
-    case 'parent':
-      return 'parent';
-    default:
-      return '';
-  }
+  return VALID_FIELDS.has(field as Field) ? (field as Field) : '';
 };

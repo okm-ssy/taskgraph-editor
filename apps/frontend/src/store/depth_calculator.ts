@@ -57,7 +57,7 @@ export const useDepthCalculator = () => {
       // 依存先タスクのdepthの最大値を計算
       let maxDepth = 0;
       for (const dependsOn of task.task.depends) {
-        const depDepth = calculateDepth(dependsOn, new Set(visiting));
+        const depDepth = calculateDepth(dependsOn, visiting);
         maxDepth = Math.max(maxDepth, depDepth);
       }
 
@@ -172,7 +172,7 @@ export const useDepthCalculator = () => {
       if (!currentTask || !currentTask.task.depends) return false;
 
       for (const dep of currentTask.task.depends) {
-        if (canReach(dep, target, new Set(visited))) {
+        if (canReach(dep, target, visited)) {
           return true;
         }
       }

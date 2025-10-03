@@ -120,6 +120,20 @@ const getLatestBackupTime = async (projectId) => {
 app.use(cors());
 app.use(express.json());
 
+// エラーレスポンス生成ヘルパー
+const createErrorResponse = (code, message, details = null) => {
+  const response = {
+    code,
+    message,
+    timestamp: new Date().toISOString(),
+    requestId: Date.now().toString(),
+  };
+  if (details) {
+    response.details = details;
+  }
+  return response;
+};
+
 // タスクグラフデータを保存
 app.post('/api/save-taskgraph', async (req, res) => {
   try {
@@ -613,20 +627,14 @@ app.get('/api/projects/:projectId', async (req, res) => {
     res.json(response);
   } catch (error) {
     if (error.code === 'ENOENT') {
-      res.status(404).json({ 
-        code: 'PROJECT_NOT_FOUND',
-        message: `Project '${req.params.projectId}' not found`,
-        timestamp: new Date().toISOString(),
-        requestId: Date.now().toString()
-      });
+      res.status(404).json(
+        createErrorResponse('PROJECT_NOT_FOUND', `Project '${req.params.projectId}' not found`)
+      );
     } else {
       console.error('Failed to load project:', error);
-      res.status(500).json({ 
-        code: 'INTERNAL_ERROR',
-        message: 'Failed to load project',
-        timestamp: new Date().toISOString(),
-        requestId: Date.now().toString()
-      });
+      res.status(500).json(
+        createErrorResponse('INTERNAL_ERROR', 'Failed to load project')
+      );
     }
   }
 });
@@ -638,18 +646,14 @@ app.post('/api/projects/:projectId/tasks', async (req, res) => {
     const { name, description, depends, difficulty, issueNumber, addition } = req.body;
     
     if (!name || !description) {
-      return res.status(400).json({ 
-        code: 'VALIDATION_ERROR',
-        message: 'Name and description are required',
-        details: {
+      return res.status(400).json(
+        createErrorResponse('VALIDATION_ERROR', 'Name and description are required', {
           validationErrors: [
             !name && { field: 'name', message: 'Name is required' },
             !description && { field: 'description', message: 'Description is required' }
           ].filter(Boolean)
-        },
-        timestamp: new Date().toISOString(),
-        requestId: Date.now().toString()
-      });
+        })
+      );
     }
     
     const filePath = getTaskgraphFilePath(projectId);
@@ -665,13 +669,9 @@ app.post('/api/projects/:projectId/tasks', async (req, res) => {
     }
     
     if (taskExists) {
-      return res.status(409).json({ 
-        code: 'DUPLICATE_TASK',
-        message: `Task '${name}' already exists`,
-        details: { taskName: name, projectId },
-        timestamp: new Date().toISOString(),
-        requestId: Date.now().toString()
-      });
+      return res.status(409).json(
+        createErrorResponse('DUPLICATE_TASK', `Task '${name}' already exists`, { taskName: name, projectId })
+      );
     }
     
     // 新しいタスクを作成
@@ -699,20 +699,14 @@ app.post('/api/projects/:projectId/tasks', async (req, res) => {
     res.json(newTask);
   } catch (error) {
     if (error.code === 'ENOENT') {
-      res.status(404).json({ 
-        code: 'PROJECT_NOT_FOUND',
-        message: `Project '${req.params.projectId}' not found`,
-        timestamp: new Date().toISOString(),
-        requestId: Date.now().toString()
-      });
+      res.status(404).json(
+        createErrorResponse('PROJECT_NOT_FOUND', `Project '${req.params.projectId}' not found`)
+      );
     } else {
       console.error('Failed to create task:', error);
-      res.status(500).json({ 
-        code: 'INTERNAL_ERROR',
-        message: 'Failed to create task',
-        timestamp: new Date().toISOString(),
-        requestId: Date.now().toString()
-      });
+      res.status(500).json(
+        createErrorResponse('INTERNAL_ERROR', 'Failed to create task')
+      );
     }
   }
 });
@@ -735,32 +729,22 @@ app.get('/api/projects/:projectId/tasks/:taskName', async (req, res) => {
     }
     
     if (!task) {
-      return res.status(404).json({ 
-        code: 'TASK_NOT_FOUND',
-        message: `Task '${taskName}' not found`,
-        details: { taskName, projectId },
-        timestamp: new Date().toISOString(),
-        requestId: Date.now().toString()
-      });
+      return res.status(404).json(
+        createErrorResponse('TASK_NOT_FOUND', `Task '${taskName}' not found`, { taskName, projectId })
+      );
     }
-    
+
     res.json(task);
   } catch (error) {
     if (error.code === 'ENOENT') {
-      res.status(404).json({ 
-        code: 'PROJECT_NOT_FOUND',
-        message: `Project '${req.params.projectId}' not found`,
-        timestamp: new Date().toISOString(),
-        requestId: Date.now().toString()
-      });
+      res.status(404).json(
+        createErrorResponse('PROJECT_NOT_FOUND', `Project '${req.params.projectId}' not found`)
+      );
     } else {
       console.error('Failed to get task:', error);
-      res.status(500).json({ 
-        code: 'INTERNAL_ERROR',
-        message: 'Failed to get task',
-        timestamp: new Date().toISOString(),
-        requestId: Date.now().toString()
-      });
+      res.status(500).json(
+        createErrorResponse('INTERNAL_ERROR', 'Failed to get task')
+      );
     }
   }
 });
@@ -786,22 +770,18 @@ app.put('/api/projects/:projectId/tasks/:taskName', async (req, res) => {
     }
     
     if (!task) {
-      return res.status(404).json({ 
-        code: 'TASK_NOT_FOUND',
-        message: `Task '${taskName}' not found`,
-        details: { taskName, projectId },
-        timestamp: new Date().toISOString(),
-        requestId: Date.now().toString()
-      });
+      return res.status(404).json(
+        createErrorResponse('TASK_NOT_FOUND', `Task '${taskName}' not found`, { taskName, projectId })
+      );
     }
-    
+
     // タスクを更新
     const updatedTask = {
       ...task,
       ...updates,
       name: taskName // 名前は変更不可
     };
-    
+
     // tasksが配列の場合はインデックスで更新、オブジェクトの場合はキーで更新
     if (Array.isArray(taskgraph.tasks)) {
       taskgraph.tasks[taskIndex] = updatedTask;
@@ -809,24 +789,18 @@ app.put('/api/projects/:projectId/tasks/:taskName', async (req, res) => {
       taskgraph.tasks[taskName] = updatedTask;
     }
     await fs.writeFile(filePath, JSON.stringify(taskgraph, null, 2), 'utf-8');
-    
+
     res.json(updatedTask);
   } catch (error) {
     if (error.code === 'ENOENT') {
-      res.status(404).json({ 
-        code: 'PROJECT_NOT_FOUND',
-        message: `Project '${req.params.projectId}' not found`,
-        timestamp: new Date().toISOString(),
-        requestId: Date.now().toString()
-      });
+      res.status(404).json(
+        createErrorResponse('PROJECT_NOT_FOUND', `Project '${req.params.projectId}' not found`)
+      );
     } else {
       console.error('Failed to update task:', error);
-      res.status(500).json({ 
-        code: 'INTERNAL_ERROR',
-        message: 'Failed to update task',
-        timestamp: new Date().toISOString(),
-        requestId: Date.now().toString()
-      });
+      res.status(500).json(
+        createErrorResponse('INTERNAL_ERROR', 'Failed to update task')
+      );
     }
   }
 });
@@ -851,15 +825,11 @@ app.delete('/api/projects/:projectId/tasks/:taskName', async (req, res) => {
     }
     
     if (!taskFound) {
-      return res.status(404).json({ 
-        code: 'TASK_NOT_FOUND',
-        message: `Task '${taskName}' not found`,
-        details: { taskName, projectId },
-        timestamp: new Date().toISOString(),
-        requestId: Date.now().toString()
-      });
+      return res.status(404).json(
+        createErrorResponse('TASK_NOT_FOUND', `Task '${taskName}' not found`, { taskName, projectId })
+      );
     }
-    
+
     // tasksが配列の場合は配列から削除、オブジェクトの場合はキーを削除
     if (Array.isArray(taskgraph.tasks)) {
       taskgraph.tasks.splice(taskIndex, 1);
@@ -867,24 +837,18 @@ app.delete('/api/projects/:projectId/tasks/:taskName', async (req, res) => {
       delete taskgraph.tasks[taskName];
     }
     await fs.writeFile(filePath, JSON.stringify(taskgraph, null, 2), 'utf-8');
-    
+
     res.status(204).send();
   } catch (error) {
     if (error.code === 'ENOENT') {
-      res.status(404).json({ 
-        code: 'PROJECT_NOT_FOUND',
-        message: `Project '${req.params.projectId}' not found`,
-        timestamp: new Date().toISOString(),
-        requestId: Date.now().toString()
-      });
+      res.status(404).json(
+        createErrorResponse('PROJECT_NOT_FOUND', `Project '${req.params.projectId}' not found`)
+      );
     } else {
       console.error('Failed to delete task:', error);
-      res.status(500).json({ 
-        code: 'INTERNAL_ERROR',
-        message: 'Failed to delete task',
-        timestamp: new Date().toISOString(),
-        requestId: Date.now().toString()
-      });
+      res.status(500).json(
+        createErrorResponse('INTERNAL_ERROR', 'Failed to delete task')
+      );
     }
   }
 });
@@ -896,12 +860,9 @@ app.patch('/api/projects/:projectId/tasks/:taskName/notes', async (req, res) => 
     const { notes } = req.body;
     
     if (!Array.isArray(notes)) {
-      return res.status(400).json({ 
-        code: 'VALIDATION_ERROR',
-        message: 'Notes must be an array',
-        timestamp: new Date().toISOString(),
-        requestId: Date.now().toString()
-      });
+      return res.status(400).json(
+        createErrorResponse('VALIDATION_ERROR', 'Notes must be an array')
+      );
     }
     
     const filePath = getTaskgraphFilePath(projectId);
@@ -919,35 +880,25 @@ app.patch('/api/projects/:projectId/tasks/:taskName/notes', async (req, res) => 
     }
     
     if (!task) {
-      return res.status(404).json({ 
-        code: 'TASK_NOT_FOUND',
-        message: `Task '${taskName}' not found`,
-        details: { taskName, projectId },
-        timestamp: new Date().toISOString(),
-        requestId: Date.now().toString()
-      });
+      return res.status(404).json(
+        createErrorResponse('TASK_NOT_FOUND', `Task '${taskName}' not found`, { taskName, projectId })
+      );
     }
-    
+
     task.notes = notes;
     await fs.writeFile(filePath, JSON.stringify(taskgraph, null, 2), 'utf-8');
-    
+
     res.json(task);
   } catch (error) {
     if (error.code === 'ENOENT') {
-      res.status(404).json({ 
-        code: 'PROJECT_NOT_FOUND',
-        message: `Project '${req.params.projectId}' not found`,
-        timestamp: new Date().toISOString(),
-        requestId: Date.now().toString()
-      });
+      res.status(404).json(
+        createErrorResponse('PROJECT_NOT_FOUND', `Project '${req.params.projectId}' not found`)
+      );
     } else {
       console.error('Failed to update notes:', error);
-      res.status(500).json({ 
-        code: 'INTERNAL_ERROR',
-        message: 'Failed to update notes',
-        timestamp: new Date().toISOString(),
-        requestId: Date.now().toString()
-      });
+      res.status(500).json(
+        createErrorResponse('INTERNAL_ERROR', 'Failed to update notes')
+      );
     }
   }
 });
@@ -957,14 +908,11 @@ app.patch('/api/projects/:projectId/tasks/:taskName/implementation', async (req,
   try {
     const { projectId, taskName } = req.params;
     const { implementation_notes } = req.body;
-    
+
     if (!Array.isArray(implementation_notes)) {
-      return res.status(400).json({ 
-        code: 'VALIDATION_ERROR',
-        message: 'Implementation notes must be an array',
-        timestamp: new Date().toISOString(),
-        requestId: Date.now().toString()
-      });
+      return res.status(400).json(
+        createErrorResponse('VALIDATION_ERROR', 'Implementation notes must be an array')
+      );
     }
     
     const filePath = getTaskgraphFilePath(projectId);
@@ -982,38 +930,28 @@ app.patch('/api/projects/:projectId/tasks/:taskName/implementation', async (req,
     }
     
     if (!task) {
-      return res.status(404).json({ 
-        code: 'TASK_NOT_FOUND',
-        message: `Task '${taskName}' not found`,
-        details: { taskName, projectId },
-        timestamp: new Date().toISOString(),
-        requestId: Date.now().toString()
-      });
+      return res.status(404).json(
+        createErrorResponse('TASK_NOT_FOUND', `Task '${taskName}' not found`, { taskName, projectId })
+      );
     }
-    
+
     if (!task.addition) {
       task.addition = {};
     }
     task.addition.implementation_notes = implementation_notes;
     await fs.writeFile(filePath, JSON.stringify(taskgraph, null, 2), 'utf-8');
-    
+
     res.json(task);
   } catch (error) {
     if (error.code === 'ENOENT') {
-      res.status(404).json({ 
-        code: 'PROJECT_NOT_FOUND',
-        message: `Project '${req.params.projectId}' not found`,
-        timestamp: new Date().toISOString(),
-        requestId: Date.now().toString()
-      });
+      res.status(404).json(
+        createErrorResponse('PROJECT_NOT_FOUND', `Project '${req.params.projectId}' not found`)
+      );
     } else {
       console.error('Failed to update implementation notes:', error);
-      res.status(500).json({ 
-        code: 'INTERNAL_ERROR',
-        message: 'Failed to update implementation notes',
-        timestamp: new Date().toISOString(),
-        requestId: Date.now().toString()
-      });
+      res.status(500).json(
+        createErrorResponse('INTERNAL_ERROR', 'Failed to update implementation notes')
+      );
     }
   }
 });
@@ -1023,14 +961,11 @@ app.patch('/api/projects/:projectId/tasks/:taskName/requirements', async (req, r
   try {
     const { projectId, taskName } = req.params;
     const { requirements } = req.body;
-    
+
     if (!Array.isArray(requirements)) {
-      return res.status(400).json({ 
-        code: 'VALIDATION_ERROR',
-        message: 'Requirements must be an array',
-        timestamp: new Date().toISOString(),
-        requestId: Date.now().toString()
-      });
+      return res.status(400).json(
+        createErrorResponse('VALIDATION_ERROR', 'Requirements must be an array')
+      );
     }
     
     const filePath = getTaskgraphFilePath(projectId);
@@ -1048,38 +983,28 @@ app.patch('/api/projects/:projectId/tasks/:taskName/requirements', async (req, r
     }
     
     if (!task) {
-      return res.status(404).json({ 
-        code: 'TASK_NOT_FOUND',
-        message: `Task '${taskName}' not found`,
-        details: { taskName, projectId },
-        timestamp: new Date().toISOString(),
-        requestId: Date.now().toString()
-      });
+      return res.status(404).json(
+        createErrorResponse('TASK_NOT_FOUND', `Task '${taskName}' not found`, { taskName, projectId })
+      );
     }
-    
+
     if (!task.addition) {
       task.addition = {};
     }
     task.addition.requirements = requirements;
     await fs.writeFile(filePath, JSON.stringify(taskgraph, null, 2), 'utf-8');
-    
+
     res.json(task);
   } catch (error) {
     if (error.code === 'ENOENT') {
-      res.status(404).json({ 
-        code: 'PROJECT_NOT_FOUND',
-        message: `Project '${req.params.projectId}' not found`,
-        timestamp: new Date().toISOString(),
-        requestId: Date.now().toString()
-      });
+      res.status(404).json(
+        createErrorResponse('PROJECT_NOT_FOUND', `Project '${req.params.projectId}' not found`)
+      );
     } else {
       console.error('Failed to update requirements:', error);
-      res.status(500).json({ 
-        code: 'INTERNAL_ERROR',
-        message: 'Failed to update requirements',
-        timestamp: new Date().toISOString(),
-        requestId: Date.now().toString()
-      });
+      res.status(500).json(
+        createErrorResponse('INTERNAL_ERROR', 'Failed to update requirements')
+      );
     }
   }
 });
