@@ -134,14 +134,14 @@ const handleNodeClick = (event: NodeClickEvent) => {
   if (props.readOnly) return;
   const nodeId = event.node?.id;
   if (nodeId) {
-    uiStore.setSelectedTaskId(nodeId);
+    uiStore.selectTask(nodeId);
   }
 };
 
 // タスククリックハンドラ
 const handleTaskClick = (taskId: string) => {
   if (props.readOnly) return;
-  uiStore.setSelectedTaskId(taskId);
+  uiStore.selectTask(taskId);
 };
 
 // エッジクリックハンドラ
